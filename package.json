@@ -1,0 +1,14 @@
+{
+  "name": "mmaxr-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:sim": "tsx test-pilot.ts"
+  },
+  "devDependencies": {
+    "@mmaxr/domain-simulation": "workspace:*",
+    "@mmaxr/schema": "workspace:*",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

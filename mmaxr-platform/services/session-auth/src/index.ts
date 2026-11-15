@@ -1,0 +1,75 @@
+import express from 'express';
+import cors from 'cors';
+import { createClient } from 'redis';
+import { v4 as uuidv4 } from 'uuid';
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const redisClient = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379'
+});
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
+redisClient.connect().then(() => console.log('✅ Connected to Redis'));
+
+// Endpoint to generate a new session
+app.post('/auth/session', async (req, res) => {
+  try {
+    const { studentId } = req.body;
+
+    if (!studentId) {
+      if (!res.headersSent) return res.status(400).json({ error: 'studentId is required' });
+      return;
+    }
+
+    const sessionId = `sess_${uuidv4()}`;
+    const token = `tok_${uuidv4()}`;
+    
+    // Store session in Redis for 24 hours (86400 seconds)
+    await redisClient.setEx(
+      `session:${sessionId}`, 
+      86400, 
+      JSON.stringify({ studentId, token, createdAt: Date.now() })
+    );
+
+    console.log(`[Auth] Created session ${sessionId} for student ${studentId}`);
+
+    if (!res.headersSent) {
+      res.status(201).json({ sessionId, token, studentId });
+    }
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+// Endpoint to verify a session
+app.get('/auth/verify/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const sessionData = await redisClient.get(`session:${sessionId}`);
+
+    if (!sessionData) {
+      if (!res.headersSent) return res.status(404).json({ error: 'Session not found or expired' });
+      return;
+    }
+
+    if (!res.headersSent) {
+      res.json(JSON.parse(sessionData));
+    }
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+const PORT = process.env.PORT || 3004;
+app.listen(PORT, () => {
+  console.log(`🔐 Session Auth Service running on http://localhost:${PORT}`);
+});

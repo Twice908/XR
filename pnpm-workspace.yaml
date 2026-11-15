@@ -1,0 +1,9 @@
+packages:
+  - 'mmaxr-contracts/packages/*'
+  - 'mmaxr-platform/services/*'
+  - 'mmaxr-webxr-client'
+  - 'mmaxr-analysis/services/*'
+  - 'mmaxr-ai/packages/*'
+  - 'mmaxr-ai/services/*'
+allowBuilds:
+  esbuild: true

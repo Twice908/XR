@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMAXR Instructor Dashboard</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #1a1a1a; color: #fff; padding: 2rem; }
+    .card { background: #2a2a2a; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
+    .score { font-size: 2rem; font-weight: bold; color: #4ade80; }
+    .trace-item { border-bottom: 1px solid #444; padding: 0.5rem 0; display: flex; justify-content: space-between; }
+    select, button { padding: 0.5rem 1rem; font-size: 1rem; border-radius: 4px; }
+    select { width: 300px; background: #333; color: white; border: 1px solid #555; }
+  </style>
+</head>
+<body>
+  <h1>Instructor Dashboard</h1>
+  
+  <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+    <select id="sessionSelect">
+      <option value="">Loading sessions...</option>
+    </select>
+    <button onclick="loadSession()">Analyze Session</button>
+  </div>
+
+  <div id="results" style="display: none;">
+    <div class="card">
+      <h2>Rubric Scores</h2>
+         <div class="card">
+      <h2>Rubric Scores</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div>
+          <p>Prediction</p>
+          <div class="score" id="score-prediction">0</div>
+        </div>
+        <div>
+          <p>Retrieval</p>
+          <div class="score" id="score-retrieval">0</div>
+        </div>
+        <div>
+          <p>Revision</p>
+          <div class="score" id="score-revision">0</div>
+        </div>
+        <div>
+          <p>Causal</p>
+          <div class="score" id="score-causal">0</div>
+        </div>
+        <div>
+          <p>Metacognition</p>
+          <div class="score" id="score-meta">0</div>
+        </div>
+        <div>
+          <p>Transfer</p>
+          <div class="score" id="score-transfer">0</div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="card">
+      <h2>Action Trace</h2>
+      <div id="trace-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Load sessions on page load
+    async function loadSessions() {
+      try {
+        const res = await fetch('http://localhost:3002/sessions');
+        const sessions = await res.json();
+        const select = document.getElementById('sessionSelect');
+        select.innerHTML = '';
+        
+        if (sessions.length === 0) {
+          select.innerHTML = '<option value="">No sessions found</option>';
+          return;
+        }
+
+        sessions.forEach(s => {
+          const date = new Date(Number(s.last_update)).toLocaleTimeString();
+          select.innerHTML += `<option value="${s.session_id}">${s.session_id} (${s.event_count} events, ${date})</option>`;
+        });
+      } catch (e) {
+        alert("Could not connect to backend. Is it running?");
+      }
+    }
+
+    // 2. Analyze selected session
+    async function loadSession() {
+      const sessionId = document.getElementById('sessionSelect').value;
+      if (!sessionId) return;
+
+      const res = await fetch(`http://localhost:3002/analyze/${sessionId}`);
+      const data = await res.json();
+
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('score-prediction').textContent = `${data.scores.predictionDiscipline} / 3`;
+      document.getElementById('score-retrieval').textContent = `${data.scores.retrievalEffort} / 3`;
+      document.getElementById('score-revision').textContent = `${data.scores.revisionQuality} / 3`;
+      document.getElementById('score-causal').textContent = `${data.scores.causalCoherence} / 3`;
+      document.getElementById('score-meta').textContent = `${data.scores.metacognitiveCalibration} / 3`;
+      document.getElementById('score-transfer').textContent = `${data.scores.transfer} / 3`;
+
+      const traceList = document.getElementById('trace-list');
+      traceList.innerHTML = '';
+      data.trace.forEach(event => {
+        const time = new Date(Number(event.timestamp)).toLocaleTimeString();
+        traceList.innerHTML += `
+          <div class="trace-item">
+            <span><strong>${event.verb}</strong> - ${JSON.stringify(event.object_data)}</span>
+            <span style="color: #888;">${time}</span>
+          </div>
+        `;
+      });
+    }
+
+    loadSessions();
+  </script>
+</body>
+</html>
