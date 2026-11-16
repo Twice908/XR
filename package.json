@@ -3,11 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test:sim": "tsx test-pilot.ts"
+    "test:sim": "tsx test-pilot.ts",
+    "dev:backend": "concurrently -k -n \"auth,emit,store,sensor,ai,rubric,lesson\" -c \"blue,green,yellow,magenta,cyan,red,white\" \"pnpm --filter ./mmaxr-platform/services/session-auth dev\" \"pnpm --filter ./mmaxr-platform/services/xapi-emitter dev\" \"pnpm --filter ./mmaxr-platform/services/object-store dev\" \"pnpm --filter ./mmaxr-platform/services/sensor-stream dev\" \"pnpm --filter ./mmaxr-ai/services/ai-coach dev\" \"pnpm --filter ./mmaxr-analysis/services/rubric-engine dev\" \"pnpm --filter ./mmaxr-platform/services/lesson-loader dev\"",
+    "dev:frontend": "concurrently -k -n \"webxr,dashboard\" -c \"cyan,green\" \"pnpm --filter ./mmaxr-webxr-client dev\" \"pnpm --filter ./mmaxr-analysis/apps/instructor-dashboard dev\"",
+    "dev:all": "concurrently -k -n \"auth,emit,store,sensor,ai,rubric,lesson,webxr,dashboard\" -c \"blue,green,yellow,magenta,cyan,red,white,cyan,green\" \"pnpm --filter ./mmaxr-platform/services/session-auth dev\" \"pnpm --filter ./mmaxr-platform/services/xapi-emitter dev\" \"pnpm --filter ./mmaxr-platform/services/object-store dev\" \"pnpm --filter ./mmaxr-platform/services/sensor-stream dev\" \"pnpm --filter ./mmaxr-ai/services/ai-coach dev\" \"pnpm --filter ./mmaxr-analysis/services/rubric-engine dev\" \"pnpm --filter ./mmaxr-platform/services/lesson-loader dev\" \"pnpm --filter ./mmaxr-webxr-client dev\" \"pnpm --filter ./mmaxr-analysis/apps/instructor-dashboard dev\""
   },
   "devDependencies": {
-    "@mmaxr/domain-simulation": "workspace:*",
-    "@mmaxr/schema": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.5",
+    "autoprefixer": "^10.6.2",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^4.3.5",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }

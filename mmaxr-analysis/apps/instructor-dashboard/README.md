@@ -1,48 +1,38 @@
-# Instructor Dashboard
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Purpose
+## Getting Started
 
-Define a read-only instructor interface for reviewing assessment process
-evidence, deterministic rubric results, follow-up flags, and explain-back audio.
+First, run the development server:
 
-## Responsibilities
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- Present a timeline view of the learner's pseudonymous action trace.
-- Display rubric scores for all six dimensions with links to their evidence.
-- Display process-pattern flags returned by `followup-generator`.
-- Provide authorized explain-back audio playback from object storage.
-- Keep the dashboard read-only and separate from scoring and generation logic.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Interface Contract
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- Consume rubric results from `rubric-engine`.
-- Consume xAPI timeline data from `mmaxr-platform/lrs`.
-- Consume process-pattern flags from the follow-up analysis API.
-- Resolve audio playback through authorized object-store access.
-- Do not call an LLM, calculate scores, mutate records, or expose direct
-  identifiers.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Dependencies
+Tailwind CSS v4 is configured in `app/globals.css` and `postcss.config.mjs`.
 
-- `rubric-engine` HTTP API.
-- `mmaxr-platform` LRS query API.
-- `mmaxr-platform` object-store signed URL API.
-- Follow-up generator process-pattern flag API.
-- `mmaxr-contracts` for shared event and rubric dimension definitions.
+## Learn More
 
-## Tech Stack
+To learn more about Next.js, take a look at the following resources:
 
-- React with Vite — proposed lightweight dashboard app; no state-management
-  library until the demonstrated needs justify one.
-- TypeScript — typed contracts and API response handling.
-- Browser audio playback — explain-back review through authorized object
-  access.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Open Questions
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-- Should the dashboard use React + Vite or Next.js?
-- What role and session authorization model applies to instructor access?
-- Which timeline filters and evidence navigation affordances are required?
-- How are signed audio URLs refreshed during playback?
+## Deploy on Vercel
 
-## Status: NOT IMPLEMENTED
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

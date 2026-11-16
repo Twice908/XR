@@ -17,7 +17,7 @@ redisClient.connect().then(() => console.log('✅ Connected to Redis'));
 // Endpoint to generate a new session
 app.post('/auth/session', async (req, res) => {
   try {
-    const { studentId } = req.body;
+    const { studentId, lessonId } = req.body; // Now accepts lessonId
 
     if (!studentId) {
       if (!res.headersSent) return res.status(400).json({ error: 'studentId is required' });
@@ -31,13 +31,13 @@ app.post('/auth/session', async (req, res) => {
     await redisClient.setEx(
       `session:${sessionId}`, 
       86400, 
-      JSON.stringify({ studentId, token, createdAt: Date.now() })
+      JSON.stringify({ studentId, lessonId: lessonId || 'physics-101', token, createdAt: Date.now() })
     );
 
-    console.log(`[Auth] Created session ${sessionId} for student ${studentId}`);
+    console.log(`[Auth] Created session ${sessionId} for student ${studentId} (Lesson: ${lessonId || 'physics-101'})`);
 
     if (!res.headersSent) {
-      res.status(201).json({ sessionId, token, studentId });
+      res.status(201).json({ sessionId, token, studentId, lessonId: lessonId || 'physics-101' });
     }
   } catch (err) {
     console.error(err);

@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-101",
+  "title": "Bohr Model Spectral Lab",
+  "modelUrl": "http://localhost:3007/assets/models/spectrometer.glb",
+  "simulation": {
+    "atomicNumber": 1,
+    "nInitial": 3,
+    "nFinal": 2,
+    "anomalyTrialNumber": 4,
+    "anomalyShiftMultiplier": 1.15
+  }
+}

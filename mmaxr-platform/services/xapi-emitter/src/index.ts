@@ -34,24 +34,30 @@ initDB();
 
 // The Endpoint the VR client will hit
 app.post('/events', async (req, res) => {
-  const event: TelemetryEvent = req.body;
-  
-  if (!event.sessionId || !event.verb) {
-    return res.status(400).json({ error: 'Invalid event payload' });
-  }
-
   try {
-    await pool.query(
-      `INSERT INTO xapi_events (session_id, student_id, verb, object_data, timestamp) 
-       VALUES ($1, $2, $3, $4, $5)`,
-      [event.sessionId, event.studentId, event.verb, event.object, event.timestamp]
-    );
+    // Check if the client sent an array of events or a single event
+    const events = Array.isArray(req.body) ? req.body : req.body.events ? req.body.events : [req.body];
     
-    console.log(`[DB Insert] ${event.verb} recorded for session ${event.sessionId}`);
-    res.status(201).json({ success: true });
+    if (!events || events.length === 0) {
+      return res.status(400).json({ error: 'No events provided' });
+    }
+
+    // Loop through and save each event to Postgres
+    for (const event of events) {
+      if (!event.sessionId || !event.verb) continue; // Skip invalid ones
+
+      await pool.query(
+        `INSERT INTO xapi_events (session_id, student_id, verb, object_data, timestamp) 
+         VALUES ($1, $2, $3, $4, $5)`,
+        [event.sessionId, event.studentId || 'unknown', event.verb, event.object || {}, event.timestamp]
+      );
+    }
+    
+    console.log(`[DB Insert] ${events.length} event(s) recorded.`);
+    res.status(201).json({ success: true, count: events.length });
   } catch (err) {
     console.error('DB Insert Error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    if (!res.headersSent) res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -59,3 +65,4 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 xAPI Emitter running on http://localhost:${PORT}`);
 });
+

@@ -250,6 +250,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &215935117
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 215935118}
+  - component: {fileID: 215935119}
+  m_Layer: 0
+  m_Name: TestHarness
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &215935118
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 215935117}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2177.1472, y: -0, z: -1615.4653}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &215935119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 215935117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9545425871ace46d2bbe44c25b11fa15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MMAXR.Testing.BootTestHarness
+  telemetry: {fileID: 460102448}
+  sensorLogger: {fileID: 460102450}
+  modelRoot: {fileID: 674083256}
+  studentId: student_99
+  lessonId: physics-101
+  lessonUrl: http://localhost:3007/lessons/active
+  sensorTestSeconds: 3
+  mockLessonJson: 
+  runAuth: 1
+  runLessonParse: 1
+  runGltf: 1
+  runSensorUpload: 1
+  runOnStart: 0
 --- !u!1 &285751550
 GameObject:
   m_ObjectHideFlags: 0
@@ -861,7 +918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e548cfb85004f4b08a05ba10f5669ecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpectralSimulation
-  atomicNumber: 1
+  modelAnchor: {fileID: 0}
 --- !u!4 &416989018
 Transform:
   m_ObjectHideFlags: 0
@@ -889,6 +946,7 @@ GameObject:
   - component: {fileID: 460102449}
   - component: {fileID: 460102448}
   - component: {fileID: 460102447}
+  - component: {fileID: 460102450}
   m_Layer: 0
   m_Name: LabManager
   m_TagString: Untagged
@@ -923,7 +981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e548cfb85004f4b08a05ba10f5669ecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpectralSimulation
-  atomicNumber: 1
+  modelAnchor: {fileID: 0}
 --- !u!114 &460102448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -936,6 +994,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5bdc4f380bf4400fa823418e872bfbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TelemetryClient
+  authUrl: http://localhost:3004/auth/session
+  authTimeoutSeconds: 10
 --- !u!114 &460102449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -948,9 +1008,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96c354b0d62cb480ba839a847641bd72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LabController
-  mainCamera: {fileID: 330585545}
-  predictionMarker: {fileID: 1758894593}
-  resultLine: {fileID: 1958940822}
+  telemetry: {fileID: 0}
+  simulation: {fileID: 0}
+  sensorLogger: {fileID: 0}
+  modelRoot: {fileID: 0}
+  studentId: student_99
+  lessonId: physics-101
+  activeLessonUrl: http://localhost:3007/lessons/active
+  autoBootOnStart: 0
+  lessonTimeoutSeconds: 15
+--- !u!114 &460102450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460102445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7906a59916246a9860b45531ec6057, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MMAXR.Sensors.SensorLogger
+  head: {fileID: 330585546}
+  leftHand: {fileID: 1826670629}
+  rightHand: {fileID: 1651464782}
+  sampleHz: 30
+  uploadBaseUrl: http://localhost:3005/upload
+  uploadTimeoutSeconds: 30
 --- !u!1 &497645517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2066,6 +2150,37 @@ MonoBehaviour:
   chatInput: {fileID: 497645519}
   sendButton: {fileID: 1892465977}
   chatHistoryText: {fileID: 368241240}
+--- !u!1 &1651464781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1651464782}
+  m_Layer: 0
+  m_Name: two
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1651464782
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651464781}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2177.148, y: 0, z: -1615.4653}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1732981018
 GameObject:
   m_ObjectHideFlags: 0
@@ -2550,6 +2665,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823980022}
   m_CullTransparentMesh: 1
+--- !u!1 &1826670628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1826670629}
+  m_Layer: 0
+  m_Name: one
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1826670629
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826670628}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2177.148, y: 0, z: -1615.4653}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1892465975
 GameObject:
   m_ObjectHideFlags: 0
@@ -2931,3 +3077,6 @@ SceneRoots:
   - {fileID: 1956290723}
   - {fileID: 207660088}
   - {fileID: 1452644704}
+  - {fileID: 215935118}
+  - {fileID: 1826670629}
+  - {fileID: 1651464782}

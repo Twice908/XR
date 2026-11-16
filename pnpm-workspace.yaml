@@ -2,6 +2,7 @@ packages:
   - 'mmaxr-contracts/packages/*'
   - 'mmaxr-platform/services/*'
   - 'mmaxr-webxr-client'
+  - 'mmaxr-analysis/apps/*'
   - 'mmaxr-analysis/services/*'
   - 'mmaxr-ai/packages/*'
   - 'mmaxr-ai/services/*'

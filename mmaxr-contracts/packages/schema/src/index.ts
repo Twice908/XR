@@ -33,3 +33,28 @@ export interface TelemetryEvent {
     value?: number | string;
   };
 }
+
+// 4. The Lesson Contract (Shared between WebXR and Unity)
+export interface LessonContract {
+  lessonId: string;
+  title: string;
+  modelUrl: string;
+  simulation: {
+    atomicNumber: number;
+    nInitial: number;
+    nFinal: number;
+    anomalyTrialNumber: number;
+    anomalyShiftMultiplier: number;
+  };
+}
+
+// 5. The 30Hz Sensor Data Row (CSV format)
+export interface SensorDataRow {
+  timestamp: number;
+  head_x: number;
+  head_y: number;
+  head_z: number;
+  hand_x: number;
+  hand_y: number;
+  hand_z: number;
+}
