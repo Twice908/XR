@@ -35,8 +35,36 @@ export interface TelemetryEvent {
 }
 
 // 4. The Lesson Contract (Shared between WebXR and Unity)
-export interface LessonContract {
+// export interface LessonContract {
+//   lessonId: string;
+//   title: string;
+//   modelUrl: string;
+//   simulation: {
+//     atomicNumber: number;
+//     nInitial: number;
+//     nFinal: number;
+//     anomalyTrialNumber: number;
+//     anomalyShiftMultiplier: number;
+//   };
+// }
+
+// 5. The 30Hz Sensor Data Row (CSV format)
+export interface SensorDataRow {
+  timestamp: number;
+  head_x: number;
+  head_y: number;
+  head_z: number;
+  hand_x: number;
+  hand_y: number;
+  hand_z: number;
+}
+// 6. chemistry lesson contract
+
+export type LessonContract = PhysicsLessonContract | ChemistryLessonContract;
+
+export interface PhysicsLessonContract {
   lessonId: string;
+  type: "physics_bohr";
   title: string;
   modelUrl: string;
   simulation: {
@@ -48,13 +76,36 @@ export interface LessonContract {
   };
 }
 
-// 5. The 30Hz Sensor Data Row (CSV format)
-export interface SensorDataRow {
-  timestamp: number;
-  head_x: number;
-  head_y: number;
-  head_z: number;
-  hand_x: number;
-  hand_y: number;
-  hand_z: number;
+export interface ChemistryIndicator {
+  id: string;
+  name: string;
+  source: string;
+  isPhTest?: boolean;
+  colors: {
+    neutral: string;
+    acid: string;
+    base: string;
+  };
+}
+
+export interface ChemistrySolution {
+  id: string;
+  name: string;
+  formula: string;
+  type: "acid" | "base" | "neutral";
+  ph: number;
+}
+
+export interface ChemistryLessonContract {
+  lessonId: string;
+  type: "chemistry_indicators";
+  title: string;
+  modelUrl: string;
+  config: {
+    totalTestTubes: number;
+    requiredIndicatorsToSelect: number;
+  };
+  indicators: ChemistryIndicator[];
+  // Note: This is the randomized assignment for THIS specific session
+  assignedSolutions: ChemistrySolution[]; 
 }
