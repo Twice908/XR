@@ -26,6 +26,13 @@ export interface SensorData {
   samples: Sample[];
 }
 
+/** The hidden answers for a session, read from the lesson service. Never sent by the browser. */
+export interface TruthInfo {
+  tubes: { tube: number; type: string; ph: number }[];
+  /** What the student locked in at submission, held by the server. */
+  submission: { tubes: { tube: number; conclusion: string | null; ph: number | null }[] } | null;
+}
+
 export type DimensionKey =
   | 'predictionDiscipline'
   | 'retrievalEffort'

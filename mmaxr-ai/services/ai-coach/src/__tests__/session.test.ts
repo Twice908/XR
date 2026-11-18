@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CoachSession } from '../session';
 import { ProviderError, type CompletionRequest, type LlmProvider, type ProviderName } from '../providers';
 import type { ProviderRegistry } from '../providers';
-import type { ServerMessage, Snapshot } from '../protocol';
+import type { Assignment, ServerMessage, Snapshot } from '../protocol';
 
 function fakeRegistry(reply: string | ((r: CompletionRequest) => string) | Error) {
   const seen: CompletionRequest[] = [];
@@ -19,9 +19,9 @@ function fakeRegistry(reply: string | ((r: CompletionRequest) => string) | Error
   return { registry: { active: p } as unknown as ProviderRegistry, seen };
 }
 
-const secrets = [
-  { tube: 1, terms: ['Hydrochloric Acid', 'HCl'], verdict: 'acid', ph: 1 },
-  { tube: 2, terms: ['Sodium Chloride', 'NaCl'], verdict: 'neutral', ph: 7 },
+const tubes: Assignment['tubes'] = [
+  { tube: 1, id: 'hcl', name: 'Hydrochloric Acid', formula: 'HCl', type: 'acid', ph: 1 },
+  { tube: 2, id: 'nacl', name: 'Sodium Chloride', formula: 'NaCl', type: 'neutral', ph: 7 },
 ];
 const snapshot: Snapshot = {
   phase: 'testing',
@@ -30,11 +30,12 @@ const snapshot: Snapshot = {
   tubes: [{ n: 1, tests: [{ tool: 'Litmus Paper', predicted: 'Blue', observed: 'Red', matched: false, recorded: null }], conclusion: null, revisions: 0, recordedPh: null }],
 };
 
-function setup(reply: Parameters<typeof fakeRegistry>[0], clock = { t: 1_000_000 }) {
+function setup(reply: Parameters<typeof fakeRegistry>[0], opts: { submitted?: boolean; assignment?: Assignment | null } = {}, clock = { t: 1_000_000 }) {
   const { registry, seen } = fakeRegistry(reply);
   const out: ServerMessage[] = [];
-  const s = new CoachSession({ registry, send: (m) => out.push(m), now: () => clock.t });
-  void s.handle({ type: 'hello', lessonId: 'chemistry-101', title: 'Acids, Bases & Indicators', labType: 'chemistry_indicators', secrets });
+  const assignment = opts.assignment === undefined ? { submitted: opts.submitted ?? false, tubes } : opts.assignment;
+  const s = new CoachSession({ registry, loadAssignment: async () => assignment, send: (m) => out.push(m), now: () => clock.t });
+  void s.handle({ type: 'hello', lessonId: 'chemistry-101', title: 'Acids, Bases & Indicators', labType: 'chemistry_indicators' });
   return { s, out, seen, clock };
 }
 const coach = (out: ServerMessage[]) => out.filter((m): m is Extract<ServerMessage, { type: 'coach' }> => m.type === 'coach');
@@ -104,13 +105,32 @@ describe('CoachSession', () => {
     expect(coach(out)).toHaveLength(2);
   });
 
-  it('after the reveal the answers go into the prompt and the guard opens up', async () => {
-    const { s, seen, out } = setup('Tube 1 held hydrochloric acid, a strong acid, which is why litmus went red.');
-    await s.handle({ type: 'reveal', truth: [{ tube: 1, name: 'Hydrochloric Acid', formula: 'HCl', type: 'acid', ph: 1 }], snapshot });
+  it('after the server confirms submission, the answers go into the prompt and the guard opens up', async () => {
+    const { s, seen, out } = setup('Tube 1 held hydrochloric acid, a strong acid, which is why litmus went red.', { submitted: true });
+    await s.handle({ type: 'reveal', snapshot });
     expect(seen[0].system).toContain('Hydrochloric Acid (HCl)');
     const m = coach(out)[0];
     expect(m).toMatchObject({ reason: 'wrapup', blocked: false });
     expect(m.text).toContain('hydrochloric');
+  });
+
+  it('refuses to wrap up (and discloses nothing) until the lesson service says the analysis was submitted', async () => {
+    const { s, seen, out } = setup('Tube 1 held hydrochloric acid.', { submitted: false });
+    await s.handle({ type: 'reveal', snapshot });
+    expect(seen).toHaveLength(0);
+    expect(coach(out)).toHaveLength(0);
+  });
+
+  it('fails closed when the answers cannot be loaded: verdict claims are still blocked', async () => {
+    const { s, out } = setup('Tube 2 is neutral, I think.', { assignment: null });
+    await s.handle({ type: 'ask', text: 'what is tube 2?', snapshot });
+    expect(coach(out)[0].blocked).toBe(true);
+  });
+
+  it('never trusts a browser-supplied reveal payload', async () => {
+    const { s, seen } = setup('Hello', { submitted: false });
+    await s.handle({ type: 'reveal', snapshot, truth: [{ tube: 1, name: 'Hydrochloric Acid', formula: 'HCl', type: 'acid', ph: 1 }] } as never);
+    expect(seen).toHaveLength(0);
   });
 
   it('keeps a bounded conversation history', async () => {

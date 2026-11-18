@@ -1,10 +1,10 @@
-import { PH_TOOL, truthOf, type ChemistryExperiment } from '../state/chemistry'
-import type { SecretTube, Snapshot, TruthTube } from '../services/aiCoach'
+import { PH_TOOL, type ChemistryExperiment } from '../state/chemistry'
+import type { Snapshot } from '../services/aiCoach'
 import { sameColor } from '../services/colors'
 
 /**
- * What the coach is allowed to know while the lab is running: only things already on the student's screen.
- * The hidden answers are sent separately and only to the coach's deterministic answer guard.
+ * What the coach is told: only things already on the student's screen. The coach service reads the hidden
+ * answers itself from the lesson service, so none of that passes through the browser.
  */
 export function buildSnapshot(exp: ChemistryExperiment): Snapshot {
   const name = (tool: string) => (tool === PH_TOOL ? 'universal pH paper' : (exp.indicator(tool)?.name ?? tool))
@@ -26,14 +26,6 @@ export function buildSnapshot(exp: ChemistryExperiment): Snapshot {
       recordedPh: t.recordedPh,
     })),
   }
-}
-
-export function buildSecrets(exp: ChemistryExperiment): SecretTube[] {
-  return exp.tubes.map((t) => ({ tube: t.index + 1, terms: [t.solution.name, t.solution.formula], verdict: truthOf(t.solution), ph: t.solution.ph }))
-}
-
-export function buildTruth(exp: ChemistryExperiment): TruthTube[] {
-  return exp.tubes.map((t) => ({ tube: t.index + 1, name: t.solution.name, formula: t.solution.formula, type: truthOf(t.solution), ph: t.solution.ph }))
 }
 
 export const describe = {

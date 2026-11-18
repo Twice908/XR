@@ -4,7 +4,7 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { WebSocketServer, type WebSocket } from 'ws';
 import { ProviderRegistry } from './providers';
-import { MODES, type ClientMessage, type ServerMessage } from './protocol';
+import { MODES, type Assignment, type ClientMessage, type ServerMessage } from './protocol';
 import { CoachSession } from './session';
 
 // Local development keys live in ai-coach/.env (untracked). Never log their values.
@@ -16,6 +16,8 @@ try {
 
 const PORT = Number(process.env.PORT || process.env.AI_COACH_PORT || 3003);
 const SESSION_AUTH_URL = process.env.SESSION_AUTH_URL || 'http://localhost:3004';
+const LESSON_LOADER_URL = process.env.LESSON_LOADER_URL || 'http://localhost:3007';
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev';
 const REQUIRE_SESSION = process.env.AI_COACH_REQUIRE_SESSION !== 'false';
 const JWT_SECRET = process.env.JWT_SECRET || 'mmaxr-dev-secret-change-me';
 const ALLOWED_ORIGINS = (process.env.AI_COACH_ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
@@ -71,7 +73,14 @@ wss.on('connection', async (ws: WebSocket, req) => {
 
   const tag = (url.searchParams.get('sessionId') || 'anon').slice(0, 14);
   const send = (m: ServerMessage) => ws.readyState === ws.OPEN && ws.send(JSON.stringify(m));
-  const session = new CoachSession({ registry, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
+  const sessionId = url.searchParams.get('sessionId') || '';
+  const loadAssignment = async () => {
+    const res = await fetch(`${LESSON_LOADER_URL}/internal/assignments/${encodeURIComponent(sessionId)}`, { headers: { 'x-internal-key': INTERNAL_KEY } });
+    if (!res.ok) return null;
+    const a = (await res.json()) as { submitted: boolean; tubes: Assignment['tubes'] };
+    return { submitted: a.submitted === true, tubes: a.tubes ?? [] };
+  };
+  const session = new CoachSession({ registry, loadAssignment, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
   console.log(`[ai-coach ${tag}] connected (provider ${registry.active.name})`);
   session.announce();
 

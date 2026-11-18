@@ -184,6 +184,9 @@ importers:
       express:
         specifier: ^4.18.2
         version: 4.22.3
+      redis:
+        specifier: ^4.6.13
+        version: 4.7.1
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -191,6 +194,12 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/node':
+        specifier: ^20.11.24
+        version: 20.19.43
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@20.19.43)(lightningcss@1.33.0)
 
   mmaxr-platform/services/object-store:
     dependencies:

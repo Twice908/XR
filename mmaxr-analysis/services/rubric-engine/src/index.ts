@@ -3,7 +3,7 @@ import cors from 'cors';
 import { Pool } from 'pg';
 import jwt from 'jsonwebtoken';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { analyze, parseSensorCsv, type EventRow, type SensorData } from './scoring';
+import { analyze, parseSensorCsv, type EventRow, type SensorData, type TruthInfo } from './scoring';
 
 const app = express();
 app.use(cors());
@@ -56,6 +56,21 @@ async function getSensorData(sessionId: string): Promise<SensorData | null> {
     return csv ? parseSensorCsv(csv) : null;
   } catch (err) {
     console.error('Error fetching sensor CSV:', err);
+    return null;
+  }
+}
+
+const LESSON_LOADER_URL = process.env.LESSON_LOADER_URL || 'http://localhost:3007';
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev';
+
+/** The hidden answers and the locked submission for a chemistry session, from the lesson service. Null if there are none. */
+async function getTruth(sessionId: string): Promise<TruthInfo | null> {
+  try {
+    const res = await fetch(`${LESSON_LOADER_URL}/internal/assignments/${encodeURIComponent(sessionId)}`, { headers: { 'x-internal-key': INTERNAL_KEY } });
+    if (!res.ok) return null;
+    const a = (await res.json()) as { tubes: TruthInfo['tubes']; submission: { tubes: { tube: number; conclusion: string | null; ph: number | null }[] } | null };
+    return { tubes: a.tubes ?? [], submission: a.submission ?? null };
+  } catch {
     return null;
   }
 }
@@ -123,8 +138,8 @@ app.get('/analyze/:sessionId', requireInstructor, async (req, res) => {
     if (result.rows.length === 0) return res.status(404).json({ error: 'Session not found' });
 
     const events: EventRow[] = result.rows.map((r) => ({ id: Number(r.id), verb: r.verb, object_data: r.object_data, timestamp: Number(r.timestamp), device: r.device }));
-    const sensor = await getSensorData(sessionId);
-    const report = analyze(events, sensor);
+    const [sensor, truth] = await Promise.all([getSensorData(sessionId), getTruth(sessionId)]);
+    const report = analyze(events, sensor, truth);
 
     // Legacy flat score map, kept for scripts that read `scores.<dimension>`.
     const scores = Object.fromEntries(report.dimensions.map((d) => [d.key, d.score ?? 0]));

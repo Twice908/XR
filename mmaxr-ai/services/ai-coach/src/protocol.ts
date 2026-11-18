@@ -1,5 +1,3 @@
-import type { SecretTube } from '@mmaxr/guardrails';
-
 export type Mode = 'proactive' | 'on_request' | 'off';
 export const MODES: Mode[] = ['proactive', 'on_request', 'off'];
 
@@ -25,6 +23,7 @@ export interface Snapshot {
   tubes: TubeView[];
 }
 
+/** The hidden answers, read by the coach from the lesson service. Never supplied by the browser. */
 export interface TruthTube {
   tube: number;
   name: string;
@@ -39,8 +38,6 @@ export interface Hello {
   /** The lesson type, e.g. chemistry_indicators. */
   labType: string;
   summary?: string;
-  /** Used only by the deterministic answer guard. Never put into a prompt before the reveal. */
-  secrets?: SecretTube[];
 }
 
 export type EventKind = 'prediction_mismatch' | 'revision' | 'ph_unlocked' | 'ready_to_submit' | 'idle';
@@ -50,7 +47,7 @@ export type ClientMessage =
   | { type: 'mode'; mode: Mode }
   | { type: 'ask'; text: string; snapshot?: Snapshot }
   | { type: 'event'; kind: EventKind; detail?: string; snapshot?: Snapshot }
-  | { type: 'reveal'; truth: TruthTube[]; snapshot?: Snapshot };
+  | { type: 'reveal'; snapshot?: Snapshot };
 
 export type CoachReason = 'reply' | 'nudge' | 'wrapup';
 
@@ -61,3 +58,8 @@ export type ServerMessage =
   | { type: 'mode'; mode: Mode }
   | { type: 'coach_off' }
   | { type: 'error'; message: string };
+
+export interface Assignment {
+  submitted: boolean;
+  tubes: TruthTube[];
+}

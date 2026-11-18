@@ -1,5 +1,5 @@
 import { COLOR_WORDS, PH_PAPER_SCALE, cssColor, sameColor } from '../services/colors'
-import { PH_TOOL, truthOf, type ChemistryExperiment, type Confidence, type Conclusion, type Summary } from '../state/chemistry'
+import { PH_TOOL, type ChemistryExperiment, type Confidence, type Conclusion, type Summary } from '../state/chemistry'
 import { h } from '../ui/dom'
 import { badge, button, dialog, setDisabled } from '../ui/components'
 
@@ -417,9 +417,9 @@ export class Hud {
     const e = this.exp
     const d = dialog({ title: 'The reveal', description: 'Here is what was really in each tube, next to what you concluded.', wide: true, dismissable: false })
     const rows = e.tubes.map((t) => {
-      const truth = truthOf(t.solution)
-      const ok = t.conclusion === truth
-      const phDiff = t.recordedPh === null ? null : Math.abs(t.recordedPh - t.solution.ph)
+      const truth = t.truth!
+      const ok = t.conclusion === truth.type
+      const phDiff = t.recordedPh === null ? null : Math.abs(t.recordedPh - truth.ph)
       const tools = Object.values(t.results)
         .filter((r) => r.tool !== PH_TOOL)
         .map((r) => `${e.indicator(r.tool)!.name}: ${r.actual}${sameColor(r.predicted, r.actual) ? ' ✓' : ''}`)
@@ -428,8 +428,8 @@ export class Hud {
         'tr',
         null,
         h('td', { class: 't-label' }, `#${t.index + 1}`),
-        h('td', null, h('div', { class: 't-label' }, t.solution.name), h('div', { class: 't-support t-mono' }, t.solution.formula), h('div', { class: 't-support' }, tools)),
-        h('td', null, badge(truth.toUpperCase(), 'info'), ' ', h('span', { class: 't-support' }, `pH ${t.solution.ph}`)),
+        h('td', null, h('div', { class: 't-label' }, truth.name), h('div', { class: 't-support t-mono' }, truth.formula), h('div', { class: 't-support' }, tools)),
+        h('td', null, badge(truth.type.toUpperCase(), 'info'), ' ', h('span', { class: 't-support' }, `pH ${truth.ph}`)),
         h('td', null, badge(t.conclusion ? t.conclusion.toUpperCase() : '—', ok ? 'success' : 'error'), t.conclusionHistory.length > 1 ? h('div', { class: 't-support' }, `changed ${t.conclusionHistory.length - 1}×`) : null),
         h('td', null, t.recordedPh === null ? '—' : badge(`pH ${t.recordedPh}`, phDiff === 0 ? 'success' : phDiff! <= 1 ? 'warning' : 'error')),
       )

@@ -80,10 +80,11 @@ export interface ChemistryIndicator {
   name: string;
   source: string;
   isPhTest?: boolean;
-  colors: {
-    neutral: string;
-    acid: string;
-    base: string;
+  /** The browser only receives `neutral` (the colour of the liquid in the bottle). acid/base stay server-side. */
+  colors?: {
+    neutral?: string;
+    acid?: string;
+    base?: string;
   };
 }
 
@@ -115,8 +116,11 @@ export interface ChemistryLessonContract {
     requiredIndicatorsToSelect: number;
   };
   indicators: ChemistryIndicator[];
-  // Note: This is the randomized assignment for THIS specific session
-  assignedSolutions: ChemistrySolution[]; 
+  /**
+   * Legacy only (Unity prototype via /lessons/active). The web client never receives this: the
+   * assignment lives in lesson-loader and tests are run through POST /sessions/:id/chemistry/test.
+   */
+  assignedSolutions?: ChemistrySolution[]; 
 }
 
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
@@ -139,4 +143,15 @@ export interface AuthUser {
   email: string | null;
   role: UserRole;
   createdAt: string;
+}
+
+
+// 9. Chemistry lab: what the server discloses, and only at submission
+export interface ChemistryRevealTube {
+  tube: number;
+  id: string;
+  name: string;
+  formula: string;
+  type: "acid" | "base" | "neutral";
+  ph: number;
 }

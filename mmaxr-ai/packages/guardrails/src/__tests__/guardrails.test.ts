@@ -56,6 +56,13 @@ describe('secret-aware mode', () => {
     expect(blocked('What does the paper colour tell you about its pH?')).toBe(false);
   });
 
+  it('can fail closed: verdict and pH claims are blocked even with no secrets loaded', () => {
+    const closed: GuardOptions = { allowNumbers: true, secrets: [], enforceTubeClaims: true };
+    expect(blocked('Tube 2 is acidic.', closed)).toBe(true);
+    expect(blocked('The pH of tube 1 is 1', closed)).toBe(true);
+    expect(blocked('Which tube surprised you most?', closed)).toBe(false);
+  });
+
   it('returns a Socratic fallback and the reasons when it blocks', () => {
     const r = applyGuardrails('Tube 1 is HCl', opts);
     expect(r.wasBlocked).toBe(true);

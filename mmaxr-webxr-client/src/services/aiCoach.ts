@@ -30,25 +30,11 @@ export interface Snapshot {
   activeTool: string | null
   tubes: TubeView[]
 }
-export interface TruthTube {
-  tube: number
-  name: string
-  formula: string
-  type: string
-  ph: number
-}
-export interface SecretTube {
-  tube: number
-  terms: string[]
-  verdict?: string
-  ph?: number
-}
 export interface CoachHello {
   lessonId: string
   title: string
   labType: string
   summary?: string
-  secrets?: SecretTube[]
 }
 
 export type CoachServerMessage =
@@ -174,8 +160,9 @@ export class CoachClient {
     // Nudges are only useful live; do not queue them while offline.
     if (this.ws?.readyState === WebSocket.OPEN) this.raw({ type: 'event', kind, detail, snapshot })
   }
-  reveal(truth: TruthTube[], snapshot: Snapshot) {
-    this.raw({ type: 'reveal', truth, snapshot })
+  /** Tell the coach the analysis was submitted. It checks that with the lesson service before it says anything. */
+  reveal(snapshot: Snapshot) {
+    this.raw({ type: 'reveal', snapshot })
   }
   setMode(mode: CoachMode) {
     this.mode = mode

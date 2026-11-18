@@ -1,6 +1,6 @@
 import { scoreChemistry } from './chemistry';
 import { scorePhysics } from './physics';
-import type { Device, EventRow, Report, SensorData } from './types';
+import type { Device, EventRow, Report, SensorData, TruthInfo } from './types';
 
 export * from './types';
 export { parseSensorCsv } from './sensors';
@@ -21,8 +21,8 @@ export function detectLesson(events: EventRow[]): Report['lessonType'] {
   return 'unknown';
 }
 
-export function analyze(events: EventRow[], sensor: SensorData | null): Report {
+export function analyze(events: EventRow[], sensor: SensorData | null, truth: TruthInfo | null = null): Report {
   const ordered = [...events].sort((a, b) => a.timestamp - b.timestamp || a.id - b.id);
   const device = detectDevice(ordered, sensor);
-  return detectLesson(ordered) === 'physics_bohr' ? scorePhysics(ordered, sensor, device) : scoreChemistry(ordered, sensor, device);
+  return detectLesson(ordered) === 'physics_bohr' ? scorePhysics(ordered, sensor, device) : scoreChemistry(ordered, sensor, device, truth);
 }

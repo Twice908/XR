@@ -9,6 +9,7 @@ import {
   type Report,
   type SensorData,
   type StatItem,
+  type TruthInfo,
 } from './types';
 
 /*
@@ -132,15 +133,30 @@ function retrievalEffort(pairs: Pair[], sensor: SensorData | null, device: Devic
   };
 }
 
-function revisionQuality(events: EventRow[]): DimensionResult {
+/** Is this conclusion right? Judged from server-held truth; older sessions fall back to flags the client once recorded. */
+function judge(truth: TruthInfo | null, tube: number, said: unknown, legacy: unknown): boolean | null {
+  const t = truth?.tubes.find((x) => x.tube === tube);
+  if (t) return typeof said === 'string' ? said === t.type : null;
+  return typeof legacy === 'boolean' ? legacy : null;
+}
+
+function revisionQuality(events: EventRow[], truth: TruthInfo | null): DimensionResult {
   const firsts = events.filter((e) => action(e) === 'set_conclusion');
   const revisions = events.filter((e) => e.verb === 'revised_model');
   if (!firsts.length) {
     return { key: 'revisionQuality', label: LABELS.revisionQuality, score: null, max: 3, basis: 'No conclusions yet.', evidence: [], measures: {} };
   }
-  const wrongFirst = firsts.filter((e) => d(e).correct === false).length;
-  const improved = revisions.filter((e) => d(e).wasCorrect === false && d(e).nowCorrect === true).length;
-  const harmful = revisions.filter((e) => d(e).wasCorrect === true && d(e).nowCorrect === false).length;
+  const judgedFirst = firsts.map((e) => judge(truth, Number(d(e).tube), e.object_data?.value, d(e).correct));
+  if (judgedFirst.every((j) => j === null)) {
+    return { key: 'revisionQuality', label: LABELS.revisionQuality, score: null, max: 3, basis: 'The answers were not available to judge these conclusions.', evidence: [], measures: { firstConclusions: firsts.length } };
+  }
+  const wrongFirst = judgedFirst.filter((j) => j === false).length;
+  const judged = revisions.map((e) => ({
+    was: judge(truth, Number(d(e).tube), d(e).from, d(e).wasCorrect),
+    now: judge(truth, Number(d(e).tube), d(e).to, d(e).nowCorrect),
+  }));
+  const improved = judged.filter((j) => j.was === false && j.now === true).length;
+  const harmful = judged.filter((j) => j.was === true && j.now === false).length;
 
   let score: number;
   let basis: string;
@@ -171,19 +187,34 @@ interface FinalTube {
   actualPh: number | null;
 }
 
-function submitted(events: EventRow[]): { event: EventRow; tubes: FinalTube[] } | null {
-  const e = [...events].reverse().find((x) => action(x) === 'submit_analysis');
+function submitted(events: EventRow[], truth: TruthInfo | null): { event: EventRow | null; tubes: FinalTube[] } | null {
+  const e = [...events].reverse().find((x) => action(x) === 'submit_analysis') ?? null;
+  // Preferred: what the server locked in, scored against what the server holds.
+  if (truth?.submission) {
+    const sub = truth.submission;
+    return {
+      event: e,
+      tubes: truth.tubes.map((t) => {
+        const s = sub.tubes.find((x) => x.tube === t.tube);
+        return { conclusion: s?.conclusion ?? null, truth: t.type, recordedPh: s?.ph ?? null, actualPh: t.ph };
+      }),
+    };
+  }
+  if (truth) return null; // the server has not seen a submission, whatever the browser claims
+  // Older sessions recorded the truth inside the event itself.
   if (!e) return null;
   const raw = d(e).tubes;
   if (!Array.isArray(raw)) return null;
   return {
     event: e,
-    tubes: raw.map((t: Record<string, unknown>) => ({
-      conclusion: typeof t.conclusion === 'string' ? t.conclusion : null,
-      truth: String(t.truth ?? ''),
-      recordedPh: num(t.recordedPh),
-      actualPh: num(t.actualPh),
-    })),
+    tubes: raw
+      .filter((t: Record<string, unknown>) => typeof t.truth === 'string')
+      .map((t: Record<string, unknown>) => ({
+        conclusion: typeof t.conclusion === 'string' ? t.conclusion : null,
+        truth: String(t.truth),
+        recordedPh: num(t.recordedPh),
+        actualPh: num(t.actualPh),
+      })),
   };
 }
 
@@ -195,9 +226,9 @@ const consistent = (conclusion: string | null, ph: number | null) => {
   return ph >= 6 && ph <= 8;
 };
 
-function causalCoherence(events: EventRow[]): DimensionResult {
-  const fin = submitted(events);
-  if (!fin) {
+function causalCoherence(events: EventRow[], truth: TruthInfo | null): DimensionResult {
+  const fin = submitted(events, truth);
+  if (!fin || fin.tubes.length === 0) {
     return { key: 'causalCoherence', label: LABELS.causalCoherence, score: null, max: 3, basis: 'Not scored until the analysis is submitted.', evidence: [], measures: {} };
   }
   const n = fin.tubes.length || 1;
@@ -212,7 +243,7 @@ function causalCoherence(events: EventRow[]): DimensionResult {
     score,
     max: 3,
     basis: `${right}/${n} tubes identified correctly, ${phNear}/${n} pH values within 1, and ${coherent}/${n} conclusions agree with the student's own pH.`,
-    evidence: [fin.event.id],
+    evidence: fin.event ? [fin.event.id] : [],
     measures: { tubes: n, correct: right, phWithinOne: phNear, selfConsistent: coherent, blend: r2(blend) },
   };
 }
@@ -280,20 +311,20 @@ function deviceStats(events: EventRow[], pairs: Pair[], sensor: SensorData | nul
   };
 }
 
-export function scoreChemistry(events: EventRow[], sensor: SensorData | null, device: Device): Report {
+export function scoreChemistry(events: EventRow[], sensor: SensorData | null, device: Device, truth: TruthInfo | null = null): Report {
   const { pairs, unpredicted } = pairActions(events);
   const dims: DimensionResult[] = [
     predictionDiscipline(events, pairs, unpredicted),
     retrievalEffort(pairs, sensor, device),
-    revisionQuality(events),
-    causalCoherence(events),
+    revisionQuality(events, truth),
+    causalCoherence(events, truth),
     metacognition(events),
     { key: 'transfer' as DimensionKey, label: LABELS.transfer, score: null, max: 3, basis: 'This lab has no transfer task.', evidence: [], measures: {} },
   ];
   const assessed = dims.filter((x) => x.score !== null);
   const points = assessed.reduce((s, x) => s + (x.score as number), 0);
   const max = assessed.length * 3;
-  const complete = submitted(events) !== null;
+  const complete = submitted(events, truth) !== null;
   return {
     rubricVersion: RUBRIC_VERSION,
     lessonType: 'chemistry_indicators',

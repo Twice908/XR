@@ -21,6 +21,8 @@ export interface GuardOptions {
   /** Do not block ordinary numbers. Required for secret-aware mode. */
   allowNumbers?: boolean;
   secrets?: SecretTube[];
+  /** Check tube verdicts and pH claims even when no secrets are available (fail closed if the answers could not be loaded). */
+  enforceTubeClaims?: boolean;
   /** A tube verdict the student has already stated may be repeated back to them. */
   allowedVerdicts?: { tube: number; verdict: string }[];
   /** pH numbers the student has already written down may be repeated back. */
@@ -88,7 +90,7 @@ export function applyGuardrails(aiResponse: string, options: GuardOptions = {}):
   }
 
   // "tube 2 is an acid": block any verdict for a tube other than the one the student already stated.
-  if (options.secrets?.length) {
+  if (options.secrets?.length || options.enforceTubeClaims) {
     const verdictRe = /\btubes?\s*#?\s*(\d)\b[^.?!\n]{0,40}?\b(acid(?:ic)?|base|basic|alkaline|neutral)\b/g;
     for (const m of text.matchAll(verdictRe)) {
       const tube = Number(m[1]);

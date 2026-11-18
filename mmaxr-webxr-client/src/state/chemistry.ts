@@ -1,6 +1,6 @@
 import { XapiVerb } from '@mmaxr/schema'
-import type { ChemistryIndicator, ChemistryLessonContract, ChemistrySolution, TelemetryEvent } from '@mmaxr/schema'
-import { phPaperColor, sameColor } from '../services/colors'
+import type { ChemistryIndicator, ChemistryLessonContract, ChemistryRevealTube, TelemetryEvent } from '@mmaxr/schema'
+import { sameColor } from '../services/colors'
 
 export type Conclusion = 'acid' | 'base' | 'neutral'
 export type Phase = 'select_tools' | 'testing' | 'ph' | 'reveal'
@@ -17,6 +17,7 @@ export interface TestResult {
   decisionMs: number
   predictedAt: number
   actedAt: number
+  /** The colour the server said this test shows. */
   actual: string
   /** What the student typed into the notebook for this observation, if anything yet. */
   recorded: string | null
@@ -24,11 +25,12 @@ export interface TestResult {
 
 export interface Tube {
   index: number
-  solution: ChemistrySolution
   results: Record<string, TestResult>
   conclusion: Conclusion | null
   conclusionHistory: Conclusion[]
   recordedPh: number | null
+  /** Filled in only by the server's reveal, after submission. */
+  truth: ChemistryRevealTube | null
 }
 
 export interface PendingTest {
@@ -52,17 +54,16 @@ export interface Summary {
   revisions: number
 }
 
-export class StateError extends Error {}
-
-const normalizeType = (t: string): Conclusion => {
-  const v = (t ?? '').toLowerCase()
-  if (v.includes('acid')) return 'acid'
-  if (v.includes('base') || v.includes('alkal')) return 'base'
-  return 'neutral'
+export interface SubmissionPayload {
+  tubes: { tube: number; conclusion: Conclusion | null; ph: number | null; conclusionHistory: Conclusion[] }[]
 }
 
-export const truthOf = (s: ChemistrySolution): Conclusion => normalizeType(s.type)
+export class StateError extends Error {}
 
+/**
+ * The student's side of the experiment. It holds no answers: what a test shows comes from the server
+ * (`act(color)`), and the truth arrives only with the reveal after the analysis is submitted.
+ */
 export class ChemistryExperiment {
   phase: Phase = 'select_tools'
   readonly tubes: Tube[]
@@ -70,20 +71,19 @@ export class ChemistryExperiment {
   activeTool: string | null = null
   pending: PendingTest | null = null
   submitted = false
-  private testingStarted = false
 
   constructor(
     readonly lesson: ChemistryLessonContract,
     private readonly emit: Emit,
     private readonly now: () => number = Date.now,
   ) {
-    this.tubes = lesson.assignedSolutions.map((solution, index) => ({
+    this.tubes = Array.from({ length: lesson.config.totalTestTubes }, (_, index) => ({
       index,
-      solution,
       results: {},
       conclusion: null,
       conclusionHistory: [],
       recordedPh: null,
+      truth: null,
     }))
   }
 
@@ -95,9 +95,6 @@ export class ChemistryExperiment {
   get colorIndicators(): ChemistryIndicator[] {
     return this.lesson.indicators.filter((i) => !i.isPhTest)
   }
-  get phIndicator(): ChemistryIndicator | undefined {
-    return this.lesson.indicators.find((i) => i.isPhTest)
-  }
   indicator(id: string): ChemistryIndicator | undefined {
     return this.lesson.indicators.find((i) => i.id === id)
   }
@@ -106,9 +103,6 @@ export class ChemistryExperiment {
   }
   get allPhRecorded(): boolean {
     return this.tubes.every((t) => t.recordedPh !== null)
-  }
-  get phUnlocked(): boolean {
-    return this.phase === 'ph' || this.phase === 'reveal'
   }
   get canStartTesting(): boolean {
     return this.phase === 'select_tools' && this.chosen.length === this.required
@@ -137,7 +131,6 @@ export class ChemistryExperiment {
   startTesting(): void {
     if (!this.canStartTesting) throw new StateError(`Choose ${this.required} indicators first`)
     this.phase = 'testing'
-    this.testingStarted = true
     this.activeTool = this.chosen[0]
     this.emit(XapiVerb.INVESTIGATED, { action: 'start_testing', data: { indicators: [...this.chosen] } })
   }
@@ -186,12 +179,13 @@ export class ChemistryExperiment {
   }
 
   // ---- 3. action + observation ----
-  act(): { tube: number; tool: string; actual: string; predicted: string; match: boolean } {
+  /** `observed` is the colour the server returned for this tube and tool. */
+  act(observed: string): { tube: number; tool: string; actual: string; predicted: string; match: boolean } {
     const p = this.pending
     if (!p) throw new StateError('Make a prediction first.')
+    if (!observed) throw new StateError('The lab did not report a result.')
     const tube = this.tubes[p.tube]
     const actedAt = this.now()
-    const actual = this.reactionColor(tube.solution, p.tool)
     tube.results[p.tool] = {
       tool: p.tool,
       predicted: p.predicted,
@@ -199,11 +193,11 @@ export class ChemistryExperiment {
       decisionMs: p.decisionMs,
       predictedAt: p.predictedAt,
       actedAt,
-      actual,
+      actual: observed,
       recorded: null,
     }
     this.pending = null
-    const match = sameColor(p.predicted, actual)
+    const match = sameColor(p.predicted, observed)
     this.emit(XapiVerb.ACTED, {
       action: p.tool === PH_TOOL ? 'dip_ph_paper' : 'add_indicator',
       target: `tube:${p.tube + 1}`,
@@ -213,19 +207,10 @@ export class ChemistryExperiment {
     this.emit(XapiVerb.OBSERVED, {
       action: 'liquid_color',
       target: `tube:${p.tube + 1}`,
-      value: actual,
+      value: observed,
       data: { tube: p.tube + 1, tool: p.tool, predicted: p.predicted, match },
     })
-    return { tube: p.tube, tool: p.tool, actual, predicted: p.predicted, match }
-  }
-
-  reactionColor(solution: ChemistrySolution, tool: string): string {
-    const ind = this.indicator(tool)
-    if (!ind) throw new StateError(`Unknown tool ${tool}`)
-    if (ind.isPhTest) return phPaperColor(solution.ph)
-    const color = ind.colors?.[truthOf(solution)]
-    if (!color) throw new StateError(`${ind.name} has no colour for ${solution.type}`)
-    return color
+    return { tube: p.tube, tool: p.tool, actual: observed, predicted: p.predicted, match }
   }
 
   // ---- 4. data entry ----
@@ -251,30 +236,16 @@ export class ChemistryExperiment {
     if (before === conclusion) return
     tube.conclusion = conclusion
     tube.conclusionHistory.push(conclusion)
-    const truth = truthOf(tube.solution)
     const evidence = Object.keys(tube.results).filter((k) => k !== PH_TOOL)
+    // Whether a conclusion is right is judged later from server-held truth, never here.
     if (before === null) {
-      this.emit(XapiVerb.EXPLAINED, {
-        action: 'set_conclusion',
-        target: `tube:${tubeIndex + 1}`,
-        value: conclusion,
-        data: { tube: tubeIndex + 1, evidence, correct: conclusion === truth },
-      })
+      this.emit(XapiVerb.EXPLAINED, { action: 'set_conclusion', target: `tube:${tubeIndex + 1}`, value: conclusion, data: { tube: tubeIndex + 1, evidence } })
     } else {
       this.emit(XapiVerb.REVISED_MODEL, {
         action: 'change_conclusion',
         target: `tube:${tubeIndex + 1}`,
         value: conclusion,
-        data: {
-          tube: tubeIndex + 1,
-          from: before,
-          to: conclusion,
-          evidence,
-          evidenceCount: evidence.length,
-          wasCorrect: before === truth,
-          nowCorrect: conclusion === truth,
-          revisionNumber: tube.conclusionHistory.length - 1,
-        },
+        data: { tube: tubeIndex + 1, from: before, to: conclusion, evidence, evidenceCount: evidence.length, revisionNumber: tube.conclusionHistory.length - 1 },
       })
     }
     this.maybeUnlockPh()
@@ -296,38 +267,33 @@ export class ChemistryExperiment {
     if (value !== null && (!Number.isFinite(value) || value < 0 || value > 14)) throw new StateError('pH is between 0 and 14.')
     tube.recordedPh = value
     if (value === null) return
-    this.emit(XapiVerb.OBSERVED, {
-      action: 'record_ph',
-      target: `table:tube:${tubeIndex + 1}:ph`,
-      value,
-      data: { tube: tubeIndex + 1, actual: tube.solution.ph, offBy: Math.abs(value - tube.solution.ph) },
-    })
+    this.emit(XapiVerb.OBSERVED, { action: 'record_ph', target: `table:tube:${tubeIndex + 1}:ph`, value, data: { tube: tubeIndex + 1 } })
   }
 
-  // ---- 6. disclosure ----
-  submit(): Summary {
+  // ---- 6. submission and disclosure ----
+  /** What the server locks in before it discloses anything. */
+  submissionPayload(): SubmissionPayload {
     if (!this.canSubmit) throw new StateError('Conclude every tube and record every pH first.')
+    return { tubes: this.tubes.map((t) => ({ tube: t.index + 1, conclusion: t.conclusion, ph: t.recordedPh, conclusionHistory: [...t.conclusionHistory] })) }
+  }
+
+  /** Called with the server's reveal. Only now does the client learn what was in each tube. */
+  finish(truth: ChemistryRevealTube[]): Summary {
+    if (this.submitted) return this.summary()
     this.submitted = true
     this.phase = 'reveal'
     this.activeTool = null
-    const summary = this.summary()
+    for (const t of truth) {
+      const tube = this.tubes[t.tube - 1]
+      if (tube) tube.truth = t
+    }
     this.emit(XapiVerb.EXPLAINED, {
       action: 'submit_analysis',
       data: {
-        summary,
-        tubes: this.tubes.map((t) => ({
-          tube: t.index + 1,
-          solutionId: t.solution.id,
-          conclusion: t.conclusion,
-          conclusionHistory: t.conclusionHistory,
-          truth: truthOf(t.solution),
-          recordedPh: t.recordedPh,
-          actualPh: t.solution.ph,
-          toolsUsed: Object.keys(t.results),
-        })),
+        tubes: this.tubes.map((t) => ({ tube: t.index + 1, conclusion: t.conclusion, conclusionHistory: t.conclusionHistory, recordedPh: t.recordedPh, toolsUsed: Object.keys(t.results) })),
       },
     })
-    return summary
+    return this.summary()
   }
 
   summary(): Summary {
@@ -340,10 +306,10 @@ export class ChemistryExperiment {
     let conclusionsCorrect = 0
     let revisions = 0
     for (const t of this.tubes) {
-      if (t.conclusion === truthOf(t.solution)) conclusionsCorrect++
+      if (t.truth && t.conclusion === t.truth.type) conclusionsCorrect++
       revisions += Math.max(0, t.conclusionHistory.length - 1)
-      if (t.recordedPh !== null) {
-        const d = Math.abs(t.recordedPh - t.solution.ph)
+      if (t.truth && t.recordedPh !== null) {
+        const d = Math.abs(t.recordedPh - t.truth.ph)
         if (d === 0) phExact++
         if (d <= 1) phWithinOne++
       }
@@ -356,20 +322,6 @@ export class ChemistryExperiment {
         }
       }
     }
-    return {
-      conclusionsCorrect,
-      tubes: this.tubes.length,
-      phExact,
-      phWithinOne,
-      colorEntriesCorrect,
-      colorEntries,
-      predictionsCorrect,
-      predictions,
-      revisions,
-    }
-  }
-
-  get hasStartedTesting(): boolean {
-    return this.testingStarted
+    return { conclusionsCorrect, tubes: this.tubes.length, phExact, phWithinOne, colorEntriesCorrect, colorEntries, predictionsCorrect, predictions, revisions }
   }
 }

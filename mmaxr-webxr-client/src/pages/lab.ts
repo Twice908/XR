@@ -2,6 +2,7 @@ import { XapiVerb } from '@mmaxr/schema'
 import type { ChemistryLessonContract } from '@mmaxr/schema'
 import { go, type Page } from '../router'
 import { assertChemistry, fetchLesson } from '../services/lessons'
+import { revealTruth, runTest } from '../services/labApi'
 import { openSession } from '../services/session'
 import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
@@ -9,7 +10,7 @@ import { userAuth } from '../services/userAuth'
 import { ChemistryExperiment, PH_TOOL, StateError } from '../state/chemistry'
 import { CoachClient, loadMode } from '../services/aiCoach'
 import { CoachPanel } from '../lab/coachPanel'
-import { buildSecrets, buildSnapshot, buildTruth, describe as say } from '../lab/coachContext'
+import { buildSnapshot, describe as say } from '../lab/coachContext'
 import { Hud, type HudHandlers } from '../lab/hud'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
@@ -36,8 +37,9 @@ export function labPage(lessonId: string): Page {
       const account = userAuth.current()
       if (!account) return go('/login')
 
-      const lesson: ChemistryLessonContract = assertChemistry(await fetchLesson(lessonId))
-      const session = await openSession(account.token, lesson.lessonId)
+      // The session comes first: the server draws this student's hidden tubes when the lesson is requested for it.
+      const session = await openSession(account.token, lessonId)
+      const lesson: ChemistryLessonContract = assertChemistry(await fetchLesson(lessonId, session))
       telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
       telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: lesson.lessonId })
 
@@ -75,11 +77,46 @@ export function labPage(lessonId: string): Page {
         }
       }
 
+      let submitting = false
+      const submit = async () => {
+        if (submitting || !exp.canSubmit) return
+        submitting = true
+        try {
+          const payload = guard(() => exp.submissionPayload())
+          if (!payload) return
+          hud!.hint('Submitting your analysis…', null)
+          // One-shot on the server: it locks what was submitted, then discloses the truth.
+          const truth = await revealTruth(session, payload)
+          const summary = exp.finish(truth)
+          scene!.hideDropper()
+          truth.forEach((t) => scene!.revealLabel(t.tube - 1, t.formula))
+          refresh()
+          hud!.showReveal(summary, () => go('/experiments'), () => scene!.focusTube(null))
+          coach?.reveal(buildSnapshot(exp))
+        } catch (err) {
+          toast((err as Error).message, 'error')
+          refresh()
+        } finally {
+          submitting = false
+        }
+      }
+
       const addIndicator = async () => {
         if (busy || !exp.pending) return
         busy = true
         const tool = exp.pending.tool
-        const r = guard(() => exp.act())
+        hud!.hint('Adding the indicator…', null)
+        // The server decides what this test shows; the browser has no way to compute it.
+        let observed: string
+        try {
+          observed = await runTest(session, exp.pending.tube + 1, tool)
+        } catch (err) {
+          busy = false
+          toast((err as Error).message, 'error')
+          refresh()
+          return
+        }
+        const r = guard(() => exp.act(observed))
         if (!r) {
           busy = false
           return
@@ -172,15 +209,7 @@ export function labPage(lessonId: string): Page {
             if (ok && exp.canSubmit) coach?.event('ready_to_submit', say.ready, buildSnapshot(exp))
           },
           onLayout: (insets) => scene?.setInsets(insets),
-          onSubmit: () => {
-            const summary = guard(() => exp.submit())
-            if (!summary) return
-            scene!.hideDropper()
-            exp.tubes.forEach((t) => scene!.revealLabel(t.index, t.solution.formula))
-            refresh()
-            hud!.showReveal(summary, () => go('/experiments'), () => scene!.focusTube(null))
-            coach?.reveal(buildTruth(exp), buildSnapshot(exp))
-          },
+          onSubmit: () => void submit(),
       }
       hud = new Hud(exp, hudHandlers, lesson.title)
       root.appendChild(hud.root)
@@ -216,7 +245,7 @@ export function labPage(lessonId: string): Page {
       })
       client.connect(
         { sessionId: session.sessionId, studentId: session.studentId, token: session.token },
-        { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary, secrets: buildSecrets(exp) },
+        { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary },
       )
       // If the student goes quiet for a while, offer a nudge (the service rate-limits and honours the mode).
       let lastActive = Date.now()

@@ -3,7 +3,7 @@ import { fallbackReply } from './fallback';
 import { buildSystemPrompt, describeSnapshot } from './prompt';
 import type { ProviderRegistry } from './providers';
 import { ProviderError, type ChatTurn } from './providers/types';
-import type { ClientMessage, CoachReason, EventKind, Hello, Mode, ServerMessage, Snapshot, TruthTube } from './protocol';
+import type { Assignment, ClientMessage, CoachReason, EventKind, Hello, Mode, ServerMessage, Snapshot, TruthTube } from './protocol';
 
 const MAX_HISTORY_TURNS = 10;
 const MAX_TEXT = 600;
@@ -11,6 +11,8 @@ const MIN_NUDGE_GAP_MS = 20_000;
 
 export interface SessionDeps {
   registry: ProviderRegistry;
+  /** Reads this session's hidden answers from the lesson service. Resolves null when unavailable. */
+  loadAssignment: () => Promise<Assignment | null>;
   send: (msg: ServerMessage) => void;
   now?: () => number;
   log?: (line: string) => void;
@@ -45,7 +47,8 @@ export class CoachSession {
   async handle(msg: ClientMessage): Promise<void> {
     switch (msg.type) {
       case 'hello':
-        this.hello = { lessonId: msg.lessonId, title: msg.title, labType: msg.labType, summary: msg.summary, secrets: msg.secrets };
+        this.hello = { lessonId: msg.lessonId, title: msg.title, labType: msg.labType, summary: msg.summary };
+        void this.refreshAssignment();
         return;
       case 'mode':
         this.mode = msg.mode;
@@ -56,8 +59,19 @@ export class CoachSession {
       case 'event':
         return this.nudge(msg.kind, msg.detail, msg.snapshot);
       case 'reveal':
-        return this.wrapUp(msg.truth, msg.snapshot);
+        return this.wrapUp(msg.snapshot);
     }
+  }
+
+  private assignment: Assignment | null = null;
+
+  private async refreshAssignment(): Promise<Assignment | null> {
+    try {
+      this.assignment = (await this.deps.loadAssignment()) ?? this.assignment;
+    } catch {
+      /* keep whatever we had; the guard fails closed without it */
+    }
+    return this.assignment;
   }
 
   private async nudge(kind: EventKind, detail: string | undefined, snapshot: Snapshot | undefined) {
@@ -69,9 +83,15 @@ export class CoachSession {
     await this.respond('nudge', `[lab event] ${what} Say one short coaching question about it.`, kind, snapshot, `[lab event] ${what}`);
   }
 
-  private async wrapUp(truth: TruthTube[], snapshot: Snapshot | undefined) {
+  private async wrapUp(snapshot: Snapshot | undefined) {
     if (this.mode === 'off') return;
-    this.truth = Array.isArray(truth) ? truth.slice(0, 12) : [];
+    // Disclosure is the server's call: nothing is said until the lesson service confirms the analysis was submitted.
+    const a = await this.refreshAssignment();
+    if (!a?.submitted) {
+      this.log('wrap-up requested before submission; ignored');
+      return;
+    }
+    this.truth = a.tubes.slice(0, 12) as TruthTube[];
     await this.respond('wrapup', '[lab finished] The student has submitted. Give the wrap-up now.', 'reveal', snapshot, '[lab finished]', 380);
   }
 
@@ -86,6 +106,7 @@ export class CoachSession {
 
     const provider = this.deps.registry.active;
     const hello: Hello = this.hello ?? { lessonId: 'unknown', title: 'a science lab', labType: 'unknown' };
+    if (this.truth === null && this.assignment === null) await this.refreshAssignment();
     const state = describeSnapshot(snapshot);
     const turns: ChatTurn[] = [...this.history, { role: 'user', text: state ? `${userTurn}\n\n${state}` : userTurn }];
 
@@ -97,7 +118,8 @@ export class CoachSession {
       const revealed = this.truth !== null;
       const verdicts = (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
       const phs = (snapshot?.tubes ?? []).map((t) => t.recordedPh).filter((n): n is number => n !== null);
-      const guarded = applyGuardrails(text, { allowNumbers: true, secrets: revealed ? [] : (hello.secrets ?? []), allowedVerdicts: verdicts, allowedPh: phs });
+      const secrets = revealed ? [] : (this.assignment?.tubes ?? []).map((t) => ({ tube: t.tube, terms: [t.name, t.formula], verdict: t.type, ph: t.ph }));
+      const guarded = applyGuardrails(text, { allowNumbers: true, secrets, enforceTubeClaims: !revealed, allowedVerdicts: verdicts, allowedPh: phs });
       if (guarded.wasBlocked) this.log(`guard blocked a reply (${guarded.reasons.join(',')})`);
       text = guarded.safeResponse;
       blocked = guarded.wasBlocked;

@@ -126,3 +126,61 @@ describe('device awareness', () => {
     expect(asWeb.deviceStats.items.some((i) => i.label.startsWith('Pointer travel'))).toBe(true);
   });
 });
+
+describe('scoring against server-held truth (browser sends no correctness)', () => {
+  const truthTubes = [
+    { tube: 1, type: 'acid', ph: 2 },
+    { tube: 2, type: 'base', ph: 12 },
+    { tube: 3, type: 'neutral', ph: 7 },
+  ];
+  const base = () => {
+    id = 0;
+    t = 1_000_000;
+    const e: EventRow[] = [ev('investigated', 'enter_lab', { target: 'chemistry-101' })];
+    [1, 2, 3].forEach((n) => {
+      const data = { tube: n, tool: 'litmus' };
+      e.push(ev('predicted', 'predict_color', { target: `tube:${n}`, value: ['Red', 'Blue', 'Purple'][n - 1], data: { ...data, decisionMs: 3000, confidence: 2 } }, 300));
+      e.push(ev('acted', 'add_indicator', { target: `tube:${n}`, value: 'litmus', data }, 2000));
+      e.push(ev('observed', 'liquid_color', { target: `tube:${n}`, value: ['Red', 'Blue', 'Purple'][n - 1], data: { ...data, match: true } }, 10));
+    });
+    return e;
+  };
+  // Conclusion events carry no `correct` flag any more.
+  const concl = (tube: number, value: string) => ev('explained', 'set_conclusion', { target: `tube:${tube}`, value, data: { tube: tube, evidence: ['litmus'] } }, 300);
+  const revise = (tube: number, from: string, to: string) => ev('revised_model', 'change_conclusion', { target: `tube:${tube}`, value: to, data: { tube, from, to, evidenceCount: 2 } }, 300);
+  const submitEv = () => ev('explained', 'submit_analysis', { data: { tubes: [] } }, 300);
+  const submission = (c: (string | null)[], ph: (number | null)[]) => ({ tubes: c.map((x, i) => ({ tube: i + 1, conclusion: x, ph: ph[i] })) });
+
+  it('judges first conclusions and revisions from the truth', () => {
+    const events = [...base(), concl(1, 'neutral'), concl(2, 'base'), concl(3, 'neutral'), revise(1, 'neutral', 'acid')];
+    const r = analyze(events, null, { tubes: truthTubes, submission: null });
+    expect(score(r, 'revisionQuality')).toBe(3);
+    const noFix = analyze([...base(), concl(1, 'neutral'), concl(2, 'base'), concl(3, 'neutral')], null, { tubes: truthTubes, submission: null });
+    expect(score(noFix, 'revisionQuality')).toBe(0);
+    const broke = analyze([...base(), concl(1, 'acid'), concl(2, 'base'), concl(3, 'neutral'), revise(2, 'base', 'acid')], null, { tubes: truthTubes, submission: null });
+    expect(score(broke, 'revisionQuality')!).toBeLessThan(3);
+  });
+
+  it('scores causal coherence from the submission the server locked, not from browser events', () => {
+    const events = [...base(), concl(1, 'acid'), concl(2, 'base'), concl(3, 'neutral'), submitEv()];
+    const good = analyze(events, null, { tubes: truthTubes, submission: submission(['acid', 'base', 'neutral'], [2, 12, 7]) });
+    expect(good.complete).toBe(true);
+    expect(score(good, 'causalCoherence')).toBe(3);
+    const bad = analyze(events, null, { tubes: truthTubes, submission: submission(['base', 'acid', 'acid'], [13, 3, 1]) });
+    expect(score(bad, 'causalCoherence')).toBe(0);
+  });
+
+  it('does not believe a browser-claimed submission the server never saw', () => {
+    const events = [...base(), concl(1, 'acid'), concl(2, 'base'), concl(3, 'neutral'), submitEv()];
+    const r = analyze(events, null, { tubes: truthTubes, submission: null });
+    expect(r.complete).toBe(false);
+    expect(score(r, 'causalCoherence')).toBeNull();
+  });
+
+  it('reports not-assessed rather than guessing when no truth is available for new-format events', () => {
+    const events = [...base(), concl(1, 'acid'), concl(2, 'base'), concl(3, 'neutral')];
+    const r = analyze(events, null, null);
+    expect(score(r, 'revisionQuality')).toBeNull();
+    expect(score(r, 'causalCoherence')).toBeNull();
+  });
+});

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { XapiVerb } from '@mmaxr/schema'
-import type { ChemistryLessonContract, TelemetryEvent } from '@mmaxr/schema'
+import type { ChemistryLessonContract, ChemistryRevealTube, TelemetryEvent } from '@mmaxr/schema'
 import { ChemistryExperiment, StateError } from '../state/chemistry'
 
+// The browser's view of the lesson: no solutions, only the neutral colour of each indicator.
 const lesson: ChemistryLessonContract = {
   lessonId: 'chemistry-101',
   type: 'chemistry_indicators',
@@ -10,24 +11,44 @@ const lesson: ChemistryLessonContract = {
   modelUrl: 'http://x/y.glb',
   config: { totalTestTubes: 2, requiredIndicatorsToSelect: 2 },
   indicators: [
-    { id: 'litmus', name: 'Litmus', source: 'n', colors: { neutral: 'Purple', acid: 'Red', base: 'Blue' } },
-    { id: 'turmeric', name: 'Turmeric', source: 'n', colors: { neutral: 'Yellow', acid: 'Yellow', base: 'Reddish-Brown' } },
-    { id: 'ph_paper', name: 'pH paper', source: 's', isPhTest: true, colors: { neutral: '', acid: '', base: '' } },
-  ],
-  assignedSolutions: [
-    { id: 'hcl', name: 'Hydrochloric Acid', formula: 'HCl', type: 'acid', ph: 1 },
-    { id: 'naoh', name: 'Sodium Hydroxide', formula: 'NaOH', type: 'base', ph: 14 },
+    { id: 'litmus', name: 'Litmus', source: 'n', colors: { neutral: 'Purple' } },
+    { id: 'turmeric', name: 'Turmeric', source: 'n', colors: { neutral: 'Yellow' } },
+    { id: 'ph_paper', name: 'pH paper', source: 's', isPhTest: true },
   ],
 }
+
+// Stand-in for the server: what each test shows. The experiment itself never sees this table.
+const SERVER: Record<string, string> = { '1:litmus': 'Red', '2:litmus': 'Blue', '1:turmeric': 'Yellow', '2:turmeric': 'Reddish-Brown', '1:ph_paper': 'Red', '2:ph_paper': 'Purple' }
+const truth: ChemistryRevealTube[] = [
+  { tube: 1, id: 'hcl', name: 'Hydrochloric Acid', formula: 'HCl', type: 'acid', ph: 1 },
+  { tube: 2, id: 'naoh', name: 'Sodium Hydroxide', formula: 'NaOH', type: 'base', ph: 14 },
+]
 
 function setup() {
   const events: { verb: XapiVerb; object: TelemetryEvent['object'] }[] = []
   let t = 1000
   const exp = new ChemistryExperiment(lesson, (verb, object) => events.push({ verb, object }), () => (t += 500))
-  return { exp, events }
+  const test = (tube: number, tool: string, predicted: string, conf: 1 | 2 | 3 = 2) => {
+    exp.selectTool(tool)
+    exp.predict(tube, predicted, conf, 1500)
+    return exp.act(SERVER[`${tube + 1}:${tool}`])
+  }
+  return { exp, events, test }
+}
+const start = (exp: ChemistryExperiment) => {
+  exp.toggleIndicator('litmus')
+  exp.toggleIndicator('turmeric')
+  exp.startTesting()
 }
 
 describe('ChemistryExperiment', () => {
+  it('holds no answers: tubes carry no solution and the lesson has none', () => {
+    const { exp } = setup()
+    const dump = JSON.stringify({ tubes: exp.tubes, lesson: exp.lesson })
+    for (const secret of ['Hydrochloric', 'HCl', 'NaOH', 'solutionPool', 'assignedSolutions', 'acid', 'base"']) expect(dump).not.toContain(secret)
+    expect(exp.tubes.every((t) => t.truth === null)).toBe(true)
+  })
+
   it('blocks testing until the required indicators are chosen', () => {
     const { exp } = setup()
     expect(exp.canTest(0).ok).toBe(false)
@@ -46,99 +67,84 @@ describe('ChemistryExperiment', () => {
     expect(exp.toggleIndicator('nope')).toBe(false)
   })
 
-  it('enforces the prediction gate: no action without a prediction', () => {
+  it('enforces the prediction gate: no action without a prediction, none without a server result', () => {
     const { exp } = setup()
-    exp.toggleIndicator('litmus')
-    exp.toggleIndicator('turmeric')
-    exp.startTesting()
-    expect(() => exp.act()).toThrow(StateError)
+    start(exp)
+    expect(() => exp.act('Red')).toThrow(StateError)
     expect(() => exp.predict(0, '', 2, 100)).toThrow(StateError)
+    exp.predict(0, 'Red', 2, 100)
+    expect(() => exp.act('')).toThrow(StateError)
   })
 
-  it('fires PREDICTED before ACTED and OBSERVED, in order, with the reaction colour', () => {
-    const { exp, events } = setup()
-    exp.toggleIndicator('litmus')
-    exp.toggleIndicator('turmeric')
-    exp.startTesting()
-    exp.predict(0, 'Red', 3, 2500)
-    const r = exp.act()
+  it('fires PREDICTED before ACTED and OBSERVED, using the colour the server reported', () => {
+    const { exp, events, test } = setup()
+    start(exp)
+    const r = test(0, 'litmus', 'Red', 3)
     expect(r.actual).toBe('Red')
     expect(r.match).toBe(true)
-    const verbs = events.map((e) => e.verb)
-    expect(verbs.slice(-3)).toEqual([XapiVerb.PREDICTED, XapiVerb.ACTED, XapiVerb.OBSERVED])
-    const predicted = events.find((e) => e.verb === XapiVerb.PREDICTED)!
-    expect(predicted.object.value).toBe('Red')
-    expect((predicted.object.data as { decisionMs: number }).decisionMs).toBe(2500)
+    expect(events.map((e) => e.verb).slice(-3)).toEqual([XapiVerb.PREDICTED, XapiVerb.ACTED, XapiVerb.OBSERVED])
+    expect(events.find((e) => e.verb === XapiVerb.PREDICTED)!.object.value).toBe('Red')
   })
 
   it('does not allow a second test while one is pending, or repeating a result', () => {
     const { exp } = setup()
-    exp.toggleIndicator('litmus')
-    exp.toggleIndicator('turmeric')
-    exp.startTesting()
+    start(exp)
     exp.predict(0, 'Red', 1, 10)
     expect(exp.canTest(1).ok).toBe(false)
-    exp.act()
+    exp.act('Red')
     expect(exp.canTest(0).ok).toBe(false)
     expect(exp.canTest(1).ok).toBe(true)
   })
 
-  it('logs REVISED_MODEL when a conclusion changes after new evidence', () => {
-    const { exp, events } = setup()
-    exp.toggleIndicator('litmus')
-    exp.toggleIndicator('turmeric')
-    exp.startTesting()
-    exp.selectTool('turmeric')
-    exp.predict(0, 'Yellow', 1, 10)
-    exp.act()
+  it('logs REVISED_MODEL without saying whether either conclusion was right', () => {
+    const { exp, events, test } = setup()
+    start(exp)
+    test(0, 'turmeric', 'Yellow')
     exp.setConclusion(0, 'neutral')
-    exp.selectTool('litmus')
-    exp.predict(0, 'Purple', 1, 10)
-    exp.act()
+    test(0, 'litmus', 'Purple')
     exp.setConclusion(0, 'acid')
     const revised = events.filter((e) => e.verb === XapiVerb.REVISED_MODEL)
     expect(revised).toHaveLength(1)
-    expect(revised[0].object.data).toMatchObject({ from: 'neutral', to: 'acid', wasCorrect: false, nowCorrect: true, evidenceCount: 2 })
+    expect(revised[0].object.data).toMatchObject({ from: 'neutral', to: 'acid', evidenceCount: 2 })
+    // No verdict-bearing fields: whether a conclusion is right is judged later from server-held truth.
+    for (const leak of ['wasCorrect', 'nowCorrect', 'truth', 'actualPh', 'offBy']) expect(JSON.stringify(events)).not.toContain(leak)
   })
 
   it('refuses to conclude an untested tube', () => {
     const { exp } = setup()
-    exp.toggleIndicator('litmus')
-    exp.toggleIndicator('turmeric')
-    exp.startTesting()
+    start(exp)
     expect(() => exp.setConclusion(1, 'base')).toThrow(StateError)
   })
 
-  it('walks the whole flow to the reveal and scores it', () => {
-    const { exp } = setup()
-    exp.toggleIndicator('litmus')
-    exp.toggleIndicator('turmeric')
-    exp.startTesting()
-    exp.selectTool('litmus')
-    exp.predict(0, 'Red', 2, 10)
-    exp.act()
+  it('walks the whole flow; the truth only arrives with finish()', () => {
+    const { exp, events, test } = setup()
+    start(exp)
+    test(0, 'litmus', 'Red')
     exp.recordColor(0, 'litmus', 'Red')
     exp.setConclusion(0, 'acid')
-    expect(exp.phase).toBe('testing')
-    exp.predict(1, 'Purple', 2, 10)
-    exp.act()
+    test(1, 'litmus', 'Purple')
     exp.setConclusion(1, 'base')
     expect(exp.phase).toBe('ph')
     expect(exp.activeTool).toBe('ph_paper')
-    exp.predict(0, 'Red', 3, 10)
-    exp.act()
+    test(0, 'ph_paper', 'Red', 3)
     exp.recordPh(0, 1)
-    exp.predict(1, 'Purple', 3, 10)
-    exp.act()
-    expect(() => exp.submit()).toThrow(StateError)
+    test(1, 'ph_paper', 'Purple', 3)
+    expect(() => exp.submissionPayload()).toThrow(StateError)
     exp.recordPh(1, 13)
-    const s = exp.submit()
+
+    const payload = exp.submissionPayload()
+    expect(payload.tubes[0]).toMatchObject({ tube: 1, conclusion: 'acid', ph: 1 })
+    expect(exp.tubes[0].truth).toBeNull()
+
+    const s = exp.finish(truth)
     expect(exp.phase).toBe('reveal')
     expect(s.conclusionsCorrect).toBe(2)
     expect(s.phExact).toBe(1)
     expect(s.phWithinOne).toBe(2)
     expect(s.predictionsCorrect).toBe(3)
     expect(s.colorEntriesCorrect).toBe(1)
+    const submit = events.find((e) => e.object.action === 'submit_analysis')!
+    expect(JSON.stringify(submit)).not.toMatch(/Hydrochloric|HCl|truth|actualPh/)
   })
 
   it('rejects an out-of-range pH', () => {
