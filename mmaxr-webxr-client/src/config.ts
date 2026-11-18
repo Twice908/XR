@@ -8,3 +8,6 @@ export const CONFIG = {
   SENSOR_UPLOAD_URL: env.VITE_SENSOR_UPLOAD_URL ?? 'http://localhost:3005/upload',
   AI_COACH_WS: env.VITE_AI_COACH_WS ?? 'ws://localhost:3003',
 } as const
+
+/** This client runs in a browser. The headset client reports `vr`. */
+export const DEVICE = 'web' as const

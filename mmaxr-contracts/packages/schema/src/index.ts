@@ -21,11 +21,16 @@ export enum RubricDimension {
 }
 
 // 3. The Standard Event Payload (What gets sent to the database)
+/** Where a session was recorded. Drives which stats the rubric engine scores on. */
+export type DeviceType = "web" | "vr";
+
 export interface TelemetryEvent {
   sessionId: string;
   studentId: string;
   timestamp: number;
   verb: XapiVerb;
+  /** web = browser (mouse/touch), vr = headset client (hands, head, gaze). */
+  device?: DeviceType;
   // The object is a flexible dictionary to hold specific data
   object: {
     action?: string;

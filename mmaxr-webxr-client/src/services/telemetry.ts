@@ -1,5 +1,5 @@
 import type { TelemetryEvent, XapiVerb } from '@mmaxr/schema'
-import { CONFIG } from '../config'
+import { CONFIG, DEVICE } from '../config'
 
 interface SessionContext {
   sessionId: string
@@ -36,6 +36,7 @@ export class TelemetryClient {
       sessionId: this.ctx.sessionId,
       studentId: this.ctx.studentId,
       timestamp: Date.now(),
+      device: DEVICE,
       verb,
       object,
     }

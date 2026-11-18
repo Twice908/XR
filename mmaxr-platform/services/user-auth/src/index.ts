@@ -14,6 +14,7 @@ import { Pool } from 'pg';
  *   POST   /users/forgot-password  start a password reset (token is logged; never emailed in dev)
  *   POST   /users/reset-password   finish a password reset
  *   GET    /users/me               current account (Bearer token)
+ *   GET    /students               enrolled students (instructor token)
  *   POST   /users/change-password  authenticated password change
  *   DELETE /users/me               delete own account (requires password)
  *
@@ -282,6 +283,21 @@ app.get(
     const { rows } = await pool.query<UserRow>(`SELECT * FROM users WHERE id = $1`, [req.auth!.userId]);
     if (!rows[0]) return res.status(404).json({ error: 'Account no longer exists' });
     return res.json({ user: publicUser(rows[0]) });
+  }),
+);
+
+// Enrolled students, for the instructor dashboard. Username only: no email or other personal data.
+app.get(
+  '/students',
+  requireAuth,
+  handler(async (req, res) => {
+    if (req.auth!.role !== 'instructor') return res.status(403).json({ error: 'Instructor access only' });
+    const { rows } = await pool.query(
+      `SELECT id, username, created_at, last_login_at FROM users WHERE role = 'student' ORDER BY lower(username)`,
+    );
+    return res.json({
+      students: rows.map((r) => ({ id: r.id, username: r.username, createdAt: r.created_at, lastLoginAt: r.last_login_at })),
+    });
   }),
 );
 

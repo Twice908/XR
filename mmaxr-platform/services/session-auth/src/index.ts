@@ -21,7 +21,7 @@ redisClient.connect().then(() => console.log('✅ Connected to Redis'));
 app.post('/auth/session', async (req, res) => {
   try {
     let { studentId } = req.body;
-    const { lessonId } = req.body;
+    const { lessonId, device } = req.body;
 
     // When the caller presents a user-auth token, the pseudonymous account id is the student id.
     // Anonymous callers (Unity prototype, test scripts) can still pass studentId directly.
@@ -47,13 +47,13 @@ app.post('/auth/session', async (req, res) => {
     await redisClient.setEx(
       `session:${sessionId}`, 
       86400, 
-      JSON.stringify({ studentId, lessonId: lessonId || 'physics-101', token, createdAt: Date.now() })
+      JSON.stringify({ studentId, lessonId: lessonId || 'physics-101', token, device: device === 'vr' ? 'vr' : 'web', createdAt: Date.now() })
     );
 
     console.log(`[Auth] Created session ${sessionId} for student ${studentId} (Lesson: ${lessonId || 'physics-101'})`);
 
     if (!res.headersSent) {
-      res.status(201).json({ sessionId, token, studentId, lessonId: lessonId || 'physics-101' });
+      res.status(201).json({ sessionId, token, studentId, lessonId: lessonId || 'physics-101', device: device === 'vr' ? 'vr' : 'web' });
     }
   } catch (err) {
     console.error(err);

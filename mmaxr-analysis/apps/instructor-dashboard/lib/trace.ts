@@ -1,13 +1,4 @@
-import type { RubricScores, TraceEvent } from './types'
-
-export const DIMENSIONS: { key: keyof RubricScores; label: string; hint: string }[] = [
-  { key: 'predictionDiscipline', label: 'Prediction discipline', hint: 'Committed to a prediction before acting' },
-  { key: 'retrievalEffort', label: 'Retrieval effort', hint: 'Time and hand movement between predicting and acting' },
-  { key: 'revisionQuality', label: 'Revision quality', hint: 'Changed conclusions when new evidence contradicted them' },
-  { key: 'causalCoherence', label: 'Causal coherence', hint: 'Final conclusions agree with the evidence' },
-  { key: 'metacognitiveCalibration', label: 'Metacognitive calibration', hint: 'Confidence matched correctness' },
-  { key: 'transfer', label: 'Transfer', hint: 'Applied the idea to a new situation' },
-]
+import type { TraceEvent } from './types'
 
 export const VERB_VARIANT: Record<string, 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'purple' | 'blue' | 'orange'> = {
   predicted: 'blue',
@@ -76,54 +67,13 @@ export function describeEvent(e: TraceEvent): string {
   }
 }
 
-export interface Highlights {
-  isChemistry: boolean
-  predictions: number
-  predictionsRight: number
-  revisions: number
-  conclusionsCorrect: number | null
-  tubes: number | null
-  confidentWrong: number
-  durationMs: number
+export function lessonLabel(id: string | null): string {
+  if (!id) return 'Unknown lab'
+  if (id.startsWith('chemistry')) return 'Acids, Bases & Indicators'
+  if (id.startsWith('physics')) return 'Bohr Model Spectral Lab'
+  return id
 }
 
-/** Plain counts from the trace. Scores come from the rubric engine, never from here. */
-export function highlights(trace: TraceEvent[]): Highlights {
-  let predictions = 0
-  let predictionsRight = 0
-  let revisions = 0
-  let confidentWrong = 0
-  let conclusionsCorrect: number | null = null
-  let tubes: number | null = null
-  const confidenceByKey = new Map<string, number>()
-  for (const e of trace) {
-    const o = e.object_data ?? {}
-    const d = (o.data ?? {}) as Record<string, unknown>
-    if (e.verb === 'predicted') {
-      predictions++
-      confidenceByKey.set(`${d.tube}:${d.tool}`, Number(d.confidence))
-    }
-    if (o.action === 'liquid_color') {
-      if (d.match === true) predictionsRight++
-      if (d.match === false && confidenceByKey.get(`${d.tube}:${d.tool}`) === 3) confidentWrong++
-    }
-    if (e.verb === 'revised_model') revisions++
-    if (o.action === 'submit_analysis') {
-      const s = (d.summary ?? {}) as Record<string, unknown>
-      if (typeof s.conclusionsCorrect === 'number') conclusionsCorrect = s.conclusionsCorrect
-      if (typeof s.tubes === 'number') tubes = s.tubes
-    }
-  }
-  const first = trace[0]?.timestamp ?? 0
-  const last = trace[trace.length - 1]?.timestamp ?? first
-  return {
-    isChemistry: trace.some((e) => e.object_data?.action === 'enter_lab' && String(e.object_data?.target).startsWith('chemistry')),
-    predictions,
-    predictionsRight,
-    revisions,
-    conclusionsCorrect,
-    tubes,
-    confidentWrong,
-    durationMs: last - first,
-  }
+export function formatDateTime(ts: number): string {
+  return new Date(ts).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }

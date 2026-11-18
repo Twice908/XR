@@ -24,6 +24,9 @@ async function initDB() {
         object_data JSONB,
         timestamp BIGINT
       );
+      ALTER TABLE xapi_events ADD COLUMN IF NOT EXISTS device VARCHAR(8);
+      CREATE INDEX IF NOT EXISTS xapi_events_student_idx ON xapi_events (student_id);
+      CREATE INDEX IF NOT EXISTS xapi_events_session_idx ON xapi_events (session_id);
     `);
     console.log('✅ Database connected and table ensured.');
   } catch (err) {
@@ -47,9 +50,9 @@ app.post('/events', async (req, res) => {
       if (!event.sessionId || !event.verb) continue; // Skip invalid ones
 
       await pool.query(
-        `INSERT INTO xapi_events (session_id, student_id, verb, object_data, timestamp) 
-         VALUES ($1, $2, $3, $4, $5)`,
-        [event.sessionId, event.studentId || 'unknown', event.verb, event.object || {}, event.timestamp]
+        `INSERT INTO xapi_events (session_id, student_id, verb, object_data, timestamp, device) 
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [event.sessionId, event.studentId || 'unknown', event.verb, event.object || {}, event.timestamp, event.device === 'web' || event.device === 'vr' ? event.device : null]
       );
     }
     

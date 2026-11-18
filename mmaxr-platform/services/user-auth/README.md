@@ -10,6 +10,7 @@ Port 3008. Postgres tables `users`, `password_resets`.
 | POST | /users/forgot-password | `{username}`; always 202. In development the reset token is returned as `devResetToken` and logged (no mail transport yet) |
 | POST | /users/reset-password | `{token, newPassword}` |
 | GET | /users/me | current account (Bearer) |
+| GET | /students | enrolled students `[{id, username, createdAt, lastLoginAt}]` (instructor Bearer) |
 | POST | /users/change-password | `{currentPassword, newPassword}` (Bearer) |
 | DELETE | /users/me | `{password}` deletes the account (Bearer) |
 

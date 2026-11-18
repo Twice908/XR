@@ -1,4 +1,4 @@
-import { CONFIG } from '../config'
+import { CONFIG, DEVICE } from '../config'
 
 export interface LabSession {
   sessionId: string
@@ -12,7 +12,7 @@ export async function openSession(userToken: string, lessonId: string): Promise<
   const res = await fetch(CONFIG.SESSION_AUTH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${userToken}` },
-    body: JSON.stringify({ lessonId }),
+    body: JSON.stringify({ lessonId, device: DEVICE }),
   })
   if (!res.ok) throw new Error(`Session service answered ${res.status}`)
   const data = (await res.json()) as LabSession

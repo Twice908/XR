@@ -1,4 +1,5 @@
 export type Role = 'student' | 'instructor'
+export type Device = 'web' | 'vr' | 'unknown'
 
 export interface AuthUser {
   id: string
@@ -8,24 +9,40 @@ export interface AuthUser {
   createdAt: string
 }
 
-export interface SessionSummary {
-  session_id: string
-  event_count: string | number
-  last_update: string | number
+/** From user-auth GET /students. */
+export interface Student {
+  id: string
+  username: string
+  createdAt: string
+  lastLoginAt: string | null
 }
 
-export interface RubricScores {
-  predictionDiscipline: number
-  retrievalEffort: number
-  revisionQuality: number
-  causalCoherence: number
-  metacognitiveCalibration: number
-  transfer: number
+/** From rubric-engine GET /students/summary. */
+export interface StudentActivity {
+  student_id: string
+  sessions: string | number
+  events: string | number
+  last_update: string | number
+  used_web: boolean | null
+  used_vr: boolean | null
+}
+
+export interface SessionSummary {
+  session_id: string
+  student_id: string
+  event_count: string | number
+  started_at: string | number
+  last_update: string | number
+  device: 'web' | 'vr' | null
+  lesson_id: string | null
+  completed: boolean | null
 }
 
 export interface TraceEvent {
+  id: number
   verb: string
   timestamp: number
+  device?: string | null
   object_data: {
     action?: string
     target?: string
@@ -34,19 +51,33 @@ export interface TraceEvent {
   } | null
 }
 
-export interface SessionMetrics {
-  predictionsMade: number
-  actionsMade: number
-  anomaliesNoticed: number
-  avgThinkTimeMs: number
-  avgHandMovementMeters: number
-  hasSensorData: boolean
+export interface DimensionResult {
+  key: string
+  label: string
+  score: number | null
+  max: 3
+  basis: string
+  evidence: number[]
+  measures: Record<string, number | string | null>
+}
+
+export interface StatItem {
+  label: string
+  value: string
+  hint: string
 }
 
 export interface SessionDetail {
   sessionId: string
+  studentId: string
   timestamp: string
-  scores: RubricScores
-  metrics: SessionMetrics
+  rubricVersion: string
+  lessonType: 'chemistry_indicators' | 'physics_bohr' | 'unknown'
+  device: Device
+  complete: boolean
+  dimensions: DimensionResult[]
+  overall: { points: number; max: number; percent: number | null }
+  deviceStats: { kind: Device; items: StatItem[] }
+  metrics: Record<string, number | boolean | string | null>
   trace: TraceEvent[]
 }
