@@ -37,7 +37,10 @@ interface SampleObj {
 
 interface ToolObj {
   id: string
+  /** The moving tool. */
   group: THREE.Group
+  /** The fixed pad, label and hit area it rests on. */
+  station: THREE.Group
   pad: THREE.Mesh
   home: THREE.Vector3
   homeRot: THREE.Euler
@@ -414,9 +417,9 @@ export class MetalsScene {
 
     const span = (tools.length - 1) * TOOL_SPACING
     tools.forEach((tool, i) => {
-      const home = V(-span / 2 + i * TOOL_SPACING, BENCH_Y + RISER_H, TOOL_Z)
-      const group = new THREE.Group()
-      group.position.copy(home)
+      const stationPos = V(-span / 2 + i * TOOL_SPACING, BENCH_Y + RISER_H, TOOL_Z)
+      const station = new THREE.Group()
+      station.position.copy(stationPos)
       const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.105, 0.01, 36), new THREE.MeshStandardMaterial({ color: 0x1b1f27, roughness: 0.4, metalness: 0.4 }))
       pad.position.y = 0.005
       const padRing = new THREE.Mesh(new THREE.RingGeometry(0.108, 0.125, 48), new THREE.MeshBasicMaterial({ color: 0x8ab4ff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }))
@@ -426,18 +429,22 @@ export class MetalsScene {
       const label = this.textSprite(tool.name, { size: 50, bg: '#f4f1e8', fg: '#14161a', wide: true })
       label.scale.set(0.2, 0.065, 1)
       label.position.set(0, 0.3, 0.02)
-      const obj: ToolObj = { id: tool.id, group, pad, home, homeRot: new THREE.Euler(), hover: 0, active: false }
-      const prop = this.buildProp(tool.id, obj)
-      prop.position.y = 0.01
       const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.3, 10), new THREE.MeshBasicMaterial({ visible: false }))
       hit.position.y = 0.15
-      group.add(pad, padRing, prop, label, hit)
-      group.traverse((o) => {
-        o.userData.toolId = tool.id
-        if (o instanceof THREE.Mesh && o !== hit) o.castShadow = true
-      })
-      this.scene.add(group)
-      this.pickables.push(group)
+      station.add(pad, padRing, label, hit)
+
+      const obj: ToolObj = { id: tool.id, group: new THREE.Group(), station, pad, home: stationPos.clone().setY(stationPos.y + 0.01), homeRot: new THREE.Euler(), hover: 0, active: false }
+      const prop = this.buildProp(tool.id, obj)
+      prop.position.copy(obj.home)
+      obj.group = prop
+      for (const g of [station, prop]) {
+        g.traverse((o) => {
+          o.userData.toolId = tool.id
+          if (o instanceof THREE.Mesh && o !== hit) o.castShadow = true
+        })
+        this.scene.add(g)
+        this.pickables.push(g)
+      }
       this.tools[tool.id] = obj
     })
   }
@@ -574,9 +581,9 @@ export class MetalsScene {
     const freeH = Math.max(200, H - this.insetsTarget.top - this.insetsTarget.bottom)
     const vfov = (this.camera.fov * Math.PI) / 180
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * (freeW / freeH))
-    const d = Math.min(4.2, Math.max(1.3, 1.45 / Math.tan(hfov / 2), 0.55 / Math.tan(vfov / 2)))
+    const d = Math.min(4.6, Math.max(1.3, 1.55 / Math.tan(hfov / 2), 0.72 / Math.tan(vfov / 2)))
     const dir = V(0, 0.5, 1.5).normalize()
-    this.defaultTarget.set(0, 1.04, 0.0)
+    this.defaultTarget.set(0, 1.08, -0.04)
     this.defaultPos.copy(this.defaultTarget).addScaledVector(dir, d)
   }
 
@@ -1097,7 +1104,7 @@ export class MetalsScene {
     for (const t of Object.values(this.tools)) {
       const target = this.hoveredTool === t.id ? 1 : 0
       t.hover += (target - t.hover) * Math.min(1, dt * 12)
-      const ring = t.group.getObjectByName('padRing') as THREE.Mesh | undefined
+      const ring = t.station.getObjectByName('padRing') as THREE.Mesh | undefined
       if (ring) {
         const m = ring.material as THREE.MeshBasicMaterial
         m.opacity = Math.max(t.hover * 0.6, t.active ? 1 : 0)
