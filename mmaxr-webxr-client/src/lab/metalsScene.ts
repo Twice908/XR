@@ -460,7 +460,7 @@ export class MetalsScene {
     stem.position.y = 0.055
     const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.012, 0.014, 16), this.mat(0x30343b))
     collar.position.y = 0.105
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.05, 14), new THREE.MeshBasicMaterial({ color: 0x4fa6ff, transparent: true, opacity: 0.85, depthWrite: false }))
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.05, 14), new THREE.MeshBasicMaterial({ color: 0x4fa6ff, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending }))
     flame.position.y = 0.14
     flame.visible = false
     obj.flame = flame
