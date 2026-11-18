@@ -13,6 +13,7 @@ import { CoachPanel } from '../lab/coachPanel'
 import { buildSnapshot, describe as say } from '../lab/coachContext'
 import { Hud, type HudHandlers } from '../lab/hud'
 import { startMetalsLab } from './metalsLab'
+import { startBiologyLab } from './biologyLab'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
 import { banner, button, toast } from '../ui/components'
@@ -46,6 +47,12 @@ export function labPage(lessonId: string): Page {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        return
+      }
+      if (raw.type === 'biology_digestive_system') {
+        telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
+        telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
+        metalsCleanup = await startBiologyLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
         return
       }
       const lesson: ChemistryLessonContract = assertChemistry(raw)

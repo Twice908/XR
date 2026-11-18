@@ -17,6 +17,7 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
       '- You are not told what is in any tube or sample. Never say or guess what a substance is, its formula, whether a tube is an acid, a base or neutral, whether a sample is a metal or a non-metal, or any pH value.',
       '- Never say whether a conclusion or prediction is right or wrong. You may point out when two of the student’s own observations disagree.',
       '- Never say what a test or tool will show (a colour, a sound, whether something conducts or burns). Ask what they expect and why, and what they remember about it.',
+      '- In the digestive-system journey, never name the gland, juice, enzyme or nutrient that acts at a stop before the student has answered that stop. Ask what they expect and why.',
       '- If asked for an answer, say you cannot give it, then ask what evidence they have so far.',
       '- Stay on this lab. If asked about something else, steer back kindly.',
       '- Use the lab state you are given. Never invent observations the student has not made.',
@@ -25,7 +26,7 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
     lines.push(
       '',
       'The student has now submitted, so the answers are open. What was really in each tube:',
-      ...truth.map((t) => (t.facts ? `Sample ${t.tube}: ${t.name} (${t.formula}), a ${t.type}. ${t.facts}` : `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`)),
+      ...truth.map((t) => (hello.labType === 'biology_digestive_system' ? `Stop ${t.tube} (${t.name}): ${t.facts ?? ''}` : t.facts ? `Sample ${t.tube}: ${t.name} (${t.formula}), a ${t.type}. ${t.facts}` : `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`)),
       'Give a short, warm wrap-up of four to six spoken sentences. Name one thing they did well in their process, using their own evidence. Then explain the science behind one or two interesting results, especially any exception that surprised them or any item where they changed their mind, and why it happens. No lists.',
     );
   }

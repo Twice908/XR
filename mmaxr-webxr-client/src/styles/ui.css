@@ -522,6 +522,9 @@ p {
 .exp-chem {
   background: linear-gradient(135deg, #1e3a8a, #7c3aed 55%, #ec4899);
 }
+.exp-bio {
+  background: linear-gradient(135deg, #064e3b, #0d9488 55%, #f59e0b);
+}
 .exp-phys {
   background: linear-gradient(135deg, #0f172a, #1d4ed8 60%, #06b6d4);
 }

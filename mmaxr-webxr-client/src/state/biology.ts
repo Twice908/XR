@@ -1,0 +1,185 @@
+import { XapiVerb } from '@mmaxr/schema'
+import type { BiologyCheckpoint, BiologyFinalResult, BiologyLessonContract, BiologyReveal, TelemetryEvent } from '@mmaxr/schema'
+
+export type Stage = 'predict' | 'explain' | 'revealed' | 'final' | 'done'
+export type Confidence = 1 | 2 | 3
+export type Group = 'glands' | 'juices' | 'nutrients'
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+
+export interface Selection {
+  glands: string[]
+  juices: string[]
+  nutrients: string[]
+}
+
+export interface Stop {
+  cp: BiologyCheckpoint
+  selection: Selection
+  confidence: Confidence | null
+  explanation: string
+  inputMode: 'voice' | 'typed'
+  speakMs: number
+  thinkMs: number
+  reveal: BiologyReveal | null
+  revisions: number
+  /** Best keyword coverage so far, including revisions. */
+  coverage: number
+}
+
+export class StateError extends Error {}
+
+export const wordCount = (s: string) => s.trim().split(/\s+/).filter(Boolean).length
+
+/** The student's side of the guided journey. It holds no answers: the reveal arrives from the server per stop. */
+export class JourneyExperiment {
+  stage: Stage = 'predict'
+  index = 0
+  readonly stops: Stop[]
+  scenarioAnswers: Record<string, string> = {}
+  finalResult: BiologyFinalResult | null = null
+  private arrivedAt: number
+  private predictedAt = 0
+
+  constructor(
+    readonly lesson: BiologyLessonContract,
+    private readonly emit: Emit,
+    private readonly now: () => number = Date.now,
+  ) {
+    this.stops = lesson.checkpoints.map((cp) => ({ cp, selection: { glands: [], juices: [], nutrients: [] }, confidence: null, explanation: '', inputMode: 'typed', speakMs: 0, thinkMs: 0, reveal: null, revisions: 0, coverage: 0 }))
+    this.arrivedAt = this.now()
+    this.emit(XapiVerb.INVESTIGATED, { action: 'arrive_checkpoint', target: this.stop.cp.id, value: 1 })
+  }
+
+  get stop(): Stop {
+    return this.stops[Math.min(this.index, this.stops.length - 1)]
+  }
+  get minWords(): number {
+    return this.lesson.config.minExplanationWords
+  }
+  get maxRevisions(): number {
+    return this.lesson.config.maxRevisions
+  }
+  get n(): number {
+    return this.index + 1
+  }
+  get isLastStop(): boolean {
+    return this.index === this.stops.length - 1
+  }
+
+  // ---- predict ----
+  toggle(group: Group, id: string): void {
+    if (this.stage !== 'predict') throw new StateError('Your prediction is already locked in.')
+    const list = this.stop.selection[group]
+    const at = list.indexOf(id)
+    // "none" excludes everything else in that group.
+    if (id === 'none') this.stop.selection[group] = at >= 0 ? [] : ['none']
+    else if (at >= 0) list.splice(at, 1)
+    else this.stop.selection[group] = [...list.filter((x) => x !== 'none'), id]
+  }
+
+  setConfidence(c: Confidence): void {
+    if (this.stage !== 'predict') throw new StateError('Your prediction is already locked in.')
+    this.stop.confidence = c
+  }
+
+  get canLock(): boolean {
+    const s = this.stop
+    return this.stage === 'predict' && s.selection.glands.length > 0 && s.selection.juices.length > 0 && s.selection.nutrients.length > 0 && s.confidence !== null
+  }
+
+  lockPrediction(): void {
+    if (!this.canLock) throw new StateError('Choose a gland, a juice and a nutrient, then say how sure you are.')
+    const s = this.stop
+    this.predictedAt = this.now()
+    s.thinkMs = this.predictedAt - this.arrivedAt
+    this.stage = 'explain'
+    this.emit(XapiVerb.PREDICTED, {
+      action: 'predict_selection',
+      target: `checkpoint:${s.cp.id}`,
+      value: [...s.selection.glands, ...s.selection.juices, ...s.selection.nutrients].join(','),
+      data: { sample: this.n, tool: 'explain', checkpoint: s.cp.id, confidence: s.confidence, decisionMs: s.thinkMs, glands: s.selection.glands, juices: s.selection.juices, nutrients: s.selection.nutrients },
+    })
+  }
+
+  // ---- explain + reveal ----
+  canCommit(text: string): boolean {
+    return this.stage === 'explain' && wordCount(text) >= this.minWords
+  }
+
+  commitPayload(text: string, inputMode: 'voice' | 'typed', speakMs: number) {
+    if (!this.canCommit(text)) throw new StateError(`Explain it in at least ${this.minWords} words.`)
+    const s = this.stop
+    s.explanation = text.trim()
+    s.inputMode = inputMode
+    s.speakMs = speakMs
+    return { checkpoint: s.cp.id, selection: s.selection, explanation: s.explanation, confidence: s.confidence, inputMode, thinkMs: s.thinkMs, speakMs }
+  }
+
+  /** Called with the server's reveal. Only now does the client learn the right answer for this stop. */
+  recordReveal(reveal: BiologyReveal): void {
+    const s = this.stop
+    s.reveal = reveal
+    s.coverage = reveal.coverage
+    this.stage = 'revealed'
+    const at = this.now()
+    this.emit(XapiVerb.ACTED, { action: 'commit_explanation', target: `checkpoint:${s.cp.id}`, value: 'explain', data: { sample: this.n, tool: 'explain', msSincePrediction: at - this.predictedAt, words: wordCount(s.explanation), inputMode: s.inputMode, speakMs: s.speakMs } })
+    this.emit(XapiVerb.OBSERVED, {
+      action: 'reveal_shown',
+      target: `checkpoint:${s.cp.id}`,
+      value: reveal.selectionScore.allCorrect ? 'correct' : 'partly',
+      // "Match" = the student's understanding held up: the right selections and at least half the key ideas.
+      data: { sample: this.n, tool: 'explain', match: reveal.selectionScore.allCorrect && reveal.coverage >= 0.5, coverage: reveal.coverage, selection: reveal.selectionScore },
+    })
+  }
+
+  get canRevise(): boolean {
+    return this.stage === 'revealed' && this.stop.revisions < this.maxRevisions && !!this.stop.reveal && this.stop.coverage < 1
+  }
+
+  recordRevision(text: string, coverage: number, revisions: number): void {
+    const s = this.stop
+    const before = s.coverage
+    s.revisions = revisions
+    s.coverage = Math.max(s.coverage, coverage)
+    this.emit(XapiVerb.REVISED_MODEL, { action: 'revise_explanation', target: `checkpoint:${s.cp.id}`, value: coverage, data: { sample: this.n, checkpoint: s.cp.id, coverageBefore: before, coverageAfter: coverage, revision: revisions, words: wordCount(text) } })
+  }
+
+  next(): void {
+    if (this.stage !== 'revealed') throw new StateError('Answer this stop first.')
+    if (this.isLastStop) {
+      this.stage = 'final'
+      this.emit(XapiVerb.INVESTIGATED, { action: 'start_challenge' })
+      return
+    }
+    this.index += 1
+    this.stage = 'predict'
+    this.arrivedAt = this.now()
+    this.emit(XapiVerb.INVESTIGATED, { action: 'arrive_checkpoint', target: this.stop.cp.id, value: this.n })
+  }
+
+  // ---- final challenge ----
+  get canSubmitFinal(): boolean {
+    return this.stage === 'final' && this.lesson.transfer.scenarios.every((s) => this.scenarioAnswers[s.id])
+  }
+
+  finish(result: BiologyFinalResult): void {
+    if (this.stage === 'done') return
+    this.finalResult = result
+    this.stage = 'done'
+    this.emit(XapiVerb.EXPLAINED, { action: 'submit_final', data: { answered: Object.keys(this.scenarioAnswers).length } })
+    this.emit(XapiVerb.EXPLAINED, { action: 'submit_analysis', data: { checkpoints: this.stops.length, revisions: this.stops.reduce((a, s) => a + s.revisions, 0) } })
+  }
+
+  summary() {
+    const stops = this.stops
+    return {
+      selectionsRight: stops.filter((s) => s.reveal?.selectionScore.allCorrect).length,
+      stops: stops.length,
+      avgCoverage: stops.length ? stops.reduce((a, s) => a + (s.reveal?.coverage ?? 0), 0) / stops.length : 0,
+      bestCoverage: stops.length ? stops.reduce((a, s) => a + s.coverage, 0) / stops.length : 0,
+      revisions: stops.reduce((a, s) => a + s.revisions, 0),
+      challengeCorrect: this.finalResult?.correct ?? 0,
+      challengeTotal: this.finalResult?.total ?? this.lesson.transfer.scenarios.length,
+    }
+  }
+}

@@ -250,3 +250,66 @@ describe('metals lab scoring', () => {
     expect(r.complete).toBe(false);
   });
 });
+
+describe('digestive-system journey scoring', () => {
+  const stop = (n: number, opts: { all?: boolean; cov?: number; covFinal?: number; revisions?: number; voice?: boolean } = {}) => ({
+    id: `s${n}`, n, selection: { glands: opts.all === false ? 0.5 : 1, juices: 1, nutrients: opts.all === false ? 0.5 : 1, allCorrect: opts.all !== false },
+    coverageFirst: opts.cov ?? 1, coverageFinal: opts.covFinal ?? opts.cov ?? 1, revisions: opts.revisions ?? 0, inputMode: opts.voice === false ? 'typed' as const : 'voice' as const, speakMs: 20000, thinkMs: 9000,
+  });
+  const truth = (stops: ReturnType<typeof stop>[], fin: { correct: number; total: number } | null) => ({ tubes: [], submission: null, biology: { checkpoints: stops, final: fin } });
+  const mk = (n: number, confidence: number, match: boolean) => {
+    id = 0; t = 1_000_000;
+    const out: EventRow[] = [ev('investigated', 'enter_lab', { target: 'biology-101' })];
+    for (let i = 1; i <= n; i++) {
+      const data = { sample: i, tool: 'explain' };
+      out.push(ev('predicted', 'predict_selection', { target: `checkpoint:s${i}`, value: ['a', 'b', 'c', 'd', 'e'][i - 1] ?? 'x', data: { ...data, decisionMs: 9000, confidence } }, 9000));
+      out.push(ev('acted', 'commit_explanation', { target: `checkpoint:s${i}`, value: 'explain', data }, 20000));
+      out.push(ev('observed', 'reveal_shown', { target: `checkpoint:s${i}`, value: match ? 'correct' : 'partly', data: { ...data, match } }, 10));
+    }
+    return out;
+  };
+
+  it('is detected as the journey and scores a strong student highly', () => {
+    const stops = [1, 2, 3, 4, 5].map((n) => stop(n));
+    const r = analyze(mk(5, 3, true), null, truth(stops, { correct: 3, total: 3 }));
+    expect(r.lessonType).toBe('biology_digestive_system');
+    expect(score(r, 'causalCoherence')).toBe(3);
+    expect(score(r, 'transfer')).toBe(3);
+    expect(score(r, 'revisionQuality')).toBe(3); // nothing needed improving
+    expect(score(r, 'metacognitiveCalibration')).toBe(3);
+    expect(r.complete).toBe(true);
+    expect(r.overall.percent!).toBeGreaterThan(75);
+  });
+
+  it('rewards improving a thin explanation after the reveal, and marks down not trying', () => {
+    const thin = [1, 2, 3, 4, 5].map((n) => stop(n, { cov: 0.4 }));
+    expect(score(analyze(mk(5, 2, false), null, truth(thin, null)), 'revisionQuality')).toBe(0);
+    const improved = [1, 2, 3, 4, 5].map((n) => stop(n, { cov: 0.4, covFinal: 0.9, revisions: 1 }));
+    expect(score(analyze(mk(5, 2, false), null, truth(improved, null)), 'revisionQuality')).toBe(3);
+  });
+
+  it('scores causal coherence from the first explanations and the predicted selections', () => {
+    const weak = [1, 2, 3, 4, 5].map((n) => stop(n, { all: false, cov: 0.2 }));
+    expect(score(analyze(mk(5, 3, false), null, truth(weak, null)), 'causalCoherence')!).toBeLessThanOrEqual(1);
+  });
+
+  it('transfer waits for the challenge and scales with correct answers', () => {
+    const stops = [1, 2, 3].map((n) => stop(n));
+    expect(score(analyze(mk(3, 2, true), null, truth(stops, null)), 'transfer')).toBeNull();
+    expect(score(analyze(mk(3, 2, true), null, truth(stops, { correct: 1, total: 3 })), 'transfer')).toBe(1);
+    expect(analyze(mk(3, 2, true), null, truth(stops, null)).complete).toBe(false);
+  });
+
+  it('flags overconfidence: certain but not matching', () => {
+    const stops = [1, 2, 3, 4, 5].map((n) => stop(n, { all: false, cov: 0.3 }));
+    expect(score(analyze(mk(5, 3, false), null, truth(stops, null)), 'metacognitiveCalibration')).toBe(0);
+  });
+
+  it('reports device-appropriate stats', () => {
+    const stops = [1, 2].map((n) => stop(n));
+    const vr = analyze(mk(2, 2, true).map((e) => ({ ...e, device: 'vr' })), null, truth(stops, null));
+    expect(vr.deviceStats.items.some((i) => i.label === 'Eye gaze')).toBe(true);
+    const web = analyze(mk(2, 2, true), null, truth(stops, null));
+    expect(web.deviceStats.items.some((i) => i.label === 'Camera movement')).toBe(true);
+  });
+});

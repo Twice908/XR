@@ -55,7 +55,7 @@ export interface SensorDataRow {
 }
 // 6. chemistry lesson contract
 
-export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract;
+export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract;
 
 export interface PhysicsLessonContract {
   lessonId: string;
@@ -126,7 +126,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "physics_bohr" | "chemistry_indicators" | "chemistry_metals";
+  type: "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system";
   title: string;
   subject: string | null;
   summary: string | null;
@@ -211,4 +211,61 @@ export interface MetalsRevealSample {
   why: string;
   results: Record<string, string>;
   oxideLitmus: string;
+}
+
+
+// 11. Human Digestive System: guided journey
+export interface BiologyOption {
+  id: string;
+  label: string;
+}
+
+export interface BiologyCheckpoint {
+  id: string;
+  organName: string;
+  prompt: string;
+  /** Camera and look-at in full-body (VR) space. */
+  cameraPosition: { x: number; y: number; z: number };
+  lookAtTarget: { x: number; y: number; z: number };
+  /** Where the organ sits on the teaching torso model. */
+  modelAnchor: { x: number; y: number; z: number };
+  /** Close-up model shown beside the torso at this stop. */
+  detail: "tooth" | "stomach" | "liver" | null;
+}
+
+export interface BiologyScenario {
+  id: string;
+  question: string;
+  options: BiologyOption[];
+}
+
+export interface BiologyLessonContract {
+  lessonId: string;
+  type: "biology_digestive_system";
+  title: string;
+  modelUrl: string;
+  subject?: string;
+  summary?: string;
+  durationMinutes?: number;
+  difficulty?: string;
+  assets: { digestiveSystem: string; stomach: string; liver: string; tooth: string };
+  config: { isGuidedTour: boolean; requireAudioExplanation: boolean; minExplanationWords: number; maxRevisions: number };
+  choices: { glands: BiologyOption[]; juices: BiologyOption[]; nutrients: BiologyOption[] };
+  checkpoints: BiologyCheckpoint[];
+  transfer: { scenarios: BiologyScenario[] };
+}
+
+export interface BiologyReveal {
+  checkpoint: string;
+  explanation: string;
+  answer: { glands: BiologyOption[]; juices: BiologyOption[]; nutrients: BiologyOption[]; targetNutrient: string };
+  selectionScore: { glands: number; juices: number; nutrients: number; allCorrect: boolean };
+  keywords: { keyword: string; matched: boolean }[];
+  coverage: number;
+}
+
+export interface BiologyFinalResult {
+  correct: number;
+  total: number;
+  results: { id: string; correct: boolean; answer: string; yourAnswer: string; explanation: string }[];
 }

@@ -74,6 +74,22 @@ export function describeEvent(e: TraceEvent): string {
       return `Set the coach to ${str(o.value).replace('_', ' ')}`
     case 'unlock_ph_paper':
       return 'pH paper unlocked'
+    case 'arrive_checkpoint':
+      return `Arrived at stop ${str(d.sample ?? d.checkpoint)}`
+    case 'start_challenge':
+      return 'Started the “what if?” challenge'
+    case 'predict_selection': {
+      const n = (k: string) => (Array.isArray(d[k]) ? (d[k] as unknown[]).length : 0)
+      return `Stop ${str(d.sample)}: predicted ${n('glands')} gland${n('glands') === 1 ? '' : 's'}, ${n('juices')} juice${n('juices') === 1 ? '' : 's'}, ${n('nutrients')} nutrient${n('nutrients') === 1 ? '' : 's'} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
+    }
+    case 'commit_explanation':
+      return `Stop ${str(d.sample)}: explained ${d.inputMode === 'voice' ? 'aloud' : 'in writing'} (${str(d.words)} words)`
+    case 'reveal_shown':
+      return `Stop ${str(d.sample)}: reveal shown${d.match === true ? ' (prediction matched)' : d.match === false ? ' (prediction missed some)' : ''}`
+    case 'revise_explanation':
+      return `Stop ${str(d.sample)}: revised the explanation (key ideas ${Math.round(Number(d.coverageBefore) * 100)}% → ${Math.round(Number(d.coverageAfter) * 100)}%)`
+    case 'submit_final':
+      return 'Submitted the “what if?” challenge'
     case 'submit_analysis':
       return 'Submitted the analysis'
     default:
@@ -83,6 +99,7 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id.startsWith('biology')) return 'Human Digestive System'
   if (id.startsWith('metals')) return 'Metals & Non-Metals'
   if (id.startsWith('chemistry')) return 'Acids, Bases & Indicators'
   if (id.startsWith('physics')) return 'Bohr Model Spectral Lab'

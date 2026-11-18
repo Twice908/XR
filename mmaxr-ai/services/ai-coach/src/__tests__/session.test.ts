@@ -173,3 +173,32 @@ describe('metals lab', () => {
     expect(coach(out)[0]).toMatchObject({ reason: 'wrapup', blocked: false });
   });
 });
+
+describe('digestive-system journey', () => {
+  const stops: Assignment['tubes'] = [
+    { tube: 1, id: 'mouth', name: 'Mouth', formula: '', type: '', ph: 0, facts: 'Saliva has amylase that breaks starch into sugars.', terms: ['saliva', 'amylase', 'starch'], open: false },
+    { tube: 2, id: 'stomach', name: 'Stomach', formula: '', type: '', ph: 0, facts: 'Gastric juice has HCl and pepsin for proteins.', terms: ['pepsin', 'hcl', 'gastric juice'], open: true },
+  ];
+  const snap: Snapshot = { phase: 'predict', tools: [], activeTool: null, tubes: [], lines: ['Stop 2 (Stomach): question: "What juices are secreted here?" — no prediction yet; no explanation yet; not yet revealed.'] };
+  const mk = (reply: string, submitted = false) => setup(reply, { assignment: { submitted, tubes: stops } });
+
+  it('only guards stops that are still unanswered', async () => {
+    const leak = mk('Pepsin is the enzyme at this stop.');
+    await leak.s.handle({ type: 'ask', text: 'help', snapshot: snap });
+    expect(coach(leak.out)[0].blocked).toBe(true);
+    const fine = mk('Earlier you met saliva and amylase. What do you think works on proteins?');
+    await fine.s.handle({ type: 'ask', text: 'help', snapshot: snap });
+    expect(coach(fine.out)[0].blocked).toBe(false); // the mouth answer was already revealed
+  });
+
+  it('wrap-up uses stop facts only after the challenge is submitted', async () => {
+    const early = mk('Anything', false);
+    await early.s.handle({ type: 'reveal', snapshot: snap });
+    expect(early.seen).toHaveLength(0);
+    const done = mk('Saliva has amylase, and gastric juice has pepsin and HCl.', true);
+    await done.s.handle({ type: 'hello', lessonId: 'biology-101', title: 'The Human Digestive System', labType: 'biology_digestive_system' });
+    await done.s.handle({ type: 'reveal', snapshot: snap });
+    expect(done.seen[0].system).toContain('Stop 2 (Stomach): Gastric juice has HCl and pepsin');
+    expect(coach(done.out)[0]).toMatchObject({ reason: 'wrapup', blocked: false });
+  });
+});

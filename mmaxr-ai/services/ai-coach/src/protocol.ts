@@ -34,8 +34,12 @@ export interface TruthTube {
   formula: string;
   type: string;
   ph: number;
-  /** Plain-language facts used only for the wrap-up (metals lab). */
+  /** Plain-language facts used only for the wrap-up (metals and biology labs). */
   facts?: string;
+  /** Words that would give this item's answer away (biology). Defaults to the name and formula. */
+  terms?: string[];
+  /** Biology: true while this stop's answer has not yet been revealed to the student. */
+  open?: boolean;
 }
 
 export interface Hello {

@@ -6,7 +6,7 @@ import { badge, banner, brand, button, dialog, field, setLoading, toast } from '
 import { go, type Page } from '../router'
 
 /** Labs the WebXR client can run today. Others are listed, but not launchable yet. */
-const SUPPORTED = new Set(['chemistry_indicators', 'chemistry_metals'])
+const SUPPORTED = new Set(['chemistry_indicators', 'chemistry_metals', 'biology_digestive_system'])
 
 export function experimentsPage(): Page {
   const account = userAuth.current()!
@@ -55,7 +55,7 @@ export function experimentsPage(): Page {
 
   const card = (l: LessonSummary) => {
     const ready = SUPPORTED.has(l.type)
-    const thumb = h('div', { class: `exp-thumb ${l.subject === 'Chemistry' ? 'exp-chem' : 'exp-phys'}`, 'aria-hidden': 'true' }, l.type === 'chemistry_metals' ? '⚒️' : l.subject === 'Chemistry' ? '🧪' : '⚛️')
+    const thumb = h('div', { class: `exp-thumb ${l.subject === 'Chemistry' ? 'exp-chem' : l.subject === 'Biology' ? 'exp-bio' : 'exp-phys'}`, 'aria-hidden': 'true' }, l.type === 'biology_digestive_system' ? '🫁' : l.type === 'chemistry_metals' ? '⚒️' : l.subject === 'Chemistry' ? '🧪' : '⚛️')
     const el = h(
       'button',
       { class: 'card card-clickable', 'aria-disabled': ready ? null : 'true', 'aria-label': `${l.title}${ready ? '' : ' (coming soon)'}`, onclick: () => ready && go(`/lab/${l.lessonId}`) },

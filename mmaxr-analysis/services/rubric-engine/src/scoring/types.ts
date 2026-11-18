@@ -27,7 +27,24 @@ export interface SensorData {
 }
 
 /** The hidden answers for a session, read from the lesson service. Never sent by the browser. */
+export interface BiologyTruth {
+  checkpoints: {
+    id: string;
+    n: number;
+    selection: { glands: number; juices: number; nutrients: number; allCorrect: boolean };
+    coverageFirst: number;
+    coverageFinal: number;
+    revisions: number;
+    inputMode: 'voice' | 'typed';
+    speakMs: number;
+    thinkMs: number;
+  }[];
+  final: { correct: number; total: number } | null;
+}
+
 export interface TruthInfo {
+  /** Digestive-system journey: per-stop results held by the lesson service. */
+  biology?: BiologyTruth;
   tubes: { tube: number; type: string; ph: number }[];
   /** What the student locked in at submission, held by the server. */
   submission: { tubes: { tube: number; conclusion: string | null; ph: number | null }[] } | null;
@@ -62,7 +79,7 @@ export interface StatItem {
 
 export interface Report {
   rubricVersion: string;
-  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'physics_bohr' | 'unknown';
+  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'physics_bohr' | 'unknown';
   device: Device;
   complete: boolean;
   dimensions: DimensionResult[];
