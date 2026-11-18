@@ -103,4 +103,7 @@ obfuscation.
   deterministic. Do not couple to a curriculum, exam, or topic.
 - No text interface is provided for the AI coach.
 
-## Status: NOT IMPLEMENTED
+## Status
+
+`ai-coach` (text, voice-ready) and `guardrails` are implemented; `followup-generator` is not.
+

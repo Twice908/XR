@@ -7,6 +7,9 @@ import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
 import { userAuth } from '../services/userAuth'
 import { ChemistryExperiment, PH_TOOL, StateError } from '../state/chemistry'
+import { CoachClient, loadMode } from '../services/aiCoach'
+import { CoachPanel } from '../lab/coachPanel'
+import { buildSecrets, buildSnapshot, buildTruth, describe as say } from '../lab/coachContext'
 import { Hud, type HudHandlers } from '../lab/hud'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
@@ -20,6 +23,8 @@ export function labPage(lessonId: string): Page {
   let scene: LabScene | null = null
   let hud: Hud | null = null
   let destroyed = false
+  let coach: CoachClient | null = null
+  let idleTimer: number | null = null
 
   const fail = (message: string) => {
     status.className = 'lab-error'
@@ -84,6 +89,7 @@ export function labPage(lessonId: string): Page {
         else await scene!.playAddIndicator(r.tube, toolColor(tool), r.actual)
         busy = false
         scene!.focusTube(null)
+        if (!r.match) coach?.event('prediction_mismatch', say.mismatch(r.tube + 1, tool === PH_TOOL ? 'the pH paper' : exp.indicator(tool)!.name, r.predicted, r.actual), buildSnapshot(exp))
         refresh({
           text: r.match
             ? `Tube ${r.tube + 1} turned ${r.actual}. Write what you see in your notebook.`
@@ -141,18 +147,29 @@ export function labPage(lessonId: string): Page {
           },
           onAddIndicator: () => void addIndicator(),
           onRecordColor: (tube, tool, color) => {
-            guard(() => exp.recordColor(tube, tool, color))
+            const ok = guard(() => (exp.recordColor(tube, tool, color), true))
             hud!.update()
+            if (ok && color) {
+              hud!.hint(`Saved. Open your notebook when you are ready to decide what tube ${tube + 1} is, or test another tube.`, null)
+              hud!.closeNotebookSoon()
+            }
           },
           onConclusion: (tube, c) => {
             if (!c) return hud!.update()
             const before = exp.phase
-            guard(() => exp.setConclusion(tube, c))
+            const history = exp.tubes[tube].conclusionHistory.length
+            const prior = exp.tubes[tube].conclusion
+            const ok = guard(() => (exp.setConclusion(tube, c), true))
+            if (ok) hud!.closeNotebookSoon()
+            if (ok && history > 0 && prior) coach?.event('revision', say.revision(tube + 1, prior, c), buildSnapshot(exp))
+            else if (ok && before === 'testing' && exp.phase === 'ph') coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
             refresh(before === 'testing' && exp.phase === 'ph' ? { text: 'Every tube has a conclusion. pH paper is unlocked: find each exact pH.' } : undefined)
           },
           onRecordPh: (tube, value) => {
-            guard(() => exp.recordPh(tube, value))
+            const ok = guard(() => (exp.recordPh(tube, value), true))
             refresh()
+            if (ok && value !== null) hud!.closeNotebookSoon()
+            if (ok && exp.canSubmit) coach?.event('ready_to_submit', say.ready, buildSnapshot(exp))
           },
           onLayout: (insets) => scene?.setInsets(insets),
           onSubmit: () => {
@@ -162,10 +179,54 @@ export function labPage(lessonId: string): Page {
             exp.tubes.forEach((t) => scene!.revealLabel(t.index, t.solution.formula))
             refresh()
             hud!.showReveal(summary, () => go('/experiments'), () => scene!.focusTube(null))
+            coach?.reveal(buildTruth(exp), buildSnapshot(exp))
           },
       }
       hud = new Hud(exp, hudHandlers, lesson.title)
       root.appendChild(hud.root)
+
+      // ---- AI coach ----
+      const client = new CoachClient()
+      coach = client
+      const panel: CoachPanel = new CoachPanel({
+        initialMode: loadMode(),
+        setOpen: (open) => hud!.setPanelOpen(panel.el, open),
+        onAsk: (text) => {
+          client.ask(text, buildSnapshot(exp))
+          telemetry.emit(XapiVerb.INVESTIGATED, { action: 'ask_coach', data: { length: text.length } })
+        },
+        onMode: (mode) => {
+          client.setMode(mode)
+          telemetry.emit(XapiVerb.INVESTIGATED, { action: 'coach_mode', value: mode })
+        },
+      })
+      hud.attachPanel(panel.el, panel.toggle, (open) => panel.setOpenState(open), panel.bubble)
+      let info: { provider?: string; configured?: boolean } = {}
+      client.onStatus((s) => panel.setStatus(s, info))
+      client.onMessage((m) => {
+        if (m.type === 'ready') {
+          info = { provider: m.provider, configured: m.configured }
+          panel.setStatus('online', info)
+        } else if (m.type === 'thinking') panel.setThinking(true)
+        else if (m.type === 'coach') {
+          panel.addCoach(m.text, m.reason, m.degraded)
+          if (m.reason === 'wrapup') hud!.setPanelOpen(panel.el, true)
+        } else if (m.type === 'coach_off') panel.setThinking(false)
+        else if (m.type === 'error') panel.setThinking(false)
+      })
+      client.connect(
+        { sessionId: session.sessionId, studentId: session.studentId, token: session.token },
+        { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary, secrets: buildSecrets(exp) },
+      )
+      // If the student goes quiet for a while, offer a nudge (the service rate-limits and honours the mode).
+      let lastActive = Date.now()
+      root.addEventListener('pointerdown', () => (lastActive = Date.now()))
+      idleTimer = window.setInterval(() => {
+        if (exp.phase !== 'reveal' && Date.now() - lastActive > 75_000) {
+          lastActive = Date.now()
+          client.event('idle', say.idle, buildSnapshot(exp))
+        }
+      }, 10_000)
 
       await scene.load(lesson, (done, total) => {
         status.querySelector('p')!.textContent = `Preparing your lab… ${done}/${total}`
@@ -194,6 +255,8 @@ export function labPage(lessonId: string): Page {
       sensorTracker.stop()
       telemetry.flushBeacon()
       telemetry.reset()
+      if (idleTimer !== null) window.clearInterval(idleTimer)
+      coach?.disconnect()
       hud?.destroy()
       scene?.dispose()
     },

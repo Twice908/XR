@@ -44,6 +44,9 @@ export class Hud {
   private submitBtn: HTMLButtonElement | null = null
   private ready = false
   private hintRun: (() => void) | null = null
+  private toggles = h('div', { class: 'row hud-toggles' })
+  private extraPanels: HTMLElement[] = []
+  private panelListeners = new Map<HTMLElement, (open: boolean) => void>()
   private notebookToggle: HTMLButtonElement = button('Notebook', { size: 'sm', onClick: () => this.togglePanel(this.notebookPanel) })
 
   constructor(
@@ -74,6 +77,7 @@ export class Hud {
       stepper.appendChild(li)
     })
 
+    this.toggles.append(h('span', { class: 'only-mobile' }, button('Tools', { size: 'sm', onClick: () => this.togglePanel(this.toolsPanel) })), this.notebookToggle)
     this.root = h(
       'div',
       { class: 'hud' },
@@ -82,12 +86,7 @@ export class Hud {
         { class: 'hud-top' },
         h('div', { class: 'row' }, button('← Back', { variant: 'ghost', size: 'sm', onClick: () => handlers.onBack() }), h('h1', { class: 't-label hud-title' }, title)),
         stepper,
-        h(
-          'div',
-          { class: 'row hud-toggles' },
-          h('span', { class: 'only-mobile' }, button('Tools', { size: 'sm', onClick: () => this.togglePanel(this.toolsPanel) })),
-          this.notebookToggle,
-        ),
+        this.toggles,
       ),
       this.toolsPanel,
       this.notebookPanel,
@@ -95,10 +94,25 @@ export class Hud {
     )
     this.ready = true
     window.addEventListener('resize', this.layout)
+    // Touching the notebook again before it hides keeps it open.
+    this.notebookPanel.addEventListener('focusin', () => this.cancelClose())
     this.update()
   }
 
   private isNarrow = () => window.innerWidth <= 1000
+
+  /** Add another slide-in panel (e.g. the coach) with its own toggle button and optional overlay. */
+  attachPanel(panel: HTMLElement, toggle: HTMLElement, onOpenChange: (open: boolean) => void, overlay?: HTMLElement) {
+    this.extraPanels.push(panel)
+    this.panelListeners.set(panel, onOpenChange)
+    this.toggles.insertBefore(toggle, this.notebookToggle)
+    this.root.insertBefore(panel, this.root.querySelector('.hint-bar'))
+    if (overlay) this.root.appendChild(overlay)
+  }
+
+  setPanelOpen(panel: HTMLElement, open: boolean) {
+    this.setPanel(panel, open)
+  }
 
   private togglePanel(panel: HTMLElement) {
     this.setPanel(panel, !panel.classList.contains('open'))
@@ -107,15 +121,38 @@ export class Hud {
   private setPanel(panel: HTMLElement, open: boolean) {
     if (this.isNarrow() && open) {
       // One bottom sheet at a time on small screens.
-      for (const p of [this.toolsPanel, this.notebookPanel]) if (p !== panel) p.classList.remove('open')
+      for (const p of [this.toolsPanel, this.notebookPanel, ...this.extraPanels]) {
+        if (p !== panel && p.classList.contains('open')) {
+          p.classList.remove('open')
+          this.panelListeners.get(p)?.(false)
+        }
+      }
     }
     panel.classList.toggle('open', open)
+    this.panelListeners.get(panel)?.(open)
     this.root.classList.toggle('tray-open', this.notebookPanel.classList.contains('open'))
     this.layout()
   }
 
   openNotebook() {
+    this.cancelClose()
     this.setPanel(this.notebookPanel, true)
+  }
+
+  private closeTimer: number | null = null
+
+  private cancelClose() {
+    if (this.closeTimer !== null) window.clearTimeout(this.closeTimer)
+    this.closeTimer = null
+  }
+
+  /** Tuck the notebook away once a reading is saved so the bench is visible again. */
+  closeNotebookSoon(ms = 650) {
+    this.cancelClose()
+    this.closeTimer = window.setTimeout(() => {
+      this.closeTimer = null
+      this.setPanel(this.notebookPanel, false)
+    }, ms)
   }
 
   /** Report how much of the canvas the HUD covers so the 3D scene can frame itself in the rest. */
@@ -127,7 +164,7 @@ export class Hud {
     const hint = this.hintText.parentElement!.getBoundingClientRect()
     const trayOpen = this.notebookPanel.classList.contains('open')
     if (narrow) {
-      const open = [this.toolsPanel, this.notebookPanel].find((p) => p.classList.contains('open'))
+      const open = [this.toolsPanel, this.notebookPanel, ...this.extraPanels].find((p) => p.classList.contains('open'))
       bottom = open ? open.getBoundingClientRect().height + 8 : hint.height + 24
     } else {
       left = this.toolsPanel.getBoundingClientRect().right + 8
@@ -407,6 +444,7 @@ export class Hud {
   }
 
   destroy() {
+    this.cancelClose()
     window.removeEventListener('resize', this.layout)
     this.root.remove()
   }

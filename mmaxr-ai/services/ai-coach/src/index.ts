@@ -1,40 +1,109 @@
+import http from 'http';
 import express from 'express';
-import { WebSocketServer } from 'ws';
-import { applyGuardrails } from '@mmaxr/guardrails';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import { WebSocketServer, type WebSocket } from 'ws';
+import { ProviderRegistry } from './providers';
+import { MODES, type ClientMessage, type ServerMessage } from './protocol';
+import { CoachSession } from './session';
+
+// Local development keys live in ai-coach/.env (untracked). Never log their values.
+try {
+  process.loadEnvFile();
+} catch {
+  /* no .env file */
+}
+
+const PORT = Number(process.env.PORT || process.env.AI_COACH_PORT || 3003);
+const SESSION_AUTH_URL = process.env.SESSION_AUTH_URL || 'http://localhost:3004';
+const REQUIRE_SESSION = process.env.AI_COACH_REQUIRE_SESSION !== 'false';
+const JWT_SECRET = process.env.JWT_SECRET || 'mmaxr-dev-secret-change-me';
+const ALLOWED_ORIGINS = (process.env.AI_COACH_ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
+
+const registry = new ProviderRegistry(process.env);
 
 const app = express();
-const PORT = process.env.PORT || 3003;
+app.use(cors());
+app.use(express.json());
 
-const server = app.listen(PORT, () => {
-  console.log(`🤖 AI Coach WebSocket running on ws://localhost:${PORT}`);
+app.get('/health', (_req, res) => res.json({ ok: true }));
+
+// Which providers exist and which is active. Reports whether a key is set, never the key.
+app.get('/providers', (_req, res) => res.json({ providers: registry.list() }));
+
+// Switch the active provider at runtime. Instructor token required.
+app.post('/admin/provider', (req, res) => {
+  const header = req.headers.authorization || '';
+  try {
+    const claims = jwt.verify(header.startsWith('Bearer ') ? header.slice(7) : '', JWT_SECRET) as jwt.JwtPayload;
+    if (claims.role !== 'instructor') return res.status(403).json({ error: 'Instructor access only' });
+  } catch {
+    return res.status(401).json({ error: 'Invalid or missing token' });
+  }
+  if (!registry.set(String(req.body?.provider ?? ''))) return res.status(400).json({ error: 'provider must be anthropic, openai or gemini' });
+  console.log(`[ai-coach] active provider is now ${registry.active.name}`);
+  res.json({ providers: registry.list() });
 });
 
+const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (ws) => {
-  console.log('🎓 Student connected to AI Coach');
+async function authorize(url: URL): Promise<boolean> {
+  if (!REQUIRE_SESSION) return true;
+  const sessionId = url.searchParams.get('sessionId');
+  const token = url.searchParams.get('token');
+  if (!sessionId || !token) return false;
+  try {
+    const res = await fetch(`${SESSION_AUTH_URL}/auth/verify/${encodeURIComponent(sessionId)}`);
+    if (!res.ok) return false;
+    const s = (await res.json()) as { token?: string };
+    return s.token === token;
+  } catch {
+    return false;
+  }
+}
 
-  ws.on('message', async (data) => {
-    const message = data.toString();
-    console.log(`\n[Student]: ${message}`);
+wss.on('connection', async (ws: WebSocket, req) => {
+  const url = new URL(req.url || '/', 'http://localhost');
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.length && origin && !ALLOWED_ORIGINS.includes(origin)) return ws.close(4403, 'origin not allowed');
+  if (!(await authorize(url))) return ws.close(4401, 'unauthorized');
 
-    // --- MOCK LLM RESPONSE ---
-    // We simulate the LLM trying to be "too helpful" and giving the answer.
-    let mockLlmResponse = "";
-    if (message.toLowerCase().includes("wavelength") || message.toLowerCase().includes("answer")) {
-      mockLlmResponse = "The wavelength is 656.2 nanometers. You should use the Rydberg formula.";
-    } else {
-      mockLlmResponse = "Interesting thought. What did you expect to happen when you fired the photon?";
+  const tag = (url.searchParams.get('sessionId') || 'anon').slice(0, 14);
+  const send = (m: ServerMessage) => ws.readyState === ws.OPEN && ws.send(JSON.stringify(m));
+  const session = new CoachSession({ registry, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
+  console.log(`[ai-coach ${tag}] connected (provider ${registry.active.name})`);
+  session.announce();
+
+  let windowStart = Date.now();
+  let count = 0;
+
+  ws.on('message', (data) => {
+    if (Date.now() - windowStart > 60_000) {
+      windowStart = Date.now();
+      count = 0;
     }
+    if (++count > 40) return send({ type: 'error', message: 'Slow down a little.' });
 
-    // --- APPLY GUARDRAILS ---
-    const { safeResponse, wasBlocked } = applyGuardrails(mockLlmResponse);
-
-    if (wasBlocked) {
-      console.log(`[🛑 GUARDRAIL BLOCKED RAW AI]: ${mockLlmResponse}`);
+    let msg: ClientMessage;
+    try {
+      msg = JSON.parse(data.toString());
+    } catch {
+      return send({ type: 'error', message: 'Messages must be JSON.' });
     }
-    
-    console.log(`[Coach]: ${safeResponse}`);
-    ws.send(safeResponse);
+    if (!msg || typeof msg !== 'object' || typeof (msg as { type?: unknown }).type !== 'string') return;
+    if (msg.type === 'mode' && !(MODES as string[]).includes(msg.mode)) return;
+    if (msg.type === 'ask' && (typeof msg.text !== 'string' || !msg.text.trim())) return;
+    void session.handle(msg).catch((err) => {
+      console.error(`[ai-coach ${tag}] handler error:`, (err as Error).message);
+      send({ type: 'error', message: 'The coach hit a problem.' });
+    });
   });
+
+  ws.on('error', () => {});
+});
+
+server.listen(PORT, () => {
+  const p = registry.active;
+  console.log(`🤖 AI Coach on ws://localhost:${PORT} · provider ${p.name} (${p.model}) · key ${p.isConfigured() ? 'set' : 'MISSING'}`);
 });

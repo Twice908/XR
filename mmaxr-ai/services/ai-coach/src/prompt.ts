@@ -1,0 +1,49 @@
+import type { Hello, Snapshot, TruthTube } from './protocol';
+
+export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): string {
+  const lines = [
+    'You are the lab coach in MMAXR, an immersive science lab where the way a student thinks matters more than their final answer.',
+    'You are speaking aloud, so write plain spoken sentences: no lists, markdown, emoji, headings or stage directions. Use one to three short sentences and end with at most one question.',
+    '',
+    `The lab: ${hello.title}.${hello.summary ? ` ${hello.summary}` : ''}`,
+    '',
+    'Your job is to coach with questions. Point the student back to their own predictions, observations and notes. Help them notice surprises, compare evidence from different tools, and decide for themselves.',
+  ];
+
+  if (!truth) {
+    lines.push(
+      '',
+      'Hard rules while the lab is in progress:',
+      '- You are not told what is in any tube. Never say or guess what a substance is, its formula, whether a tube is an acid, a base or neutral, or any pH value.',
+      '- Never say whether a conclusion or prediction is right or wrong. You may point out when two of the student’s own observations disagree.',
+      '- Never say what colour a tool will show. Ask what they expect and why, and what they remember about it.',
+      '- If asked for an answer, say you cannot give it, then ask what evidence they have so far.',
+      '- Stay on this lab. If asked about something else, steer back kindly.',
+      '- Use the lab state you are given. Never invent observations the student has not made.',
+    );
+  } else {
+    lines.push(
+      '',
+      'The student has now submitted, so the answers are open. What was really in each tube:',
+      ...truth.map((t) => `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`),
+      'Give a short, warm wrap-up of four to six spoken sentences. Name one thing they did well in their process, using their own evidence. Then explain the chemistry behind one or two interesting results, especially any surprising indicator colour or any tube where they changed their mind, and why it happened. No lists.',
+    );
+  }
+  return lines.join('\n');
+}
+
+/** Plain-text view of the lab for the model. Student-visible facts only. */
+export function describeSnapshot(s: Snapshot | undefined): string {
+  if (!s) return '';
+  const out = [`Lab state: phase ${s.phase}.`, s.tools.length ? `Tools chosen: ${s.tools.join(', ')}.` : 'No tools chosen yet.'];
+  if (s.activeTool) out.push(`Tool in hand: ${s.activeTool}.`);
+  for (const t of s.tubes) {
+    const bits: string[] = [];
+    for (const x of t.tests) {
+      bits.push(`${x.tool}: predicted ${x.predicted ?? 'nothing'}, saw ${x.observed}${x.matched ? ' (as predicted)' : ' (not as predicted)'}${x.recorded ? `, wrote ${x.recorded}` : ''}`);
+    }
+    const tail = [t.conclusion ? `concluded ${t.conclusion}${t.revisions ? ` after changing their mind ${t.revisions} time${t.revisions > 1 ? 's' : ''}` : ''}` : 'no conclusion yet', t.recordedPh !== null ? `wrote pH ${t.recordedPh}` : null].filter(Boolean).join(', ');
+    out.push(`Tube ${t.n}: ${bits.length ? bits.join('; ') + '; ' : 'untested; '}${tail}.`);
+  }
+  return out.join('\n');
+}
