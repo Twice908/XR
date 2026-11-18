@@ -1,206 +1,53 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MMAXR Lab - WebXR</title>
-    <style>
-      body { margin: 0; overflow: hidden; background-color: #000; }
-      canvas { display: block; width: 100vw; height: 100vh; }
-      
-      #ui-panel {
-        position: absolute; top: 10px; left: 10px; color: white;
-        font-family: monospace; background: rgba(0,0,0,0.7); padding: 15px;
-        border-radius: 8px; pointer-events: none; z-index: 100;
-      }
-
-      /* The AI Chat Overlay */
-      #ai-chat {
-        position: absolute; bottom: 20px; right: 20px; width: 300px;
-        background: rgba(20, 20, 20, 0.9); border: 1px solid #444;
-        border-radius: 8px; font-family: system-ui, sans-serif; 
-        display: flex; flex-direction: column; z-index: 100;
-      }
-      #chat-history {
-        height: 150px; overflow-y: auto; padding: 10px; font-size: 14px;
-        color: #ddd; border-bottom: 1px solid #444;
-      }
-      .user-msg { color: #60a5fa; margin-bottom: 5px; }
-      .ai-msg { color: #4ade80; margin-bottom: 5px; }
-      
-      #chat-input-area { display: flex; padding: 10px; gap: 5px; }
-      #chat-input {
-        flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #555;
-        background: #222; color: white; outline: none;
-      }
-      #send-btn {
-        padding: 8px 12px; background: #3b82f6; color: white; border: none;
-        border-radius: 4px; cursor: pointer;
-      }
-      #send-btn:hover { background: #2563eb; }
-    </style>
-  </head>
-  <body>
-    <div id="ui-panel">
-      <h3>MMAXR Spectral Lab</h3>
-      <p>Status: <span id="status">IDLE</span></p>
-      <p>Instruction: <span id="instruction">Click the glowing screen to Predict</span></p>
-    </div>
-
-   /* The AI Chat Overlay  */
-    <div id="ai-chat">
-      <div id="chat-history">
-        <div class="ai-msg"><strong>Coach:</strong> I am here to help. What did you predict?</div>
-      </div>
-      <div id="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Ask the coach..." />
-        <button id="send-btn">Send</button>
-      </div>
-    </div>
-
-    <script type="module" src="/src/main.ts"></script>
-  </body>
-</html> -->
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MMAXR · Bohr Lab</title>
+    <title>MMAXR · Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        background: #0b1020;
-        overflow: hidden;
-      }
-      #scene {
-        display: block;
-        width: 100vw;
-        height: 100vh;
-      }
+      html, body { margin: 0; height: 100%; background: #0b1020; overflow: hidden; }
+      #scene { display: block; width: 100vw; height: 100vh; }
+      
+      /* Chat Overlay - Moved to LEFT */
       #chat-overlay {
-        position: fixed;
-        bottom: 16px;
-        right: 16px;
-        width: 320px;
-        max-height: 50vh;
-        color: #fff;
-        background: rgba(0, 0, 0, 0.55);
-        border-radius: 12px;
-        padding: 10px;
-        font:
-          14px system-ui,
-          sans-serif;
+        position: fixed; bottom: 16px; left: 16px;
+        width: 320px; max-height: 50vh; color: #fff;
+        background: rgba(0,0,0,0.55); border-radius: 12px;
+        padding: 10px; font: 14px system-ui, sans-serif;
+        z-index: 50;
       }
-      #chat-overlay {
-        position: fixed;
-        bottom: 16px;
-        right: 16px;
-        width: 320px;
-        max-height: 50vh;
-        color: #fff;
-        background: rgba(0, 0, 0, 0.55);
-        border-radius: 12px;
-        padding: 10px;
-        font:
-          14px system-ui,
-          sans-serif;
-      }
-      #fatal {
-        display: none;
-        position: fixed;
-        top: 16px;
-        left: 16px;
-        right: 16px;
-        color: #fecaca;
-        background: #7f1d1d;
-        padding: 12px;
-        border-radius: 8px;
-      }
+      #fatal { display: none; position: fixed; top: 16px; left: 16px; right: 16px;
+               color: #fecaca; background: #7f1d1d; padding: 12px; border-radius: 8px; z-index: 100; }
+               
       .mmaxr-chat-log {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        max-height: 32vh;
-        overflow-y: auto;
-        padding-right: 4px;
+        display: flex; flex-direction: column; gap: 6px;
+        max-height: 32vh; overflow-y: auto; padding-right: 4px;
       }
       .mmaxr-chat-msg {
-        max-width: 85%;
-        padding: 8px 12px;
-        border-radius: 12px;
-        font-size: 13px;
-        line-height: 1.4;
-        word-wrap: break-word;
-        white-space: pre-wrap;
+        max-width: 85%; padding: 8px 12px; border-radius: 12px;
+        font-size: 13px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;
       }
-      .mmaxr-chat-student {
-        margin-left: auto;
-        background: #1e40af;
-        color: #ffffff;
-        border-bottom-right-radius: 4px;
-      }
-      .mmaxr-chat-coach {
-        margin-right: auto;
-        background: rgba(255, 255, 255, 0.1);
-        color: #e5e7eb;
-        border-bottom-left-radius: 4px;
-      }
-      .mmaxr-chat-system {
-        margin: 4px auto;
-        background: rgba(127, 29, 29, 0.5);
-        color: #fca5a5;
-        border: 1px solid #7f1d1d;
-        text-align: center;
-        font-size: 12px;
-      }
-      .mmaxr-chat-form {
-        display: flex;
-        gap: 6px;
-        margin-top: 8px;
-      }
+      .mmaxr-chat-student { margin-left: auto; background: #1e40af; color: #ffffff; border-bottom-right-radius: 4px; }
+      .mmaxr-chat-coach { margin-right: auto; background: rgba(255, 255, 255, 0.1); color: #e5e7eb; border-bottom-left-radius: 4px; }
+      .mmaxr-chat-system { margin: 4px auto; background: rgba(127, 29, 29, 0.5); color: #fca5a5; border: 1px solid #7f1d1d; text-align: center; font-size: 12px; }
+      
+      .mmaxr-chat-form { display: flex; gap: 6px; margin-top: 8px; }
       .mmaxr-chat-form input {
-        flex: 1;
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        background: rgba(255, 255, 255, 0.08);
-        color: #ffffff;
-        font: inherit;
-        outline: none;
+        flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08); color: #ffffff; font: inherit; outline: none;
       }
-      .mmaxr-chat-form input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-      }
+      .mmaxr-chat-form input::placeholder { color: rgba(255, 255, 255, 0.4); }
       .mmaxr-chat-form button {
-        padding: 8px 14px;
-        border-radius: 8px;
-        border: none;
-        background: #3b82f6;
-        color: #ffffff;
-        font: inherit;
-        font-weight: 600;
-        cursor: pointer;
+        padding: 8px 14px; border-radius: 8px; border: none; background: #3b82f6;
+        color: #ffffff; font: inherit; font-weight: 600; cursor: pointer;
       }
-      .mmaxr-chat-form button:hover {
-        background: #2563eb;
-      }
-      .mmaxr-chat-guardrail {
-        color: #fca5a5;
-        background: rgba(127, 29, 29, 0.4);
-        border: 1px solid #7f1d1d;
-        padding: 8px;
-        border-radius: 8px;
-        font-size: 13px;
-        margin-top: 8px;
-      }
+      .mmaxr-chat-form button:hover { background: #2563eb; }
     </style>
   </head>
   <body>
     <canvas id="scene"></canvas>
+    <div id="chemistry-overlay"></div>
     <div id="chat-overlay"></div>
     <div id="fatal"></div>
     <script type="module" src="/src/main.ts"></script>

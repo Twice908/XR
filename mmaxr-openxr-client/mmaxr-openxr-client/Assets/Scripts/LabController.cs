@@ -1,225 +1,209 @@
-// using UnityEngine;
-
-// public class LabController : MonoBehaviour
-// {
-//     public Camera mainCamera;
-//     public GameObject predictionMarker;
-//     public LineRenderer resultLine;
-
-//     private SpectralSimulation simulation;
-//     private TelemetryClient telemetry;
-
-//     private string currentState = "IDLE";
-//     private float predictedWavelength = 0f;
-//     private int targetNInitial = 3;
-//     private int targetNFinal = 2;
-
-//     void Start()
-//     {
-//         simulation = GetComponent<SpectralSimulation>();
-//         telemetry = GetComponent<TelemetryClient>();
-//         predictionMarker.SetActive(false);
-//         resultLine.gameObject.SetActive(false);
-//     }
-
-//     void Update()
-//     {
-//         if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
-//         {
-//             Vector2 mousePosition = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
-//             Ray ray = mainCamera.ScreenPointToRay(mousePosition);
-//             RaycastHit hit;
-
-//             if (Physics.Raycast(ray, out hit))
-//             {
-//                 if (hit.collider.CompareTag("Spectrometer"))
-//                 {
-//                     HandleInteraction(hit.point);
-//                 }
-//             }
-//         }
-//     }
-
-//     void HandleInteraction(Vector3 hitPoint)
-//     {
-//         if (currentState == "IDLE")
-//         {
-//             // 1. Prediction
-//             predictionMarker.transform.position = hitPoint;
-//             predictionMarker.SetActive(true);
-//             predictedWavelength = simulation.PredictWavelength(targetNInitial, targetNFinal);
-
-//             telemetry.SendEvent("predicted", new ObjectData { target = "spectrometer", value = predictedWavelength });
-//             currentState = "PREDICTED";
-//             Debug.Log("State: PREDICTED");
-//         }
-//         else if (currentState == "PREDICTED")
-//         {
-//             // 2. Action
-//             telemetry.SendEvent("acted", new ObjectData { action = "fire_photon" });
-//             var result = simulation.FirePhoton(targetNInitial, targetNFinal);
-
-//             // 3. Observation
-//             resultLine.gameObject.SetActive(true);
-//             resultLine.SetPosition(0, new Vector3(hitPoint.x, hitPoint.y - 0.4f, hitPoint.z));
-//             resultLine.SetPosition(1, new Vector3(hitPoint.x, hitPoint.y + 0.4f, hitPoint.z));
-
-//             resultLine.startColor = result.isAnomaly ? Color.red : Color.green;
-//             resultLine.endColor = result.isAnomaly ? Color.red : Color.green;
-
-//             telemetry.SendEvent("observed", new ObjectData { value = result.measuredWavelength });
-
-//             if (result.isAnomaly)
-//             {
-//                 telemetry.SendEvent("noticed_anomaly", new ObjectData { expected = predictedWavelength, actual = result.measuredWavelength });
-//                 Debug.Log($"ANOMALY DETECTED! Predicted: {predictedWavelength}, Actual: {result.measuredWavelength}");
-//             }
-
-//             currentState = "IDLE";
-//             Debug.Log("State: IDLE");
-//         }
-//     }
-// }
-
+using System;
 using System.Collections;
 using GLTFast;
 using MMAXR.Contracts;
 using MMAXR.Networking;
 using MMAXR.Sensors;
 using MMAXR.Simulation;
+using MMAXR.UI;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
 
 namespace MMAXR.Core
 {
     public class LabController : MonoBehaviour
     {
-        [Header("Dependencies")]
-        [SerializeField] private TelemetryClient telemetry;
+        [Header("Dependencies (Leave empty - Auto-finds on Play)")]
+        [SerializeField] private TelemetryClient    telemetry;
         [SerializeField] private SpectralSimulation simulation;
-        [SerializeField] private SensorLogger sensorLogger;
-        [SerializeField] private Transform modelRoot;
+        [SerializeField] private SensorLogger       sensorLogger;
+        [SerializeField] private Transform          modelRoot;
+
+        [Header("Chemistry UI (Leave empty - Auto-finds on Play)")]
+        [SerializeField] private ChemistryTableUI   chemistryUI;
+        [SerializeField] private Transform          uiCanvasRoot;
 
         [Header("Config")]
-        [SerializeField] private string studentId = "student_99";
-        [SerializeField] private string lessonId = "physics-101";
-        [SerializeField] private string activeLessonUrl = "http://localhost:3007/lessons/active";
-
+        [SerializeField] private string studentId       = "student_99";
+        [SerializeField] private string lessonId        = "chemistry-101";
+        [SerializeField] private string activeLessonUrl = "http://localhost:3007/lessons/active?type=chemistry";
+        [SerializeField] private int    lessonTimeoutSeconds = 15;
+        
         [Header("Boot Control")]
         [SerializeField] private bool autoBootOnStart = true;
-        [SerializeField] private int lessonTimeoutSeconds = 15;
 
-        private GltfImport _gltf;
-        private GameObject _loadedSpectrometer;
-        private bool _sessionEnded;
+        private GltfImport  _gltf;
+        private GameObject  _loadedModel;
+        private bool        _sessionEnded;
+
+        private void Awake()
+        {
+            // --- AUTOMATIC ASSIGNMENT MAGIC ---
+            if (telemetry == null)    telemetry = FindAnyObjectByType<TelemetryClient>();
+            if (simulation == null)   simulation = FindAnyObjectByType<SpectralSimulation>();
+            if (sensorLogger == null) sensorLogger = FindAnyObjectByType<SensorLogger>();
+            if (chemistryUI == null)  chemistryUI = FindAnyObjectByType<ChemistryTableUI>();
+
+            // Auto-find the Canvas for the UI
+            if (uiCanvasRoot == null)
+            {
+                Canvas canvas = FindAnyObjectByType<Canvas>();
+                if (canvas != null) uiCanvasRoot = canvas.transform;
+            }
+
+            // Auto-find the Model Root if not assigned (looks for a child named "ModelRoot")
+            if (modelRoot == null)
+            {
+                Transform existing = transform.Find("ModelRoot");
+                if (existing != null) modelRoot = existing;
+                else
+                {
+                    GameObject rootObj = new GameObject("Auto_ModelRoot");
+                    rootObj.transform.SetParent(this.transform, false);
+                    modelRoot = rootObj.transform;
+                }
+            }
+        }
 
         private IEnumerator Start()
         {
-
-            if (!autoBootOnStart) yield break;
-            // --- Task 1: Session Auth ---
-            yield return telemetry.AuthenticateCoroutine(studentId, lessonId);
-            if (!telemetry.IsAuthenticated)
+            if (!autoBootOnStart)
             {
-                Debug.LogError("[Lab] Halted: auth failed, no sessionId.");
+                Debug.LogWarning("[Lab] Auto Boot is turned OFF. Halted.");
                 yield break;
             }
 
-            // --- Tasks 2 & 3: Fetch lesson + glTF + configure simulation ---
+            Debug.Log("[Lab] Booting up...");
+
+            if (telemetry == null)
+            {
+                Debug.LogError("[Lab] CRITICAL: Could not find TelemetryClient in scene!");
+                yield break;
+            }
+
+            // 1. Session Auth
+            yield return telemetry.AuthenticateCoroutine(studentId, lessonId);
+            if (!telemetry.IsAuthenticated)
+            {
+                Debug.LogError("[Lab] Halted: Auth failed.");
+                yield break;
+            }
+
+            // 2. Fetch Lesson & Load Model
             yield return LoadActiveLessonCoroutine();
 
-            // --- Task 4: Start 30Hz sensor logging ---
+            // 3. Start Sensor Logger
             if (sensorLogger != null) sensorLogger.BeginSession();
         }
 
         private IEnumerator LoadActiveLessonCoroutine()
         {
+            Debug.Log($"[Lab] Fetching: {activeLessonUrl}");
             using var req = UnityWebRequest.Get(activeLessonUrl);
             req.timeout = lessonTimeoutSeconds;
             yield return req.SendWebRequest();
 
             if (req.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"[Lab] /lessons/active failed: {req.responseCode} {req.error}");
+                Debug.LogError($"[Lab] Lesson fetch failed: {req.responseCode} {req.error}");
                 yield break;
             }
 
-            LessonContract lesson;
-            try { lesson = JsonConvert.DeserializeObject<LessonContract>(req.downloadHandler.text); }
-            catch (System.Exception e)
+            string json = req.downloadHandler.text;
+            Debug.Log($"[Lab] Raw Lesson JSON: {json}");
+
+            ChemistryLessonContract chemLesson = null;
+            LessonContract physLesson = null;
+
+            try
             {
-                Debug.LogError($"[Lab] Lesson JSON parse error: {e.Message}\n{req.downloadHandler.text}");
-                yield break;
-            }
+                var baseObj = Newtonsoft.Json.Linq.JObject.Parse(json);
+                string lessonType = baseObj["type"]?.ToString();
 
-            if (lesson == null || string.IsNullOrEmpty(lesson.ModelUrl) || lesson.Simulation == null)
+                if (lessonType == "chemistry_indicators")
+                {
+                    chemLesson = JsonConvert.DeserializeObject<ChemistryLessonContract>(json);
+                }
+                else
+                {
+                    physLesson = JsonConvert.DeserializeObject<LessonContract>(json);
+                }
+            }
+            catch (Exception e)
             {
-                Debug.LogError("[Lab] Lesson payload missing ModelUrl or Simulation block.");
+                Debug.LogError($"[Lab] Lesson parse error: {e.Message}");
                 yield break;
             }
 
-            // --- Task 2: glTFast dynamic load (identical .glb as WebXR client) ---
+            if (chemLesson != null)
+            {
+                Debug.Log($"[Lab] Loaded Chemistry Lesson: {chemLesson.Title}");
+                yield return Load3DModel(chemLesson.ModelUrl);
+
+                if (chemistryUI != null && uiCanvasRoot != null)
+                {
+                    chemistryUI.RenderTable(chemLesson, uiCanvasRoot);
+                    Debug.Log("[Lab] Chemistry Table UI Rendered.");
+                }
+                else
+                {
+                    Debug.LogWarning("[Lab] Chemistry UI script or Canvas missing!");
+                }
+            }
+            else if (physLesson != null)
+            {
+                Debug.Log($"[Lab] Loaded Physics Lesson: {physLesson.Title}");
+                yield return Load3DModel(physLesson.ModelUrl);
+                if (simulation != null) simulation.Configure(physLesson.Simulation, _loadedModel);
+            }
+        }
+
+        private IEnumerator Load3DModel(string modelUrl)
+        {
+            if (string.IsNullOrEmpty(modelUrl)) yield break;
+
+            if (_gltf != null) { _gltf.Dispose(); _gltf = null; }
+            
             _gltf = new GltfImport();
-            var loadTask = _gltf.Load(lesson.ModelUrl);
+            var loadTask = _gltf.Load(modelUrl);
             while (!loadTask.IsCompleted) yield return null;
 
             if (loadTask.IsFaulted || !loadTask.Result)
             {
-                Debug.LogError($"[Lab] glTF load failed: {lesson.ModelUrl} — {loadTask.Exception?.Message}");
+                Debug.LogError($"[Lab] glTF load failed: {modelUrl}");
                 _gltf.Dispose(); _gltf = null;
                 yield break;
             }
 
-            var instantiateTask = _gltf.InstantiateMainSceneAsync(modelRoot);
-            while (!instantiateTask.IsCompleted) yield return null;
+            var instTask = _gltf.InstantiateMainSceneAsync(modelRoot);
+            while (!instTask.IsCompleted) yield return null;
 
-            if (instantiateTask.IsFaulted)
+            if (instTask.IsFaulted)
             {
-                Debug.LogError($"[Lab] glTF instantiate failed: {instantiateTask.Exception?.Message}");
+                Debug.LogError($"[Lab] glTF instantiate failed.");
                 _gltf.Dispose(); _gltf = null;
                 yield break;
             }
 
-            _loadedSpectrometer = modelRoot.childCount > 0
+            _loadedModel = modelRoot.childCount > 0
                 ? modelRoot.GetChild(modelRoot.childCount - 1).gameObject
                 : null;
 
-            _loadedSpectrometer = modelRoot.childCount > 0
-    ? modelRoot.GetChild(modelRoot.childCount - 1).gameObject
-    : null;
-
-            // --- DYNAMIC COLLIDER FIX ---
-            if (_loadedSpectrometer != null)
+            if (_loadedModel != null && _loadedModel.GetComponentInChildren<Collider>() == null)
             {
-                if (_loadedSpectrometer.GetComponentInChildren<Collider>() == null)
+                var box = _loadedModel.AddComponent<BoxCollider>();
+                Renderer[] renderers = _loadedModel.GetComponentsInChildren<Renderer>();
+                if (renderers.Length > 0)
                 {
-                    var box = _loadedSpectrometer.AddComponent<BoxCollider>();
-
-                    // Calculate the bounds of the loaded model to size the collider correctly
-                    Renderer[] renderers = _loadedSpectrometer.GetComponentsInChildren<Renderer>();
-                    if (renderers.Length > 0)
-                    {
-                        Bounds bounds = renderers[0].bounds;
-                        foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
-                        box.center = _loadedSpectrometer.transform.InverseTransformPoint(bounds.center);
-                        box.size = bounds.size;
-                    }
-                    Debug.Log("[Lab] Dynamically added BoxCollider to glTF model for raycasting.");
+                    Bounds bounds = renderers[0].bounds;
+                    foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
+                    box.center = _loadedModel.transform.InverseTransformPoint(bounds.center);
+                    box.size = bounds.size;
                 }
             }
-            // ----------------------------
-
-            simulation.Configure(lesson.Simulation, _loadedSpectrometer);
-
-            // --- Task 3: hand contract to simulation ---
-            simulation.Configure(lesson.Simulation, _loadedSpectrometer);
-
-            Debug.Log($"[Lab] Boot OK. session={telemetry.SessionId} " +
-                      $"lesson={lesson.LessonId} ({lesson.Title})");
         }
 
-        /// <summary>Hook from end-of-lesson UI / quiz completion.</summary>
         public void EndSession()
         {
             if (_sessionEnded) return;
@@ -234,15 +218,12 @@ namespace MMAXR.Core
             Debug.Log("[Lab] Session ended.");
         }
 
-        private void OnApplicationQuit()
-        {
-            EndSession();
-        }
-
+        private void OnApplicationQuit() { EndSession(); }
+        
         private void OnDestroy()
         {
             EndSession();
-            if (_loadedSpectrometer != null) Destroy(_loadedSpectrometer);
+            if (_loadedModel != null) Destroy(_loadedModel);
             _gltf?.Dispose();
             _gltf = null;
         }
