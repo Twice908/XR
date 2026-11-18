@@ -11,12 +11,13 @@
     "probe": "node scripts/contract-probe.mjs"
   },
   "dependencies": {
-    "three": "^0.166.0",
-    "@mmaxr/schema": "workspace:*"
+    "@mmaxr/schema": "workspace:*",
+    "three": "^0.166.0"
   },
   "devDependencies": {
-    "vite": "^5.4.0",
+    "@types/three": "~0.166.0",
     "typescript": "^5.5.0",
+    "vite": "^5.4.0",
     "vitest": "^2.1.0"
   }
 }

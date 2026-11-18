@@ -1,0 +1,68 @@
+/*
+ * Design tokens for the MMAXR WebXR client.
+ * Names, scales and values follow Astryx's neutral theme (meta/astryx):
+ * semantic colour roles, a 4px spacing unit, three radius tiers, Figtree type,
+ * and three motion bands. Astryx itself is React-only, so it is not a dependency here.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
+
+:root {
+  color-scheme: light dark;
+
+  --color-background-body: light-dark(#f1f1f1, #141414);
+  --color-background-surface: light-dark(#ffffff, #1f1f1f);
+  --color-background-raised: light-dark(#ffffff, #262626);
+  --color-background-muted: light-dark(#ececec, #2c2c2c);
+  --color-border: light-dark(#00000014, #ffffff1a);
+  --color-border-emphasized: light-dark(#d4d4d4, #525252);
+  --color-text-primary: light-dark(#000000, #ffffff);
+  --color-text-secondary: light-dark(#474747, #b4b4b4);
+  --color-text-disabled: light-dark(#919191, #6a6a6a);
+  --color-text-accent: light-dark(#1b1b1b, #f1f1f1);
+  --color-text-error: light-dark(#c0262c, #ffaea7);
+  --color-text-success: light-dark(#2f7d33, #90ca90);
+  --color-text-warning: light-dark(#836700, #eec448);
+  --color-text-info: light-dark(#0067ce, #a1caff);
+  --color-background-error: light-dark(#ffe6e3, #4a2220);
+  --color-background-success: light-dark(#e3f3e2, #233823);
+  --color-background-info: light-dark(#e1eeff, #1f3250);
+  --color-background-warning: light-dark(#fbf0cf, #3d3318);
+  --color-action: light-dark(#1b1b1b, #f1f1f1);
+  --color-on-action: light-dark(#ffffff, #141414);
+  --color-focus: #0074e2;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+
+  --radius-inner: 6px;
+  --radius-element: 10px;
+  --radius-container: 12px;
+  --radius-page: 28px;
+  --radius-full: 9999px;
+
+  --shadow-low: 0 1px 2px light-dark(#0000001a, #00000080);
+  --shadow-med: 0 2px 4px light-dark(#0000001a, #00000080);
+  --shadow-high: 0 4px 12px light-dark(#0000001a, #00000099);
+
+  --font-family-body: Figtree, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-code: ui-monospace, 'SF Mono', Monaco, Consolas, monospace;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 17px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 29px;
+  --font-size-4xl: 35px;
+
+  --duration-fast: 125ms;
+  --duration-medium: 300ms;
+  --duration-slow: 700ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}

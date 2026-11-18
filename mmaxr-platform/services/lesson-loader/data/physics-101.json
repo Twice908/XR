@@ -1,6 +1,11 @@
 {
   "lessonId": "physics-101",
   "title": "Bohr Model Spectral Lab",
+  "type": "physics_bohr",
+  "subject": "Physics",
+  "summary": "Fire photons at a hydrogen atom, predict each spectral line from the Bohr model and catch the trial where nature disagrees.",
+  "durationMinutes": 20,
+  "difficulty": "Advanced",
   "modelUrl": "http://localhost:3007/assets/models/spectrometer.glb",
   "simulation": {
     "atomicNumber": 1,

@@ -31,22 +31,12 @@ export interface TelemetryEvent {
     action?: string;
     target?: string;
     value?: number | string;
+    /** Extra structured evidence for the rubric engine (colours, confidence, timings...). */
+    data?: Record<string, unknown>;
   };
 }
 
-// 4. The Lesson Contract (Shared between WebXR and Unity)
-// export interface LessonContract {
-//   lessonId: string;
-//   title: string;
-//   modelUrl: string;
-//   simulation: {
-//     atomicNumber: number;
-//     nInitial: number;
-//     nFinal: number;
-//     anomalyTrialNumber: number;
-//     anomalyShiftMultiplier: number;
-//   };
-// }
+// 4. The Lesson Contract (Shared between WebXR and Unity) — see section 6
 
 // 5. The 30Hz Sensor Data Row (CSV format)
 export interface SensorDataRow {
@@ -67,6 +57,10 @@ export interface PhysicsLessonContract {
   type: "physics_bohr";
   title: string;
   modelUrl: string;
+  subject?: string;
+  summary?: string;
+  durationMinutes?: number;
+  difficulty?: string;
   simulation: {
     atomicNumber: number;
     nInitial: number;
@@ -101,6 +95,16 @@ export interface ChemistryLessonContract {
   type: "chemistry_indicators";
   title: string;
   modelUrl: string;
+  subject?: string;
+  summary?: string;
+  durationMinutes?: number;
+  difficulty?: string;
+  assets?: {
+    testTube?: string;
+    flask?: string;
+    dropper?: string;
+    testTubeRack?: string;
+  };
   config: {
     totalTestTubes: number;
     requiredIndicatorsToSelect: number;
@@ -108,4 +112,26 @@ export interface ChemistryLessonContract {
   indicators: ChemistryIndicator[];
   // Note: This is the randomized assignment for THIS specific session
   assignedSolutions: ChemistrySolution[]; 
+}
+
+// 7. Experiment catalog entry (GET /lessons on lesson-loader)
+export interface LessonSummary {
+  lessonId: string;
+  type: "physics_bohr" | "chemistry_indicators";
+  title: string;
+  subject: string | null;
+  summary: string | null;
+  durationMinutes: number | null;
+  difficulty: string | null;
+}
+
+// 8. Accounts (user-auth)
+export type UserRole = "student" | "instructor";
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  email: string | null;
+  role: UserRole;
+  createdAt: string;
 }

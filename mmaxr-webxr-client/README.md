@@ -24,8 +24,10 @@ as a local file dependency. Configure the `mmaxr-ai` WebSocket endpoint and
 variable names and values defined by those services; they are not specified
 here.
 
-No build framework has been selected. Vite is the recommended starting point
-for a lightweight WebXR development server and build workflow.
+Vite is the build tool. Run `pnpm dev:all` from the repo root (backend, web
+client and dashboard together), or `pnpm --filter ./mmaxr-webxr-client dev` for
+this client alone. Endpoints can be overridden with `VITE_*` variables (see
+`src/config.ts`).
 
 ## Client contract
 
@@ -50,4 +52,15 @@ for a lightweight WebXR development server and build workflow.
 - Standard S3 SDK against MinIO for object storage.
 - Vite is recommended; the build framework remains unselected.
 
-## Status: NOT IMPLEMENTED
+## Status
+
+Pure TypeScript + Three.js, no UI framework. Styling follows the Astryx design
+system's tokens and conventions (`src/styles/tokens.css`) without depending on
+Astryx, which is React-only.
+
+- Sign in / create account / forgot password / delete account (`user-auth`).
+- Experiment list from the lesson catalog (`GET /lessons`).
+- Interactive chemistry indicator lab: tool selection, prediction gate,
+  dropper animation, notebook table, pH paper, reveal; fires `PREDICTED`,
+  `ACTED`, `OBSERVED`, `EXPLAINED`, `REVISED_MODEL`, `INVESTIGATED` xAPI events.
+- Desktop and phone browsers. Immersive (headset) UI is not built yet.

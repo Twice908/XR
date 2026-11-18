@@ -3,53 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MMAXR · Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      html, body { margin: 0; height: 100%; background: #0b1020; overflow: hidden; }
-      #scene { display: block; width: 100vw; height: 100vh; }
-      
-      /* Chat Overlay - Moved to LEFT */
-      #chat-overlay {
-        position: fixed; bottom: 16px; left: 16px;
-        width: 320px; max-height: 50vh; color: #fff;
-        background: rgba(0,0,0,0.55); border-radius: 12px;
-        padding: 10px; font: 14px system-ui, sans-serif;
-        z-index: 50;
-      }
-      #fatal { display: none; position: fixed; top: 16px; left: 16px; right: 16px;
-               color: #fecaca; background: #7f1d1d; padding: 12px; border-radius: 8px; z-index: 100; }
-               
-      .mmaxr-chat-log {
-        display: flex; flex-direction: column; gap: 6px;
-        max-height: 32vh; overflow-y: auto; padding-right: 4px;
-      }
-      .mmaxr-chat-msg {
-        max-width: 85%; padding: 8px 12px; border-radius: 12px;
-        font-size: 13px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;
-      }
-      .mmaxr-chat-student { margin-left: auto; background: #1e40af; color: #ffffff; border-bottom-right-radius: 4px; }
-      .mmaxr-chat-coach { margin-right: auto; background: rgba(255, 255, 255, 0.1); color: #e5e7eb; border-bottom-left-radius: 4px; }
-      .mmaxr-chat-system { margin: 4px auto; background: rgba(127, 29, 29, 0.5); color: #fca5a5; border: 1px solid #7f1d1d; text-align: center; font-size: 12px; }
-      
-      .mmaxr-chat-form { display: flex; gap: 6px; margin-top: 8px; }
-      .mmaxr-chat-form input {
-        flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15);
-        background: rgba(255, 255, 255, 0.08); color: #ffffff; font: inherit; outline: none;
-      }
-      .mmaxr-chat-form input::placeholder { color: rgba(255, 255, 255, 0.4); }
-      .mmaxr-chat-form button {
-        padding: 8px 14px; border-radius: 8px; border: none; background: #3b82f6;
-        color: #ffffff; font: inherit; font-weight: 600; cursor: pointer;
-      }
-      .mmaxr-chat-form button:hover { background: #2563eb; }
-    </style>
+    <meta name="color-scheme" content="light dark" />
+    <title>MMAXR Lab</title>
   </head>
   <body>
-    <canvas id="scene"></canvas>
-    <div id="chemistry-overlay"></div>
-    <div id="chat-overlay"></div>
-    <div id="fatal"></div>
+    <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,35 +1,52 @@
-import type { RubricDimension } from '@mmaxr/schema'
+export type Role = 'student' | 'instructor'
 
-export type RubricScores = Record<RubricDimension, number>
+export interface AuthUser {
+  id: string
+  username: string
+  email: string | null
+  role: Role
+  createdAt: string
+}
 
 export interface SessionSummary {
   session_id: string
-  /** Fields the backend actually returns from GET /sessions */
-  event_count?: string | number
-  last_update?: string | number
-  /** Optional enrichment fields — present only when backend includes them */
-  studentId?: string
-  lessonId?: string
-  status?: 'active' | 'completed' | 'abandoned'
-  startedAt?: string
-  endedAt?: string
+  event_count: string | number
+  last_update: string | number
+}
+
+export interface RubricScores {
+  predictionDiscipline: number
+  retrievalEffort: number
+  revisionQuality: number
+  causalCoherence: number
+  metacognitiveCalibration: number
+  transfer: number
 }
 
 export interface TraceEvent {
-  id?: string
-  timestamp: string
-  dimension?: RubricDimension | null
-  verb?: string
-  action?: string
-  object?: string
-  detail?: string
-  context?: Record<string, unknown>
+  verb: string
+  timestamp: number
+  object_data: {
+    action?: string
+    target?: string
+    value?: string | number
+    data?: Record<string, unknown>
+  } | null
+}
+
+export interface SessionMetrics {
+  predictionsMade: number
+  actionsMade: number
+  anomaliesNoticed: number
+  avgThinkTimeMs: number
+  avgHandMovementMeters: number
+  hasSensorData: boolean
 }
 
 export interface SessionDetail {
   sessionId: string
   timestamp: string
   scores: RubricScores
-  metrics: Record<string, unknown>
+  metrics: SessionMetrics
   trace: TraceEvent[]
 }
