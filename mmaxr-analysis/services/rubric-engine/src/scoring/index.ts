@@ -1,4 +1,5 @@
 import { scoreChemistry } from './chemistry';
+import { scoreMetals } from './metals';
 import { scorePhysics } from './physics';
 import type { Device, EventRow, Report, SensorData, TruthInfo } from './types';
 
@@ -16,6 +17,7 @@ export function detectDevice(events: EventRow[], sensor: SensorData | null): Dev
 export function detectLesson(events: EventRow[]): Report['lessonType'] {
   const entered = events.find((e) => e.object_data?.action === 'enter_lab');
   const target = String(entered?.object_data?.target ?? '');
+  if (target.startsWith('metals') || events.some((e) => e.object_data?.action === 'predict_outcome')) return 'chemistry_metals';
   if (target.startsWith('chemistry') || events.some((e) => e.object_data?.action === 'predict_color')) return 'chemistry_indicators';
   if (target.startsWith('physics') || events.some((e) => e.verb === 'noticed_anomaly')) return 'physics_bohr';
   return 'unknown';
@@ -24,5 +26,8 @@ export function detectLesson(events: EventRow[]): Report['lessonType'] {
 export function analyze(events: EventRow[], sensor: SensorData | null, truth: TruthInfo | null = null): Report {
   const ordered = [...events].sort((a, b) => a.timestamp - b.timestamp || a.id - b.id);
   const device = detectDevice(ordered, sensor);
-  return detectLesson(ordered) === 'physics_bohr' ? scorePhysics(ordered, sensor, device) : scoreChemistry(ordered, sensor, device, truth);
+  const lesson = detectLesson(ordered);
+  if (lesson === 'physics_bohr') return scorePhysics(ordered, sensor, device);
+  if (lesson === 'chemistry_metals') return scoreMetals(ordered, sensor, device, truth);
+  return scoreChemistry(ordered, sensor, device, truth);
 }

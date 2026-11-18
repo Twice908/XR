@@ -139,3 +139,37 @@ describe('CoachSession', () => {
     expect(seen[seen.length - 1].turns.length).toBeLessThanOrEqual(21);
   });
 });
+
+describe('metals lab', () => {
+  const metals: Assignment['tubes'] = [
+    { tube: 1, id: 'graphite', name: 'Graphite', formula: 'C', type: 'non-metal', ph: 0, facts: 'hammer: shatters, electricity: glows. A non-metal that conducts because of free-moving electrons.' },
+    { tube: 2, id: 'iron', name: 'Iron', formula: 'Fe', type: 'metal', ph: 0, facts: 'a typical metal' },
+  ];
+  const snap: Snapshot = { phase: 'testing', tools: [], activeTool: null, tubes: [], lines: ['Sample 1 (dark grey, dull, solid): first impression metal; Electrical conductivity: predicted "Stays dark", saw "Lights up" (not as predicted).'], claims: [{ n: 1, verdict: 'metal' }] };
+  const mk = (reply: string, submitted = false) => setup(reply, { assignment: { submitted, tubes: metals } });
+
+  it('reads the lab state from lines and never sends the hidden results before submission', async () => {
+    const { s, seen } = mk('What did you expect the circuit to do, and why?');
+    await s.handle({ type: 'ask', text: 'what is sample 1?', snapshot: snap });
+    const sent = JSON.stringify(seen[0]);
+    expect(sent).toContain('Lights up');
+    for (const secret of ['Graphite', 'Iron', 'free-moving', 'shatters']) expect(sent).not.toContain(secret);
+  });
+
+  it('blocks a sample verdict but lets the coach repeat the student\'s own call', async () => {
+    const leak = mk('Sample 1 is a non-metal, so keep going.');
+    await leak.s.handle({ type: 'ask', text: 'tell me', snapshot: snap });
+    expect(coach(leak.out)[0].blocked).toBe(true);
+    const echo = mk('You called sample 1 a metal. What made you sure?');
+    await echo.s.handle({ type: 'ask', text: 'why?', snapshot: snap });
+    expect(coach(echo.out)[0].blocked).toBe(false);
+  });
+
+  it('after submission the wrap-up gets each sample\'s facts', async () => {
+    const { s, seen, out } = mk('Graphite conducts because its carbon atoms form sheets with free electrons.', true);
+    await s.handle({ type: 'reveal', snapshot: snap });
+    expect(seen[0].system).toContain('Sample 1: Graphite (C), a non-metal.');
+    expect(seen[0].system).toContain('free-moving electrons');
+    expect(coach(out)[0]).toMatchObject({ reason: 'wrapup', blocked: false });
+  });
+});

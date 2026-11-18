@@ -600,3 +600,41 @@
     max-width: none;
   }
 }
+
+/* ---- Metals lab ---- */
+.opt-list {
+  display: grid;
+  gap: 8px;
+}
+.opt-list .conf-btn {
+  padding: 12px var(--spacing-3);
+}
+.budget {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-element);
+  background: rgb(255 255 255 / 0.05);
+}
+.budget-bar {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: rgb(255 255 255 / 0.12);
+  overflow: hidden;
+}
+.budget-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: #22c55e;
+  transition: width var(--duration-medium) var(--ease-standard), background var(--duration-medium);
+}
+.budget-fill.low {
+  background: #f59e0b;
+}
+.metals-table select {
+  min-width: 150px;
+}
+.metals-table th {
+  white-space: nowrap;
+}

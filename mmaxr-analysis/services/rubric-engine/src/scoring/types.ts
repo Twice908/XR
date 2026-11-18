@@ -62,7 +62,7 @@ export interface StatItem {
 
 export interface Report {
   rubricVersion: string;
-  lessonType: 'chemistry_indicators' | 'physics_bohr' | 'unknown';
+  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'physics_bohr' | 'unknown';
   device: Device;
   complete: boolean;
   dimensions: DimensionResult[];

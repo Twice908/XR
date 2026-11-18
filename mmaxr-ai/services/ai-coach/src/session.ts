@@ -116,7 +116,7 @@ export class CoachSession {
     try {
       text = await provider.complete({ system: buildSystemPrompt(hello, this.truth), turns, maxTokens });
       const revealed = this.truth !== null;
-      const verdicts = (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
+      const verdicts = snapshot?.claims?.map((c) => ({ tube: c.n, verdict: c.verdict })) ?? (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
       const phs = (snapshot?.tubes ?? []).map((t) => t.recordedPh).filter((n): n is number => n !== null);
       const secrets = revealed ? [] : (this.assignment?.tubes ?? []).map((t) => ({ tube: t.tube, terms: [t.name, t.formula], verdict: t.type, ph: t.ph }));
       const guarded = applyGuardrails(text, { allowNumbers: true, secrets, enforceTubeClaims: !revealed, allowedVerdicts: verdicts, allowedPh: phs });

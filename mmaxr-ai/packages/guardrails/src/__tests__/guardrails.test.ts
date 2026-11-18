@@ -49,6 +49,15 @@ describe('secret-aware mode', () => {
     expect(blocked('Tube 3 is actually an acid', { ...opts, allowedVerdicts: [{ tube: 3, verdict: 'neutral' }] })).toBe(true);
   });
 
+  it('guards sample verdicts for the metals lab, including non-metal vs metal', () => {
+    expect(blocked('Sample 3 is a metal.')).toBe(true);
+    expect(blocked('I think sample 2 is a non-metal')).toBe(true);
+    expect(blocked('Sample 4 looks metallic to me.')).toBe(true);
+    expect(blocked('Metals are usually shiny. What did the hammer do to sample 1?')).toBe(false);
+    expect(blocked('You called sample 2 a non-metal. What made you sure?', { ...opts, allowedVerdicts: [{ tube: 2, verdict: 'non-metal' }] })).toBe(false);
+    expect(blocked('Sample 2 is actually a metal', { ...opts, allowedVerdicts: [{ tube: 2, verdict: 'non-metal' }] })).toBe(true);
+  });
+
   it('blocks pH values unless the student already wrote them down', () => {
     expect(blocked('The pH of tube 1 is around 1')).toBe(true);
     expect(blocked('pH 7 would be neutral')).toBe(true);

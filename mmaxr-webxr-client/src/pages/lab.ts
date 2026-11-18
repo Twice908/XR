@@ -12,6 +12,7 @@ import { CoachClient, loadMode } from '../services/aiCoach'
 import { CoachPanel } from '../lab/coachPanel'
 import { buildSnapshot, describe as say } from '../lab/coachContext'
 import { Hud, type HudHandlers } from '../lab/hud'
+import { startMetalsLab } from './metalsLab'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
 import { banner, button, toast } from '../ui/components'
@@ -26,6 +27,7 @@ export function labPage(lessonId: string): Page {
   let destroyed = false
   let coach: CoachClient | null = null
   let idleTimer: number | null = null
+  let metalsCleanup: (() => void) | null = null
 
   const fail = (message: string) => {
     status.className = 'lab-error'
@@ -39,7 +41,14 @@ export function labPage(lessonId: string): Page {
 
       // The session comes first: the server draws this student's hidden tubes when the lesson is requested for it.
       const session = await openSession(account.token, lessonId)
-      const lesson: ChemistryLessonContract = assertChemistry(await fetchLesson(lessonId, session))
+      const raw = await fetchLesson(lessonId, session)
+      if (raw.type === 'chemistry_metals') {
+        telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
+        telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
+        metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        return
+      }
+      const lesson: ChemistryLessonContract = assertChemistry(raw)
       telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
       telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: lesson.lessonId })
 
@@ -284,6 +293,7 @@ export function labPage(lessonId: string): Page {
       sensorTracker.stop()
       telemetry.flushBeacon()
       telemetry.reset()
+      metalsCleanup?.()
       if (idleTimer !== null) window.clearInterval(idleTimer)
       coach?.disconnect()
       hud?.destroy()

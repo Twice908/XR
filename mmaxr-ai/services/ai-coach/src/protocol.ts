@@ -21,6 +21,10 @@ export interface Snapshot {
   tools: string[];
   activeTool: string | null;
   tubes: TubeView[];
+  /** Lab-specific plain-language state. When present it replaces the tube list in the prompt. */
+  lines?: string[];
+  /** What the student has currently called each item, so the coach may repeat their own claim back. */
+  claims?: { n: number; verdict: string }[];
 }
 
 /** The hidden answers, read by the coach from the lesson service. Never supplied by the browser. */
@@ -30,6 +34,8 @@ export interface TruthTube {
   formula: string;
   type: string;
   ph: number;
+  /** Plain-language facts used only for the wrap-up (metals lab). */
+  facts?: string;
 }
 
 export interface Hello {

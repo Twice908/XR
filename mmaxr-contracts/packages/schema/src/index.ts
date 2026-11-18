@@ -55,7 +55,7 @@ export interface SensorDataRow {
 }
 // 6. chemistry lesson contract
 
-export type LessonContract = PhysicsLessonContract | ChemistryLessonContract;
+export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract;
 
 export interface PhysicsLessonContract {
   lessonId: string;
@@ -126,7 +126,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "physics_bohr" | "chemistry_indicators";
+  type: "physics_bohr" | "chemistry_indicators" | "chemistry_metals";
   title: string;
   subject: string | null;
   summary: string | null;
@@ -154,4 +154,61 @@ export interface ChemistryRevealTube {
   formula: string;
   type: "acid" | "base" | "neutral";
   ph: number;
+}
+
+
+// 10. Metals & Non-Metals lab
+export type MaterialKind = "metal" | "non-metal";
+
+export interface MetalsOutcome {
+  id: string;
+  label: string;
+}
+
+export interface MetalsTool {
+  id: string;
+  name: string;
+  property: string;
+  group: "Physical" | "Chemical";
+  question: string;
+  outcomes: MetalsOutcome[];
+}
+
+/** How a sample looks. Nothing here says what it is. */
+export interface MetalsSample {
+  slot: number;
+  color: string;
+  colorHex: string;
+  state: "solid" | "liquid";
+  lustre: "shiny" | "dull";
+  texture: string;
+}
+
+export interface MetalsLessonContract {
+  lessonId: string;
+  type: "chemistry_metals";
+  title: string;
+  modelUrl: string;
+  subject?: string;
+  summary?: string;
+  durationMinutes?: number;
+  difficulty?: string;
+  assets?: { hammer?: string; bunsenBurner?: string };
+  config: { totalSamples: number; testBudget: number; minTestsPerSample: number; requirePredictionBeforeTest: boolean };
+  tools: MetalsTool[];
+  /** Present when the lesson was requested for a session. */
+  samples?: MetalsSample[];
+  uiSchema?: { classifications: { id: MaterialKind; label: string }[] };
+}
+
+export interface MetalsRevealSample {
+  sample: number;
+  id: string;
+  name: string;
+  formula: string;
+  type: MaterialKind;
+  anomaly: boolean;
+  why: string;
+  results: Record<string, string>;
+  oxideLitmus: string;
 }

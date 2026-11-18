@@ -29,6 +29,10 @@ export interface Snapshot {
   tools: string[]
   activeTool: string | null
   tubes: TubeView[]
+  /** Lab-specific plain-language state. When present, the coach reads this instead of the tube list. */
+  lines?: string[]
+  /** What the student currently calls each item; the coach may repeat these back. */
+  claims?: { n: number; verdict: string }[]
 }
 export interface CoachHello {
   lessonId: string

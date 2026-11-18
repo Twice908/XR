@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { createClient } from 'redis';
+import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -33,11 +34,20 @@ function readLesson(lessonId: string): any | null {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-async function loadAssignment(sessionId: string): Promise<Assignment | null> {
+async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indicators' }) | MetalsAssignment | null> {
   const raw = await redis.get(key(sessionId));
-  return raw ? (JSON.parse(raw) as Assignment) : null;
+  return raw ? JSON.parse(raw) : null;
 }
-const saveAssignment = (sessionId: string, a: Assignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
+/** The indicators-lab assignment, or null when the session runs something else. */
+async function loadAssignment(sessionId: string): Promise<Assignment | null> {
+  const a = await loadAny(sessionId);
+  return a && (a as MetalsAssignment).kind !== 'metals' ? (a as Assignment) : null;
+}
+async function loadMetals(sessionId: string): Promise<MetalsAssignment | null> {
+  const a = await loadAny(sessionId);
+  return a && (a as MetalsAssignment).kind === 'metals' ? (a as MetalsAssignment) : null;
+}
+const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
 
 /** Is this bearer token the one session-auth issued for this session? */
 async function sessionFor(req: express.Request, sessionId: string): Promise<{ studentId: string; lessonId: string } | null> {
@@ -101,6 +111,29 @@ app.get(
   wrap(async (req, res) => {
     const lesson = readLesson(req.params.lessonId);
     if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
+    if (lesson.type === 'chemistry_metals') {
+      const sessionId = String(req.query.sessionId ?? '');
+      let samples: ReturnType<typeof visibleSamples> | undefined;
+      if (sessionId) {
+        const who = await sessionFor(req, sessionId);
+        if (!who) return res.status(401).json({ error: 'Invalid session' });
+        let a = await loadMetals(sessionId);
+        if (!a) {
+          a = {
+            kind: 'metals',
+            lessonId: lesson.lessonId,
+            studentId: who.studentId,
+            samples: pickMaterials(lesson.materialPool, lesson.config.totalSamples, lesson.config.minAnomalies ?? 2),
+            tested: {},
+            submission: null,
+            createdAt: Date.now(),
+          };
+          await saveAssignment(sessionId, a);
+        }
+        samples = visibleSamples(a.samples);
+      }
+      return res.json({ ...redactMetals(lesson), ...(samples ? { samples } : {}) });
+    }
     if (lesson.type !== 'chemistry_indicators') return res.json(lesson);
 
     const sessionId = String(req.query.sessionId ?? '');
@@ -174,14 +207,96 @@ app.post(
   }),
 );
 
+// ---------------- Metals & Non-Metals ----------------
+
+app.post(
+  '/sessions/:sessionId/metals/test',
+  wrap(async (req, res) => {
+    const { sessionId } = req.params;
+    if (!(await sessionFor(req, sessionId))) return res.status(401).json({ error: 'Invalid session' });
+    const a = await loadMetals(sessionId);
+    if (!a) return res.status(404).json({ error: 'No lab is running for this session' });
+    if (a.submission) return res.status(409).json({ error: 'This experiment was already submitted' });
+
+    const slot = Number(req.body?.sample);
+    const tool = String(req.body?.tool ?? '');
+    if (!Number.isInteger(slot) || slot < 1 || slot > a.samples.length) return res.status(400).json({ error: 'Unknown sample' });
+    const lesson = readLesson(a.lessonId);
+    if (!lesson.tools.some((t: any) => t.id === tool)) return res.status(400).json({ error: 'Unknown tool' });
+
+    const k = `${slot}:${tool}`;
+    const budget = lesson.config.testBudget as number;
+    const fresh = !(k in a.tested);
+    if (fresh && budgetUsed(a) >= budget) return res.status(409).json({ error: 'The test budget is used up', used: budgetUsed(a), budget });
+
+    const result = runMetalsTest(a.samples[slot - 1], tool);
+    if (!result) return res.status(400).json({ error: 'Unknown tool' });
+    if (fresh) {
+      a.tested[k] = result.litmus ? `${result.outcome}|${result.litmus}` : result.outcome;
+      await saveAssignment(sessionId, a);
+    }
+    res.json({ sample: slot, tool, ...result, used: budgetUsed(a), budget });
+  }),
+);
+
+app.post(
+  '/sessions/:sessionId/metals/reveal',
+  wrap(async (req, res) => {
+    const { sessionId } = req.params;
+    if (!(await sessionFor(req, sessionId))) return res.status(401).json({ error: 'Invalid session' });
+    const a = await loadMetals(sessionId);
+    if (!a) return res.status(404).json({ error: 'No lab is running for this session' });
+
+    if (!a.submission) {
+      const raw = Array.isArray(req.body?.samples) ? req.body.samples : [];
+      const samples = a.samples.map((_, i) => {
+        const t = raw.find((x: any) => Number(x?.sample) === i + 1) ?? {};
+        return {
+          sample: i + 1,
+          conclusion: isKind(t.conclusion) ? t.conclusion : null,
+          hypothesis: isKind(t.hypothesis) ? t.hypothesis : null,
+          conclusionHistory: Array.isArray(t.conclusionHistory) ? t.conclusionHistory.filter(isKind).slice(0, 20) : [],
+        };
+      });
+      a.submission = { samples, submittedAt: Date.now() } satisfies MetalsSubmission;
+      await saveAssignment(sessionId, a);
+    }
+    res.json({
+      samples: a.samples.map((m, i) => ({
+        sample: i + 1,
+        id: m.id,
+        name: m.name,
+        formula: m.formula,
+        type: m.trueType,
+        anomaly: m.anomalyFlag === true,
+        why: m.why ?? '',
+        results: m.results,
+        oxideLitmus: m.oxideLitmus,
+      })),
+    });
+  }),
+);
+
 // Service-to-service: the coach and the rubric engine read the truth here. Never exposed to browsers.
 app.get(
   '/internal/assignments/:sessionId',
   wrap(async (req, res) => {
     if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+    const m = await loadMetals(req.params.sessionId);
+    if (m) {
+      return res.json({
+        kind: 'metals',
+        lessonId: m.lessonId,
+        studentId: m.studentId,
+        submitted: m.submission !== null,
+        submission: m.submission && { tubes: m.submission.samples.map((s) => ({ tube: s.sample, conclusion: s.conclusion, ph: null, hypothesis: s.hypothesis })) },
+        tubes: m.samples.map((x, i) => ({ tube: i + 1, id: x.id, name: x.name, formula: x.formula, type: x.trueType, ph: 0, facts: factsFor(x) })),
+      });
+    }
     const a = await loadAssignment(req.params.sessionId);
     if (!a) return res.status(404).json({ error: 'No assignment for this session' });
     res.json({
+      kind: 'indicators',
       lessonId: a.lessonId,
       studentId: a.studentId,
       submitted: a.submission !== null,

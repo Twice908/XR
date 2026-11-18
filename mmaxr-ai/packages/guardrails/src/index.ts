@@ -70,7 +70,10 @@ function termVariants(term: string): string[] {
 
 const containsTerm = (haystack: string, term: string) => new RegExp(`(^|[^a-z0-9])${escapeRe(term)}(?![a-z0-9])`).test(haystack);
 
-const VERDICT_WORDS: Record<string, string> = { acid: 'acid', acidic: 'acid', base: 'base', basic: 'base', alkaline: 'base', neutral: 'neutral' };
+const VERDICT_WORDS: Record<string, string> = {
+  acid: 'acid', acidic: 'acid', base: 'base', basic: 'base', alkaline: 'base', neutral: 'neutral',
+  metal: 'metal', metallic: 'metal', 'non-metal': 'non-metal', nonmetal: 'non-metal', 'non-metallic': 'non-metal', 'non metal': 'non-metal',
+};
 
 export function applyGuardrails(aiResponse: string, options: GuardOptions = {}): GuardResult {
   const reasons: string[] = [];
@@ -89,9 +92,9 @@ export function applyGuardrails(aiResponse: string, options: GuardOptions = {}):
     }
   }
 
-  // "tube 2 is an acid": block any verdict for a tube other than the one the student already stated.
+  // "tube 2 is an acid" / "sample 3 is a metal": block any verdict for an item other than the one the student already stated.
   if (options.secrets?.length || options.enforceTubeClaims) {
-    const verdictRe = /\btubes?\s*#?\s*(\d)\b[^.?!\n]{0,40}?\b(acid(?:ic)?|base|basic|alkaline|neutral)\b/g;
+    const verdictRe = /\b(?:tubes?|samples?)\s*#?\s*(\d)\b[^.?!\n]{0,40}?\b(acid(?:ic)?|base|basic|alkaline|neutral|non-metallic|non-metal|nonmetal|non metal|metallic|metal)\b/g;
     for (const m of text.matchAll(verdictRe)) {
       const tube = Number(m[1]);
       const verdict = VERDICT_WORDS[m[2]];

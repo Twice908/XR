@@ -18,9 +18,12 @@ import {
  * Anything not recorded for a session is reported as null (not assessed), never guessed.
  */
 
-const d = (e: EventRow) => (e.object_data?.data ?? {}) as Record<string, unknown>;
-const action = (e: EventRow) => e.object_data?.action ?? '';
-const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+export const d = (e: EventRow) => (e.object_data?.data ?? {}) as Record<string, unknown>;
+export const action = (e: EventRow) => e.object_data?.action ?? '';
+/** Tube (indicators lab) or sample (metals lab) an event is about. */
+export const slotOf = (e: EventRow) => Number(d(e).tube ?? d(e).sample);
+const RESULT_ACTIONS = ['liquid_color', 'test_result'];
+export const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 const median = (xs: number[]) => {
   if (!xs.length) return null;
   const s = [...xs].sort((a, b) => a - b);
@@ -28,28 +31,28 @@ const median = (xs: number[]) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
-const cap = (ids: number[], n = 8) => ids.slice(0, n);
-const r1 = (n: number) => Math.round(n * 10) / 10;
-const r2 = (n: number) => Math.round(n * 100) / 100;
+export const cap = (ids: number[], n = 8) => ids.slice(0, n);
+export const r1 = (n: number) => Math.round(n * 10) / 10;
+export const r2 = (n: number) => Math.round(n * 100) / 100;
 
 /** Retrieval thresholds. A headset hand roams much further than a mouse pointer over the same bench. */
 const MOVE_HIGH_M: Record<Device, number> = { web: 0.3, vr: 0.8, unknown: 0.3 };
 
-interface Pair {
+export interface Pair {
   predicted: EventRow;
   acted: EventRow;
   gapMs: number;
 }
 
 /** Match every action to the latest earlier prediction for the same tube and tool. */
-function pairActions(events: EventRow[]): { pairs: Pair[]; unpredicted: EventRow[] } {
+export function pairActions(events: EventRow[]): { pairs: Pair[]; unpredicted: EventRow[] } {
   const pairs: Pair[] = [];
   const unpredicted: EventRow[] = [];
   const open = new Map<string, EventRow>();
   for (const e of events) {
-    if (e.verb === 'predicted') open.set(`${d(e).tube}:${d(e).tool}`, e);
+    if (e.verb === 'predicted') open.set(`${slotOf(e)}:${d(e).tool}`, e);
     if (e.verb === 'acted') {
-      const key = `${d(e).tube}:${d(e).tool}`;
+      const key = `${slotOf(e)}:${d(e).tool}`;
       const p = open.get(key);
       if (p && p.timestamp <= e.timestamp) {
         pairs.push({ predicted: p, acted: e, gapMs: e.timestamp - p.timestamp });
@@ -60,7 +63,7 @@ function pairActions(events: EventRow[]): { pairs: Pair[]; unpredicted: EventRow
   return { pairs, unpredicted };
 }
 
-function predictionDiscipline(events: EventRow[], pairs: Pair[], unpredicted: EventRow[]): DimensionResult {
+export function predictionDiscipline(events: EventRow[], pairs: Pair[], unpredicted: EventRow[]): DimensionResult {
   const predictions = events.filter((e) => e.verb === 'predicted');
   const actions = events.filter((e) => e.verb === 'acted');
   const evidence = cap(predictions.map((e) => e.id));
@@ -70,7 +73,7 @@ function predictionDiscipline(events: EventRow[], pairs: Pair[], unpredicted: Ev
   const coverage = pairs.length / actions.length;
   const decisions = predictions.map((e) => num(d(e).decisionMs)).filter((x): x is number => x !== null);
   const medianDecision = median(decisions);
-  const matches = events.filter((e) => action(e) === 'liquid_color');
+  const matches = events.filter((e) => RESULT_ACTIONS.includes(action(e)));
   const right = matches.filter((e) => d(e).match === true).length;
   const accuracy = matches.length ? right / matches.length : null;
   const colors = new Set(predictions.map((e) => String(e.object_data?.value ?? '').toLowerCase()));
@@ -102,7 +105,7 @@ function predictionDiscipline(events: EventRow[], pairs: Pair[], unpredicted: Ev
   };
 }
 
-function retrievalEffort(pairs: Pair[], sensor: SensorData | null, device: Device): DimensionResult {
+export function retrievalEffort(pairs: Pair[], sensor: SensorData | null, device: Device): DimensionResult {
   if (!pairs.length) {
     return { key: 'retrievalEffort', label: LABELS.retrievalEffort, score: null, max: 3, basis: 'No predict-then-act pairs yet.', evidence: [], measures: {} };
   }
@@ -140,20 +143,20 @@ function judge(truth: TruthInfo | null, tube: number, said: unknown, legacy: unk
   return typeof legacy === 'boolean' ? legacy : null;
 }
 
-function revisionQuality(events: EventRow[], truth: TruthInfo | null): DimensionResult {
+export function revisionQuality(events: EventRow[], truth: TruthInfo | null): DimensionResult {
   const firsts = events.filter((e) => action(e) === 'set_conclusion');
   const revisions = events.filter((e) => e.verb === 'revised_model');
   if (!firsts.length) {
     return { key: 'revisionQuality', label: LABELS.revisionQuality, score: null, max: 3, basis: 'No conclusions yet.', evidence: [], measures: {} };
   }
-  const judgedFirst = firsts.map((e) => judge(truth, Number(d(e).tube), e.object_data?.value, d(e).correct));
+  const judgedFirst = firsts.map((e) => judge(truth, slotOf(e), e.object_data?.value, d(e).correct));
   if (judgedFirst.every((j) => j === null)) {
     return { key: 'revisionQuality', label: LABELS.revisionQuality, score: null, max: 3, basis: 'The answers were not available to judge these conclusions.', evidence: [], measures: { firstConclusions: firsts.length } };
   }
   const wrongFirst = judgedFirst.filter((j) => j === false).length;
   const judged = revisions.map((e) => ({
-    was: judge(truth, Number(d(e).tube), d(e).from, d(e).wasCorrect),
-    now: judge(truth, Number(d(e).tube), d(e).to, d(e).nowCorrect),
+    was: judge(truth, slotOf(e), d(e).from, d(e).wasCorrect),
+    now: judge(truth, slotOf(e), d(e).to, d(e).nowCorrect),
   }));
   const improved = judged.filter((j) => j.was === false && j.now === true).length;
   const harmful = judged.filter((j) => j.was === true && j.now === false).length;
@@ -251,12 +254,12 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
 /** Confidence 1-3 against how often predictions were right. */
 const EXPECTED_ACCURACY: Record<number, number> = { 1: 0.33, 2: 0.66, 3: 0.9 };
 
-function metacognition(events: EventRow[]): DimensionResult {
+export function metacognition(events: EventRow[]): DimensionResult {
   const preds = events.filter((e) => e.verb === 'predicted');
   const outcome = new Map<string, boolean>();
-  for (const e of events) if (action(e) === 'liquid_color') outcome.set(`${d(e).tube}:${d(e).tool}`, d(e).match === true);
+  for (const e of events) if (RESULT_ACTIONS.includes(action(e))) outcome.set(`${slotOf(e)}:${d(e).tool}`, d(e).match === true);
   const scored = preds
-    .map((p) => ({ p, conf: num(d(p).confidence), right: outcome.get(`${d(p).tube}:${d(p).tool}`) }))
+    .map((p) => ({ p, conf: num(d(p).confidence), right: outcome.get(`${slotOf(p)}:${d(p).tool}`) }))
     .filter((x): x is { p: EventRow; conf: number; right: boolean } => x.conf !== null && x.right !== undefined);
   if (scored.length < 3) {
     return { key: 'metacognitiveCalibration', label: LABELS.metacognitiveCalibration, score: null, max: 3, basis: 'Needs at least 3 predictions with a confidence rating.', evidence: [], measures: { rated: scored.length } };
@@ -275,7 +278,7 @@ function metacognition(events: EventRow[]): DimensionResult {
   };
 }
 
-function deviceStats(events: EventRow[], pairs: Pair[], sensor: SensorData | null, device: Device): { kind: Device; items: StatItem[] } {
+export function deviceStats(events: EventRow[], pairs: Pair[], sensor: SensorData | null, device: Device): { kind: Device; items: StatItem[] } {
   const first = events[0]?.timestamp ?? 0;
   const last = events[events.length - 1]?.timestamp ?? first;
   const decisions = events.filter((e) => e.verb === 'predicted').map((e) => num(d(e).decisionMs)).filter((x): x is number => x !== null);
@@ -285,7 +288,7 @@ function deviceStats(events: EventRow[], pairs: Pair[], sensor: SensorData | nul
   const handTotal = sensor ? travel(sensor, 'hand', first, last) : null;
   const sec = (ms: number | null) => (ms === null ? '–' : `${r1(ms / 1000)}s`);
   const m = (v: number | null) => (v === null ? '–' : `${r2(v)} m`);
-  const entries = events.filter((e) => ['record_color', 'record_ph'].includes(action(e))).length;
+  const entries = events.filter((e) => ['record_color', 'record_ph', 'record_property', 'record_litmus'].includes(action(e))).length;
 
   if (device === 'vr') {
     return {

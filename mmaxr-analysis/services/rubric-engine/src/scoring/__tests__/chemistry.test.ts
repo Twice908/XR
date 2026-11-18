@@ -184,3 +184,69 @@ describe('scoring against server-held truth (browser sends no correctness)', () 
     expect(score(r, 'causalCoherence')).toBeNull();
   });
 });
+
+describe('metals lab scoring', () => {
+  const truthTubes = [
+    { tube: 1, type: 'metal', ph: 0 },
+    { tube: 2, type: 'non-metal', ph: 0 }, // graphite-like: conducts but is a non-metal
+    { tube: 3, type: 'non-metal', ph: 0 },
+  ];
+  const mk = (opts: { predictedRight?: boolean; decisionMs?: number } = {}) => {
+    id = 0;
+    t = 1_000_000;
+    const out: EventRow[] = [ev('investigated', 'enter_lab', { target: 'metals-101' })];
+    const run = (sample: number, tool: string, predicted: string, actual: string) => {
+      const data = { sample, tool };
+      out.push(ev('predicted', 'predict_outcome', { target: `sample:${sample}`, value: predicted, data: { ...data, decisionMs: opts.decisionMs ?? 3500, confidence: 2 } }, 300));
+      out.push(ev('acted', 'run_test', { target: `sample:${sample}`, value: tool, data }, 2200));
+      out.push(ev('observed', 'test_result', { target: `sample:${sample}`, value: actual, data: { ...data, predicted, match: predicted === actual } }, 10));
+    };
+    run(1, 'hammer', 'flattens', 'flattens');
+    run(1, 'circuit', 'glows', 'glows');
+    run(2, 'hammer', 'flattens', 'shatters');
+    run(2, 'circuit', 'dark', 'glows'); // the anomaly
+    run(3, 'hammer', 'shatters', 'shatters');
+    run(3, 'wire', 'snaps', 'snaps');
+    return out;
+  };
+  const concl = (sample: number, value: string) => ev('explained', 'set_conclusion', { target: `sample:${sample}`, value, data: { sample, stage: 'hypothesis' } }, 200);
+  const revise = (sample: number, from: string, to: string) => ev('revised_model', 'change_conclusion', { target: `sample:${sample}`, value: to, data: { sample, from, to } }, 200);
+  const sub = (c: string[]) => ({ tubes: c.map((x, i) => ({ tube: i + 1, conclusion: x, ph: null })) });
+  const truth = (c: string[] | null) => ({ tubes: truthTubes, submission: c ? sub(c) : null });
+
+  it('is detected as the metals lab and uses the shared dimensions', () => {
+    const r = analyze(mk(), null, truth(null));
+    expect(r.lessonType).toBe('chemistry_metals');
+    expect(score(r, 'predictionDiscipline')).toBeGreaterThanOrEqual(2);
+    expect(r.dimensions.find((x) => x.key === 'transfer')!.score).toBeNull();
+  });
+
+  it('rewards catching the exception: wrong first impression revised after contradicting evidence', () => {
+    const events = [...mk(), concl(1, 'metal'), concl(2, 'metal'), concl(3, 'non-metal'), revise(2, 'metal', 'non-metal')];
+    const r = analyze(events, null, truth(['metal', 'non-metal', 'non-metal']));
+    expect(score(r, 'revisionQuality')).toBe(3);
+    expect(score(r, 'causalCoherence')).toBe(3);
+    expect(r.complete).toBe(true);
+    expect(r.overall.percent!).toBeGreaterThan(70);
+  });
+
+  it('marks down a student who trusted the surface (kept the wrong impression) and the evidence disagreed', () => {
+    const events = [...mk(), concl(1, 'metal'), concl(2, 'metal'), concl(3, 'metal')];
+    const r = analyze(events, null, truth(['metal', 'metal', 'metal']));
+    expect(score(r, 'revisionQuality')).toBe(0);
+    expect(score(r, 'causalCoherence')!).toBeLessThanOrEqual(1);
+  });
+
+  it('does not count conclusions with fewer than two tests as supported', () => {
+    const thin = mk().slice(0, 7); // sample 1 tested twice, sample 2 once
+    const r = analyze([...thin, concl(1, 'metal'), concl(2, 'non-metal'), concl(3, 'non-metal')], null, truth(['metal', 'non-metal', 'non-metal']));
+    const cc = r.dimensions.find((x) => x.key === 'causalCoherence')!;
+    expect(cc.measures.supported).toBeLessThan(3);
+  });
+
+  it('is not assessed until the server has the submission', () => {
+    const r = analyze([...mk(), concl(1, 'metal')], null, truth(null));
+    expect(score(r, 'causalCoherence')).toBeNull();
+    expect(r.complete).toBe(false);
+  });
+});

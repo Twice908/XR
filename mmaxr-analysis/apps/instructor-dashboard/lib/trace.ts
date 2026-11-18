@@ -30,7 +30,7 @@ const str = (v: unknown) => (v === undefined || v === null ? '' : String(v))
 export function describeEvent(e: TraceEvent): string {
   const o = e.object_data ?? {}
   const d = (o.data ?? {}) as Record<string, unknown>
-  const tube = d.tube ? `tube ${d.tube}` : str(o.target).replace('tube:', 'tube ')
+  const tube = d.sample ? `sample ${d.sample}` : d.tube ? `tube ${d.tube}` : str(o.target).replace('tube:', 'tube ').replace('sample:', 'sample ')
   switch (o.action) {
     case 'enter_lab':
       return `Entered ${str(o.target)}`
@@ -55,9 +55,23 @@ export function describeEvent(e: TraceEvent): string {
     case 'record_ph':
       return `Wrote pH ${str(o.value)} for ${tube}`
     case 'set_conclusion':
-      return `Concluded ${tube} is ${str(o.value)}`
+      return d.stage === 'hypothesis' ? `First impression: ${tube} is a ${str(o.value)} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''})` : `Concluded ${tube} is ${str(o.value)}`
     case 'change_conclusion':
       return `Changed ${tube} from ${str(d.from)} to ${str(d.to)}`
+    case 'predict_outcome':
+      return `Predicted “${str(o.value).replace(/_/g, ' ')}” for ${tube} with the ${str(d.tool)} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
+    case 'run_test':
+      return `Ran the ${str(o.value)} test on ${tube}${d.msSincePrediction ? ` (${Math.round(Number(d.msSincePrediction) / 100) / 10}s after predicting)` : ''}`
+    case 'test_result':
+      return `${str(d.tool)} on ${tube}: ${str(o.value).replace(/_/g, ' ')}${d.match === false ? ' (not as predicted)' : d.match === true ? ' (as predicted)' : ''}`
+    case 'record_property':
+      return `Wrote “${str(o.value).replace(/_/g, ' ')}” for ${str(d.tool)} on ${tube}`
+    case 'record_litmus':
+      return `Wrote the litmus result for ${tube}: ${str(o.value).replace(/_/g, ' ')}`
+    case 'ask_coach':
+      return 'Asked the coach a question'
+    case 'coach_mode':
+      return `Set the coach to ${str(o.value).replace('_', ' ')}`
     case 'unlock_ph_paper':
       return 'pH paper unlocked'
     case 'submit_analysis':
@@ -69,6 +83,7 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id.startsWith('metals')) return 'Metals & Non-Metals'
   if (id.startsWith('chemistry')) return 'Acids, Bases & Indicators'
   if (id.startsWith('physics')) return 'Bohr Model Spectral Lab'
   return id

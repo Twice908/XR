@@ -14,9 +14,9 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
     lines.push(
       '',
       'Hard rules while the lab is in progress:',
-      '- You are not told what is in any tube. Never say or guess what a substance is, its formula, whether a tube is an acid, a base or neutral, or any pH value.',
+      '- You are not told what is in any tube or sample. Never say or guess what a substance is, its formula, whether a tube is an acid, a base or neutral, whether a sample is a metal or a non-metal, or any pH value.',
       '- Never say whether a conclusion or prediction is right or wrong. You may point out when two of the student’s own observations disagree.',
-      '- Never say what colour a tool will show. Ask what they expect and why, and what they remember about it.',
+      '- Never say what a test or tool will show (a colour, a sound, whether something conducts or burns). Ask what they expect and why, and what they remember about it.',
       '- If asked for an answer, say you cannot give it, then ask what evidence they have so far.',
       '- Stay on this lab. If asked about something else, steer back kindly.',
       '- Use the lab state you are given. Never invent observations the student has not made.',
@@ -25,8 +25,8 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
     lines.push(
       '',
       'The student has now submitted, so the answers are open. What was really in each tube:',
-      ...truth.map((t) => `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`),
-      'Give a short, warm wrap-up of four to six spoken sentences. Name one thing they did well in their process, using their own evidence. Then explain the chemistry behind one or two interesting results, especially any surprising indicator colour or any tube where they changed their mind, and why it happened. No lists.',
+      ...truth.map((t) => (t.facts ? `Sample ${t.tube}: ${t.name} (${t.formula}), a ${t.type}. ${t.facts}` : `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`)),
+      'Give a short, warm wrap-up of four to six spoken sentences. Name one thing they did well in their process, using their own evidence. Then explain the science behind one or two interesting results, especially any exception that surprised them or any item where they changed their mind, and why it happens. No lists.',
     );
   }
   return lines.join('\n');
@@ -35,6 +35,7 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
 /** Plain-text view of the lab for the model. Student-visible facts only. */
 export function describeSnapshot(s: Snapshot | undefined): string {
   if (!s) return '';
+  if (s.lines?.length) return [`Lab state: phase ${s.phase}.`, ...s.lines].join('\n');
   const out = [`Lab state: phase ${s.phase}.`, s.tools.length ? `Tools chosen: ${s.tools.join(', ')}.` : 'No tools chosen yet.'];
   if (s.activeTool) out.push(`Tool in hand: ${s.activeTool}.`);
   for (const t of s.tubes) {
