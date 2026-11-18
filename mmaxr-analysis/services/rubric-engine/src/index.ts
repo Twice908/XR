@@ -1,12 +1,31 @@
 import express from 'express';
 import cors from 'cors';
 import { Pool } from 'pg';
+import jwt from 'jsonwebtoken';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { XapiVerb, SensorDataRow } from '@mmaxr/schema';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Only signed-in instructors (tokens issued by user-auth) may read sessions and analyses.
+// Set REQUIRE_INSTRUCTOR_AUTH=false to run local scripts without a token.
+const JWT_SECRET = process.env.JWT_SECRET || 'mmaxr-dev-secret-change-me';
+const REQUIRE_AUTH = process.env.REQUIRE_INSTRUCTOR_AUTH !== 'false';
+
+function requireInstructor(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!REQUIRE_AUTH) return next();
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing bearer token' });
+  try {
+    const claims = jwt.verify(header.slice(7), JWT_SECRET) as jwt.JwtPayload;
+    if (claims.role !== 'instructor') return res.status(403).json({ error: 'Instructor access only' });
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://admin:password@localhost:5432/mmaxr',
@@ -68,7 +87,7 @@ async function getSensorData(sessionId: string): Promise<SensorDataRow[]> {
   }
 }
 
-app.get('/analyze/:sessionId', async (req, res) => {
+app.get('/analyze/:sessionId', requireInstructor, async (req, res) => {
   const { sessionId } = req.params;
 
   try {
@@ -172,7 +191,7 @@ app.get('/analyze/:sessionId', async (req, res) => {
   }
 });
 
-app.get('/sessions', async (req, res) => {
+app.get('/sessions', requireInstructor, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT session_id, COUNT(*) as event_count, MAX(timestamp) as last_update 

@@ -2,6 +2,10 @@
   "lessonId": "chemistry-101",
   "type": "chemistry_indicators",
   "title": "Acids, Bases & Natural Indicators Lab",
+  "subject": "Chemistry",
+  "summary": "Five unknown solutions, three natural or synthetic indicators. Predict each colour, test, and work out which are acids, bases or neutral before pH paper gives the final number.",
+  "durationMinutes": 25,
+  "difficulty": "Intermediate",
   "modelUrl": "http://localhost:3007/assets/models/chemistry_lab_bench.glb",
   "assets": {
     "testTube": "http://localhost:3007/assets/models/test_tube.glb",

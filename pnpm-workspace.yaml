@@ -7,4 +7,6 @@ packages:
   - 'mmaxr-ai/packages/*'
   - 'mmaxr-ai/services/*'
 allowBuilds:
+  '@astryxdesign/cli': false
+  '@astryxdesign/core': false
   esbuild: true
