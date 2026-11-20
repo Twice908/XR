@@ -118,6 +118,7 @@ export class MotionScene {
   private crateHeavy = new THREE.Group()
   private crateFloat = new THREE.Group()
   private crateBig = new THREE.Group()
+  private speedArrow = new BoldArrow(0x4ade80, 0.07)
   private spring: THREE.Mesh | null = null
   private stars: THREE.Points | null = null
   private ballHeavy: THREE.Mesh
@@ -427,17 +428,33 @@ export class MotionScene {
     const b = this.label('Floating crate · 20 kg', '#bfe0ff', 0.9)
     b.position.set(-3, 3.8, 0)
     g.add(b)
-    const n = 260
+    // Stars hang still in space and the crate moves through them, so its motion is plain to see.
+    const n = 520
     const pos = new Float32Array(n * 3)
     for (let i = 0; i < n; i++) {
-      pos[i * 3] = -3 + (Math.random() - 0.5) * 14
-      pos[i * 3 + 1] = 1.8 + (Math.random() - 0.5) * 5
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 8
+      pos[i * 3] = -14 + Math.random() * 62
+      pos[i * 3 + 1] = 1.8 + (Math.random() - 0.5) * 6
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 9
     }
     const sg = new THREE.BufferGeometry()
     sg.setAttribute('position', new THREE.BufferAttribute(pos, 3))
     this.stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xcfe3ff, size: 0.07, transparent: true, opacity: 0.8, depthWrite: false }))
     g.add(this.stars)
+    // a ruler laid out in front of the crate's path, from its starting point
+    const tickMat = new THREE.MeshBasicMaterial({ color: 0x7fb3ff, transparent: true, opacity: 0.7 })
+    for (let m = 0; m <= 36; m++) {
+      const tall = m % 3 === 0
+      const tick = new THREE.Mesh(new THREE.BoxGeometry(0.04, tall ? 0.34 : 0.18, 0.04), tickMat)
+      tick.position.set(-3 + m, 0.55 + (tall ? 0.17 : 0.09), 2.2)
+      g.add(tick)
+      if (tall && m > 0) {
+        const lab = this.label(`${m} m`, '#9cc6ff', 0.42)
+        lab.position.set(-3 + m, 1.25, 2.2)
+        g.add(lab)
+      }
+    }
+    g.add(this.speedArrow)
+    this.speedArrow.visible = false
     // station C: the rail
     const rail = new THREE.Mesh(new THREE.BoxGeometry(8, 0.12, 0.9), new THREE.MeshStandardMaterial({ color: 0x2a303b, metalness: 0.7, roughness: 0.4 }))
     rail.position.set(3, 0.06, 0)
@@ -973,7 +990,7 @@ export class MotionScene {
   }
 
   private hideArrows() {
-    for (const a of [this.arrowDisp, this.arrowVel, this.arrowAcc, this.pushArrow, this.frictionArrow, this.pairArrowA, this.pairArrowB]) a.visible = false
+    for (const a of [this.arrowDisp, this.arrowVel, this.arrowAcc, this.pushArrow, this.frictionArrow, this.speedArrow, this.pairArrowA, this.pairArrowB]) a.visible = false
   }
 
   /* ---------------- running experiments ---------------- */
@@ -1296,12 +1313,23 @@ export class MotionScene {
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
     this.crateBig.visible = false
-    this.crateFloat.position.set(-3, 1.8, 0)
+    const x0 = -3
+    const y0 = 1.8
+    this.crateFloat.position.set(x0, y0, 0)
     this.crateFloat.scale.setScalar(Math.cbrt(o.mass / 20))
     const st = { t: 0, v: 0, dist: 0 }
-    const pos = this.stars!.geometry.attributes.position as THREE.BufferAttribute
-    const half = 7
-    const arrowLen = 1.8
+    const lift = o.mass > 20 ? 0.25 : 0
+    const myFlight = this.flightId
+    // The camera glides along with the crate so it stays in view while the ruler and the stars slide past.
+    this.follow = (dt) => {
+      if (this.flightId !== myFlight) {
+        this.follow = null
+        return
+      }
+      const c = this.crateFloat.position
+      this.controls.target.lerp(V(c.x + 1.2, 1.9, 0), 1 - Math.pow(0.0015, dt))
+      this.camera.position.lerp(V(c.x + 0.6, 2.7, 8.8), 1 - Math.pow(0.01, dt))
+    }
     return this.begin({
       update: (dt) => {
         st.t += dt
@@ -1309,24 +1337,27 @@ export class MotionScene {
         const accel = force / o.mass
         st.v += accel * dt
         st.dist += st.v * dt
+        this.crateFloat.position.x = x0 + st.dist
+        this.crateFloat.rotation.y = Math.sin(st.t * 0.4) * 0.05
+        const cx = this.crateFloat.position.x
         this.pushArrow.visible = force > 0
         if (force > 0) {
-          this.pushArrow.position.set(-3 - 2.4, 1.8 + (o.mass > 20 ? 0.25 : 0), 0)
+          this.pushArrow.position.set(cx - 2.4, y0 + lift, 0)
           this.pushArrow.setDirection(V(1, 0, 0))
-          this.pushArrow.setLength(arrowLen, 0.45, 0.3)
+          this.pushArrow.setLength(1.8, 0.45, 0.3)
         }
-        const a = pos.array as Float32Array
-        for (let i = 0; i < a.length; i += 3) {
-          a[i] -= st.v * dt * 2.2
-          if (a[i] < -3 - half) a[i] += half * 2
+        // speed arrow on the crate: it grows with the speed and stays on once the push is over
+        this.speedArrow.visible = st.v > 0.02
+        if (st.v > 0.02) {
+          this.speedArrow.position.set(cx - 0.3, y0 + 1.2 * Math.cbrt(o.mass / 20) + 0.2, 0)
+          this.speedArrow.setDirection(V(1, 0, 0))
+          this.speedArrow.setLength(0.35 + Math.min(4.5, st.v * 1.5), 0.4, 0.3)
         }
-        pos.needsUpdate = true
-        this.crateFloat.rotation.y = Math.sin(st.t * 0.4) * 0.05
         this.emitGauges(dt, () => [
           { label: 'Force on the crate', value: `${f1(force)} N`, tone: 'info' },
           { label: 'Mass', value: `${f1(o.mass)} kg` },
           { label: 'Acceleration', value: `${f2(accel)} m/s²`, tone: accel > 0 ? 'ok' : undefined },
-          { label: 'Speed', value: `${f2(st.v)} m/s` },
+          { label: 'Speed', value: `${f2(st.v)} m/s`, tone: 'ok' },
           { label: 'Distance drifted', value: `${f1(st.dist)} m` },
         ])
         if (o.notes && st.t > 1.6 && st.t < 1.7) this.events.onNote?.('The push is over. Nothing is acting on the crate now.')
@@ -1336,8 +1367,14 @@ export class MotionScene {
         return null
       },
       done: () => {
+        // back to where it started, and the camera back with it
+        this.follow = null
         this.pushArrow.visible = false
+        this.speedArrow.visible = false
         this.crateFloat.scale.setScalar(1)
+        this.crateFloat.position.set(x0, y0, 0)
+        const back = this.view('B')
+        void this.flyTo(back.pos, back.target, 1000)
       },
     })
   }
