@@ -40,10 +40,63 @@ export interface DriveProfile {
   at(t: number): number
 }
 
-export function profile(action: string): DriveProfile | null {
-  if (action === 'drive_straight') return { from: 0, to: LEAD, duration: 8, playback: 1, at: (t) => LEAD * smooth(t / 8) }
-  if (action === 'drive_lap') return { from: LEAD, to: LEAD + LAP, duration: 14, playback: 1, at: (t) => LEAD + LAP * smooth(t / 14) }
-  if (action === 'drive_lap_steady') return { from: LEAD, to: LEAD + LAP, duration: 20, playback: 2, at: (t) => LEAD + 5 * Math.min(t, 20) }
+export interface DriveParams {
+  /** Moves along the straight, in metres: positive forwards, negative back. */
+  legs?: number[]
+  /** How much of the 100 m loop to drive. */
+  frac?: number
+  speed?: number
+  /** 'straight' makes a steady-speed drive along the straight instead of round the loop. */
+  mode?: string
+  length?: number
+}
+
+/** The drive for an action, with this session's values. */
+export function profile(action: string, p: DriveParams = {}): DriveProfile | null {
+  if (action === 'drive_straight') {
+    const legs = p.legs?.length ? p.legs : [LEAD]
+    const segs = legs.map((d) => ({ d, dur: Math.max(2.4, Math.abs(d) / 7) }))
+    const pause = 0.6
+    const duration = segs.reduce((a, x) => a + x.dur, 0) + pause * (segs.length - 1)
+    const end = legs.reduce((a, x) => a + x, 0)
+    return {
+      from: 0,
+      to: end,
+      duration,
+      playback: 1,
+      at: (t) => {
+        let pos = 0
+        let left = t
+        for (let i = 0; i < segs.length; i++) {
+          const g = segs[i]
+          if (left < g.dur) return pos + g.d * smooth(left / g.dur)
+          left -= g.dur
+          pos += g.d
+          if (i < segs.length - 1) {
+            if (left < pause) return pos
+            left -= pause
+          }
+        }
+        return pos
+      },
+    }
+  }
+  if (action === 'drive_lap') {
+    const fr = p.frac ?? 1
+    const dur = 6 + 8 * fr
+    return { from: LEAD, to: LEAD + LAP * fr, duration: dur, playback: 1, at: (t) => LEAD + LAP * fr * smooth(t / dur) }
+  }
+  if (action === 'drive_lap_steady') {
+    const v = p.speed ?? 5
+    if (p.mode === 'straight') {
+      const len = Math.min(LEAD, p.length ?? LEAD)
+      const dur = len / v
+      return { from: 0, to: len, duration: dur, playback: dur > 10 ? dur / 10 : 1, at: (t) => v * Math.min(t, dur) }
+    }
+    const fr = p.frac ?? 1
+    const dur = (LAP * fr) / v
+    return { from: LEAD, to: LEAD + LAP * fr, duration: dur, playback: dur > 10 ? dur / 10 : 1, at: (t) => LEAD + v * Math.min(t, dur) }
+  }
   return null
 }
 

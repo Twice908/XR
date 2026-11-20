@@ -425,6 +425,8 @@ export interface MotionTrial {
   action: string | null;
   prompt: string;
   input: MotionInput;
+  /** This session's values for the animation (masses, forces, distances…). They only drive the picture. */
+  params: Record<string, unknown>;
   /** True when the student must explain the surprise before the explanation is shown. */
   needsExplanation: boolean;
 }

@@ -4,7 +4,7 @@
   "subject": "Physics",
   "title": "Motion, Forces & Gravitation Sandbox",
   "summary": "Drive a car around a loop, test Newton's three laws of motion with crates and balls, and drop things in air and vacuum before exploring the law of universal gravitation. Predict first, then watch what really happens.",
-  "durationMinutes": 35,
+  "durationMinutes": 40,
   "assets": {
     "car": "http://localhost:3007/assets/models/car-model.glb",
     "crate": "http://localhost:3007/assets/models/modular-crate.glb",
@@ -59,14 +59,181 @@
           ],
           "law": {
             "name": "Motion"
-          }
+          },
+          "params": {
+            "legs": [
+              50
+            ]
+          },
+          "variants": [
+            {
+              "prompt": "The car drives forward 50 m along the straight. Predict the distance on the odometer and its displacement from the start.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 50,
+                "displacement": 50
+              },
+              "tolerance": 3,
+              "outcome": "Distance 50 m, displacement 50 m.",
+              "explanation": "In a straight line in one direction, distance and displacement are the same size.",
+              "coachSecrets": [
+                "same size"
+              ],
+              "params": {
+                "legs": [
+                  50
+                ]
+              }
+            },
+            {
+              "prompt": "The car drives forward 30 m along the straight. Predict the distance on the odometer and its displacement from the start.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 30,
+                "displacement": 30
+              },
+              "tolerance": 3,
+              "outcome": "Distance 30 m, displacement 30 m.",
+              "explanation": "In a straight line in one direction, distance and displacement are the same size.",
+              "coachSecrets": [],
+              "params": {
+                "legs": [
+                  30
+                ]
+              }
+            },
+            {
+              "prompt": "The car drives forward 40 m along the straight, then reverses 15 m. Predict the distance on the odometer and its displacement from the start.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 55,
+                "displacement": 25
+              },
+              "tolerance": 3,
+              "outcome": "Distance 55 m, displacement 25 m.",
+              "explanation": "The odometer adds up every metre driven, in both directions (40 + 15 = 55 m). Displacement is the net change in position (40 − 15 = 25 m), because going backwards undoes part of the move.",
+              "coachSecrets": [],
+              "params": {
+                "legs": [
+                  40,
+                  -15
+                ]
+              }
+            },
+            {
+              "prompt": "The car drives forward 35 m along the straight, then reverses 20 m. Predict the distance on the odometer and its displacement from the start.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 55,
+                "displacement": 15
+              },
+              "tolerance": 3,
+              "outcome": "Distance 55 m, displacement 15 m.",
+              "explanation": "The odometer adds up every metre driven, in both directions (35 + 20 = 55 m). Displacement is the net change in position (35 − 20 = 15 m), because going backwards undoes part of the move.",
+              "coachSecrets": [],
+              "params": {
+                "legs": [
+                  35,
+                  -20
+                ]
+              }
+            },
+            {
+              "prompt": "The car drives forward 45 m along the straight, then reverses 10 m. Predict the distance on the odometer and its displacement from the start.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 55,
+                "displacement": 35
+              },
+              "tolerance": 3,
+              "outcome": "Distance 55 m, displacement 35 m.",
+              "explanation": "The odometer adds up every metre driven, in both directions (45 + 10 = 55 m). Displacement is the net change in position (45 − 10 = 35 m), because going backwards undoes part of the move.",
+              "coachSecrets": [],
+              "params": {
+                "legs": [
+                  45,
+                  -10
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "kin_2",
           "kind": "prediction",
           "anomaly": true,
           "action": "drive_lap",
-          "prompt": "Now the car drives one complete lap of the circular track and stops back where the lap began. Predict the distance and the displacement.",
+          "prompt": "Now the car drives one complete lap of the circular track, starting from the loop entry, and stops. Predict the distance and the displacement.",
           "input": {
             "type": "numeric",
             "fields": [
@@ -84,7 +251,7 @@
           },
           "answer": {
             "distance": 100,
-            "displacement": 0
+            "displacement": 0.0
           },
           "tolerance": {
             "distance": 8,
@@ -129,14 +296,325 @@
           ],
           "law": {
             "name": "Motion"
-          }
+          },
+          "params": {
+            "frac": 1
+          },
+          "variants": [
+            {
+              "prompt": "Now the car drives one complete lap of the circular track, starting from the loop entry, and stops. Predict the distance and the displacement.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 100,
+                "displacement": 0.0
+              },
+              "tolerance": {
+                "distance": 8,
+                "displacement": 2
+              },
+              "outcome": "Distance 100 m, displacement 0 m.",
+              "explanation": "Displacement is a vector: the straight line from where you started to where you ended. Come back to the start and it is zero, even though the odometer shows the whole 100 m you travelled.",
+              "expectedKeywords": [
+                "displacement",
+                "vector",
+                "start",
+                "zero",
+                "distance"
+              ],
+              "keywordSynonyms": {
+                "vector": [
+                  "direction"
+                ],
+                "start": [
+                  "starting point",
+                  "same place",
+                  "back where",
+                  "beginning",
+                  "origin"
+                ],
+                "zero": [
+                  "0",
+                  "nothing",
+                  "none",
+                  "no change",
+                  "cancels"
+                ],
+                "displacement": [
+                  "net change in position",
+                  "straight line",
+                  "shortest"
+                ]
+              },
+              "coachSecrets": [
+                "displacement is zero",
+                "zero displacement"
+              ],
+              "params": {
+                "frac": 1
+              }
+            },
+            {
+              "prompt": "Now the car drives half a lap of the circular track, starting from the loop entry, and stops. Predict the distance and the displacement.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 50.0,
+                "displacement": 31.8
+              },
+              "tolerance": {
+                "distance": 8,
+                "displacement": 3
+              },
+              "outcome": "Distance 50 m, displacement 31.8 m.",
+              "explanation": "Displacement is the straight line from the start to where the car is now, not the length of the curve it followed. Half a lap covers 50 m of track, but the start and the finish are only 31.8 m apart in a straight line.",
+              "expectedKeywords": [
+                "displacement",
+                "vector",
+                "straight line",
+                "distance"
+              ],
+              "keywordSynonyms": {
+                "vector": [
+                  "direction"
+                ],
+                "straight line": [
+                  "shortest",
+                  "direct",
+                  "chord",
+                  "across",
+                  "start to end",
+                  "from the start"
+                ],
+                "displacement": [
+                  "net change in position",
+                  "how far from the start"
+                ],
+                "distance": [
+                  "odometer",
+                  "path",
+                  "track covered"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "frac": 0.5
+              }
+            },
+            {
+              "prompt": "Now the car drives a quarter of a lap of the circular track, starting from the loop entry, and stops. Predict the distance and the displacement.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 25.0,
+                "displacement": 22.5
+              },
+              "tolerance": {
+                "distance": 8,
+                "displacement": 3
+              },
+              "outcome": "Distance 25 m, displacement 22.5 m.",
+              "explanation": "Displacement is the straight line from the start to where the car is now, not the length of the curve it followed. A quarter of a lap covers 25 m of track, but the start and the finish are only 22.5 m apart in a straight line.",
+              "expectedKeywords": [
+                "displacement",
+                "vector",
+                "straight line",
+                "distance"
+              ],
+              "keywordSynonyms": {
+                "vector": [
+                  "direction"
+                ],
+                "straight line": [
+                  "shortest",
+                  "direct",
+                  "chord",
+                  "across",
+                  "start to end",
+                  "from the start"
+                ],
+                "displacement": [
+                  "net change in position",
+                  "how far from the start"
+                ],
+                "distance": [
+                  "odometer",
+                  "path",
+                  "track covered"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "frac": 0.25
+              }
+            },
+            {
+              "prompt": "Now the car drives three quarters of a lap of the circular track, starting from the loop entry, and stops. Predict the distance and the displacement.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 75.0,
+                "displacement": 22.5
+              },
+              "tolerance": {
+                "distance": 8,
+                "displacement": 3
+              },
+              "outcome": "Distance 75 m, displacement 22.5 m.",
+              "explanation": "Displacement is the straight line from the start to where the car is now, not the length of the curve it followed. Three quarters of a lap covers 75 m of track, but the start and the finish are only 22.5 m apart in a straight line.",
+              "expectedKeywords": [
+                "displacement",
+                "vector",
+                "straight line",
+                "distance"
+              ],
+              "keywordSynonyms": {
+                "vector": [
+                  "direction"
+                ],
+                "straight line": [
+                  "shortest",
+                  "direct",
+                  "chord",
+                  "across",
+                  "start to end",
+                  "from the start"
+                ],
+                "displacement": [
+                  "net change in position",
+                  "how far from the start"
+                ],
+                "distance": [
+                  "odometer",
+                  "path",
+                  "track covered"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "frac": 0.75
+              }
+            },
+            {
+              "prompt": "Now the car drives one and a half laps of the circular track, starting from the loop entry, and stops. Predict the distance and the displacement.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "distance",
+                    "label": "Distance",
+                    "unit": "m"
+                  },
+                  {
+                    "id": "displacement",
+                    "label": "Displacement",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "distance": 150.0,
+                "displacement": 31.8
+              },
+              "tolerance": {
+                "distance": 8,
+                "displacement": 3
+              },
+              "outcome": "Distance 150 m, displacement 31.8 m.",
+              "explanation": "Displacement is the straight line from the start to where the car is now, not the length of the curve it followed. One and a half laps covers 150 m of track, but the start and the finish are only 31.8 m apart in a straight line.",
+              "expectedKeywords": [
+                "displacement",
+                "vector",
+                "straight line",
+                "distance"
+              ],
+              "keywordSynonyms": {
+                "vector": [
+                  "direction"
+                ],
+                "straight line": [
+                  "shortest",
+                  "direct",
+                  "chord",
+                  "across",
+                  "start to end",
+                  "from the start"
+                ],
+                "displacement": [
+                  "net change in position",
+                  "how far from the start"
+                ],
+                "distance": [
+                  "odometer",
+                  "path",
+                  "track covered"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "frac": 1.5
+              }
+            }
+          ]
         },
         {
           "id": "kin_3",
           "kind": "prediction",
           "anomaly": false,
           "action": "drive_lap_steady",
-          "prompt": "The car drives one lap again, taking 20 s at a steady pace. Predict its average speed and its average velocity for the lap.",
+          "prompt": "The car drives one complete lap again at a steady pace, taking 20 s. Predict its average speed and its average velocity.",
           "input": {
             "type": "numeric",
             "fields": [
@@ -154,25 +632,182 @@
           },
           "answer": {
             "speed": 5,
-            "velocity": 0
+            "velocity": 0.0
           },
           "tolerance": 0.6,
           "outcome": "Average speed 5 m/s, average velocity 0 m/s.",
-          "explanation": "Speed is distance over time (100 m ÷ 20 s = 5 m/s). Velocity is displacement over time, and the displacement for a full lap is zero.",
+          "explanation": "Speed is distance over time (100 m ÷ 20 s = 5 m/s). Velocity is displacement over time (0 m ÷ 20 s = 0 m/s). The displacement for a full lap is zero, so the average velocity is zero.",
           "coachSecrets": [
-            "5 m/s",
             "velocity is zero"
           ],
           "law": {
             "name": "Motion"
-          }
+          },
+          "params": {
+            "frac": 1,
+            "speed": 5
+          },
+          "variants": [
+            {
+              "prompt": "The car drives one complete lap again at a steady pace, taking 20 s. Predict its average speed and its average velocity.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Average speed",
+                    "unit": "m/s"
+                  },
+                  {
+                    "id": "velocity",
+                    "label": "Average velocity",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 5,
+                "velocity": 0.0
+              },
+              "tolerance": 0.6,
+              "outcome": "Average speed 5 m/s, average velocity 0 m/s.",
+              "explanation": "Speed is distance over time (100 m ÷ 20 s = 5 m/s). Velocity is displacement over time (0 m ÷ 20 s = 0 m/s). The displacement for a full lap is zero, so the average velocity is zero.",
+              "coachSecrets": [
+                "velocity is zero"
+              ],
+              "params": {
+                "frac": 1,
+                "speed": 5
+              }
+            },
+            {
+              "prompt": "The car drives one complete lap again at a steady pace, taking 12.5 s. Predict its average speed and its average velocity.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Average speed",
+                    "unit": "m/s"
+                  },
+                  {
+                    "id": "velocity",
+                    "label": "Average velocity",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 8,
+                "velocity": 0.0
+              },
+              "tolerance": 0.6,
+              "outcome": "Average speed 8 m/s, average velocity 0 m/s.",
+              "explanation": "Speed is distance over time (100 m ÷ 12.5 s = 8 m/s). Velocity is displacement over time (0 m ÷ 12.5 s = 0 m/s). The displacement for a full lap is zero, so the average velocity is zero.",
+              "coachSecrets": [],
+              "params": {
+                "frac": 1,
+                "speed": 8
+              }
+            },
+            {
+              "prompt": "The car drives half a lap again at a steady pace, taking 10 s. Predict its average speed and its average velocity.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Average speed",
+                    "unit": "m/s"
+                  },
+                  {
+                    "id": "velocity",
+                    "label": "Average velocity",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 5,
+                "velocity": 3.18
+              },
+              "tolerance": 0.6,
+              "outcome": "Average speed 5 m/s, average velocity 3.2 m/s.",
+              "explanation": "Speed is distance over time (50 m ÷ 10 s = 5 m/s). Velocity is displacement over time (31.8 m ÷ 10 s = 3.2 m/s).",
+              "coachSecrets": [],
+              "params": {
+                "frac": 0.5,
+                "speed": 5
+              }
+            },
+            {
+              "prompt": "The car drives a quarter of a lap again at a steady pace, taking 6.25 s. Predict its average speed and its average velocity.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Average speed",
+                    "unit": "m/s"
+                  },
+                  {
+                    "id": "velocity",
+                    "label": "Average velocity",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 4,
+                "velocity": 3.6
+              },
+              "tolerance": 0.6,
+              "outcome": "Average speed 4 m/s, average velocity 3.6 m/s.",
+              "explanation": "Speed is distance over time (25 m ÷ 6.25 s = 4 m/s). Velocity is displacement over time (22.5 m ÷ 6.25 s = 3.6 m/s).",
+              "coachSecrets": [],
+              "params": {
+                "frac": 0.25,
+                "speed": 4
+              }
+            },
+            {
+              "prompt": "The car drives half a lap again at a steady pace, taking 5 s. Predict its average speed and its average velocity.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Average speed",
+                    "unit": "m/s"
+                  },
+                  {
+                    "id": "velocity",
+                    "label": "Average velocity",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 10,
+                "velocity": 6.37
+              },
+              "tolerance": 0.6,
+              "outcome": "Average speed 10 m/s, average velocity 6.4 m/s.",
+              "explanation": "Speed is distance over time (50 m ÷ 5 s = 10 m/s). Velocity is displacement over time (31.8 m ÷ 5 s = 6.4 m/s).",
+              "coachSecrets": [],
+              "params": {
+                "frac": 0.5,
+                "speed": 10
+              }
+            }
+          ]
         },
         {
           "id": "kin_4",
           "kind": "prediction",
           "anomaly": true,
           "action": "drive_lap_steady",
-          "prompt": "Watch the same steady lap. The speedometer never changes. Is the car accelerating?",
+          "prompt": "Watch the car drive round the loop at a steady 5 m/s. The speedometer never changes. Is the car accelerating?",
           "input": {
             "type": "choice",
             "options": [
@@ -230,7 +865,323 @@
           ],
           "law": {
             "name": "Motion"
-          }
+          },
+          "params": {
+            "mode": "lap",
+            "speed": 5
+          },
+          "variants": [
+            {
+              "prompt": "Watch the car drive round the loop at a steady 5 m/s. The speedometer never changes. Is the car accelerating?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_direction",
+                    "label": "Yes: its direction keeps changing"
+                  },
+                  {
+                    "id": "no_steady",
+                    "label": "No: its speed is constant"
+                  },
+                  {
+                    "id": "only_straight",
+                    "label": "Only on the straight parts"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "yes_direction"
+              },
+              "outcome": "Yes. The speed is steady but the velocity arrow keeps turning, so the car is accelerating towards the centre.",
+              "explanation": "Velocity has a direction as well as a size. Changing direction is changing velocity, and any change in velocity is acceleration, even at constant speed.",
+              "expectedKeywords": [
+                "velocity",
+                "direction",
+                "change",
+                "acceleration"
+              ],
+              "keywordSynonyms": {
+                "change": [
+                  "changes",
+                  "changing",
+                  "turning",
+                  "turns",
+                  "different"
+                ],
+                "direction": [
+                  "heading",
+                  "way",
+                  "turn"
+                ],
+                "acceleration": [
+                  "accelerating",
+                  "accelerates",
+                  "accelerate"
+                ],
+                "velocity": [
+                  "vector"
+                ]
+              },
+              "coachSecrets": [
+                "centripetal",
+                "towards the centre",
+                "toward the centre"
+              ],
+              "params": {
+                "mode": "lap",
+                "speed": 5
+              }
+            },
+            {
+              "prompt": "Watch the car drive straight along the track at a steady 6 m/s. The speedometer never changes. Is the car accelerating?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_fast",
+                    "label": "Yes: it is moving fast, so it must be accelerating"
+                  },
+                  {
+                    "id": "no_steady",
+                    "label": "No: its speed and its direction are both constant"
+                  },
+                  {
+                    "id": "a_bit",
+                    "label": "Only a little, because of the road"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no_steady"
+              },
+              "outcome": "No. Its speed and its direction both stay the same, so its velocity does not change and the acceleration is zero.",
+              "explanation": "Acceleration is a change in velocity: a change in speed, or in direction, or both. Along a straight line at steady speed neither changes, so the acceleration is zero however fast the car goes.",
+              "expectedKeywords": [
+                "velocity",
+                "constant",
+                "acceleration",
+                "zero"
+              ],
+              "keywordSynonyms": {
+                "constant": [
+                  "steady",
+                  "unchanged",
+                  "same",
+                  "not changing",
+                  "does not change",
+                  "stays"
+                ],
+                "zero": [
+                  "0",
+                  "no acceleration",
+                  "none",
+                  "nothing"
+                ],
+                "acceleration": [
+                  "accelerating",
+                  "accelerates",
+                  "accelerate"
+                ],
+                "velocity": [
+                  "speed and direction",
+                  "vector"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "straight",
+                "speed": 6,
+                "length": 36
+              }
+            },
+            {
+              "prompt": "Watch the car drive round the loop at a steady 8 m/s. The speedometer never changes. Is the car accelerating?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_direction",
+                    "label": "Yes: its direction keeps changing"
+                  },
+                  {
+                    "id": "no_steady",
+                    "label": "No: its speed is constant"
+                  },
+                  {
+                    "id": "only_straight",
+                    "label": "Only on the straight parts"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "yes_direction"
+              },
+              "outcome": "Yes. The speed is steady but the velocity arrow keeps turning, so the car is accelerating towards the centre.",
+              "explanation": "Velocity has a direction as well as a size. Changing direction is changing velocity, and any change in velocity is acceleration, even at constant speed.",
+              "expectedKeywords": [
+                "velocity",
+                "direction",
+                "change",
+                "acceleration"
+              ],
+              "keywordSynonyms": {
+                "change": [
+                  "changes",
+                  "changing",
+                  "turning",
+                  "turns",
+                  "different"
+                ],
+                "direction": [
+                  "heading",
+                  "way",
+                  "turn"
+                ],
+                "acceleration": [
+                  "accelerating",
+                  "accelerates",
+                  "accelerate"
+                ],
+                "velocity": [
+                  "vector"
+                ]
+              },
+              "coachSecrets": [
+                "centripetal",
+                "towards the centre",
+                "toward the centre"
+              ],
+              "params": {
+                "mode": "lap",
+                "speed": 8
+              }
+            },
+            {
+              "prompt": "Watch the car drive straight along the track at a steady 10 m/s. The speedometer never changes. Is the car accelerating?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_fast",
+                    "label": "Yes: it is moving fast, so it must be accelerating"
+                  },
+                  {
+                    "id": "no_steady",
+                    "label": "No: its speed and its direction are both constant"
+                  },
+                  {
+                    "id": "a_bit",
+                    "label": "Only a little, because of the road"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no_steady"
+              },
+              "outcome": "No. Its speed and its direction both stay the same, so its velocity does not change and the acceleration is zero.",
+              "explanation": "Acceleration is a change in velocity: a change in speed, or in direction, or both. Along a straight line at steady speed neither changes, so the acceleration is zero however fast the car goes.",
+              "expectedKeywords": [
+                "velocity",
+                "constant",
+                "acceleration",
+                "zero"
+              ],
+              "keywordSynonyms": {
+                "constant": [
+                  "steady",
+                  "unchanged",
+                  "same",
+                  "not changing",
+                  "does not change",
+                  "stays"
+                ],
+                "zero": [
+                  "0",
+                  "no acceleration",
+                  "none",
+                  "nothing"
+                ],
+                "acceleration": [
+                  "accelerating",
+                  "accelerates",
+                  "accelerate"
+                ],
+                "velocity": [
+                  "speed and direction",
+                  "vector"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "straight",
+                "speed": 10,
+                "length": 50
+              }
+            },
+            {
+              "prompt": "Watch the car drive round the loop at a steady 3 m/s. The speedometer never changes. Is the car accelerating?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_direction",
+                    "label": "Yes: its direction keeps changing"
+                  },
+                  {
+                    "id": "no_steady",
+                    "label": "No: its speed is constant"
+                  },
+                  {
+                    "id": "only_straight",
+                    "label": "Only on the straight parts"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "yes_direction"
+              },
+              "outcome": "Yes. The speed is steady but the velocity arrow keeps turning, so the car is accelerating towards the centre.",
+              "explanation": "Velocity has a direction as well as a size. Changing direction is changing velocity, and any change in velocity is acceleration, even at constant speed.",
+              "expectedKeywords": [
+                "velocity",
+                "direction",
+                "change",
+                "acceleration"
+              ],
+              "keywordSynonyms": {
+                "change": [
+                  "changes",
+                  "changing",
+                  "turning",
+                  "turns",
+                  "different"
+                ],
+                "direction": [
+                  "heading",
+                  "way",
+                  "turn"
+                ],
+                "acceleration": [
+                  "accelerating",
+                  "accelerates",
+                  "accelerate"
+                ],
+                "velocity": [
+                  "vector"
+                ]
+              },
+              "coachSecrets": [
+                "centripetal",
+                "towards the centre",
+                "toward the centre"
+              ],
+              "params": {
+                "mode": "lap",
+                "speed": 3
+              }
+            }
+          ]
         },
         {
           "id": "tr_kin",
@@ -266,7 +1217,155 @@
           "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 30² + 40² = 50².",
           "law": {
             "name": "Motion"
-          }
+          },
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A hiker walks 30 m north and then 40 m east. What is the size of her displacement?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "70 m"
+                  },
+                  {
+                    "id": "b",
+                    "label": "50 m"
+                  },
+                  {
+                    "id": "c",
+                    "label": "10 m"
+                  },
+                  {
+                    "id": "d",
+                    "label": "0 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "50 m.",
+              "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 30² + 40² = 50²."
+            },
+            {
+              "prompt": "A hiker walks 6 m north and then 8 m east. What is the size of her displacement?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "10 m"
+                  },
+                  {
+                    "id": "b",
+                    "label": "2 m"
+                  },
+                  {
+                    "id": "c",
+                    "label": "0 m"
+                  },
+                  {
+                    "id": "d",
+                    "label": "14 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "a"
+              },
+              "outcome": "10 m.",
+              "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 6² + 8² = 10²."
+            },
+            {
+              "prompt": "A hiker walks 5 m north and then 12 m east. What is the size of her displacement?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "7 m"
+                  },
+                  {
+                    "id": "b",
+                    "label": "0 m"
+                  },
+                  {
+                    "id": "c",
+                    "label": "17 m"
+                  },
+                  {
+                    "id": "d",
+                    "label": "13 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "d"
+              },
+              "outcome": "13 m.",
+              "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 5² + 12² = 13²."
+            },
+            {
+              "prompt": "A hiker walks 9 m north and then 12 m east. What is the size of her displacement?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "0 m"
+                  },
+                  {
+                    "id": "b",
+                    "label": "21 m"
+                  },
+                  {
+                    "id": "c",
+                    "label": "15 m"
+                  },
+                  {
+                    "id": "d",
+                    "label": "3 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c"
+              },
+              "outcome": "15 m.",
+              "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 9² + 12² = 15²."
+            },
+            {
+              "prompt": "A hiker walks 20 m north and then 15 m east. What is the size of her displacement?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "25 m"
+                  },
+                  {
+                    "id": "b",
+                    "label": "5 m"
+                  },
+                  {
+                    "id": "c",
+                    "label": "0 m"
+                  },
+                  {
+                    "id": "d",
+                    "label": "35 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "a"
+              },
+              "outcome": "25 m.",
+              "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 20² + 15² = 25²."
+            }
+          ]
         }
       ]
     },
@@ -281,7 +1380,7 @@
           "kind": "prediction",
           "anomaly": true,
           "action": "push_heavy",
-          "prompt": "You push the heavy crate on the floor with a small force of 20 N. What happens?",
+          "prompt": "You push the heavy crate (80 kg) on the floor with a force of 20 N. What happens?",
           "input": {
             "type": "choice",
             "options": [
@@ -336,20 +1435,335 @@
               "mass"
             ]
           },
-          "coachSecrets": [
-            "static friction",
-            "forces cancel"
-          ],
+          "coachSecrets": [],
           "law": {
             "name": "Newton's 1st law · Inertia"
-          }
+          },
+          "params": {
+            "force": 20,
+            "mass": 80
+          },
+          "variants": [
+            {
+              "prompt": "You push the heavy crate (80 kg) on the floor with a force of 20 N. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "slides",
+                    "label": "It slides away slowly"
+                  },
+                  {
+                    "id": "stays",
+                    "label": "It does not move"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It speeds up steadily"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "stays"
+              },
+              "outcome": "It does not move. The floor pushes back with exactly 20 N.",
+              "explanation": "Friction from the floor grows to match your push, up to a limit. While your force is below that limit the forces cancel, so the crate has no acceleration.",
+              "expectedKeywords": [
+                "friction",
+                "force",
+                "balance",
+                "inertia"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "static",
+                  "rough",
+                  "grip",
+                  "floor"
+                ],
+                "balance": [
+                  "balanced",
+                  "equal",
+                  "opposite",
+                  "cancel",
+                  "cancels",
+                  "cancelled"
+                ],
+                "force": [
+                  "push",
+                  "forces"
+                ],
+                "inertia": [
+                  "resists",
+                  "resist",
+                  "heavy",
+                  "mass"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 20,
+                "mass": 80
+              }
+            },
+            {
+              "prompt": "You push the heavy crate (60 kg) on the floor with a force of 50 N. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "slides",
+                    "label": "It slides away slowly"
+                  },
+                  {
+                    "id": "stays",
+                    "label": "It does not move"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It speeds up steadily"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "stays"
+              },
+              "outcome": "It does not move. The floor pushes back with exactly 50 N.",
+              "explanation": "Friction from the floor grows to match your push, up to a limit. While your force is below that limit the forces cancel, so the crate has no acceleration.",
+              "expectedKeywords": [
+                "friction",
+                "force",
+                "balance",
+                "inertia"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "static",
+                  "rough",
+                  "grip",
+                  "floor"
+                ],
+                "balance": [
+                  "balanced",
+                  "equal",
+                  "opposite",
+                  "cancel",
+                  "cancels",
+                  "cancelled"
+                ],
+                "force": [
+                  "push",
+                  "forces"
+                ],
+                "inertia": [
+                  "resists",
+                  "resist",
+                  "heavy",
+                  "mass"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 50,
+                "mass": 60
+              }
+            },
+            {
+              "prompt": "You push the heavy crate (120 kg) on the floor with a force of 100 N. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "slides",
+                    "label": "It slides away slowly"
+                  },
+                  {
+                    "id": "stays",
+                    "label": "It does not move"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It speeds up steadily"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "stays"
+              },
+              "outcome": "It does not move. The floor pushes back with exactly 100 N.",
+              "explanation": "Friction from the floor grows to match your push, up to a limit. While your force is below that limit the forces cancel, so the crate has no acceleration.",
+              "expectedKeywords": [
+                "friction",
+                "force",
+                "balance",
+                "inertia"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "static",
+                  "rough",
+                  "grip",
+                  "floor"
+                ],
+                "balance": [
+                  "balanced",
+                  "equal",
+                  "opposite",
+                  "cancel",
+                  "cancels",
+                  "cancelled"
+                ],
+                "force": [
+                  "push",
+                  "forces"
+                ],
+                "inertia": [
+                  "resists",
+                  "resist",
+                  "heavy",
+                  "mass"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 100,
+                "mass": 120
+              }
+            },
+            {
+              "prompt": "You push the heavy crate (40 kg) on the floor with a force of 30 N. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "slides",
+                    "label": "It slides away slowly"
+                  },
+                  {
+                    "id": "stays",
+                    "label": "It does not move"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It speeds up steadily"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "stays"
+              },
+              "outcome": "It does not move. The floor pushes back with exactly 30 N.",
+              "explanation": "Friction from the floor grows to match your push, up to a limit. While your force is below that limit the forces cancel, so the crate has no acceleration.",
+              "expectedKeywords": [
+                "friction",
+                "force",
+                "balance",
+                "inertia"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "static",
+                  "rough",
+                  "grip",
+                  "floor"
+                ],
+                "balance": [
+                  "balanced",
+                  "equal",
+                  "opposite",
+                  "cancel",
+                  "cancels",
+                  "cancelled"
+                ],
+                "force": [
+                  "push",
+                  "forces"
+                ],
+                "inertia": [
+                  "resists",
+                  "resist",
+                  "heavy",
+                  "mass"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 30,
+                "mass": 40
+              }
+            },
+            {
+              "prompt": "You push the heavy crate (40 kg) on the floor with a force of 300 N. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "slides",
+                    "label": "It slides away slowly"
+                  },
+                  {
+                    "id": "stays",
+                    "label": "It does not move"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It speeds up steadily"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "speeds"
+              },
+              "outcome": "It moves off and speeds up. Your 300 N beats the friction limit (about 196 N), and with sliding friction of 157 N the net force of 143 N gives it 3.6 m/s².",
+              "explanation": "Friction can only match your push up to a limit. Once the force is bigger than that limit it cannot balance it, so there is a net force and the crate accelerates, F = m a.",
+              "expectedKeywords": [
+                "friction",
+                "force",
+                "net force",
+                "acceleration"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "static",
+                  "rough",
+                  "grip",
+                  "floor"
+                ],
+                "net force": [
+                  "unbalanced",
+                  "resultant",
+                  "leftover",
+                  "left over",
+                  "overcomes",
+                  "beats",
+                  "bigger than",
+                  "greater than"
+                ],
+                "force": [
+                  "push",
+                  "forces"
+                ],
+                "acceleration": [
+                  "accelerates",
+                  "accelerating",
+                  "speeds up",
+                  "speed up"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 300,
+                "mass": 40
+              }
+            }
+          ]
         },
         {
           "id": "dyn_2",
           "kind": "prediction",
           "anomaly": true,
           "action": "push_float",
-          "prompt": "You give the floating crate a short push in space, then let go. What does it do afterwards?",
+          "prompt": "You give the floating 20 kg crate a push of 40 N for 0.5 s, then let go. What does it do afterwards?",
           "input": {
             "type": "choice",
             "options": [
@@ -370,7 +1784,7 @@
           "answer": {
             "choice": "constant"
           },
-          "outcome": "It drifts on at a constant speed and never stops by itself.",
+          "outcome": "It drifts on at a constant 1 m/s and never stops by itself.",
           "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia.",
           "expectedKeywords": [
             "inertia",
@@ -410,13 +1824,330 @@
           ],
           "law": {
             "name": "Newton's 1st law · Inertia"
-          }
+          },
+          "params": {
+            "force": 40,
+            "mass": 20,
+            "pushTime": 0.5
+          },
+          "variants": [
+            {
+              "prompt": "You give the floating 20 kg crate a push of 40 N for 0.5 s, then let go. What does it do afterwards?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "stops",
+                    "label": "It slows down and stops soon"
+                  },
+                  {
+                    "id": "constant",
+                    "label": "It keeps going at the same speed"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It keeps speeding up"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "constant"
+              },
+              "outcome": "It drifts on at a constant 1 m/s and never stops by itself.",
+              "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia.",
+              "expectedKeywords": [
+                "inertia",
+                "force",
+                "friction",
+                "constant"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "resistance",
+                  "air",
+                  "drag",
+                  "nothing"
+                ],
+                "force": [
+                  "push",
+                  "pushes",
+                  "net force"
+                ],
+                "constant": [
+                  "same speed",
+                  "steady",
+                  "forever",
+                  "never stops",
+                  "keeps moving",
+                  "keeps going"
+                ],
+                "inertia": [
+                  "first law",
+                  "newton"
+                ]
+              },
+              "coachSecrets": [
+                "never stops",
+                "constant speed",
+                "first law"
+              ],
+              "params": {
+                "force": 40,
+                "mass": 20,
+                "pushTime": 0.5
+              }
+            },
+            {
+              "prompt": "You push the floating 15 kg crate with 30 N for 0.8 s, then let go. How fast is it moving 10 seconds later?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Speed",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 1.6
+              },
+              "tolerance": 0.25,
+              "outcome": "1.6 m/s, the same as the instant the push ended (30 N × 0.8 s ÷ 15 kg). It never slows down.",
+              "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia. The push gave it a speed of 1.6 m/s (F t ÷ m) and nothing changes that afterwards.",
+              "expectedKeywords": [
+                "inertia",
+                "force",
+                "friction",
+                "constant"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "resistance",
+                  "air",
+                  "drag",
+                  "nothing"
+                ],
+                "force": [
+                  "push",
+                  "pushes",
+                  "net force"
+                ],
+                "constant": [
+                  "same speed",
+                  "steady",
+                  "forever",
+                  "never stops",
+                  "keeps moving",
+                  "keeps going"
+                ],
+                "inertia": [
+                  "first law",
+                  "newton"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 30,
+                "mass": 15,
+                "pushTime": 0.8
+              }
+            },
+            {
+              "prompt": "You give the floating 30 kg crate a push of 60 N for 0.4 s, then let go. What does it do afterwards?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "stops",
+                    "label": "It slows down and stops soon"
+                  },
+                  {
+                    "id": "constant",
+                    "label": "It keeps going at the same speed"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It keeps speeding up"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "constant"
+              },
+              "outcome": "It drifts on at a constant 0.8 m/s and never stops by itself.",
+              "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia.",
+              "expectedKeywords": [
+                "inertia",
+                "force",
+                "friction",
+                "constant"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "resistance",
+                  "air",
+                  "drag",
+                  "nothing"
+                ],
+                "force": [
+                  "push",
+                  "pushes",
+                  "net force"
+                ],
+                "constant": [
+                  "same speed",
+                  "steady",
+                  "forever",
+                  "never stops",
+                  "keeps moving",
+                  "keeps going"
+                ],
+                "inertia": [
+                  "first law",
+                  "newton"
+                ]
+              },
+              "coachSecrets": [
+                "never stops",
+                "constant speed",
+                "first law"
+              ],
+              "params": {
+                "force": 60,
+                "mass": 30,
+                "pushTime": 0.4
+              }
+            },
+            {
+              "prompt": "You push the floating 10 kg crate with 25 N for 1 s, then let go. How fast is it moving 10 seconds later?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "speed",
+                    "label": "Speed",
+                    "unit": "m/s"
+                  }
+                ]
+              },
+              "answer": {
+                "speed": 2.5
+              },
+              "tolerance": 0.25,
+              "outcome": "2.5 m/s, the same as the instant the push ended (25 N × 1 s ÷ 10 kg). It never slows down.",
+              "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia. The push gave it a speed of 2.5 m/s (F t ÷ m) and nothing changes that afterwards.",
+              "expectedKeywords": [
+                "inertia",
+                "force",
+                "friction",
+                "constant"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "resistance",
+                  "air",
+                  "drag",
+                  "nothing"
+                ],
+                "force": [
+                  "push",
+                  "pushes",
+                  "net force"
+                ],
+                "constant": [
+                  "same speed",
+                  "steady",
+                  "forever",
+                  "never stops",
+                  "keeps moving",
+                  "keeps going"
+                ],
+                "inertia": [
+                  "first law",
+                  "newton"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "force": 25,
+                "mass": 10,
+                "pushTime": 1.0
+              }
+            },
+            {
+              "prompt": "You give the floating 25 kg crate a push of 50 N for 0.6 s, then let go. What does it do afterwards?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "stops",
+                    "label": "It slows down and stops soon"
+                  },
+                  {
+                    "id": "constant",
+                    "label": "It keeps going at the same speed"
+                  },
+                  {
+                    "id": "speeds",
+                    "label": "It keeps speeding up"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "constant"
+              },
+              "outcome": "It drifts on at a constant 1.2 m/s and never stops by itself.",
+              "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia.",
+              "expectedKeywords": [
+                "inertia",
+                "force",
+                "friction",
+                "constant"
+              ],
+              "keywordSynonyms": {
+                "friction": [
+                  "resistance",
+                  "air",
+                  "drag",
+                  "nothing"
+                ],
+                "force": [
+                  "push",
+                  "pushes",
+                  "net force"
+                ],
+                "constant": [
+                  "same speed",
+                  "steady",
+                  "forever",
+                  "never stops",
+                  "keeps moving",
+                  "keeps going"
+                ],
+                "inertia": [
+                  "first law",
+                  "newton"
+                ]
+              },
+              "coachSecrets": [
+                "never stops",
+                "constant speed",
+                "first law"
+              ],
+              "params": {
+                "force": 50,
+                "mass": 25,
+                "pushTime": 0.6
+              }
+            }
+          ]
         },
         {
           "id": "dyn_ma",
           "kind": "prediction",
           "anomaly": false,
-          "action": "push_20kg",
+          "action": "push_mass",
           "law": {
             "name": "Newton's 2nd law",
             "formula": "F = m a"
@@ -433,31 +2164,159 @@
             ]
           },
           "answer": {
-            "accel": 2
+            "accel": 2.0
           },
           "tolerance": 0.3,
           "outcome": "2 m/s²: every second its speed grows by 2 m/s.",
           "explanation": "Newton's second law: F = m a, so a = F ÷ m = 40 N ÷ 20 kg = 2 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
-          "coachSecrets": [
-            "2 m/s"
+          "coachSecrets": [],
+          "params": {
+            "force": 40,
+            "mass": 20
+          },
+          "variants": [
+            {
+              "prompt": "In zero gravity you push the 20 kg crate with a steady 40 N. Predict its acceleration.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "accel",
+                    "label": "Acceleration",
+                    "unit": "m/s²"
+                  }
+                ]
+              },
+              "answer": {
+                "accel": 2.0
+              },
+              "tolerance": 0.3,
+              "outcome": "2 m/s²: every second its speed grows by 2 m/s.",
+              "explanation": "Newton's second law: F = m a, so a = F ÷ m = 40 N ÷ 20 kg = 2 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
+              "coachSecrets": [],
+              "params": {
+                "force": 40,
+                "mass": 20
+              }
+            },
+            {
+              "prompt": "In zero gravity you push the 15 kg crate with a steady 60 N. Predict its acceleration.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "accel",
+                    "label": "Acceleration",
+                    "unit": "m/s²"
+                  }
+                ]
+              },
+              "answer": {
+                "accel": 4.0
+              },
+              "tolerance": 0.3,
+              "outcome": "4 m/s²: every second its speed grows by 4 m/s.",
+              "explanation": "Newton's second law: F = m a, so a = F ÷ m = 60 N ÷ 15 kg = 4 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
+              "coachSecrets": [],
+              "params": {
+                "force": 60,
+                "mass": 15
+              }
+            },
+            {
+              "prompt": "In zero gravity you push the 10 kg crate with a steady 30 N. Predict its acceleration.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "accel",
+                    "label": "Acceleration",
+                    "unit": "m/s²"
+                  }
+                ]
+              },
+              "answer": {
+                "accel": 3.0
+              },
+              "tolerance": 0.3,
+              "outcome": "3 m/s²: every second its speed grows by 3 m/s.",
+              "explanation": "Newton's second law: F = m a, so a = F ÷ m = 30 N ÷ 10 kg = 3 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
+              "coachSecrets": [],
+              "params": {
+                "force": 30,
+                "mass": 10
+              }
+            },
+            {
+              "prompt": "In zero gravity you push the 50 kg crate with a steady 100 N. Predict its acceleration.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "accel",
+                    "label": "Acceleration",
+                    "unit": "m/s²"
+                  }
+                ]
+              },
+              "answer": {
+                "accel": 2.0
+              },
+              "tolerance": 0.3,
+              "outcome": "2 m/s²: every second its speed grows by 2 m/s.",
+              "explanation": "Newton's second law: F = m a, so a = F ÷ m = 100 N ÷ 50 kg = 2 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
+              "coachSecrets": [],
+              "params": {
+                "force": 100,
+                "mass": 50
+              }
+            },
+            {
+              "prompt": "In zero gravity you push the 8 kg crate with a steady 24 N. Predict its acceleration.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "accel",
+                    "label": "Acceleration",
+                    "unit": "m/s²"
+                  }
+                ]
+              },
+              "answer": {
+                "accel": 3.0
+              },
+              "tolerance": 0.3,
+              "outcome": "3 m/s²: every second its speed grows by 3 m/s.",
+              "explanation": "Newton's second law: F = m a, so a = F ÷ m = 24 N ÷ 8 kg = 3 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
+              "coachSecrets": [],
+              "params": {
+                "force": 24,
+                "mass": 8
+              }
+            }
           ]
         },
         {
           "id": "dyn_ma2",
           "kind": "prediction",
           "anomaly": false,
-          "action": "push_40kg",
+          "action": "push_mass",
           "law": {
             "name": "Newton's 2nd law",
             "formula": "F = m a"
           },
-          "prompt": "Now you push a 40 kg crate with the same 40 N. Compared with the 20 kg crate, its acceleration is…",
+          "prompt": "You push a 20 kg crate with 40 N. Now you push a 40 kg crate with the same 40 N. Compared with the 20 kg crate, the acceleration of the 40 kg crate is…",
           "input": {
             "type": "choice",
             "options": [
               {
                 "id": "double",
                 "label": "Double"
+              },
+              {
+                "id": "triple",
+                "label": "Triple"
               },
               {
                 "id": "same",
@@ -468,18 +2327,212 @@
                 "label": "Half as big"
               },
               {
-                "id": "quarter",
-                "label": "A quarter as big"
+                "id": "third",
+                "label": "A third as big"
               }
             ]
           },
           "answer": {
             "choice": "half"
           },
-          "outcome": "Half as big: 1 m/s², not 2.",
-          "explanation": "a = F ÷ m. Same force, twice the mass, so half the acceleration. Mass is how strongly an object resists being accelerated.",
-          "coachSecrets": [
-            "1 m/s"
+          "outcome": "1 m/s² for the 40 kg crate, against 2 m/s² for the 20 kg one.",
+          "explanation": "a = F ÷ m. The same force on a crate with 2 times the mass gives 0.5 times the acceleration, 2 → 1 m/s². Mass is how strongly an object resists being accelerated.",
+          "coachSecrets": [],
+          "params": {
+            "force": 40,
+            "mass": 40
+          },
+          "variants": [
+            {
+              "prompt": "You push a 20 kg crate with 40 N. Now you push a 40 kg crate with the same 40 N. Compared with the 20 kg crate, the acceleration of the 40 kg crate is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "Double"
+                  },
+                  {
+                    "id": "triple",
+                    "label": "Triple"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as big"
+                  },
+                  {
+                    "id": "third",
+                    "label": "A third as big"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "1 m/s² for the 40 kg crate, against 2 m/s² for the 20 kg one.",
+              "explanation": "a = F ÷ m. The same force on a crate with 2 times the mass gives 0.5 times the acceleration, 2 → 1 m/s². Mass is how strongly an object resists being accelerated.",
+              "coachSecrets": [],
+              "params": {
+                "force": 40,
+                "mass": 40
+              }
+            },
+            {
+              "prompt": "You push a 30 kg crate with 60 N. Now you push a 10 kg crate with the same 60 N. Compared with the 30 kg crate, the acceleration of the 10 kg crate is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "Double"
+                  },
+                  {
+                    "id": "triple",
+                    "label": "Triple"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as big"
+                  },
+                  {
+                    "id": "third",
+                    "label": "A third as big"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "triple"
+              },
+              "outcome": "6 m/s² for the 10 kg crate, against 2 m/s² for the 30 kg one.",
+              "explanation": "a = F ÷ m. The same force on a crate with 0.33 times the mass gives 3 times the acceleration, 2 → 6 m/s². Mass is how strongly an object resists being accelerated.",
+              "coachSecrets": [],
+              "params": {
+                "force": 60,
+                "mass": 10
+              }
+            },
+            {
+              "prompt": "You push a 12 kg crate with 36 N. Now you push a 6 kg crate with the same 36 N. Compared with the 12 kg crate, the acceleration of the 6 kg crate is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "Double"
+                  },
+                  {
+                    "id": "triple",
+                    "label": "Triple"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as big"
+                  },
+                  {
+                    "id": "third",
+                    "label": "A third as big"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "6 m/s² for the 6 kg crate, against 3 m/s² for the 12 kg one.",
+              "explanation": "a = F ÷ m. The same force on a crate with 0.5 times the mass gives 2 times the acceleration, 3 → 6 m/s². Mass is how strongly an object resists being accelerated.",
+              "coachSecrets": [],
+              "params": {
+                "force": 36,
+                "mass": 6
+              }
+            },
+            {
+              "prompt": "You push a 15 kg crate with 30 N. Now you push a 45 kg crate with the same 30 N. Compared with the 15 kg crate, the acceleration of the 45 kg crate is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "Double"
+                  },
+                  {
+                    "id": "triple",
+                    "label": "Triple"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as big"
+                  },
+                  {
+                    "id": "third",
+                    "label": "A third as big"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "third"
+              },
+              "outcome": "0.67 m/s² for the 45 kg crate, against 2 m/s² for the 15 kg one.",
+              "explanation": "a = F ÷ m. The same force on a crate with 3 times the mass gives 0.33 times the acceleration, 2 → 0.67 m/s². Mass is how strongly an object resists being accelerated.",
+              "coachSecrets": [],
+              "params": {
+                "force": 30,
+                "mass": 45
+              }
+            },
+            {
+              "prompt": "You push a 16 kg crate with 48 N. Now you push a 32 kg crate with the same 48 N. Compared with the 16 kg crate, the acceleration of the 32 kg crate is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "Double"
+                  },
+                  {
+                    "id": "triple",
+                    "label": "Triple"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as big"
+                  },
+                  {
+                    "id": "third",
+                    "label": "A third as big"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "1.5 m/s² for the 32 kg crate, against 3 m/s² for the 16 kg one.",
+              "explanation": "a = F ÷ m. The same force on a crate with 2 times the mass gives 0.5 times the acceleration, 3 → 1.5 m/s². Mass is how strongly an object resists being accelerated.",
+              "coachSecrets": [],
+              "params": {
+                "force": 48,
+                "mass": 32
+              }
+            }
           ]
         },
         {
@@ -495,12 +2548,12 @@
             "type": "choice",
             "options": [
               {
-                "id": "light",
-                "label": "The light crate"
+                "id": "left",
+                "label": "The 20 kg crate"
               },
               {
-                "id": "heavy",
-                "label": "The heavy crate"
+                "id": "right",
+                "label": "The 60 kg crate"
               },
               {
                 "id": "equal",
@@ -511,7 +2564,7 @@
           "answer": {
             "choice": "equal"
           },
-          "outcome": "Both feel exactly 30 N, in opposite directions. The light crate speeds off three times faster (1.5 m/s² against 0.5 m/s²).",
+          "outcome": "Both feel exactly 30 N, in opposite directions. The 20 kg crate accelerates at 1.5 m/s² and the 60 kg crate at 0.5 m/s².",
           "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
           "expectedKeywords": [
             "third law",
@@ -554,8 +2607,379 @@
             ]
           },
           "coachSecrets": [
-            "30 N each",
             "equal and opposite"
+          ],
+          "params": {
+            "massLeft": 20,
+            "massRight": 60,
+            "force": 30
+          },
+          "variants": [
+            {
+              "prompt": "A 60 kg crate and a 20 kg crate float touching in space. A spring between them pushes them apart with 30 N. Which crate feels the bigger force from the spring?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "left",
+                    "label": "The 20 kg crate"
+                  },
+                  {
+                    "id": "right",
+                    "label": "The 60 kg crate"
+                  },
+                  {
+                    "id": "equal",
+                    "label": "Both feel the same force, pointing in opposite directions"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "equal"
+              },
+              "outcome": "Both feel exactly 30 N, in opposite directions. The 20 kg crate accelerates at 1.5 m/s² and the 60 kg crate at 0.5 m/s².",
+              "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
+              "expectedKeywords": [
+                "third law",
+                "equal",
+                "opposite",
+                "force",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "third law": [
+                  "action reaction",
+                  "action and reaction",
+                  "newtons third",
+                  "reaction force",
+                  "every action"
+                ],
+                "equal": [
+                  "same size",
+                  "same",
+                  "equally",
+                  "identical"
+                ],
+                "opposite": [
+                  "opposing",
+                  "other direction",
+                  "reverse",
+                  "back"
+                ],
+                "force": [
+                  "push",
+                  "forces",
+                  "pushes"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "equal and opposite"
+              ],
+              "params": {
+                "massLeft": 20,
+                "massRight": 60,
+                "force": 30
+              }
+            },
+            {
+              "prompt": "A 40 kg crate and a 10 kg crate float touching in space. A spring between them pushes them apart with 20 N. Which crate feels the bigger force from the spring?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "left",
+                    "label": "The 10 kg crate"
+                  },
+                  {
+                    "id": "right",
+                    "label": "The 40 kg crate"
+                  },
+                  {
+                    "id": "equal",
+                    "label": "Both feel the same force, pointing in opposite directions"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "equal"
+              },
+              "outcome": "Both feel exactly 20 N, in opposite directions. The 10 kg crate accelerates at 2 m/s² and the 40 kg crate at 0.5 m/s².",
+              "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
+              "expectedKeywords": [
+                "third law",
+                "equal",
+                "opposite",
+                "force",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "third law": [
+                  "action reaction",
+                  "action and reaction",
+                  "newtons third",
+                  "reaction force",
+                  "every action"
+                ],
+                "equal": [
+                  "same size",
+                  "same",
+                  "equally",
+                  "identical"
+                ],
+                "opposite": [
+                  "opposing",
+                  "other direction",
+                  "reverse",
+                  "back"
+                ],
+                "force": [
+                  "push",
+                  "forces",
+                  "pushes"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "equal and opposite"
+              ],
+              "params": {
+                "massLeft": 10,
+                "massRight": 40,
+                "force": 20
+              }
+            },
+            {
+              "prompt": "A 30 kg crate and a 30 kg crate float touching in space. A spring between them pushes them apart with 24 N. Which crate feels the bigger force from the spring?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "left",
+                    "label": "The 30 kg crate"
+                  },
+                  {
+                    "id": "right",
+                    "label": "The 30 kg crate"
+                  },
+                  {
+                    "id": "equal",
+                    "label": "Both feel the same force, pointing in opposite directions"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "equal"
+              },
+              "outcome": "Both feel exactly 24 N, in opposite directions. The 30 kg crate accelerates at 0.8 m/s² and the 30 kg crate at 0.8 m/s².",
+              "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
+              "expectedKeywords": [
+                "third law",
+                "equal",
+                "opposite",
+                "force",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "third law": [
+                  "action reaction",
+                  "action and reaction",
+                  "newtons third",
+                  "reaction force",
+                  "every action"
+                ],
+                "equal": [
+                  "same size",
+                  "same",
+                  "equally",
+                  "identical"
+                ],
+                "opposite": [
+                  "opposing",
+                  "other direction",
+                  "reverse",
+                  "back"
+                ],
+                "force": [
+                  "push",
+                  "forces",
+                  "pushes"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "equal and opposite"
+              ],
+              "params": {
+                "massLeft": 30,
+                "massRight": 30,
+                "force": 24
+              }
+            },
+            {
+              "prompt": "A 45 kg crate and a 15 kg crate float touching in space. A spring between them pushes them apart with 18 N. Which crate feels the bigger force from the spring?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "left",
+                    "label": "The 15 kg crate"
+                  },
+                  {
+                    "id": "right",
+                    "label": "The 45 kg crate"
+                  },
+                  {
+                    "id": "equal",
+                    "label": "Both feel the same force, pointing in opposite directions"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "equal"
+              },
+              "outcome": "Both feel exactly 18 N, in opposite directions. The 15 kg crate accelerates at 1.2 m/s² and the 45 kg crate at 0.4 m/s².",
+              "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
+              "expectedKeywords": [
+                "third law",
+                "equal",
+                "opposite",
+                "force",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "third law": [
+                  "action reaction",
+                  "action and reaction",
+                  "newtons third",
+                  "reaction force",
+                  "every action"
+                ],
+                "equal": [
+                  "same size",
+                  "same",
+                  "equally",
+                  "identical"
+                ],
+                "opposite": [
+                  "opposing",
+                  "other direction",
+                  "reverse",
+                  "back"
+                ],
+                "force": [
+                  "push",
+                  "forces",
+                  "pushes"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "equal and opposite"
+              ],
+              "params": {
+                "massLeft": 15,
+                "massRight": 45,
+                "force": 18
+              }
+            },
+            {
+              "prompt": "A 10 kg crate and a 40 kg crate float touching in space. A spring between them pushes them apart with 35 N. Which crate feels the bigger force from the spring?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "left",
+                    "label": "The 40 kg crate"
+                  },
+                  {
+                    "id": "right",
+                    "label": "The 10 kg crate"
+                  },
+                  {
+                    "id": "equal",
+                    "label": "Both feel the same force, pointing in opposite directions"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "equal"
+              },
+              "outcome": "Both feel exactly 35 N, in opposite directions. The 40 kg crate accelerates at 0.88 m/s² and the 10 kg crate at 3.5 m/s².",
+              "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
+              "expectedKeywords": [
+                "third law",
+                "equal",
+                "opposite",
+                "force",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "third law": [
+                  "action reaction",
+                  "action and reaction",
+                  "newtons third",
+                  "reaction force",
+                  "every action"
+                ],
+                "equal": [
+                  "same size",
+                  "same",
+                  "equally",
+                  "identical"
+                ],
+                "opposite": [
+                  "opposing",
+                  "other direction",
+                  "reverse",
+                  "back"
+                ],
+                "force": [
+                  "push",
+                  "forces",
+                  "pushes"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "equal and opposite"
+              ],
+              "params": {
+                "massLeft": 40,
+                "massRight": 10,
+                "force": 35
+              }
+            }
           ]
         },
         {
@@ -563,33 +2987,33 @@
           "kind": "prediction",
           "anomaly": true,
           "action": "collide",
-          "prompt": "A heavy ball (5 kg) rolls at 4 m/s into a light ball (1 kg) that is standing still. What happens just after they collide?",
+          "prompt": "A 5 kg ball rolls at 4 m/s into a 1 kg ball that is standing still. What happens just after they collide?",
           "input": {
             "type": "choice",
             "options": [
               {
                 "id": "together",
-                "label": "They stick and move off at the same speed"
+                "label": "They stick together and move off slowly"
               },
               {
-                "id": "heavy_slows",
-                "label": "The heavy ball slows down; the light ball shoots off faster than the heavy ball was going"
+                "id": "keeps_going",
+                "label": "The moving ball slows down but keeps going forward; the other ball shoots off faster than the first was moving"
               },
               {
-                "id": "heavy_stops",
-                "label": "The heavy ball stops dead; the light ball leaves at 4 m/s"
+                "id": "exchange",
+                "label": "The moving ball stops dead; the other ball moves off at the first ball's original speed"
               },
               {
-                "id": "bounce",
-                "label": "The heavy ball bounces back; the light ball hardly moves"
+                "id": "bounces",
+                "label": "The moving ball bounces back; the other ball moves off forward"
               }
             ]
           },
           "answer": {
-            "choice": "heavy_slows"
+            "choice": "keeps_going"
           },
-          "outcome": "The heavy ball slows to about 2.7 m/s; the light ball shoots off at about 6.7 m/s.",
-          "explanation": "Total momentum (mass × velocity) is conserved. The heavy ball hands some momentum to the light ball, and a small mass needs a big speed to carry it.",
+          "outcome": "The 5 kg ball moves at 2.7 m/s and the 1 kg ball at 6.7 m/s.",
+          "explanation": "Total momentum (mass × velocity) is conserved: 5 × 4 = 20 kg·m/s before, and 5 × 2.7 + 1 × 6.7 = 20 after. The moving ball hands over momentum, and a small mass needs a big speed to carry it.",
           "expectedKeywords": [
             "momentum",
             "conserved",
@@ -623,13 +3047,361 @@
           },
           "coachSecrets": [
             "6.7",
-            "2.7",
-            "momentum is conserved"
+            "2.7"
           ],
           "law": {
             "name": "Momentum",
             "formula": "p = m v"
-          }
+          },
+          "params": {
+            "m1": 5,
+            "v1": 4,
+            "m2": 1
+          },
+          "variants": [
+            {
+              "prompt": "A 5 kg ball rolls at 4 m/s into a 1 kg ball that is standing still. What happens just after they collide?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "together",
+                    "label": "They stick together and move off slowly"
+                  },
+                  {
+                    "id": "keeps_going",
+                    "label": "The moving ball slows down but keeps going forward; the other ball shoots off faster than the first was moving"
+                  },
+                  {
+                    "id": "exchange",
+                    "label": "The moving ball stops dead; the other ball moves off at the first ball's original speed"
+                  },
+                  {
+                    "id": "bounces",
+                    "label": "The moving ball bounces back; the other ball moves off forward"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "keeps_going"
+              },
+              "outcome": "The 5 kg ball moves at 2.7 m/s and the 1 kg ball at 6.7 m/s.",
+              "explanation": "Total momentum (mass × velocity) is conserved: 5 × 4 = 20 kg·m/s before, and 5 × 2.7 + 1 × 6.7 = 20 after. The moving ball hands over momentum, and a small mass needs a big speed to carry it.",
+              "expectedKeywords": [
+                "momentum",
+                "conserved",
+                "transfer",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "conserved": [
+                  "conservation",
+                  "conserve",
+                  "same total",
+                  "stays the same",
+                  "total"
+                ],
+                "transfer": [
+                  "transferred",
+                  "passes",
+                  "passed",
+                  "gives",
+                  "gave",
+                  "shared",
+                  "handed"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "6.7",
+                "2.7"
+              ],
+              "params": {
+                "m1": 5,
+                "v1": 4,
+                "m2": 1
+              }
+            },
+            {
+              "prompt": "A 3 kg ball rolls at 6 m/s into a 3 kg ball that is standing still. What happens just after they collide?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "together",
+                    "label": "They stick together and move off slowly"
+                  },
+                  {
+                    "id": "keeps_going",
+                    "label": "The moving ball slows down but keeps going forward; the other ball shoots off faster than the first was moving"
+                  },
+                  {
+                    "id": "exchange",
+                    "label": "The moving ball stops dead; the other ball moves off at the first ball's original speed"
+                  },
+                  {
+                    "id": "bounces",
+                    "label": "The moving ball bounces back; the other ball moves off forward"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "exchange"
+              },
+              "outcome": "The 3 kg ball moves at 0 m/s and the 3 kg ball at 6 m/s.",
+              "explanation": "Total momentum (mass × velocity) is conserved: 3 × 6 = 18 kg·m/s before, and 3 × 0 + 3 × 6 = 18 after. The moving ball hands over momentum, and a small mass needs a big speed to carry it.",
+              "expectedKeywords": [
+                "momentum",
+                "conserved",
+                "transfer",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "conserved": [
+                  "conservation",
+                  "conserve",
+                  "same total",
+                  "stays the same",
+                  "total"
+                ],
+                "transfer": [
+                  "transferred",
+                  "passes",
+                  "passed",
+                  "gives",
+                  "gave",
+                  "shared",
+                  "handed"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "m1": 3,
+                "v1": 6,
+                "m2": 3
+              }
+            },
+            {
+              "prompt": "A 2 kg ball rolls at 5 m/s into a 6 kg ball that is standing still. What happens just after they collide?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "together",
+                    "label": "They stick together and move off slowly"
+                  },
+                  {
+                    "id": "keeps_going",
+                    "label": "The moving ball slows down but keeps going forward; the other ball shoots off faster than the first was moving"
+                  },
+                  {
+                    "id": "exchange",
+                    "label": "The moving ball stops dead; the other ball moves off at the first ball's original speed"
+                  },
+                  {
+                    "id": "bounces",
+                    "label": "The moving ball bounces back; the other ball moves off forward"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "bounces"
+              },
+              "outcome": "The 2 kg ball moves at -2.5 m/s and the 6 kg ball at 2.5 m/s.",
+              "explanation": "Total momentum (mass × velocity) is conserved: 2 × 5 = 10 kg·m/s before, and 2 × -2.5 + 6 × 2.5 = 10 after. The moving ball hands over momentum, and a small mass needs a big speed to carry it.",
+              "expectedKeywords": [
+                "momentum",
+                "conserved",
+                "transfer",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "conserved": [
+                  "conservation",
+                  "conserve",
+                  "same total",
+                  "stays the same",
+                  "total"
+                ],
+                "transfer": [
+                  "transferred",
+                  "passes",
+                  "passed",
+                  "gives",
+                  "gave",
+                  "shared",
+                  "handed"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "2.5",
+                "-2.5"
+              ],
+              "params": {
+                "m1": 2,
+                "v1": 5,
+                "m2": 6
+              }
+            },
+            {
+              "prompt": "A 8 kg ball rolls at 3 m/s into a 2 kg ball that is standing still. What happens just after they collide?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "together",
+                    "label": "They stick together and move off slowly"
+                  },
+                  {
+                    "id": "keeps_going",
+                    "label": "The moving ball slows down but keeps going forward; the other ball shoots off faster than the first was moving"
+                  },
+                  {
+                    "id": "exchange",
+                    "label": "The moving ball stops dead; the other ball moves off at the first ball's original speed"
+                  },
+                  {
+                    "id": "bounces",
+                    "label": "The moving ball bounces back; the other ball moves off forward"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "keeps_going"
+              },
+              "outcome": "The 8 kg ball moves at 1.8 m/s and the 2 kg ball at 4.8 m/s.",
+              "explanation": "Total momentum (mass × velocity) is conserved: 8 × 3 = 24 kg·m/s before, and 8 × 1.8 + 2 × 4.8 = 24 after. The moving ball hands over momentum, and a small mass needs a big speed to carry it.",
+              "expectedKeywords": [
+                "momentum",
+                "conserved",
+                "transfer",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "conserved": [
+                  "conservation",
+                  "conserve",
+                  "same total",
+                  "stays the same",
+                  "total"
+                ],
+                "transfer": [
+                  "transferred",
+                  "passes",
+                  "passed",
+                  "gives",
+                  "gave",
+                  "shared",
+                  "handed"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "4.8",
+                "1.8"
+              ],
+              "params": {
+                "m1": 8,
+                "v1": 3,
+                "m2": 2
+              }
+            },
+            {
+              "prompt": "A 1 kg ball rolls at 6 m/s into a 4 kg ball that is standing still. What happens just after they collide?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "together",
+                    "label": "They stick together and move off slowly"
+                  },
+                  {
+                    "id": "keeps_going",
+                    "label": "The moving ball slows down but keeps going forward; the other ball shoots off faster than the first was moving"
+                  },
+                  {
+                    "id": "exchange",
+                    "label": "The moving ball stops dead; the other ball moves off at the first ball's original speed"
+                  },
+                  {
+                    "id": "bounces",
+                    "label": "The moving ball bounces back; the other ball moves off forward"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "bounces"
+              },
+              "outcome": "The 1 kg ball moves at -3.6 m/s and the 4 kg ball at 2.4 m/s.",
+              "explanation": "Total momentum (mass × velocity) is conserved: 1 × 6 = 6 kg·m/s before, and 1 × -3.6 + 4 × 2.4 = 6 after. The moving ball hands over momentum, and a small mass needs a big speed to carry it.",
+              "expectedKeywords": [
+                "momentum",
+                "conserved",
+                "transfer",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "conserved": [
+                  "conservation",
+                  "conserve",
+                  "same total",
+                  "stays the same",
+                  "total"
+                ],
+                "transfer": [
+                  "transferred",
+                  "passes",
+                  "passed",
+                  "gives",
+                  "gave",
+                  "shared",
+                  "handed"
+                ],
+                "mass": [
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "light",
+                  "weight"
+                ]
+              },
+              "coachSecrets": [
+                "2.4",
+                "-3.6"
+              ],
+              "params": {
+                "m1": 1,
+                "v1": 6,
+                "m2": 4
+              }
+            }
+          ]
         },
         {
           "id": "dyn_4",
@@ -653,6 +3425,10 @@
                 "label": "Three"
               },
               {
+                "id": "4",
+                "label": "Four"
+              },
+              {
                 "id": "5",
                 "label": "All five"
               }
@@ -661,15 +3437,209 @@
           "answer": {
             "choice": "2"
           },
-          "outcome": "Two balls swing out, the same number you lifted.",
-          "explanation": "Momentum and energy are both conserved. Only two balls leaving at the same speed conserves both; one ball would need a different speed that breaks energy conservation.",
-          "coachSecrets": [
-            "same number"
-          ],
+          "outcome": "2 balls swing out, the same number you lifted.",
+          "explanation": "Momentum and energy are both conserved. Only the same number of balls leaving at the same speed conserves both; any other number would need a different speed that breaks energy conservation.",
+          "coachSecrets": [],
           "law": {
             "name": "Momentum",
             "formula": "p = m v"
-          }
+          },
+          "params": {
+            "n": 2,
+            "side": "left"
+          },
+          "variants": [
+            {
+              "prompt": "On the Newton's cradle you lift two balls on the left and let go. How many balls swing out on the right?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "1",
+                    "label": "One"
+                  },
+                  {
+                    "id": "2",
+                    "label": "Two"
+                  },
+                  {
+                    "id": "3",
+                    "label": "Three"
+                  },
+                  {
+                    "id": "4",
+                    "label": "Four"
+                  },
+                  {
+                    "id": "5",
+                    "label": "All five"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "2"
+              },
+              "outcome": "2 balls swing out, the same number you lifted.",
+              "explanation": "Momentum and energy are both conserved. Only the same number of balls leaving at the same speed conserves both; any other number would need a different speed that breaks energy conservation.",
+              "coachSecrets": [],
+              "params": {
+                "n": 2,
+                "side": "left"
+              }
+            },
+            {
+              "prompt": "On the Newton's cradle you lift one ball on the left and let go. How many balls swing out on the right?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "1",
+                    "label": "One"
+                  },
+                  {
+                    "id": "2",
+                    "label": "Two"
+                  },
+                  {
+                    "id": "3",
+                    "label": "Three"
+                  },
+                  {
+                    "id": "4",
+                    "label": "Four"
+                  },
+                  {
+                    "id": "5",
+                    "label": "All five"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "1"
+              },
+              "outcome": "1 ball swings out, the same number you lifted.",
+              "explanation": "Momentum and energy are both conserved. Only the same number of balls leaving at the same speed conserves both; any other number would need a different speed that breaks energy conservation.",
+              "coachSecrets": [],
+              "params": {
+                "n": 1,
+                "side": "left"
+              }
+            },
+            {
+              "prompt": "On the Newton's cradle you lift three balls on the left and let go. How many balls swing out on the right?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "1",
+                    "label": "One"
+                  },
+                  {
+                    "id": "2",
+                    "label": "Two"
+                  },
+                  {
+                    "id": "3",
+                    "label": "Three"
+                  },
+                  {
+                    "id": "4",
+                    "label": "Four"
+                  },
+                  {
+                    "id": "5",
+                    "label": "All five"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "3"
+              },
+              "outcome": "3 balls swing out, the same number you lifted.",
+              "explanation": "Momentum and energy are both conserved. Only the same number of balls leaving at the same speed conserves both; any other number would need a different speed that breaks energy conservation.",
+              "coachSecrets": [],
+              "params": {
+                "n": 3,
+                "side": "left"
+              }
+            },
+            {
+              "prompt": "On the Newton's cradle you lift two balls on the right and let go. How many balls swing out on the left?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "1",
+                    "label": "One"
+                  },
+                  {
+                    "id": "2",
+                    "label": "Two"
+                  },
+                  {
+                    "id": "3",
+                    "label": "Three"
+                  },
+                  {
+                    "id": "4",
+                    "label": "Four"
+                  },
+                  {
+                    "id": "5",
+                    "label": "All five"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "2"
+              },
+              "outcome": "2 balls swing out, the same number you lifted.",
+              "explanation": "Momentum and energy are both conserved. Only the same number of balls leaving at the same speed conserves both; any other number would need a different speed that breaks energy conservation.",
+              "coachSecrets": [],
+              "params": {
+                "n": 2,
+                "side": "right"
+              }
+            },
+            {
+              "prompt": "On the Newton's cradle you lift one ball on the right and let go. How many balls swing out on the left?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "1",
+                    "label": "One"
+                  },
+                  {
+                    "id": "2",
+                    "label": "Two"
+                  },
+                  {
+                    "id": "3",
+                    "label": "Three"
+                  },
+                  {
+                    "id": "4",
+                    "label": "Four"
+                  },
+                  {
+                    "id": "5",
+                    "label": "All five"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "1"
+              },
+              "outcome": "1 ball swings out, the same number you lifted.",
+              "explanation": "Momentum and energy are both conserved. Only the same number of balls leaving at the same speed conserves both; any other number would need a different speed that breaks energy conservation.",
+              "coachSecrets": [],
+              "params": {
+                "n": 1,
+                "side": "right"
+              }
+            }
+          ]
         },
         {
           "id": "tr_dyn",
@@ -702,7 +3672,136 @@
           "law": {
             "name": "Momentum",
             "formula": "p = m v"
-          }
+          },
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A loaded truck and a bicycle travel at the same speed. Both brake to a stop in the same time. Which needs the bigger braking force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "truck",
+                    "label": "The truck"
+                  },
+                  {
+                    "id": "bike",
+                    "label": "The bicycle"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "truck"
+              },
+              "outcome": "The truck.",
+              "explanation": "The truck has far more momentum (mass × velocity). Stopping it in the same time means a bigger change in momentum, so a bigger force.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "Two cars have the same mass. One travels at 60 km/h and the other at 30 km/h. Both brake to a stop in the same time. Which needs the bigger braking force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "fast",
+                    "label": "The car doing 60 km/h"
+                  },
+                  {
+                    "id": "slow",
+                    "label": "The car doing 30 km/h"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "fast"
+              },
+              "outcome": "The faster car.",
+              "explanation": "Twice the speed means twice the momentum to remove. Over the same time that needs twice the force: F = change in momentum ÷ time."
+            },
+            {
+              "prompt": "A tennis ball and a bowling ball are rolled at the same speed and stopped by hand in the same time. Which needs the bigger stopping force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "tennis",
+                    "label": "The tennis ball"
+                  },
+                  {
+                    "id": "bowling",
+                    "label": "The bowling ball"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "bowling"
+              },
+              "outcome": "The bowling ball.",
+              "explanation": "The bowling ball has much more mass, so much more momentum at the same speed. Stopping it in the same time takes a bigger force."
+            },
+            {
+              "prompt": "A truck moving at 10 m/s needs 20 s to stop with its brakes. If the brakes can only apply half the force, what happens to the stopping time?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "It doubles.",
+              "explanation": "F = change in momentum ÷ time. The same momentum has to be removed, so half the force takes twice as long."
+            },
+            {
+              "prompt": "A cricket fielder pulls their hands back as they catch a fast ball. Why does that help?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "longer",
+                    "label": "It makes the stopping time longer, so the force on the hands is smaller"
+                  },
+                  {
+                    "id": "shorter",
+                    "label": "It makes the stopping time shorter, so the force is smaller"
+                  },
+                  {
+                    "id": "mass",
+                    "label": "It reduces the mass of the ball"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "longer"
+              },
+              "outcome": "It makes the stopping time longer, so the force on the hands is smaller.",
+              "explanation": "The ball's momentum has to go to zero either way. A longer stopping time means a smaller force, F = change in momentum ÷ time."
+            }
+          ]
         },
         {
           "id": "tr_third",
@@ -734,7 +3833,136 @@
             "choice": "gas"
           },
           "outcome": "The gas pushing back on the rocket.",
-          "explanation": "The engine pushes the gas backwards, so by the third law the gas pushes the rocket forwards with an equal force. Rockets work in a vacuum because they need nothing to push against except their own exhaust."
+          "explanation": "The engine pushes the gas backwards, so by the third law the gas pushes the rocket forwards with an equal force. Rockets work in a vacuum because they need nothing to push against except their own exhaust.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A rocket in empty space fires hot gas out of its engine. What pushes the rocket forwards?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "gas",
+                    "label": "The gas pushing back on the rocket"
+                  },
+                  {
+                    "id": "air",
+                    "label": "The air behind it"
+                  },
+                  {
+                    "id": "nothing",
+                    "label": "Nothing: it only moves because it is already moving"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "gas"
+              },
+              "outcome": "The gas pushing back on the rocket.",
+              "explanation": "The engine pushes the gas backwards, so by the third law the gas pushes the rocket forwards with an equal force. Rockets work in a vacuum because they need nothing to push against except their own exhaust.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A swimmer pushes off the wall of a pool with her feet. Why does she move away from the wall?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "wall",
+                    "label": "The wall pushes back on her with an equal force"
+                  },
+                  {
+                    "id": "water",
+                    "label": "The water pushes her"
+                  },
+                  {
+                    "id": "none",
+                    "label": "She has used up the wall's force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "wall"
+              },
+              "outcome": "The wall pushes back on her with an equal force.",
+              "explanation": "She pushes the wall; the wall pushes her back with an equal force in the opposite direction. That reaction force is what accelerates her."
+            },
+            {
+              "prompt": "A heavy rifle fires a light bullet. Compare the forces on the bullet and on the rifle while the bullet is accelerated down the barrel.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "equal",
+                    "label": "Equal in size and opposite in direction"
+                  },
+                  {
+                    "id": "bullet",
+                    "label": "The force on the bullet is bigger"
+                  },
+                  {
+                    "id": "rifle",
+                    "label": "The force on the rifle is bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "equal"
+              },
+              "outcome": "Equal in size and opposite in direction.",
+              "explanation": "The third law: the rifle pushes the bullet forwards and the bullet pushes the rifle backwards with exactly the same force. The light bullet accelerates much more than the heavy rifle recoils because a = F ÷ m."
+            },
+            {
+              "prompt": "You blow up a balloon and let it go. It shoots across the room. What pushes the balloon forwards?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "air",
+                    "label": "The air rushing out pushes back on the balloon"
+                  },
+                  {
+                    "id": "room",
+                    "label": "The air in the room pushes it"
+                  },
+                  {
+                    "id": "rubber",
+                    "label": "The rubber is stretched"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "air"
+              },
+              "outcome": "The air rushing out pushes back on the balloon.",
+              "explanation": "The balloon pushes air out backwards, and the air pushes the balloon forwards with an equal force: action and reaction."
+            },
+            {
+              "prompt": "A person stands in a small boat and throws a heavy bag out of the back. What happens to the boat?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "forward",
+                    "label": "It moves forward"
+                  },
+                  {
+                    "id": "back",
+                    "label": "It moves backward"
+                  },
+                  {
+                    "id": "still",
+                    "label": "It stays still"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "forward"
+              },
+              "outcome": "It moves forward.",
+              "explanation": "The person pushes the bag backwards; the bag pushes the person and boat forwards with an equal force. The third law again."
+            }
+          ]
         }
       ]
     },
@@ -749,7 +3977,7 @@
           "kind": "prediction",
           "anomaly": false,
           "action": "drop_air",
-          "prompt": "In the AIR tube you drop a metal ball and a feather together. Which reaches the bottom first?",
+          "prompt": "In the AIR tube you release a metal ball and a feather together from 4.9 m above the bottom. Which reaches the bottom first?",
           "input": {
             "type": "choice",
             "options": [
@@ -770,19 +3998,170 @@
           "answer": {
             "choice": "ball"
           },
-          "outcome": "The metal ball lands first; the feather floats down.",
+          "outcome": "The metal ball lands first, after 1 s; the feather floats down and takes 4.5 s.",
           "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
           "law": {
             "name": "Free fall",
             "formula": "h = ½ g t²"
-          }
+          },
+          "coachSecrets": [],
+          "params": {
+            "height": 4.9
+          },
+          "variants": [
+            {
+              "prompt": "In the AIR tube you release a metal ball and a feather together from 4.9 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ball"
+              },
+              "outcome": "The metal ball lands first, after 1 s; the feather floats down and takes 4.5 s.",
+              "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
+              "coachSecrets": [],
+              "params": {
+                "height": 4.9
+              }
+            },
+            {
+              "prompt": "In the AIR tube you release a metal ball and a feather together from 3.6 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ball"
+              },
+              "outcome": "The metal ball lands first, after 0.86 s; the feather floats down and takes 3.4 s.",
+              "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
+              "coachSecrets": [],
+              "params": {
+                "height": 3.6
+              }
+            },
+            {
+              "prompt": "In the AIR tube you release a metal ball and a feather together from 2.5 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ball"
+              },
+              "outcome": "The metal ball lands first, after 0.71 s; the feather floats down and takes 2.4 s.",
+              "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
+              "coachSecrets": [],
+              "params": {
+                "height": 2.5
+              }
+            },
+            {
+              "prompt": "In the AIR tube you release a metal ball and a feather together from 4.2 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ball"
+              },
+              "outcome": "The metal ball lands first, after 0.93 s; the feather floats down and takes 3.9 s.",
+              "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
+              "coachSecrets": [],
+              "params": {
+                "height": 4.2
+              }
+            },
+            {
+              "prompt": "In the AIR tube you release a metal ball and a feather together from 1.6 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ball"
+              },
+              "outcome": "The metal ball lands first, after 0.57 s; the feather floats down and takes 1.5 s.",
+              "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
+              "coachSecrets": [],
+              "params": {
+                "height": 1.6
+              }
+            }
+          ]
         },
         {
           "id": "grav_2",
           "kind": "prediction",
           "anomaly": true,
           "action": "drop_vacuum",
-          "prompt": "In the VACUUM tube you drop the metal ball and the feather together. Which reaches the bottom first?",
+          "prompt": "In the VACUUM tube you release the metal ball and the feather together from 4.9 m above the bottom. Which reaches the bottom first?",
           "input": {
             "type": "choice",
             "options": [
@@ -803,7 +4182,7 @@
           "answer": {
             "choice": "same"
           },
-          "outcome": "They land at exactly the same moment.",
+          "outcome": "They land at exactly the same moment, after 1 s.",
           "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
           "expectedKeywords": [
             "gravity",
@@ -837,14 +4216,304 @@
           "law": {
             "name": "Free fall",
             "formula": "h = ½ g t²"
-          }
+          },
+          "params": {
+            "height": 4.9
+          },
+          "variants": [
+            {
+              "prompt": "In the VACUUM tube you release the metal ball and the feather together from 4.9 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land at exactly the same moment, after 1 s.",
+              "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
+              "expectedKeywords": [
+                "gravity",
+                "acceleration",
+                "air resistance",
+                "same"
+              ],
+              "keywordSynonyms": {
+                "gravity": [
+                  "gravitational",
+                  "9.8",
+                  "g"
+                ],
+                "acceleration": [
+                  "accelerates",
+                  "accelerate",
+                  "rate"
+                ],
+                "air resistance": [
+                  "air",
+                  "drag"
+                ],
+                "same": [
+                  "equal",
+                  "equally",
+                  "together",
+                  "identical"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "height": 4.9
+              }
+            },
+            {
+              "prompt": "In the VACUUM tube you release the metal ball and the feather together from 3 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land at exactly the same moment, after 0.78 s.",
+              "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
+              "expectedKeywords": [
+                "gravity",
+                "acceleration",
+                "air resistance",
+                "same"
+              ],
+              "keywordSynonyms": {
+                "gravity": [
+                  "gravitational",
+                  "9.8",
+                  "g"
+                ],
+                "acceleration": [
+                  "accelerates",
+                  "accelerate",
+                  "rate"
+                ],
+                "air resistance": [
+                  "air",
+                  "drag"
+                ],
+                "same": [
+                  "equal",
+                  "equally",
+                  "together",
+                  "identical"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "height": 3.0
+              }
+            },
+            {
+              "prompt": "In the VACUUM tube you release the metal ball and the feather together from 4.4 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land at exactly the same moment, after 0.95 s.",
+              "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
+              "expectedKeywords": [
+                "gravity",
+                "acceleration",
+                "air resistance",
+                "same"
+              ],
+              "keywordSynonyms": {
+                "gravity": [
+                  "gravitational",
+                  "9.8",
+                  "g"
+                ],
+                "acceleration": [
+                  "accelerates",
+                  "accelerate",
+                  "rate"
+                ],
+                "air resistance": [
+                  "air",
+                  "drag"
+                ],
+                "same": [
+                  "equal",
+                  "equally",
+                  "together",
+                  "identical"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "height": 4.4
+              }
+            },
+            {
+              "prompt": "In the VACUUM tube you release the metal ball and the feather together from 2.2 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land at exactly the same moment, after 0.67 s.",
+              "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
+              "expectedKeywords": [
+                "gravity",
+                "acceleration",
+                "air resistance",
+                "same"
+              ],
+              "keywordSynonyms": {
+                "gravity": [
+                  "gravitational",
+                  "9.8",
+                  "g"
+                ],
+                "acceleration": [
+                  "accelerates",
+                  "accelerate",
+                  "rate"
+                ],
+                "air resistance": [
+                  "air",
+                  "drag"
+                ],
+                "same": [
+                  "equal",
+                  "equally",
+                  "together",
+                  "identical"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "height": 2.2
+              }
+            },
+            {
+              "prompt": "In the VACUUM tube you release the metal ball and the feather together from 3.6 m above the bottom. Which reaches the bottom first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "ball",
+                    "label": "The metal ball"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land at exactly the same moment, after 0.86 s.",
+              "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
+              "expectedKeywords": [
+                "gravity",
+                "acceleration",
+                "air resistance",
+                "same"
+              ],
+              "keywordSynonyms": {
+                "gravity": [
+                  "gravitational",
+                  "9.8",
+                  "g"
+                ],
+                "acceleration": [
+                  "accelerates",
+                  "accelerate",
+                  "rate"
+                ],
+                "air resistance": [
+                  "air",
+                  "drag"
+                ],
+                "same": [
+                  "equal",
+                  "equally",
+                  "together",
+                  "identical"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "height": 3.6
+              }
+            }
+          ]
         },
         {
           "id": "grav_3",
           "kind": "prediction",
           "anomaly": false,
           "action": "drop_vacuum",
-          "prompt": "The tube is 4.9 m tall. In the vacuum, how many seconds until the ball reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+          "prompt": "The ball is released 4.9 m above the bottom of the vacuum tube. How many seconds until it reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
           "input": {
             "type": "numeric",
             "fields": [
@@ -856,15 +4525,136 @@
             ]
           },
           "answer": {
-            "time": 1
+            "time": 1.0
           },
           "tolerance": 0.25,
-          "outcome": "1.0 s.",
+          "outcome": "1 s.",
           "explanation": "h = ½ g t² gives t = √(2 × 4.9 ÷ 9.8) = 1 s. The feather takes the same.",
           "law": {
             "name": "Free fall",
             "formula": "h = ½ g t²"
-          }
+          },
+          "coachSecrets": [],
+          "params": {
+            "height": 4.9
+          },
+          "variants": [
+            {
+              "prompt": "The ball is released 4.9 m above the bottom of the vacuum tube. How many seconds until it reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "time",
+                    "label": "Time to fall",
+                    "unit": "s"
+                  }
+                ]
+              },
+              "answer": {
+                "time": 1.0
+              },
+              "tolerance": 0.25,
+              "outcome": "1 s.",
+              "explanation": "h = ½ g t² gives t = √(2 × 4.9 ÷ 9.8) = 1 s. The feather takes the same.",
+              "coachSecrets": [],
+              "params": {
+                "height": 4.9
+              }
+            },
+            {
+              "prompt": "The ball is released 1.23 m above the bottom of the vacuum tube. How many seconds until it reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "time",
+                    "label": "Time to fall",
+                    "unit": "s"
+                  }
+                ]
+              },
+              "answer": {
+                "time": 0.5
+              },
+              "tolerance": 0.25,
+              "outcome": "0.5 s.",
+              "explanation": "h = ½ g t² gives t = √(2 × 1.23 ÷ 9.8) = 0.5 s. The feather takes the same.",
+              "coachSecrets": [],
+              "params": {
+                "height": 1.225
+              }
+            },
+            {
+              "prompt": "The ball is released 2.2 m above the bottom of the vacuum tube. How many seconds until it reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "time",
+                    "label": "Time to fall",
+                    "unit": "s"
+                  }
+                ]
+              },
+              "answer": {
+                "time": 0.67
+              },
+              "tolerance": 0.25,
+              "outcome": "0.67 s.",
+              "explanation": "h = ½ g t² gives t = √(2 × 2.2 ÷ 9.8) = 0.67 s. The feather takes the same.",
+              "coachSecrets": [],
+              "params": {
+                "height": 2.2
+              }
+            },
+            {
+              "prompt": "The ball is released 3.6 m above the bottom of the vacuum tube. How many seconds until it reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "time",
+                    "label": "Time to fall",
+                    "unit": "s"
+                  }
+                ]
+              },
+              "answer": {
+                "time": 0.86
+              },
+              "tolerance": 0.25,
+              "outcome": "0.86 s.",
+              "explanation": "h = ½ g t² gives t = √(2 × 3.6 ÷ 9.8) = 0.86 s. The feather takes the same.",
+              "coachSecrets": [],
+              "params": {
+                "height": 3.6
+              }
+            },
+            {
+              "prompt": "The ball is released 4 m above the bottom of the vacuum tube. How many seconds until it reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "time",
+                    "label": "Time to fall",
+                    "unit": "s"
+                  }
+                ]
+              },
+              "answer": {
+                "time": 0.9
+              },
+              "tolerance": 0.25,
+              "outcome": "0.9 s.",
+              "explanation": "h = ½ g t² gives t = √(2 × 4 ÷ 9.8) = 0.9 s. The feather takes the same.",
+              "coachSecrets": [],
+              "params": {
+                "height": 4.0
+              }
+            }
+          ]
         },
         {
           "id": "grav_f1",
@@ -875,20 +4665,20 @@
             "name": "Universal gravitation",
             "formula": "F = G m₁ m₂ / r²"
           },
-          "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². You move them so the distance between them doubles. What happens to the force?",
+          "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². They start 3 m apart and you move them until they are 6 m apart. What happens to the force?",
           "input": {
             "type": "choice",
             "options": [
               {
-                "id": "half",
-                "label": "It halves"
-              },
-              {
-                "id": "quarter",
+                "id": "right",
                 "label": "It falls to a quarter"
               },
               {
-                "id": "double",
+                "id": "linear",
+                "label": "It halves"
+              },
+              {
+                "id": "prop",
                 "label": "It doubles"
               },
               {
@@ -898,15 +4688,14 @@
             ]
           },
           "answer": {
-            "choice": "quarter"
+            "choice": "right"
           },
-          "outcome": "The force falls to a quarter. Double the distance, a quarter of the pull.",
-          "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Doubling r makes r² four times bigger, so the force is four times smaller.",
+          "outcome": "The force falls to a quarter. The distance changed by a factor of 2, so the pull changed by 0.25.",
+          "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Multiplying r by 2 multiplies r² by 4, so the force is multiplied by 0.25.",
           "expectedKeywords": [
             "inverse square",
             "distance",
-            "force",
-            "quarter"
+            "force"
           ],
           "keywordSynonyms": {
             "inverse square": [
@@ -917,18 +4706,11 @@
               "one over r squared",
               "1/r2"
             ],
-            "quarter": [
-              "four times",
-              "1/4",
-              "a fourth",
-              "divided by four",
-              "4 times smaller",
-              "weaker"
-            ],
             "distance": [
               "apart",
               "further",
               "farther",
+              "closer",
               "separation",
               "r"
             ],
@@ -939,8 +4721,327 @@
               "gravitational"
             ]
           },
-          "coachSecrets": [
-            "inverse-square"
+          "coachSecrets": [],
+          "params": {
+            "r0": 3,
+            "factor": 2
+          },
+          "variants": [
+            {
+              "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². They start 3 m apart and you move them until they are 6 m apart. What happens to the force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "linear",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "prop",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "The force falls to a quarter. The distance changed by a factor of 2, so the pull changed by 0.25.",
+              "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Multiplying r by 2 multiplies r² by 4, so the force is multiplied by 0.25.",
+              "expectedKeywords": [
+                "inverse square",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "inverse square": [
+                  "square of the distance",
+                  "r squared",
+                  "distance squared",
+                  "squared",
+                  "one over r squared",
+                  "1/r2"
+                ],
+                "distance": [
+                  "apart",
+                  "further",
+                  "farther",
+                  "closer",
+                  "separation",
+                  "r"
+                ],
+                "force": [
+                  "attraction",
+                  "gravity",
+                  "pull",
+                  "gravitational"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "r0": 3,
+                "factor": 2
+              }
+            },
+            {
+              "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². They start 3 m apart and you move them until they are 9 m apart. What happens to the force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "It falls to a ninth"
+                  },
+                  {
+                    "id": "linear",
+                    "label": "It falls to a third"
+                  },
+                  {
+                    "id": "prop",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "The force falls to a ninth. The distance changed by a factor of 3, so the pull changed by 0.111.",
+              "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Multiplying r by 3 multiplies r² by 9, so the force is multiplied by 0.111.",
+              "expectedKeywords": [
+                "inverse square",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "inverse square": [
+                  "square of the distance",
+                  "r squared",
+                  "distance squared",
+                  "squared",
+                  "one over r squared",
+                  "1/r2"
+                ],
+                "distance": [
+                  "apart",
+                  "further",
+                  "farther",
+                  "closer",
+                  "separation",
+                  "r"
+                ],
+                "force": [
+                  "attraction",
+                  "gravity",
+                  "pull",
+                  "gravitational"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "r0": 3,
+                "factor": 3
+              }
+            },
+            {
+              "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². They start 4 m apart and you move them until they are 2 m apart. What happens to the force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "It becomes four times bigger"
+                  },
+                  {
+                    "id": "linear",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "prop",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "The force becomes four times bigger. The distance changed by a factor of 0.5, so the pull changed by 4.",
+              "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Multiplying r by 0.5 multiplies r² by 0.25, so the force is multiplied by 4.",
+              "expectedKeywords": [
+                "inverse square",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "inverse square": [
+                  "square of the distance",
+                  "r squared",
+                  "distance squared",
+                  "squared",
+                  "one over r squared",
+                  "1/r2"
+                ],
+                "distance": [
+                  "apart",
+                  "further",
+                  "farther",
+                  "closer",
+                  "separation",
+                  "r"
+                ],
+                "force": [
+                  "attraction",
+                  "gravity",
+                  "pull",
+                  "gravitational"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "r0": 4,
+                "factor": 0.5
+              }
+            },
+            {
+              "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². They start 2 m apart and you move them until they are 8 m apart. What happens to the force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "It falls to a sixteenth"
+                  },
+                  {
+                    "id": "linear",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "prop",
+                    "label": "It becomes four times bigger"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "The force falls to a sixteenth. The distance changed by a factor of 4, so the pull changed by 0.062.",
+              "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Multiplying r by 4 multiplies r² by 16, so the force is multiplied by 0.062.",
+              "expectedKeywords": [
+                "inverse square",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "inverse square": [
+                  "square of the distance",
+                  "r squared",
+                  "distance squared",
+                  "squared",
+                  "one over r squared",
+                  "1/r2"
+                ],
+                "distance": [
+                  "apart",
+                  "further",
+                  "farther",
+                  "closer",
+                  "separation",
+                  "r"
+                ],
+                "force": [
+                  "attraction",
+                  "gravity",
+                  "pull",
+                  "gravitational"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "r0": 2,
+                "factor": 4
+              }
+            },
+            {
+              "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². They start 6 m apart and you move them until they are 2 m apart. What happens to the force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "It becomes nine times bigger"
+                  },
+                  {
+                    "id": "linear",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "prop",
+                    "label": "It falls to a third"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "The force becomes nine times bigger. The distance changed by a factor of 0.33, so the pull changed by 9.",
+              "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Multiplying r by 0.33 multiplies r² by 0.11, so the force is multiplied by 9.",
+              "expectedKeywords": [
+                "inverse square",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "inverse square": [
+                  "square of the distance",
+                  "r squared",
+                  "distance squared",
+                  "squared",
+                  "one over r squared",
+                  "1/r2"
+                ],
+                "distance": [
+                  "apart",
+                  "further",
+                  "farther",
+                  "closer",
+                  "separation",
+                  "r"
+                ],
+                "force": [
+                  "attraction",
+                  "gravity",
+                  "pull",
+                  "gravitational"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "r0": 6,
+                "factor": 0.3333333333333333
+              }
+            }
           ]
         },
         {
@@ -952,33 +5053,264 @@
             "name": "Universal gravitation",
             "formula": "F = G m₁ m₂ / r²"
           },
-          "prompt": "Back at the original distance, one of the two masses is doubled. The force between them…",
+          "prompt": "The two masses start at their original distance. Now one of the masses is doubled. What happens to the force between them?",
           "input": {
             "type": "choice",
             "options": [
               {
+                "id": "quarter",
+                "label": "It falls to a quarter"
+              },
+              {
                 "id": "half",
-                "label": "Halves"
+                "label": "It halves"
               },
               {
                 "id": "same",
-                "label": "Stays the same"
+                "label": "It stays the same"
               },
               {
-                "id": "double",
-                "label": "Doubles"
+                "id": "x2",
+                "label": "It doubles"
               },
               {
-                "id": "quadruple",
-                "label": "Becomes four times bigger"
+                "id": "x3",
+                "label": "It triples"
+              },
+              {
+                "id": "x4",
+                "label": "It becomes four times bigger"
               }
             ]
           },
           "answer": {
-            "choice": "double"
+            "choice": "x2"
           },
-          "outcome": "It doubles. Force is proportional to each mass.",
-          "explanation": "F = G m₁ m₂ / r² is proportional to m₁ and to m₂. Double one mass and the force doubles. The two bodies always pull on each other with equal forces, whatever their masses."
+          "outcome": "The force becomes 2 times what it was.",
+          "explanation": "F = G m₁ m₂ / r² is proportional to each mass and to 1/r². Here the masses change it by 2 and the distance by 1/1, so F changes by 2. Both bodies always feel equal pulls.",
+          "coachSecrets": [],
+          "params": {
+            "massA": 1,
+            "massB": 2,
+            "distance": 1
+          },
+          "variants": [
+            {
+              "prompt": "The two masses start at their original distance. Now one of the masses is doubled. What happens to the force between them?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "quarter",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "x2",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "x3",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "x4",
+                    "label": "It becomes four times bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "x2"
+              },
+              "outcome": "The force becomes 2 times what it was.",
+              "explanation": "F = G m₁ m₂ / r² is proportional to each mass and to 1/r². Here the masses change it by 2 and the distance by 1/1, so F changes by 2. Both bodies always feel equal pulls.",
+              "coachSecrets": [],
+              "params": {
+                "massA": 1,
+                "massB": 2,
+                "distance": 1
+              }
+            },
+            {
+              "prompt": "The two masses start at their original distance. Now one of the masses is tripled. What happens to the force between them?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "quarter",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "x2",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "x3",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "x4",
+                    "label": "It becomes four times bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "x3"
+              },
+              "outcome": "The force becomes 3 times what it was.",
+              "explanation": "F = G m₁ m₂ / r² is proportional to each mass and to 1/r². Here the masses change it by 3 and the distance by 1/1, so F changes by 3. Both bodies always feel equal pulls.",
+              "coachSecrets": [],
+              "params": {
+                "massA": 3,
+                "massB": 1,
+                "distance": 1
+              }
+            },
+            {
+              "prompt": "The two masses start at their original distance. Now one of the masses is halved. What happens to the force between them?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "quarter",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "x2",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "x3",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "x4",
+                    "label": "It becomes four times bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "The force becomes 0.5 times what it was.",
+              "explanation": "F = G m₁ m₂ / r² is proportional to each mass and to 1/r². Here the masses change it by 0.5 and the distance by 1/1, so F changes by 0.5. Both bodies always feel equal pulls.",
+              "coachSecrets": [],
+              "params": {
+                "massA": 0.5,
+                "massB": 1,
+                "distance": 1
+              }
+            },
+            {
+              "prompt": "The two masses start at their original distance. Now both masses are doubled. What happens to the force between them?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "quarter",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "x2",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "x3",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "x4",
+                    "label": "It becomes four times bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "x4"
+              },
+              "outcome": "The force becomes 4 times what it was.",
+              "explanation": "F = G m₁ m₂ / r² is proportional to each mass and to 1/r². Here the masses change it by 4 and the distance by 1/1, so F changes by 4. Both bodies always feel equal pulls.",
+              "coachSecrets": [],
+              "params": {
+                "massA": 2,
+                "massB": 2,
+                "distance": 1
+              }
+            },
+            {
+              "prompt": "The two masses start at their original distance. Now one mass is doubled and the distance is doubled. What happens to the force between them?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "quarter",
+                    "label": "It falls to a quarter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "x2",
+                    "label": "It doubles"
+                  },
+                  {
+                    "id": "x3",
+                    "label": "It triples"
+                  },
+                  {
+                    "id": "x4",
+                    "label": "It becomes four times bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "The force becomes 0.5 times what it was.",
+              "explanation": "F = G m₁ m₂ / r² is proportional to each mass and to 1/r². Here the masses change it by 2 and the distance by 1/4, so F changes by 0.5. Both bodies always feel equal pulls.",
+              "coachSecrets": [],
+              "params": {
+                "massA": 2,
+                "massB": 1,
+                "distance": 2
+              }
+            }
+          ]
         },
         {
           "id": "grav_f3",
@@ -989,7 +5321,7 @@
             "name": "Universal gravitation",
             "formula": "F = G m₁ m₂ / r²"
           },
-          "prompt": "A 1 kg ball sits at Earth's surface. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Earth's mass 5.97 × 10²⁴ kg and Earth's radius 6.37 × 10⁶ m. What is the gravitational force on the ball?",
+          "prompt": "A 1 kg ball sits at Earth's surface. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Earth's mass 5.97 × 10²⁴ kg and radius 6.37 × 10⁶ m. What is the gravitational force on the ball?",
           "input": {
             "type": "numeric",
             "fields": [
@@ -1001,11 +5333,156 @@
             ]
           },
           "answer": {
-            "force": 9.8
+            "force": 9.81
           },
-          "tolerance": 0.4,
-          "outcome": "About 9.8 N. That is the ball's weight, and 9.8 N per kilogram is why g = 9.8 m/s².",
-          "explanation": "F = (6.67×10⁻¹¹ × 5.97×10²⁴ × 1) ÷ (6.37×10⁶)² ≈ 9.8 N. Dividing by the ball's 1 kg gives g = 9.8 m/s², the same number as in the drop tower."
+          "tolerance": 0.49,
+          "outcome": "About 9.8 N. Divide by the ball's 1 kg and you get 9.81 m/s², the strength of gravity there.",
+          "explanation": "F = (6.67×10⁻¹¹ × 5.97 × 10²⁴ × 1) ÷ (6.37 × 10⁶)² ≈ 9.81 N. Dividing by the ball's mass gives g = 9.81 m/s² for Earth.",
+          "coachSecrets": [],
+          "params": {
+            "planet": "earth",
+            "mass": 1,
+            "M": 5.97e+24,
+            "R": 6370000.0,
+            "color": 3111896
+          },
+          "variants": [
+            {
+              "prompt": "A 1 kg ball sits at Earth's surface. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Earth's mass 5.97 × 10²⁴ kg and radius 6.37 × 10⁶ m. What is the gravitational force on the ball?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 9.81
+              },
+              "tolerance": 0.49,
+              "outcome": "About 9.8 N. Divide by the ball's 1 kg and you get 9.81 m/s², the strength of gravity there.",
+              "explanation": "F = (6.67×10⁻¹¹ × 5.97 × 10²⁴ × 1) ÷ (6.37 × 10⁶)² ≈ 9.81 N. Dividing by the ball's mass gives g = 9.81 m/s² for Earth.",
+              "coachSecrets": [],
+              "params": {
+                "planet": "earth",
+                "mass": 1,
+                "M": 5.97e+24,
+                "R": 6370000.0,
+                "color": 3111896
+              }
+            },
+            {
+              "prompt": "A 1 kg ball sits on the surface of the Moon. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Moon's mass 7.35 × 10²² kg and radius 1.74 × 10⁶ m. What is the gravitational force on the ball?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 1.62
+              },
+              "tolerance": 0.4,
+              "outcome": "About 1.6 N. Divide by the ball's 1 kg and you get 1.62 m/s², the strength of gravity there.",
+              "explanation": "F = (6.67×10⁻¹¹ × 7.35 × 10²² × 1) ÷ (1.74 × 10⁶)² ≈ 1.62 N. Dividing by the ball's mass gives g = 1.62 m/s² for the Moon.",
+              "coachSecrets": [],
+              "params": {
+                "planet": "moon",
+                "mass": 1,
+                "M": 7.35e+22,
+                "R": 1740000.0,
+                "color": 12566463
+              }
+            },
+            {
+              "prompt": "A 2 kg ball sits on the surface of Mars. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Mars's mass 6.42 × 10²³ kg and radius 3.39 × 10⁶ m. What is the gravitational force on the ball?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 7.45
+              },
+              "tolerance": 0.4,
+              "outcome": "About 7.5 N. Divide by the ball's 2 kg and you get 3.73 m/s², the strength of gravity there.",
+              "explanation": "F = (6.67×10⁻¹¹ × 6.42 × 10²³ × 2) ÷ (3.39 × 10⁶)² ≈ 7.45 N. Dividing by the ball's mass gives g = 3.73 m/s² for Mars.",
+              "coachSecrets": [],
+              "params": {
+                "planet": "mars",
+                "mass": 2,
+                "M": 6.42e+23,
+                "R": 3390000.0,
+                "color": 12665870
+              }
+            },
+            {
+              "prompt": "A 1 kg ball sits on the surface of Venus. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Venus's mass 4.87 × 10²⁴ kg and radius 6.05 × 10⁶ m. What is the gravitational force on the ball?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 8.87
+              },
+              "tolerance": 0.44,
+              "outcome": "About 8.9 N. Divide by the ball's 1 kg and you get 8.87 m/s², the strength of gravity there.",
+              "explanation": "F = (6.67×10⁻¹¹ × 4.87 × 10²⁴ × 1) ÷ (6.05 × 10⁶)² ≈ 8.87 N. Dividing by the ball's mass gives g = 8.87 m/s² for Venus.",
+              "coachSecrets": [],
+              "params": {
+                "planet": "venus",
+                "mass": 1,
+                "M": 4.87e+24,
+                "R": 6050000.0,
+                "color": 14924662
+              }
+            },
+            {
+              "prompt": "A 1 kg ball sits on the surface of Jupiter. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Jupiter's mass 1.90 × 10²⁷ kg and radius 6.99 × 10⁷ m. What is the gravitational force on the ball?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 25.94
+              },
+              "tolerance": 1.3,
+              "outcome": "About 25.9 N. Divide by the ball's 1 kg and you get 25.94 m/s², the strength of gravity there.",
+              "explanation": "F = (6.67×10⁻¹¹ × 1.90 × 10²⁷ × 1) ÷ (6.99 × 10⁷)² ≈ 25.94 N. Dividing by the ball's mass gives g = 25.94 m/s² for Jupiter.",
+              "coachSecrets": [],
+              "params": {
+                "planet": "jupiter",
+                "mass": 1,
+                "M": 1.9e+27,
+                "R": 69900000.0,
+                "color": 13212523
+              }
+            }
+          ]
         },
         {
           "id": "tr_grav",
@@ -1038,7 +5515,136 @@
           "law": {
             "name": "Universal gravitation",
             "formula": "F = G m₁ m₂ / r²"
-          }
+          },
+          "params": {},
+          "variants": [
+            {
+              "prompt": "An astronaut on the Moon (no air) drops a hammer and a feather from the same height at the same time. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "hammer",
+                    "label": "The hammer lands first"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather lands first"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land together.",
+              "explanation": "With no air there is no air resistance, so gravity accelerates both equally. This was demonstrated on the Moon in 1971.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "In a large vacuum chamber on Earth you release a 10 kg anvil and a 1 g coin together. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "anvil",
+                    "label": "The anvil lands first"
+                  },
+                  {
+                    "id": "coin",
+                    "label": "The coin lands first"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They land together.",
+              "explanation": "With no air, only gravity acts, and gravity accelerates every object at the same rate whatever its mass. The anvil's bigger weight is cancelled by its bigger mass."
+            },
+            {
+              "prompt": "A skydiver and a feather are released from the same plane at the same time, in normal air. Which reaches the ground first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "skydiver",
+                    "label": "The skydiver"
+                  },
+                  {
+                    "id": "feather",
+                    "label": "The feather"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They land together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "skydiver"
+              },
+              "outcome": "The skydiver.",
+              "explanation": "Air resistance matters. It slows the feather far more than it slows the dense, heavy skydiver, so the skydiver lands first."
+            },
+            {
+              "prompt": "Astronaut Alan Shepard hit a golf ball on the Moon and dropped another one at the same moment. Which ball hit the ground first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dropped",
+                    "label": "The dropped ball"
+                  },
+                  {
+                    "id": "hit",
+                    "label": "The ball he hit"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They landed together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They landed together.",
+              "explanation": "The sideways speed of the hit ball does not change how fast it falls. Vertical motion depends only on gravity, the same for both."
+            },
+            {
+              "prompt": "Two stones, one with ten times the mass of the other, are dropped from the same height in a vacuum. How do their accelerations compare?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "They are the same"
+                  },
+                  {
+                    "id": "heavy",
+                    "label": "The heavy stone accelerates ten times faster"
+                  },
+                  {
+                    "id": "light",
+                    "label": "The light stone accelerates faster"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "They are the same.",
+              "explanation": "The heavy stone is pulled ten times harder, but it also has ten times the mass, so by F = m a the acceleration is identical, 9.8 m/s²."
+            }
+          ]
         }
       ]
     }

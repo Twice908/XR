@@ -47,6 +47,31 @@ describe('kinematics', () => {
   })
 })
 
+describe('drives with this session’s values', () => {
+  it('back and forth: the end position is the net of the legs, and the car really reverses', () => {
+    const p = profile('drive_straight', { legs: [40, -15] })!
+    expect(p.at(p.duration)).toBeCloseTo(25, 6)
+    const peak = Math.max(...Array.from({ length: 200 }, (_, i) => p.at((i / 199) * p.duration)))
+    expect(peak).toBeCloseTo(40, 3)
+    expect(p.at(0)).toBe(0)
+  })
+  it('a fraction of the lap covers that fraction of 100 m', () => {
+    for (const fr of [0.25, 0.5, 0.75, 1, 1.5]) {
+      const p = profile('drive_lap', { frac: fr })!
+      expect(p.at(p.duration) - p.at(0)).toBeCloseTo(100 * fr, 6)
+    }
+  })
+  it('a steady drive keeps its speed and takes distance over speed', () => {
+    const p = profile('drive_lap_steady', { frac: 0.5, speed: 10 })!
+    expect(p.duration).toBeCloseTo(5, 6)
+    expect(p.at(2) - p.at(1)).toBeCloseTo(10, 6)
+    const s = profile('drive_lap_steady', { mode: 'straight', speed: 6, length: 36 })!
+    expect(s.from).toBe(0)
+    expect(s.at(s.duration)).toBeCloseTo(36, 6)
+    expect(s.duration).toBeCloseTo(6, 6)
+  })
+})
+
 describe('forces', () => {
   it('a small push on a heavy crate is matched by static friction', () => {
     const r = pushOnFloor(20, 80, 0.5, 0.4, false)

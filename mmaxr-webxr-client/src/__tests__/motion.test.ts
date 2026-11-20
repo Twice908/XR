@@ -20,12 +20,12 @@ const lesson: MotionLessonContract = {
       title: 'Module A',
       setup: '',
       trials: [
-        { id: 'a1', kind: 'prediction', anomaly: false, action: 'go', prompt: 'p', needsExplanation: false, input: { type: 'numeric', fields: [{ id: 'distance', label: 'Distance', unit: 'm' }, { id: 'displacement', label: 'Displacement', unit: 'm' }] } },
-        { id: 'a2', kind: 'prediction', anomaly: true, action: 'go', prompt: 'p', needsExplanation: true, input: { type: 'choice', options: [{ id: 'x', label: 'X' }, { id: 'y', label: 'Y' }] } },
-        { id: 'a3', kind: 'transfer', anomaly: false, action: null, prompt: 'p', needsExplanation: false, input: { type: 'choice', options: [{ id: 'x', label: 'X' }] } },
+        { id: 'a1', kind: 'prediction', anomaly: false, action: 'go', prompt: 'p', needsExplanation: false, params: {}, input: { type: 'numeric', fields: [{ id: 'distance', label: 'Distance', unit: 'm' }, { id: 'displacement', label: 'Displacement', unit: 'm' }] } },
+        { id: 'a2', kind: 'prediction', anomaly: true, action: 'go', prompt: 'p', needsExplanation: true, params: {}, input: { type: 'choice', options: [{ id: 'x', label: 'X' }, { id: 'y', label: 'Y' }] } },
+        { id: 'a3', kind: 'transfer', anomaly: false, action: null, prompt: 'p', needsExplanation: false, params: {}, input: { type: 'choice', options: [{ id: 'x', label: 'X' }] } },
       ],
     },
-    { id: 'b', tabName: 'B', title: 'Module B', setup: '', trials: [{ id: 'b1', kind: 'prediction', anomaly: false, action: 'go', prompt: 'p', needsExplanation: false, input: { type: 'choice', options: [{ id: 'x', label: 'X' }] } }] },
+    { id: 'b', tabName: 'B', title: 'Module B', setup: '', trials: [{ id: 'b1', kind: 'prediction', anomaly: false, action: 'go', prompt: 'p', needsExplanation: false, params: {}, input: { type: 'choice', options: [{ id: 'x', label: 'X' }] } }] },
   ],
 }
 const obs = (trial: string, match: boolean, explanation: string | null): MotionObservation => ({ trial, match, fieldMatch: {}, answer: {}, outcome: 'o', law: null, explanation })

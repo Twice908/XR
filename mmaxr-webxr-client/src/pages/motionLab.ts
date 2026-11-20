@@ -54,7 +54,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
     working = true
     hud!.update()
     try {
-      if (t.trial.action) await scene.run(t.trial.action)
+      if (t.trial.action) await scene.run(t.trial.action, t.trial.params)
       if (ctx.isDestroyed()) return
       hud!.setBusy(t.trial.action ? 'Checking what happened…' : 'Checking your answer…')
       const obs = await observeResult(session, t.trial.id)
@@ -156,7 +156,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       if (!a || working || scene.busy) return
       free(`replay_${exp.current.trial.id}`)
       hud!.update()
-      void scene.run(a)
+      void scene.run(a, exp.current.trial.params)
     },
     onFreeDrive: (on) => {
       if (on) {

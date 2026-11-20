@@ -4,13 +4,16 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { MotionLessonContract } from '@mmaxr/schema'
 import { sound } from './sound'
-import { BALL_TERMINAL, DROP_HEIGHT, FEATHER_TERMINAL, G, LAP, LEAD, LOOP_CENTER, TRACK_Z, carAt, cradleAngle, elastic, kinematics, profile, pushOnFloor, simulateFall } from './motionPhysics'
+import { BALL_TERMINAL, DROP_HEIGHT, FEATHER_TERMINAL, G, LAP, LEAD, LOOP_CENTER, TRACK_Z, carAt, cradleAngle, elastic, kinematics, profile, pushOnFloor, simulateFall, type DriveParams } from './motionPhysics'
 
 /*
  * Three small labs in one scene: the track, the cargo bay and the drop tower. Each is a group far from the
  * others; the camera flies between them. The scene only simulates and draws. It never names an answer:
  * what a result means comes from the server, after the student has watched it.
  */
+
+export type Params = Record<string, unknown>
+const num = (v: unknown, d: number): number => (typeof v === 'number' && Number.isFinite(v) ? v : d)
 
 export interface Gauge {
   label: string
@@ -130,6 +133,7 @@ export class MotionScene {
   private pairArrowB = new BoldArrow(0xffd166, 0.07)
   private pairLabelA!: THREE.Sprite
   private pairLabelB!: THREE.Sprite
+  private labelCrate!: THREE.Sprite
   private labelHeavy!: THREE.Sprite
   private labelLight!: THREE.Sprite
   private pushArrow = new BoldArrow(0x60a5fa, 0.07)
@@ -279,19 +283,29 @@ export class MotionScene {
     const c = document.createElement('canvas')
     c.width = 512
     c.height = 128
+    const tex = new THREE.CanvasTexture(c)
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }))
+    s.scale.set(2.4 * scale, 0.6 * scale, 1)
+    s.userData = { canvas: c, color }
+    this.relabel(s, text)
+    return s
+  }
+
+  /** Changes the words on a label (the masses change from one question to the next). */
+  private relabel(s: THREE.Sprite, text: string) {
+    const c = s.userData.canvas as HTMLCanvasElement
     const x = c.getContext('2d')!
+    x.clearRect(0, 0, c.width, c.height)
     x.fillStyle = 'rgba(8,12,20,0.78)'
     x.beginPath()
     x.roundRect(8, 16, 496, 96, 26)
     x.fill()
-    x.fillStyle = color
+    x.fillStyle = s.userData.color as string
     x.font = '700 54px system-ui, sans-serif'
     x.textAlign = 'center'
     x.textBaseline = 'middle'
     x.fillText(text, 256, 66)
-    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }))
-    s.scale.set(2.4 * scale, 0.6 * scale, 1)
-    return s
+    ;(s.material as THREE.SpriteMaterial).map!.needsUpdate = true
   }
 
   /* ---------------- kinematics ---------------- */
@@ -408,9 +422,9 @@ export class MotionScene {
     this.crateHeavy.add(this.crateFallback(0x6b5130, CRATE_HEAVY))
     this.crateHeavy.position.set(-9, 0.1, 0)
     g.add(this.crateHeavy)
-    const a = this.label('Heavy crate · 80 kg', '#ffd9a0', 0.8)
-    a.position.set(-9, 2.7, 0)
-    g.add(a)
+    this.labelCrate = this.label('Heavy crate · 80 kg', '#ffd9a0', 0.8)
+    this.labelCrate.position.set(-9, 2.7, 0)
+    g.add(this.labelCrate)
     // station B: zero gravity
     const field = new THREE.Mesh(new THREE.SphereGeometry(3, 40, 24), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.06, side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending }))
     field.position.set(-3, 1.8, 0)
@@ -474,9 +488,9 @@ export class MotionScene {
       b2.castShadow = true
       g.add(b2)
     }
-    this.labelHeavy = this.label('Heavy ball · 5 kg', '#cfd8e8', 0.7)
+    this.labelHeavy = this.label('Ball A · 5 kg', '#cfd8e8', 0.7)
     this.labelHeavy.position.set(0, 1.3, 0)
-    this.labelLight = this.label('Light ball · 1 kg', '#a8d4ff', 0.7)
+    this.labelLight = this.label('Ball B · 1 kg', '#a8d4ff', 0.7)
     this.labelLight.position.set(3.6, 1.3, 0)
     g.add(this.labelHeavy, this.labelLight)
     this.resetBalls()
@@ -499,15 +513,25 @@ export class MotionScene {
     return m
   }
 
-  private resetBalls() {
-    this.ballHeavy.position.set(0, 0.12 + 0.32, 0)
-    this.ballLight.position.set(3.6, 0.12 + 0.2, 0)
+  private resetBalls(m1 = 5, m2 = 1) {
+    const k1 = Math.cbrt(m1 / 5)
+    const k2 = Math.cbrt(m2 / 1)
+    this.ballHeavy.scale.setScalar(k1)
+    this.ballLight.scale.setScalar(k2)
+    this.ballHeavy.position.set(0, 0.12 + 0.32 * k1, 0)
+    this.ballLight.position.set(3.6, 0.12 + 0.2 * k2, 0)
     if (this.labelHeavy) {
       this.labelHeavy.position.x = 0
       this.labelLight.position.x = 3.6
     }
     this.ballHeavy.rotation.set(0, 0, 0)
     this.ballLight.rotation.set(0, 0, 0)
+    if (this.labelHeavy) {
+      this.relabel(this.labelHeavy, `Ball A · ${m1} kg`)
+      this.relabel(this.labelLight, `Ball B · ${m2} kg`)
+      this.labelHeavy.position.y = 1.3 + 0.3 * k1
+      this.labelLight.position.y = 1.3 + 0.3 * k2
+    }
   }
 
   /* ---------------- gravitation ---------------- */
@@ -585,7 +609,7 @@ export class MotionScene {
     const xb = PAIR_X + r / 2
     this.pairA.position.set(xa, PAIR_Y, 0)
     this.pairB.position.set(xb, PAIR_Y, 0)
-    const len = Math.min(0.45 * r, 0.2 + 0.5 * force)
+    const len = Math.min(0.42 * r, 0.25 + 0.4 * Math.sqrt(Math.max(0, force)))
     this.pairArrowA.visible = this.pairArrowB.visible = true
     this.pairArrowA.position.set(xa, PAIR_Y + 1.0, 0)
     this.pairArrowA.setDirection(V(1, 0, 0))
@@ -597,8 +621,8 @@ export class MotionScene {
     this.pairLabelB.position.set(xb, PAIR_Y + 1.7, 0)
   }
 
-  /** Newton's law of universal gravitation, played out on the two masses. */
-  private async runPair(action: string): Promise<void> {
+  /** Newton's law of universal gravitation, played out on the two masses with this session's values. */
+  private async runPair(action: string, params: Params): Promise<void> {
     this.abort()
     const v = this.view('G')
     await this.flyTo(v.pos, v.target, 1100)
@@ -606,68 +630,87 @@ export class MotionScene {
     const st = { t: 0 }
     const smooth = (a: number, b: number, t: number) => easeInOut(Math.max(0, Math.min(1, (t - a) / (b - a))))
     const earth = action === 'gravity_earth'
-    const keepColor = (this.pairA.material as THREE.MeshStandardMaterial).color.getHex()
-    if (earth) {
-      ;(this.pairA.material as THREE.MeshStandardMaterial).color.setHex(0x2f7bd8)
-      ;(this.pairA.material as THREE.MeshStandardMaterial).emissive.setHex(0x0a2a55)
-      this.pairA.scale.setScalar(1.7 / 0.55)
-      this.pairA.position.set(PAIR_X, PAIR_Y - 1.1, 0)
-      this.pairB.scale.setScalar(0.14 / 0.4)
-      this.pairLabelA.position.set(PAIR_X - 2.6, PAIR_Y - 0.6, 0)
-      this.pairLabelB.position.set(PAIR_X + 0.9, PAIR_Y + 1.7, 0)
-    }
+    const matA = this.pairA.material as THREE.MeshStandardMaterial
     const G = 6.67e-11
-    const M = 5.97e24
-    const R = 6.37e6
-    const Fearth = (G * M * 1) / (R * R)
+    const planet = String(params.planet ?? 'earth')
+    const NAMES: Record<string, string> = { earth: 'Earth', moon: 'the Moon', mars: 'Mars', venus: 'Venus', jupiter: 'Jupiter' }
+    const SIZE: Record<string, number> = { earth: 1.7, moon: 0.7, mars: 0.95, venus: 1.6, jupiter: 2.4 }
+    const M = num(params.M, 5.97e24)
+    const Rp = num(params.R, 6.37e6)
+    const mBall = num(params.mass, 1)
+    const Fplanet = (G * M * mBall) / (Rp * Rp)
+    const sci = (x: number) => {
+      const e = Math.floor(Math.log10(x))
+      return `${(x / 10 ** e).toFixed(2)}×10${String(e).replace(/-/g, '⁻').replace(/\d/g, (d) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(d)])}`
+    }
+    const top = PAIR_Y + 0.6
+    const rBall = 0.14 * Math.cbrt(mBall)
+    if (earth) {
+      matA.color.setHex(num(params.color, 0x2f7bd8))
+      matA.emissive.setHex(0x0a2a55)
+      const rp = SIZE[planet] ?? 1.7
+      this.pairA.scale.setScalar(rp / 0.55)
+      this.pairA.position.set(PAIR_X, top - rp, 0)
+      this.pairB.scale.setScalar(rBall / 0.4)
+      this.pairLabelA.position.set(PAIR_X - 2.8, PAIR_Y - 0.6, 0)
+      this.pairLabelB.position.set(PAIR_X + 0.9, PAIR_Y + 1.9, 0)
+    }
     return this.begin({
       update: (dt) => {
         st.t += dt
         const t = st.t
         let gauges: Gauge[] = []
         if (action === 'gravity_double_r') {
-          const r = 3 + 3 * smooth(1.6, 3.6, t)
-          const F = 9 / (r * r)
+          const r0 = num(params.r0, 3)
+          const k = num(params.factor, 2)
+          const r = r0 + r0 * (k - 1) * smooth(1.6, 3.6, t)
+          const F = (r0 * r0) / (r * r)
           this.setPair(r, 2, 1, F)
           gauges = [
             { label: 'Distance r', value: `${f1(r)} m`, tone: 'info' },
             { label: 'Force on A', value: `${f2(F)} F₀`, tone: 'warn' },
             { label: 'Force on B', value: `${f2(F)} F₀`, tone: 'warn' },
-            { label: 'r² compared with start', value: `×${f1((r * r) / 9)}` },
+            { label: 'r² compared with start', value: `×${f2((r * r) / (r0 * r0))}` },
           ]
-          if (t > 3.7 && t < 3.8) this.events.onNote?.('Double the distance: the force is a quarter, 1/r².')
+          if (t > 3.7 && t < 3.8) this.events.onNote?.(`Distance × ${f2(k)}: the force is × ${f2(1 / (k * k))}, because F is proportional to 1/r².`)
         } else if (action === 'gravity_double_m') {
-          const mB = 1 + smooth(1.6, 3.0, t)
-          const F = mB
-          this.setPair(3, 2, mB, F)
+          const kA = num(params.massA, 1)
+          const kB = num(params.massB, 2)
+          const kr = num(params.distance, 1)
+          const sm = smooth(1.6, 3.2, t)
+          const mA = 2 * (1 + (kA - 1) * sm)
+          const mB = 1 * (1 + (kB - 1) * sm)
+          const r = 3 * (1 + (kr - 1) * sm)
+          const F = ((mA * mB) / 2) / ((r / 3) * (r / 3))
+          this.setPair(r, mA, mB, F)
           gauges = [
-            { label: 'Distance r', value: '3.0 m' },
-            { label: 'Mass B', value: `${f1(mB)} × start`, tone: 'info' },
+            { label: 'Distance r', value: `${f1(r)} m` },
+            { label: 'Mass A', value: `${f2(mA / 2)} × start`, tone: 'info' },
+            { label: 'Mass B', value: `${f2(mB)} × start`, tone: 'info' },
             { label: 'Force on A', value: `${f2(F)} F₀`, tone: 'warn' },
             { label: 'Force on B', value: `${f2(F)} F₀`, tone: 'warn' },
           ]
-          if (t > 3.1 && t < 3.2) this.events.onNote?.('Double one mass: the pull doubles, on both of them.')
+          if (t > 3.3 && t < 3.4) this.events.onNote?.(`The pull is now ${f2((kA * kB) / (kr * kr))} × what it was, and it is the same on both masses.`)
         } else {
           const fall = smooth(2.4, 3.2, t)
-          this.pairB.position.set(PAIR_X, 3.05 + (1 - fall) * 1.25, 0)
-          this.pairLabelB.position.y = PAIR_Y + 1.7
+          this.pairB.position.set(PAIR_X, top + rBall + (1 - fall) * 1.25, 0)
           const len = 0.9
           this.pairArrowB.visible = true
           this.pairArrowB.position.set(PAIR_X, this.pairB.position.y, 0)
           this.pairArrowB.setDirection(V(0, -1, 0))
           this.pairArrowB.setLength(len, 0.3, 0.26)
           this.pairArrowA.visible = true
-          this.pairArrowA.position.set(PAIR_X + 0.7, PAIR_Y + 0.55, 0.4)
+          this.pairArrowA.position.set(PAIR_X + 0.7, top - 0.05, 0.4)
           this.pairArrowA.setDirection(V(0, 1, 0))
           this.pairArrowA.setLength(len, 0.3, 0.26)
           gauges = [
             { label: 'G', value: '6.67×10⁻¹¹ N·m²/kg²' },
-            { label: 'Earth’s mass', value: '5.97×10²⁴ kg' },
-            { label: 'Ball’s mass', value: '1 kg' },
-            { label: 'Distance to centre', value: '6.37×10⁶ m' },
-            { label: 'Force F', value: `${f1(Fearth)} N`, tone: 'warn' },
+            { label: `${NAMES[planet] ?? 'Planet'}'s mass`, value: `${sci(M)} kg` },
+            { label: 'Ball’s mass', value: `${f1(mBall)} kg` },
+            { label: 'Distance to centre', value: `${sci(Rp)} m` },
+            { label: 'Force F', value: `${f1(Fplanet)} N`, tone: 'warn' },
           ]
-          if (t > 3.4 && t < 3.5) this.events.onNote?.('The same pull acts on the ball and on the Earth. On the ball it is its weight: 9.8 N per kg, so g = 9.8 m/s².')
+          if (t > 3.4 && t < 3.5) this.events.onNote?.(`The same pull acts on the ball and on ${NAMES[planet] ?? 'the planet'}. On the ball it is its weight: ${f2(Fplanet / mBall)} N per kg, so g = ${f2(Fplanet / mBall)} m/s².`)
         }
         this.emitGauges(dt, () => gauges)
         if (t > 7) return 400
@@ -675,8 +718,8 @@ export class MotionScene {
       },
       done: () => {
         if (earth) {
-          ;(this.pairA.material as THREE.MeshStandardMaterial).color.setHex(keepColor)
-          ;(this.pairA.material as THREE.MeshStandardMaterial).emissive.setHex(0x16306a)
+          matA.color.setHex(0x4f8cff)
+          matA.emissive.setHex(0x16306a)
         }
         this.setPair(3, 2, 1, 1)
       },
@@ -692,13 +735,13 @@ export class MotionScene {
   private dropX(key: 'air' | 'vacuum') {
     return key === 'air' ? -3 : 3
   }
-  private resetDrop(key: 'air' | 'vacuum') {
+  private resetDrop(key: 'air' | 'vacuum', h = DROP_HEIGHT) {
     const d = this.drops[key]
     const x = this.dropX(key)
-    d.ball.position.set(x - 0.2, POD + DROP_HEIGHT + R_BALL, 0)
-    d.feather.position.set(x + 0.2, POD + DROP_HEIGHT + 0.06, 0)
+    d.ball.position.set(x - 0.2, POD + h + R_BALL, 0)
+    d.feather.position.set(x + 0.2, POD + h + 0.06, 0)
     d.feather.rotation.set(0, 0, 0)
-    d.door.position.x = x
+    d.door.position.set(x, POD + h - 0.02, 0)
     d.door.visible = true
   }
 
@@ -983,7 +1026,10 @@ export class MotionScene {
     this.crateHeavy.position.set(-9, 0.1, 0)
     this.crateFloat.position.set(-3, 1.8, 0)
     this.crateFloat.scale.setScalar(1)
+    this.crateHeavy.scale.setScalar(1)
+    this.relabel(this.labelCrate, 'Heavy crate · 80 kg')
     this.crateBig.visible = false
+    this.crateBig.scale.setScalar(1)
     if (this.spring) this.spring.visible = false
     this.resetBalls()
     for (const p of this.cradleBalls) p.rotation.z = 0
@@ -1028,48 +1074,49 @@ export class MotionScene {
   }
 
   /** Plays one experiment and resolves when it has finished. */
-  async run(action: string): Promise<void> {
+  /** Plays one experiment with this session's values (`params`) and resolves when it has finished. */
+  async run(action: string, params: Params = {}): Promise<void> {
     this.stopFreeDrive()
     this.events.onNote?.(null)
     switch (action) {
       case 'drive_straight':
       case 'drive_lap':
       case 'drive_lap_steady':
-        return this.runDrive(action)
+        return this.runDrive(action, params)
       case 'push_heavy':
-        return this.runPushHeavy(20)
+        return this.runPushHeavy(num(params.force, 20), num(params.mass, 80))
       case 'push_float':
-        return this.runZeroG({ force: 40, mass: 20, pushTime: 0.5, total: 14, notes: true })
+        return this.runZeroG({ force: num(params.force, 40), mass: num(params.mass, 20), pushTime: num(params.pushTime, 0.5), total: 14, notes: true })
+      case 'push_mass':
       case 'push_20kg':
-        return this.runZeroG({ force: 40, mass: 20, pushTime: 3, total: 6.5, notes: false })
       case 'push_40kg':
-        return this.runZeroG({ force: 40, mass: 40, pushTime: 3, total: 6.5, notes: false })
+        return this.runZeroG({ force: num(params.force, 40), mass: num(params.mass, action === 'push_40kg' ? 40 : 20), pushTime: 3, total: 6.5, notes: false })
       case 'push_apart':
-        return this.runPushApart()
+        return this.runPushApart(num(params.massLeft, 20), num(params.massRight, 60), num(params.force, 30))
       case 'gravity_double_r':
       case 'gravity_double_m':
       case 'gravity_earth':
-        return this.runPair(action)
+        return this.runPair(action, params)
       case 'collide':
-        return this.runCollide()
+        return this.runCollide(num(params.m1, 5), num(params.v1, 4), num(params.m2, 1))
       case 'cradle':
-        return this.runCradle()
+        return this.runCradle(Math.max(1, Math.min(3, Math.round(num(params.n, 2)))), params.side === 'right' ? 'right' : 'left')
       case 'drop_air':
-        return this.runDrop('air')
+        return this.runDrop('air', num(params.height, DROP_HEIGHT))
       case 'drop_vacuum':
-        return this.runDrop('vacuum')
+        return this.runDrop('vacuum', num(params.height, DROP_HEIGHT))
       default:
         return
     }
   }
 
   /* ---- kinematics run ---- */
-  private async runDrive(action: string): Promise<void> {
-    const p = profile(action)!
+  private async runDrive(action: string, params: Params): Promise<void> {
+    const p = profile(action, params as DriveParams)!
     this.setCarS(p.from)
     this.placeFlag(p.from)
     this.hideArrows()
-    const straight = action === 'drive_straight'
+    const straight = Math.max(p.from, p.to) <= LEAD
     if (!straight) {
       const v = this.view('lap')
       await this.flyTo(v.pos, v.target, 1300)
@@ -1079,7 +1126,7 @@ export class MotionScene {
     }
     if (this.disposed) return
     sound.whoosh(0.6)
-    const state = { t: 0 }
+    const state = { t: 0, prev: p.from, odo: 0 }
     if (straight) {
       const myFlight = this.flightId
       this.follow = () => {
@@ -1106,10 +1153,15 @@ export class MotionScene {
         const s = p.at(t)
         this.setCarS(s)
         const k = kinematics(p.from, s, speed, tangential)
+        // the odometer counts every metre driven, forwards or back
+        state.odo += Math.abs(s - state.prev)
+        state.prev = s
+        k.distance = state.odo
         this.drawKinematics(p.from, s, speed, k)
         this.emitGauges(dt, () => this.kinGauges(k, t, speed))
         if (state.t >= p.duration) {
           const end = kinematics(p.from, s, 0, 0)
+          end.distance = state.odo
           this.emitGauges(0, () => this.kinGauges(end, t, 0), true)
           this.arrowVel.visible = false
           this.arrowAcc.visible = false
@@ -1254,16 +1306,19 @@ export class MotionScene {
 
   /* ---- dynamics: heavy crate ---- */
   /** Pushes the heavy crate with a steady force (N). Also used by the force slider. */
-  async runPushHeavy(force: number): Promise<void> {
+  async runPushHeavy(force: number, mass = 80): Promise<void> {
     this.abort()
     const v = this.view('A')
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
     const X0 = -9
     this.crateHeavy.position.set(X0, 0.1, 0)
-    const m = 80
+    const m = mass
+    const k = Math.cbrt(mass / 80)
+    this.crateHeavy.scale.setScalar(k)
+    this.relabel(this.labelCrate, `Heavy crate · ${f1(mass).replace(/\.0$/, '')} kg`)
     const state = { x: 0, v: 0, t: 0, moving: false }
-    const half = 0.6 * CRATE_HEAVY * 0.36 // half the crate's width
+    const half = 0.6 * CRATE_HEAVY * 0.36 * k // half the crate's width
     return this.begin({
       update: (dt) => {
         state.t += dt
@@ -1302,6 +1357,7 @@ export class MotionScene {
       done: () => {
         this.pushArrow.visible = false
         this.frictionArrow.visible = false
+        this.crateHeavy.position.set(X0, 0.1, 0)
       },
     })
   }
@@ -1380,16 +1436,17 @@ export class MotionScene {
   }
 
   /* ---- dynamics: action and reaction (Newton's third law) ---- */
-  private async runPushApart(): Promise<void> {
+  private async runPushApart(mL = 20, mR = 60, F = 30): Promise<void> {
     this.abort()
     const v = this.view('B2')
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
-    const mL = 20
-    const mR = 60
-    const F = 30
-    const hl = (CRATE_FLOAT * 0.36) / 2
-    const hr = (CRATE_BIG * 0.36) / 2
+    const kl = Math.cbrt(mL / 20)
+    const kr = Math.cbrt(mR / 60)
+    this.crateFloat.scale.setScalar(kl)
+    this.crateBig.scale.setScalar(kr)
+    const hl = ((CRATE_FLOAT * 0.36) / 2) * kl
+    const hr = ((CRATE_BIG * 0.36) / 2) * kr
     const cx = -3
     const y = 1.8
     const st = { t: 0, xl: cx - hl - 0.02, xr: cx + hr + 0.02, vl: 0, vr: 0 }
@@ -1426,13 +1483,13 @@ export class MotionScene {
           this.pushArrow.setLength(lenArrow, 0.4, 0.3)
         }
         this.emitGauges(dt, () => [
-          { label: 'Force on the light crate', value: `${f1(f)} N ←`, tone: 'warn' },
-          { label: 'Force on the heavy crate', value: `${f1(f)} N →`, tone: 'info' },
-          { label: 'Light crate (20 kg)', value: `${f2(Math.abs(st.vl))} m/s`, tone: 'ok' },
-          { label: 'Heavy crate (60 kg)', value: `${f2(st.vr)} m/s`, tone: 'ok' },
+          { label: 'Force on the left crate', value: `${f1(f)} N ←`, tone: 'warn' },
+          { label: 'Force on the right crate', value: `${f1(f)} N →`, tone: 'info' },
+          { label: `Left crate (${mL} kg)`, value: `${f2(Math.abs(st.vl))} m/s`, tone: 'ok' },
+          { label: `Right crate (${mR} kg)`, value: `${f2(st.vr)} m/s`, tone: 'ok' },
           { label: 'Accelerations', value: f > 0 ? `${f2(f / mL)} and ${f2(f / mR)} m/s²` : '0 m/s²' },
         ])
-        if (st.t > push + 0.1 && st.t < push + 0.2) this.events.onNote?.('Equal forces, opposite directions. The light crate gets the bigger acceleration.')
+        if (st.t > push + 0.1 && st.t < push + 0.2) this.events.onNote?.('Equal forces, opposite directions. The lighter crate gets the bigger acceleration.')
         if (st.t > 5.2) return 500
         return null
       },
@@ -1440,24 +1497,26 @@ export class MotionScene {
         this.pushArrow.visible = false
         this.frictionArrow.visible = false
         spring.visible = false
+        this.crateFloat.scale.setScalar(1)
+        this.crateBig.scale.setScalar(1)
+        this.crateBig.visible = false
+        this.crateFloat.position.set(-3, 1.8, 0)
       },
     })
   }
 
   /* ---- dynamics: balls ---- */
-  private async runCollide(): Promise<void> {
+  private async runCollide(m1 = 5, v1 = 4, m2 = 1): Promise<void> {
     this.abort()
     const v = this.view('C')
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
-    this.resetBalls()
-    const m1 = 5
-    const m2 = 1
-    const r1 = 0.32
-    const r2 = 0.2
+    this.resetBalls(m1, m2)
+    const r1 = 0.32 * Math.cbrt(m1 / 5)
+    const r2 = 0.2 * Math.cbrt(m2 / 1)
     const slow = 0.4 // slow motion so the eye can follow
-    const st = { x1: 0, x2: 3.6, v1: 4, v2: 0, hit: false, t: 0, after: 0 }
-    const [u1, u2] = elastic(m1, 4, m2, 0)
+    const st = { x1: 0, x2: 3.6, v1, v2: 0, hit: false, t: 0, after: 0 }
+    const [u1, u2] = elastic(m1, v1, m2, 0)
     const end = 6.9 // inner face of the stop at the end of the rail
     return this.begin({
       update: (dt) => {
@@ -1471,14 +1530,6 @@ export class MotionScene {
           st.v2 = u2
           sound.hit()
         }
-        if (st.x2 > end - r2) {
-          st.x2 = end - r2
-          st.v2 = 0
-        }
-        if (st.x1 > end - r2 * 2 - r1) {
-          st.x1 = end - r2 * 2 - r1
-          st.v1 = 0
-        }
         if (st.hit) st.after += dt
         this.ballHeavy.position.x = st.x1
         this.ballLight.position.x = st.x2
@@ -1489,15 +1540,14 @@ export class MotionScene {
         const p1 = m1 * st.v1
         const p2 = m2 * st.v2
         this.emitGauges(dt, () => [
-          { label: 'Heavy ball speed', value: `${f1(st.v1)} m/s` },
-          { label: 'Light ball speed', value: `${f1(st.v2)} m/s` },
-          { label: 'Heavy momentum', value: `${f1(p1)} kg·m/s`, tone: 'info' },
-          { label: 'Light momentum', value: `${f1(p2)} kg·m/s`, tone: 'info' },
+          { label: `Ball A speed (${m1} kg)`, value: `${f1(st.v1)} m/s` },
+          { label: `Ball B speed (${m2} kg)`, value: `${f1(st.v2)} m/s` },
+          { label: 'Ball A momentum', value: `${f1(p1)} kg·m/s`, tone: 'info' },
+          { label: 'Ball B momentum', value: `${f1(p2)} kg·m/s`, tone: 'info' },
           { label: 'Total momentum', value: `${f1(p1 + p2)} kg·m/s`, tone: 'ok' },
         ])
-        if (st.after > 1.3 || st.t > 14) {
-          return 400
-        }
+        // stop on the last full picture: after a moment, or before a ball reaches the end of the rail
+        if (st.after > 1.3 || st.t > 14 || st.x2 >= end - r2 || st.x1 <= -0.9) return 500
         return null
       },
       done: () => undefined,
@@ -1505,21 +1555,25 @@ export class MotionScene {
   }
 
   /* ---- dynamics: cradle ---- */
-  private async runCradle(): Promise<void> {
+  private async runCradle(n = 2, side: 'left' | 'right' = 'left'): Promise<void> {
     this.abort()
     const v = this.view('D')
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
-    const st = { t: 0, clicks: 0, last: -1 }
-    const n = 2
+    const st = { t: 0, last: -1 }
     const balls = this.cradleBalls
+    const len = balls.length
     return this.begin({
       update: (dt) => {
         st.t += dt
         const a = cradleAngle(st.t)
+        // Lift n balls on one side; the same number swing out on the other. A mirrored run swings the other way.
         balls.forEach((b, i) => {
-          if (i < n) b.rotation.z = a.left
-          else if (i >= balls.length - n) b.rotation.z = a.right
+          const lifted = side === 'left' ? i < n : i >= len - n
+          const out = side === 'left' ? i >= len - n : i < n
+          const sign = side === 'left' ? 1 : -1
+          if (lifted) b.rotation.z = sign * a.left
+          else if (out) b.rotation.z = sign * a.right
           else b.rotation.z = 0
         })
         const phase = Math.floor(st.t / 0.4)
@@ -1527,10 +1581,10 @@ export class MotionScene {
           st.last = phase
           if (phase > 0) sound.hit()
         }
-        const out = a.right > 0.02 ? n : 0
+        const swinging = a.right > 0.02
         this.emitGauges(dt, () => [
-          { label: 'Balls lifted and released', value: String(n), tone: 'info' },
-          { label: 'Balls swinging out the other side', value: balls.length ? String(out) : '–', tone: 'ok' },
+          { label: `Balls lifted and released (${side})`, value: String(n), tone: 'info' },
+          { label: `Balls swinging out the ${side === 'left' ? 'right' : 'left'}`, value: len ? String(swinging ? n : 0) : '–', tone: 'ok' },
         ])
         if (st.t > 6.4) {
           balls.forEach((b) => (b.rotation.z = 0))
@@ -1543,19 +1597,19 @@ export class MotionScene {
   }
 
   /* ---- gravitation ---- */
-  private async runDrop(which: 'air' | 'vacuum'): Promise<void> {
+  private async runDrop(which: 'air' | 'vacuum', height = DROP_HEIGHT): Promise<void> {
     this.abort()
-    this.resetDrop('air')
-    this.resetDrop('vacuum')
+    this.resetDrop('air', height)
+    this.resetDrop('vacuum', height)
     const v = this.view('tubes')
     await this.flyTo(v.pos, v.target, 1000)
     if (this.disposed) return
     const rec = this.drops[which]
     const x = this.dropX(which)
     const air = which === 'air'
-    const ball = simulateFall(DROP_HEIGHT, air ? BALL_TERMINAL : null)
-    const feather = simulateFall(DROP_HEIGHT, air ? FEATHER_TERMINAL : null)
-    const top = POD + DROP_HEIGHT
+    const ball = simulateFall(height, air ? BALL_TERMINAL : null)
+    const feather = simulateFall(height, air ? FEATHER_TERMINAL : null)
+    const top = POD + height
     const st = { t: -0.6, thudBall: false, thudFeather: false }
     return this.begin({
       update: (dt) => {

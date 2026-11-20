@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { allTrials, cleanPrediction, observeFor, redactMotion, scoreExplanation, scorePrediction, secretsOf, type MotionPrediction } from '../motion';
+import { allTrials, cleanPrediction, drawVariants, observeFor, redactMotion, resolveTrial, scoreExplanation, scorePrediction, secretsOf, type MotionPrediction } from '../motion';
 
 const lesson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/physics-motion.json'), 'utf8'));
 const trial = (id: string) => allTrials(lesson).find((t) => t.id === id)!;
@@ -19,6 +19,76 @@ describe('motion contract', () => {
   });
   it('every asset points at a model file in the shared folder', () => {
     for (const url of Object.values(lesson.assets) as string[]) expect(url).toMatch(/^http:\/\/localhost:3007\/assets\/models\/[\w.-]+\.glb$/);
+  });
+});
+
+describe('variants: every attempt gets different values', () => {
+  const withVariants = allTrials(lesson).filter((t) => t.variants);
+  it('every question has five sets of values, and each answer fits its own input', () => {
+    expect(withVariants.length).toBe(allTrials(lesson).length);
+    for (const t of withVariants) {
+      expect(t.variants).toHaveLength(5);
+      for (let i = 0; i < 5; i++) {
+        const r = resolveTrial(t, i);
+        if (r.input.type === 'choice') expect(r.input.options.map((o) => o.id)).toContain(r.answer.choice);
+        else for (const f of r.input.fields) expect(typeof r.answer[f.id]).toBe('number');
+        if (t.anomaly) expect((r.expectedKeywords ?? []).length).toBeGreaterThanOrEqual(3);
+        expect(r.prompt.length).toBeGreaterThan(20);
+        expect(r.outcome.length).toBeGreaterThan(3);
+      }
+      // the values really differ between sets
+      expect(new Set(t.variants!.map((v) => v.prompt)).size).toBeGreaterThanOrEqual(4);
+    }
+  });
+  it('a perfect answer in each set is judged right, and a wrong one is not', () => {
+    for (const t of withVariants) {
+      for (let i = 0; i < 5; i++) {
+        const r = resolveTrial(t, i);
+        const right = r.input.type === 'choice' ? { choice: r.answer.choice } : Object.fromEntries(r.input.fields.map((f) => [f.id, r.answer[f.id]]));
+        expect(scorePrediction(r, right as never).match).toBe(true);
+        if (r.input.type === 'choice') {
+          const other = r.input.options.find((o) => o.id !== r.answer.choice)!;
+          expect(scorePrediction(r, { choice: other.id }).match).toBe(false);
+        }
+      }
+    }
+  });
+  it('a session is dealt one set per question and a shuffled option order, and sessions differ', () => {
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const a = drawVariants(lesson, rnd);
+    const b = drawVariants(lesson, rnd);
+    expect(Object.keys(a.variants!).length).toBe(allTrials(lesson).length);
+    for (const v of Object.values(a.variants!)) expect(v).toBeGreaterThanOrEqual(0);
+    expect(JSON.stringify(a.variants)).not.toBe(JSON.stringify(b.variants));
+    for (const t of withVariants) {
+      const r = resolveTrial(t, a.variants![t.id]);
+      if (r.input.type === 'choice') expect([...a.orders![t.id]].sort()).toEqual(r.input.options.map((o) => o.id).sort());
+    }
+    // over many sessions every set turns up
+    const seen = new Map<string, Set<number>>();
+    for (let i = 0; i < 300; i++) for (const [id, k] of Object.entries(drawVariants(lesson, rnd).variants!)) seen.set(id, (seen.get(id) ?? new Set()).add(k));
+    for (const s of seen.values()) expect(s.size).toBe(5);
+  });
+  it('the browser gets this session’s values in this session’s order, with no answers from any set', () => {
+    const deal = { variants: { kin_1: 2, dyn_1: 4 }, orders: { dyn_1: ['speeds', 'stays', 'slides'] } };
+    const pub = redactMotion(lesson, deal as never);
+    const trials = pub.scenarios.flatMap((s: any) => s.trials);
+    const kin1 = trials.find((t: any) => t.id === 'kin_1');
+    expect(kin1.prompt).toContain('reverses 15 m');
+    expect(kin1.params).toEqual({ legs: [40, -15] });
+    expect(trials.find((t: any) => t.id === 'dyn_1').input.options.map((o: any) => o.id)).toEqual(['speeds', 'stays', 'slides']);
+    const text = JSON.stringify(pub);
+    for (const t of withVariants) for (const v of t.variants!) {
+      // very short outcomes ("15 m.") are trivially inside the questions; the long ones must stay hidden
+      if ((v.outcome as string).length > 14) expect(text).not.toContain(v.outcome as string);
+      expect(text).not.toContain(v.explanation as string);
+    }
+    expect(text).not.toContain('"answer"');
+  });
+  it('without a deal, the default values are used (sessions that began before this existed)', () => {
+    const pub = redactMotion(lesson);
+    expect(pub.scenarios[0].trials[0].prompt).toContain('forward 50 m');
   });
 });
 

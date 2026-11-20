@@ -1,6 +1,6 @@
 import type express from 'express';
 import { wordCount } from './biology';
-import { allTrials, cleanPrediction, observeFor, scoreExplanation, scorePrediction, secretsOf, type MotionAssignment, type MotionScenario, type MotionTrial } from './motion';
+import { allTrials, cleanPrediction, observeFor, scoreExplanation, scorePrediction, secretsOf, trialOf, type MotionAssignment, type MotionScenario, type MotionTrial } from './motion';
 
 export interface MotionDeps {
   wrap: (fn: (req: express.Request, res: express.Response) => Promise<unknown>) => (req: express.Request, res: express.Response) => void;
@@ -35,11 +35,13 @@ export function registerMotion(app: express.Express, d: MotionDeps) {
     const lesson = d.readLesson(a.lessonId);
     const trialId = String(req.body?.trial ?? '');
     const scenario = (lesson.scenarios as MotionScenario[]).find((s) => s.trials.some((t) => t.id === trialId));
-    const trial = scenario?.trials.find((t) => t.id === trialId);
-    if (!scenario || !trial) {
+    const base = scenario?.trials.find((t) => t.id === trialId);
+    if (!scenario || !base) {
       res.status(400).json({ error: 'Unknown trial' });
       return null;
     }
+    // the question with the values this session was dealt
+    const trial = trialOf(base, a);
     return { sessionId, a, lesson, scenario, trial };
   };
 
@@ -135,7 +137,7 @@ export function registerMotion(app: express.Express, d: MotionDeps) {
 
 /** Truth for the coach's guard and the rubric engine. Open trials are the ones whose result is still hidden. */
 export function motionInternal(a: MotionAssignment, lesson: { scenarios: MotionScenario[] }) {
-  const trials = allTrials(lesson);
+  const trials = allTrials(lesson).map((t) => trialOf(t, a));
   return {
     kind: 'motion',
     lessonId: a.lessonId,
@@ -146,7 +148,7 @@ export function motionInternal(a: MotionAssignment, lesson: { scenarios: MotionS
     motion: {
       trials: trials.map((t, i) => {
         const p = a.predictions[t.id];
-        return p && p.match !== null ? { id: t.id, n: i + 1, scenario: (lesson.scenarios.find((s) => s.trials.includes(t)) as MotionScenario).id, kind: t.kind, anomaly: t.anomaly, match: p.match, confidence: p.confidence, thinkMs: p.thinkMs, coverage: p.explanation?.coverage ?? null, words: p.explanation?.words ?? 0, inputMode: p.explanation?.inputMode ?? null, speakMs: p.explanation?.speakMs ?? 0 } : null;
+        return p && p.match !== null ? { id: t.id, n: i + 1, scenario: (lesson.scenarios.find((s) => s.trials.some((x) => x.id === t.id)) as MotionScenario).id, kind: t.kind, anomaly: t.anomaly, match: p.match, confidence: p.confidence, thinkMs: p.thinkMs, coverage: p.explanation?.coverage ?? null, words: p.explanation?.words ?? 0, inputMode: p.explanation?.inputMode ?? null, speakMs: p.explanation?.speakMs ?? 0 } : null;
       }).filter(Boolean),
       total: trials.length,
     },

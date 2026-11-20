@@ -6,7 +6,7 @@ import { createClient } from 'redis';
 import { cleanSelection, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, wordCount, type BiologyAssignment, type Checkpoint, type Commit, type Scenario } from './biology';
 import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
 import { allTrialsDone, buildReveal, checkExplanation, cleanTable, flatCases, judgeTrial, makePlan, owesExplanation, personalize, redactOptics, stageBlocker, trialKey, truthFor, type OpticsAssignment, type OpticsTrial } from './optics';
-import { redactMotion, type MotionAssignment } from './motion';
+import { drawVariants, redactMotion, type MotionAssignment } from './motion';
 import { motionInternal, registerMotion } from './motionRoutes';
 import { reasoningSummary, registerReasoning } from './reasoningRoutes';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
@@ -174,7 +174,12 @@ app.get(
       if (sessionId) {
         const who = await sessionFor(req, sessionId);
         if (!who) return res.status(401).json({ error: 'Invalid session' });
-        if (!(await loadMotion(sessionId))) await saveAssignment(sessionId, { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, createdAt: Date.now() });
+        let mo = await loadMotion(sessionId);
+        if (!mo) {
+          mo = { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, ...drawVariants(lesson), createdAt: Date.now() };
+          await saveAssignment(sessionId, mo);
+        }
+        return res.json(redactMotion(lesson, mo));
       }
       return res.json(redactMotion(lesson));
     }

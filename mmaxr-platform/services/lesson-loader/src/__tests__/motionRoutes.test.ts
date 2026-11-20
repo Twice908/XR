@@ -33,6 +33,29 @@ const post = async (route: string, body: unknown, token = 'good') => {
 };
 const fresh = () => (store = { kind: 'motion', lessonId: 'physics-motion', studentId: 'stu', predictions: {}, createdAt: 0 });
 
+describe('motion routes with dealt values', () => {
+  it('judges against the values this session was dealt, and reveals that set’s outcome', async () => {
+    store = { kind: 'motion', lessonId: 'physics-motion', studentId: 'stu', predictions: {}, variants: { kin_1: 2 }, orders: {}, createdAt: 0 };
+    // the default answer (50 and 50) is wrong for this set: forward 40 m, back 15 m
+    await post('predict', { trial: 'kin_1', value: { distance: 50, displacement: 50 }, confidence: 2 });
+    const seen = await post('observe', { trial: 'kin_1' });
+    expect(seen.body.match).toBe(false);
+    expect(seen.body.answer).toEqual({ distance: 55, displacement: 25 });
+    expect(seen.body.outcome).toContain('55 m');
+    expect(seen.body.explanation).toContain('net change');
+  });
+  it('the same set answered rightly is a match', async () => {
+    store = { kind: 'motion', lessonId: 'physics-motion', studentId: 'stu', predictions: {}, variants: { kin_1: 2 }, orders: {}, createdAt: 0 };
+    await post('predict', { trial: 'kin_1', value: { distance: 55, displacement: 25 }, confidence: 3 });
+    expect((await post('observe', { trial: 'kin_1' })).body.match).toBe(true);
+  });
+  it('the coach’s truth carries the dealt set’s explanation, not the default one', async () => {
+    store = { kind: 'motion', lessonId: 'physics-motion', studentId: 'stu', predictions: {}, variants: { kin_1: 2 }, orders: {}, createdAt: 0 };
+    const t = motionInternal(store!, lesson) as any;
+    expect(t.tubes.find((x: any) => x.id === 'kin_1').facts).toContain('net change');
+  });
+});
+
 describe('motion routes', () => {
   it('rejects a session that is not the student’s, and an unknown trial', async () => {
     fresh();

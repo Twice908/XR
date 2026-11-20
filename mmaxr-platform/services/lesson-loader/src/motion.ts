@@ -21,6 +21,10 @@ export interface MotionTrial {
   coachSecrets?: string[];
   /** The law this question is about. Held back until the result has been watched, so it cannot hint at the answer. */
   law?: { name: string; formula?: string };
+  /** Simulation settings for the default values (mass, force, distance…). Public: they only drive the animation. */
+  params?: Record<string, unknown>;
+  /** Alternative sets of values for this question. One is drawn for each session, so repeat attempts differ. */
+  variants?: Partial<Omit<MotionTrial, 'id' | 'kind' | 'anomaly' | 'action' | 'variants'>>[];
 }
 export interface MotionScenario {
   id: string;
@@ -46,13 +50,55 @@ export interface MotionAssignment {
   lessonId: string;
   studentId: string;
   predictions: Record<string, MotionPrediction>;
+  /** Which set of values this session got for each question (index into `variants`). Missing = the default values. */
+  variants?: Record<string, number>;
+  /** The order this session sees each multiple-choice question's options in. */
+  orders?: Record<string, string[]>;
   createdAt: number;
 }
+
+/** The question with the values this session was dealt. */
+export function resolveTrial(t: MotionTrial, idx: number | undefined): MotionTrial {
+  const v = idx !== undefined && t.variants ? t.variants[idx] : undefined;
+  if (!v) return t;
+  return { ...t, ...v, coachSecrets: v.coachSecrets ?? [], params: v.params ?? t.params };
+}
+
+const shuffled = <T,>(xs: T[], rnd: () => number): T[] => {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/** Deals this session its values and its option order for every question, like drawing samples for the test tubes. */
+export function drawVariants(lesson: { scenarios: MotionScenario[] }, rnd: () => number = Math.random): Pick<MotionAssignment, 'variants' | 'orders'> {
+  const variants: Record<string, number> = {};
+  const orders: Record<string, string[]> = {};
+  for (const t of lesson.scenarios.flatMap((s) => s.trials)) {
+    const n = t.variants?.length ?? 0;
+    const idx = n > 1 ? Math.floor(rnd() * n) : 0;
+    if (n > 0) variants[t.id] = idx;
+    const r = resolveTrial(t, idx);
+    if (r.input.type === 'choice') orders[t.id] = shuffled(r.input.options.map((o) => o.id), rnd);
+  }
+  return { variants, orders };
+}
+
+export const trialOf = (t: MotionTrial, a: Pick<MotionAssignment, 'variants'> | null | undefined): MotionTrial => resolveTrial(t, a?.variants?.[t.id]);
+
+const inOrder = (input: MotionTrial['input'], order: string[] | undefined): MotionTrial['input'] => {
+  if (input.type !== 'choice' || !order) return input;
+  const rank = new Map(order.map((id, i) => [id, i]));
+  return { type: 'choice', options: [...input.options].sort((x, y) => (rank.get(x.id) ?? 99) - (rank.get(y.id) ?? 99)) };
+};
 
 export const allTrials = (lesson: { scenarios: MotionScenario[] }): MotionTrial[] => lesson.scenarios.flatMap((s) => s.trials);
 
 /** What the browser may see: no answers, outcomes, explanations, keywords or coach secrets. */
-export function redactMotion(lesson: any): any {
+export function redactMotion(lesson: any, a?: Pick<MotionAssignment, 'variants' | 'orders'> | null): any {
   const { laws: _laws, ...rest } = lesson;
   void _laws;
   return {
@@ -62,7 +108,10 @@ export function redactMotion(lesson: any): any {
       tabName: s.tabName,
       title: s.title,
       setup: s.setup,
-      trials: s.trials.map((t) => ({ id: t.id, kind: t.kind, anomaly: t.anomaly, action: t.action, prompt: t.prompt, input: t.input, needsExplanation: t.anomaly && (t.expectedKeywords?.length ?? 0) > 0 })),
+      trials: s.trials.map((base) => {
+        const t = trialOf(base, a);
+        return { id: t.id, kind: t.kind, anomaly: t.anomaly, action: t.action, prompt: t.prompt, input: inOrder(t.input, a?.orders?.[t.id]), params: t.params ?? {}, needsExplanation: t.anomaly && (t.expectedKeywords?.length ?? 0) > 0 };
+      }),
     })),
   };
 }
