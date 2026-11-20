@@ -3969,8 +3969,8 @@
     {
       "id": "gravitation_drop",
       "tabName": "Gravitation",
-      "title": "The Drop Tower",
-      "setup": "A drop tower with two tall glass tubes, 4.9 m high: one full of air, one pumped empty. Beside it, two masses show Newton's law of universal gravitation, F = G m₁ m₂ / r².",
+      "title": "The Gravity Lab",
+      "setup": "Two parts. Falling bodies: two tall glass tubes, 4.9 m high, one full of air and one pumped empty. Universal gravitation: two masses that pull on each other, F = G m₁ m₂ / r².",
       "trials": [
         {
           "id": "grav_1",
