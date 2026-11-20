@@ -122,6 +122,8 @@ export class MotionScene {
   private crateFloat = new THREE.Group()
   private crateBig = new THREE.Group()
   private speedArrow = new BoldArrow(0x4ade80, 0.07)
+  /** The metre ruler for the drifting crate. Only shown while that experiment runs. */
+  private ruler = new THREE.Group()
   private spring: THREE.Mesh | null = null
   private stars: THREE.Points | null = null
   private ballHeavy: THREE.Mesh
@@ -460,13 +462,15 @@ export class MotionScene {
       const tall = m % 3 === 0
       const tick = new THREE.Mesh(new THREE.BoxGeometry(0.04, tall ? 0.34 : 0.18, 0.04), tickMat)
       tick.position.set(-3 + m, 0.55 + (tall ? 0.17 : 0.09), 2.2)
-      g.add(tick)
+      this.ruler.add(tick)
       if (tall && m > 0) {
         const lab = this.label(`${m} m`, '#9cc6ff', 0.42)
         lab.position.set(-3 + m, 1.25, 2.2)
-        g.add(lab)
+        this.ruler.add(lab)
       }
     }
+    this.ruler.visible = false
+    g.add(this.ruler)
     g.add(this.speedArrow)
     this.speedArrow.visible = false
     // station C: the rail
@@ -1025,6 +1029,7 @@ export class MotionScene {
   private resetDyn() {
     this.crateHeavy.position.set(-9, 0.1, 0)
     this.crateFloat.position.set(-3, 1.8, 0)
+    this.ruler.visible = false
     this.crateFloat.scale.setScalar(1)
     this.crateHeavy.scale.setScalar(1)
     this.relabel(this.labelCrate, 'Heavy crate · 80 kg')
@@ -1369,6 +1374,7 @@ export class MotionScene {
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
     this.crateBig.visible = false
+    this.ruler.visible = true
     const x0 = -3
     const y0 = 1.8
     this.crateFloat.position.set(x0, y0, 0)
@@ -1425,6 +1431,7 @@ export class MotionScene {
       done: () => {
         // back to where it started, and the camera back with it
         this.follow = null
+        this.ruler.visible = false
         this.pushArrow.visible = false
         this.speedArrow.visible = false
         this.crateFloat.scale.setScalar(1)
