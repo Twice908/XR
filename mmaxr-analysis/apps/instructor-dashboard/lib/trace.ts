@@ -120,6 +120,7 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id.startsWith('physics-magnetism')) return 'Magnetism & Electromagnetism'
   if (id === 'physics-motion' || id.startsWith('physics-motion')) return 'Motion, Forces & Gravitation'
   if (id.startsWith('biology')) return 'Human Digestive System'
   if (id.startsWith('metals')) return 'Metals & Non-Metals'

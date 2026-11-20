@@ -22,6 +22,44 @@ describe('motion contract', () => {
   });
 });
 
+describe('the magnetism lab uses the same engine', () => {
+  const mag = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/physics-magnetism.json'), 'utf8'));
+  it('has three tabs, every question with five sets of values, and answers that fit their inputs', () => {
+    expect(mag.scenarios.map((s: any) => s.id)).toEqual(['magnets_fields', 'electromagnetism', 'force_induction']);
+    for (const t of allTrials(mag)) {
+      expect(t.variants).toHaveLength(5);
+      for (let i = 0; i < 5; i++) {
+        const r = resolveTrial(t, i);
+        if (r.input.type === 'choice') expect(r.input.options.map((o) => o.id)).toContain(r.answer.choice);
+        else for (const f of r.input.fields) expect(typeof r.answer[f.id]).toBe('number');
+        if (t.anomaly) expect((r.expectedKeywords ?? []).length).toBeGreaterThanOrEqual(3);
+        const right = r.input.type === 'choice' ? { choice: r.answer.choice } : Object.fromEntries(r.input.fields.map((f) => [f.id, r.answer[f.id]]));
+        expect(scorePrediction(r, right as never).match).toBe(true);
+      }
+      expect(new Set(t.variants!.map((v) => v.prompt)).size).toBeGreaterThanOrEqual(4);
+    }
+  });
+  it('the browser sees no answers, outcomes, explanations or law names', () => {
+    const pub = JSON.stringify(redactMotion(mag));
+    for (const t of allTrials(mag)) for (const v of t.variants!) {
+      if ((v.outcome as string).length > 14) expect(pub).not.toContain(v.outcome as string);
+      expect(pub).not.toContain(v.explanation as string);
+    }
+    for (const key of ['"answer"', 'expectedKeywords', 'coachSecrets', '"law"', '"laws"']) expect(pub).not.toContain(key);
+  });
+  it('Fleming answers agree with the left-hand rule (current x field)', () => {
+    const t = allTrials(mag).find((x) => x.id === 'force_1')!;
+    const dir: Record<string, number[]> = { up: [0, 1, 0], down: [0, -1, 0], left: [-1, 0, 0], right: [1, 0, 0], in: [0, 0, -1], out: [0, 0, 1] };
+    for (let i = 0; i < 5; i++) {
+      const r = resolveTrial(t, i);
+      const I = (r.params as any).current as number[];
+      const B = (r.params as any).field as number[];
+      const F = [I[1] * B[2] - I[2] * B[1], I[2] * B[0] - I[0] * B[2], I[0] * B[1] - I[1] * B[0]];
+      expect(dir[r.answer.choice as string].map((x) => x + 0)).toEqual(F.map((x) => x + 0));
+    }
+  });
+});
+
 describe('variants: every attempt gets different values', () => {
   const withVariants = allTrials(lesson).filter((t) => t.variants);
   it('every question has five sets of values, and each answer fits its own input', () => {

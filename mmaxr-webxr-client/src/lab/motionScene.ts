@@ -4,6 +4,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { MotionLessonContract } from '@mmaxr/schema'
 import { sound } from './sound'
+import { stageSet } from './stage'
 import { BALL_TERMINAL, DROP_HEIGHT, FEATHER_TERMINAL, G, LAP, LEAD, LOOP_CENTER, TRACK_Z, carAt, cradleAngle, elastic, kinematics, profile, pushOnFloor, simulateFall, type DriveParams } from './motionPhysics'
 
 /*
@@ -30,7 +31,7 @@ const MODULE_X: Record<string, number> = { kinematics_track: 0, dynamics_bay: 30
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z)
 
 /** A thick arrow (ArrowHelper draws a 1 px line, which disappears at a distance). Same small API. */
-class BoldArrow extends THREE.Group {
+export class BoldArrow extends THREE.Group {
   private readonly shaft: THREE.Mesh
   private readonly head: THREE.Mesh
   constructor(color: number, private readonly thick = 0.09) {
@@ -81,7 +82,28 @@ interface Job {
   done(): void
 }
 
-export class MotionScene {
+/** What the lab page needs from a 3D scene. The motion sandbox and the magnetism lab each have one. */
+export interface SandboxScene {
+  readonly head: THREE.Vector3
+  readonly hand: THREE.Vector3
+  readonly busy: boolean
+  readonly isFreeDriving: boolean
+  load(): Promise<void>
+  goto(moduleId: string, instant?: boolean): Promise<void>
+  run(action: string, params?: Record<string, unknown>): Promise<void>
+  /** Sets the table for a question before it is answered, without running it. Optional. */
+  stage?(action: string, params?: Record<string, unknown>): void
+  start(): void
+  dispose(): void
+  setInsets(i: { left: number; right: number; top: number; bottom: number }): void
+  reset(): void
+  startFreeDrive(): void
+  stopFreeDrive(): void
+  driveInput(throttle: number, steer: number): void
+  runPushHeavy(force: number): Promise<void>
+}
+
+export class MotionScene implements SandboxScene {
   readonly renderer: THREE.WebGLRenderer
   readonly scene = new THREE.Scene()
   readonly camera: THREE.PerspectiveCamera
@@ -219,68 +241,6 @@ export class MotionScene {
     this.buildGravitation()
   }
 
-  /**
-   * A lit stage for one module: a glossy platform with a glowing edge, an optional back wall, a key spotlight
-   * with shadows, amber and cyan rim lights and dust. Sizes are in metres, centred on (cx, cz).
-   */
-  private stageSet(g: THREE.Group, o: { cx: number; cz: number; w: number; d: number; wall?: { z: number; h: number }; key: [number, number, number]; aim: [number, number, number]; keyI: number; rimI: number; rimAt: [number, number, number]; dust?: { n: number; h: number } }) {
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshStandardMaterial({ color: 0x0d1016, roughness: 0.7, metalness: 0.1 }))
-    floor.rotation.x = -Math.PI / 2
-    floor.position.y = -0.4
-    floor.receiveShadow = true
-    g.add(floor)
-    const deck = new THREE.Mesh(new THREE.BoxGeometry(o.w, 0.34, o.d), new THREE.MeshStandardMaterial({ color: 0x151a22, roughness: 0.36, metalness: 0.25 }))
-    deck.position.set(o.cx, -0.2, o.cz)
-    deck.receiveShadow = true
-    g.add(deck)
-    // glowing edge, like the rings on the biology stage
-    const glow = new THREE.MeshBasicMaterial({ color: 0x4f8cff, transparent: true, opacity: 0.55, depthWrite: false })
-    const t = Math.max(0.06, o.w / 600)
-    for (const [w, d, x, z] of [
-      [o.w, t, o.cx, o.cz - o.d / 2],
-      [o.w, t, o.cx, o.cz + o.d / 2],
-      [t, o.d, o.cx - o.w / 2, o.cz],
-      [t, o.d, o.cx + o.w / 2, o.cz],
-    ] as const) {
-      const e = new THREE.Mesh(new THREE.BoxGeometry(w, 0.04, d), glow)
-      e.position.set(x, 0.0, z)
-      g.add(e)
-    }
-    if (o.wall) {
-      const wall = new THREE.Mesh(new THREE.PlaneGeometry(o.w * 1.3, o.wall.h), new THREE.MeshStandardMaterial({ color: 0x1b2029, roughness: 0.85 }))
-      wall.position.set(o.cx, o.wall.h / 2 - 0.2, o.wall.z)
-      wall.receiveShadow = true
-      g.add(wall)
-      const strip = new THREE.Mesh(new THREE.BoxGeometry(o.w * 1.3, 0.05, 0.05), new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.5 }))
-      strip.position.set(o.cx, 0.3, o.wall.z + 0.05)
-      g.add(strip)
-    }
-    const key = new THREE.SpotLight(0xfff3e0, o.keyI, 0, Math.PI / 4.2, 0.7, 1.6)
-    key.position.set(...o.key)
-    key.target.position.set(...o.aim)
-    key.castShadow = true
-    key.shadow.mapSize.set(2048, 2048)
-    key.shadow.bias = -0.0004
-    g.add(key, key.target)
-    const rimA = new THREE.PointLight(0xf59e0b, o.rimI, 0, 2)
-    rimA.position.set(o.cx - o.rimAt[0], o.rimAt[1], o.cz + o.rimAt[2])
-    const rimB = new THREE.PointLight(0x22d3ee, o.rimI * 0.8, 0, 2)
-    rimB.position.set(o.cx + o.rimAt[0], o.rimAt[1] * 0.9, o.cz + o.rimAt[2])
-    g.add(rimA, rimB)
-    if (o.dust) {
-      const pos = new Float32Array(o.dust.n * 3)
-      for (let i = 0; i < o.dust.n; i++) {
-        pos[i * 3] = o.cx + (Math.random() - 0.5) * o.w
-        pos[i * 3 + 1] = Math.random() * o.dust.h
-        pos[i * 3 + 2] = o.cz + (Math.random() - 0.5) * o.d
-      }
-      const dg = new THREE.BufferGeometry()
-      dg.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-      const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0xcdd6ff, size: 0.03, transparent: true, opacity: 0.3, depthWrite: false }))
-      g.add(dust)
-    }
-  }
-
   private label(text: string, color = '#e6edf7', scale = 1): THREE.Sprite {
     const c = document.createElement('canvas')
     c.width = 512
@@ -313,7 +273,7 @@ export class MotionScene {
   /* ---------------- kinematics ---------------- */
   private buildKinematics() {
     const g = this.groups.kinematics_track
-    this.stageSet(g, { cx: -22, cz: 4, w: 100, d: 66, key: [-6, 70, 40], aim: [-20, 0, 6], keyI: 11000, rimI: 4500, rimAt: [52, 22, -18] })
+    stageSet(g, { cx: -22, cz: 4, w: 100, d: 66, key: [-6, 70, 40], aim: [-20, 0, 6], keyI: 11000, rimI: 4500, rimAt: [52, 22, -18] })
     this.car.add(this.carFallback())
     g.add(this.car)
     // the start flag
@@ -410,7 +370,7 @@ export class MotionScene {
   /* ---------------- dynamics ---------------- */
   private buildDynamics() {
     const g = this.groups.dynamics_bay
-    this.stageSet(g, { cx: 0, cz: 0, w: 32, d: 11, wall: { z: -5.8, h: 11 }, key: [3, 11, 9], aim: [0, 0.8, 0], keyI: 950, rimI: 160, rimAt: [15, 6, -3], dust: { n: 160, h: 6 } })
+    stageSet(g, { cx: 0, cz: 0, w: 32, d: 11, wall: { z: -5.8, h: 11 }, key: [3, 11, 9], aim: [0, 0.8, 0], keyI: 950, rimI: 160, rimAt: [15, 6, -3], dust: { n: 160, h: 6 } })
     // station A: heavy crate on a rough floor
     const pad = new THREE.Mesh(new THREE.BoxGeometry(9, 0.1, 5), new THREE.MeshStandardMaterial({ color: 0x3a3f49, roughness: 0.95, metalness: 0.4 }))
     pad.position.set(-9, 0.03, 0)
@@ -541,7 +501,7 @@ export class MotionScene {
   /* ---------------- gravitation ---------------- */
   private buildGravitation() {
     const g = this.groups.gravitation_drop
-    this.stageSet(g, { cx: 3.5, cz: 0, w: 26, d: 12, wall: { z: -6.4, h: 13 }, key: [4, 13, 11], aim: [3.5, 3, 0], keyI: 1100, rimI: 190, rimAt: [14, 8, -3], dust: { n: 160, h: 8 } })
+    stageSet(g, { cx: 3.5, cz: 0, w: 26, d: 12, wall: { z: -6.4, h: 13 }, key: [4, 13, 11], aim: [3.5, 3, 0], keyI: 1100, rimI: 190, rimAt: [14, 8, -3], dust: { n: 160, h: 8 } })
     for (const [key, x, label, tone] of [['air', -3, 'AIR', '#ffd9a0'] as const, ['vacuum', 3, 'VACUUM', '#9fd0ff'] as const]) {
       const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1, POD, 40), new THREE.MeshStandardMaterial({ color: 0x2c313c, metalness: 0.8, roughness: 0.3 }))
       pod.position.set(x, POD / 2, 0)

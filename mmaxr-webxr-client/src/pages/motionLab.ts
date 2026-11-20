@@ -8,7 +8,8 @@ import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
 import { MotionHud, type MotionHudHandlers } from '../lab/motionHud'
 import { buildMotionSnapshot, say } from '../lab/motionCoach'
-import { MotionScene } from '../lab/motionScene'
+import { MotionScene, type MotionSceneEvents, type SandboxScene } from '../lab/motionScene'
+import { MagnetismScene } from '../lab/magnetismScene'
 import { CoachPanel } from '../lab/coachPanel'
 import { MotionExperiment, StateError } from '../state/motion'
 import { toast } from '../ui/components'
@@ -30,11 +31,20 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
   let coach: CoachClient | null = null
   let idleTimer: number | null = null
   let working = false
-  const scene = new MotionScene(canvas, lesson, {
+  const events: MotionSceneEvents = {
     onProgress: (d, t) => (status.querySelector('p')!.textContent = `Preparing your lab… ${d}/${t}`),
     onGauges: (g) => hud?.setGauges(g),
     onNote: (n) => hud?.setNote(n),
-  })
+  }
+  // the motion sandbox and the magnetism lab share this page: same questions, locked predictions and explanations
+  const scene: SandboxScene = lesson.type === 'physics_electromagnetism' ? new MagnetismScene(canvas, lesson, events) : new MotionScene(canvas, lesson, events)
+
+
+  /** Puts the equipment for the current question on the table, so the picture matches what is being asked. */
+  const stageTrial = () => {
+    const t = exp.current
+    if (t.stage === 'open' && t.trial.action) scene.stage?.(t.trial.action, t.trial.params)
+  }
 
   const guard = <T,>(fn: () => T): T | undefined => {
     try {
@@ -81,7 +91,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       hud!.setFreeDriving(false)
       exp.switchModule(id)
       hud!.update()
-      void scene.goto(id)
+      void scene.goto(id).then(stageTrial)
     },
     onNumber: (f, text) => {
       guard(() => exp.setNumber(f, text))
@@ -149,6 +159,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       exp.advance()
       hud!.setGauges(null)
       scene.reset()
+      stageTrial()
       hud!.update()
     },
     onReplay: () => {
@@ -228,6 +239,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
     return () => {}
   }
   await scene.goto(lesson.scenarios[0].id, true)
+  stageTrial()
   scene.start()
   sensorTracker.start(session.sessionId, () => scene.head, () => scene.hand)
   status.remove()

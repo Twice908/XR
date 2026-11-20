@@ -169,7 +169,8 @@ app.get(
       }
       return res.json(redactBiology(lesson));
     }
-    if (lesson.type === 'physics_mechanics_sandbox') {
+    // the motion sandbox and the magnetism lab share one question engine (variants, locked predictions, explanations)
+    if (lesson.type === 'physics_mechanics_sandbox' || lesson.type === 'physics_electromagnetism') {
       const sessionId = String(req.query.sessionId ?? '');
       if (sessionId) {
         const who = await sessionFor(req, sessionId);
