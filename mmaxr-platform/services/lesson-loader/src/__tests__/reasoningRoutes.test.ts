@@ -59,3 +59,30 @@ describe('reasoning routes', () => {
     expect((await post('reasoning/audio', { contentType: 'text/html', fileBase64: 'AAAA' })).status).toBe(400);
   });
 });
+
+import { reasoningQuality } from '../reasoningRoutes';
+
+describe('reasoning quality', () => {
+  it('rewards evidence, reasons and covering every tube', () => {
+    const good = reasoningQuality('Tube 1 turned red with litmus, so it is an acid. Tube 2 went blue because the pH paper showed a base, and tube 3 stayed colourless with phenolphthalein.', 'indicators', 3);
+    expect(good.evidence).toBeGreaterThanOrEqual(3);
+    expect(good.causal).toBeGreaterThanOrEqual(2);
+    expect(good.coverage).toBe(1);
+    expect(good.score).toBeGreaterThan(0.9);
+  });
+  it('gives little for a vague answer', () => {
+    const vague = reasoningQuality('I just looked at them and chose what felt right to me in the end.', 'indicators', 3);
+    expect(vague.score).toBeLessThan(0.2);
+  });
+  it('knows metals vocabulary and sample references', () => {
+    const q = reasoningQuality('Sample 1 conducts electricity and is shiny and malleable so it is a metal, but sample 2 is brittle and dull.', 'metals', 2);
+    expect(q.coverage).toBe(1);
+    expect(q.evidence).toBeGreaterThanOrEqual(4);
+  });
+  it('is stored with the reasoning', async () => {
+    store = { kind: 'metals', samples: [{}, {}], submission: null };
+    await post('reasoning', { text: 'Sample 1 conducts electricity so it is a metal, and sample 2 is brittle and dull.' });
+    expect(store.reasoning.quality.coverage).toBe(1);
+    expect(reasoningSummary(store)?.quality?.score).toBeGreaterThan(0.5);
+  });
+});

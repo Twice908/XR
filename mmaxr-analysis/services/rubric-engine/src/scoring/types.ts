@@ -61,7 +61,16 @@ export interface OpticsTruth {
   submitted: boolean;
 }
 
+export interface ReasoningTruth {
+  words: number;
+  inputMode: 'voice' | 'typed';
+  speakMs: number;
+  quality: { evidence: number; causal: number; coverage: number; score: number } | null;
+}
+
 export interface TruthInfo {
+  /** What the student said about their own conclusions (indicators and metals labs). */
+  reasoning?: ReasoningTruth | null;
   optics?: OpticsTruth;
   /** Motion, forces and gravitation sandbox: per-trial results held by the lesson service. */
   motion?: MotionTruth;

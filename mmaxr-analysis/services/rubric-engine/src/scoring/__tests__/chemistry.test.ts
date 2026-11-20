@@ -375,3 +375,27 @@ describe('motion sandbox scoring', () => {
     expect(analyze(events(rows), null, truth([tr(1), tr(2)])).deviceStats.items.some((i) => i.label === 'Camera movement')).toBe(true);
   });
 });
+
+describe('reasoning counts towards causal coherence', () => {
+  const truthWith = (score: number | null) => ({
+    tubes: [{ tube: 1, id: 'a', name: 'A', formula: '', type: 'acid', ph: 2 }],
+    submission: { tubes: [{ tube: 1, conclusion: 'acid', ph: 2 }] },
+    reasoning: score === null ? null : { words: 20, inputMode: 'voice' as const, speakMs: 9000, quality: { evidence: 3, causal: 2, coverage: 1, score } },
+  });
+  const evts = () => {
+    id = 0; t = 3_000_000;
+    return [ev('investigated', 'enter_lab', { target: 'chemistry-101' }), ev('acted', 'submit_analysis', { data: {} })];
+  };
+  it('a well-grounded explanation lifts the score and is described', () => {
+    const none = score(analyze(evts(), null, truthWith(null) as never), 'causalCoherence');
+    const good = analyze(evts(), null, truthWith(1) as never).dimensions.find((x) => x.key === 'causalCoherence')!;
+    expect(good.basis).toContain('aloud');
+    expect(good.score).toBeGreaterThanOrEqual(none ?? 0);
+  });
+  it('a vague one pulls a perfect conclusion down; none leaves it as before', () => {
+    const vague = analyze(evts(), null, truthWith(0) as never).dimensions.find((x) => x.key === 'causalCoherence')!;
+    const none = analyze(evts(), null, truthWith(null) as never).dimensions.find((x) => x.key === 'causalCoherence')!;
+    expect((vague.measures as Record<string, number>).blend).toBeLessThan((none.measures as Record<string, number>).blend);
+    expect(none.basis).not.toContain('reasoning');
+  });
+});

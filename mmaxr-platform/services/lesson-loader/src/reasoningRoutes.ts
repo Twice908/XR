@@ -7,7 +7,19 @@ import { wordCount } from './biology';
  * the engine computes from conclusions, and the audio is stored the same way as in the digestive-system lab.
  */
 
+export interface ReasoningQuality {
+  /** Distinct pieces of evidence (colours, tests, properties) the student cites. */
+  evidence: number;
+  /** Reasoning words such as because, so, which means. */
+  causal: number;
+  /** Share of the tubes or samples the student refers to. */
+  coverage: number;
+  /** 0-1 blend used by the rubric. */
+  score: number;
+}
+
 export interface Reasoning {
+  quality?: ReasoningQuality;
   text: string;
   words: number;
   inputMode: 'voice' | 'typed';
@@ -25,9 +37,34 @@ export interface ReasoningDeps {
 }
 
 export const MIN_REASONING_WORDS = 8;
+
+const EVIDENCE: Record<'indicators' | 'metals', string[]> = {
+  indicators: ['red', 'blue', 'pink', 'purple', 'yellow', 'orange', 'green', 'colourless', 'colorless', 'clear', 'litmus', 'phenolphthalein', 'methyl orange', 'universal', 'indicator', 'ph paper', 'paper', 'ph', 'acid', 'base', 'alkali', 'neutral'],
+  metals: ['conduct', 'conductor', 'conductivity', 'electricity', 'heat', 'sonorous', 'sound', 'ring', 'malleable', 'hammer', 'ductile', 'wire', 'lustre', 'luster', 'shiny', 'dull', 'brittle', 'water', 'oxygen', 'burn', 'flame', 'litmus', 'oxide', 'bubbles', 'reacts'],
+};
+const CAUSAL = ['because', 'since', 'so', 'therefore', 'which means', 'means', 'shows', 'showed', 'suggests', 'indicates', 'proves', 'as a result', 'that is why', 'thats why', 'due to'];
+const norm = (s: string) => ` ${s.toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
+const has = (hay: string, term: string) => hay.includes(` ${term} `);
+
+/**
+ * How well a student's explanation of their conclusions is grounded: do they cite evidence, give reasons, and
+ * speak to each tube or sample? Deterministic and blind to correctness; the rubric blends it with accuracy.
+ */
+export function reasoningQuality(text: string, kind: 'indicators' | 'metals', items: number): ReasoningQuality {
+  const hay = norm(text);
+  const evidence = EVIDENCE[kind].filter((t) => has(hay, t)).length;
+  const causal = CAUSAL.filter((t) => has(hay, t)).length;
+  const label = kind === 'metals' ? 'sample' : 'tube';
+  const ordinals = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+  let referenced = 0;
+  for (let i = 1; i <= items; i++) if (has(hay, `${label} ${i}`) || has(hay, `${label}s ${i}`) || has(hay, `number ${i}`) || has(hay, `no ${i}`) || has(hay, `${ordinals[i - 1] ?? '#'}`) || new RegExp(`\\b${label}s?\\s+(?:\\d+\\s*(?:,|and|&)\\s*)*${i}\\b`).test(hay)) referenced++;
+  const coverage = items ? referenced / items : 0;
+  const score = 0.4 * Math.min(1, evidence / 3) + 0.3 * Math.min(1, causal / 2) + 0.3 * coverage;
+  return { evidence, causal, coverage: Math.round(coverage * 100) / 100, score: Math.round(score * 100) / 100 };
+}
 const supports = (a: WithReasoning) => a.kind === undefined || a.kind === 'indicators' || a.kind === 'metals';
 
-export const reasoningSummary = (a: WithReasoning) => (a.reasoning ? { words: a.reasoning.words, inputMode: a.reasoning.inputMode, speakMs: a.reasoning.speakMs } : null);
+export const reasoningSummary = (a: WithReasoning) => (a.reasoning ? { words: a.reasoning.words, inputMode: a.reasoning.inputMode, speakMs: a.reasoning.speakMs, quality: a.reasoning.quality ?? null } : null);
 
 export function registerReasoning(app: express.Express, d: ReasoningDeps) {
   const ctx = async (req: express.Request, res: express.Response) => {
@@ -54,7 +91,9 @@ export function registerReasoning(app: express.Express, d: ReasoningDeps) {
       const text = String(req.body?.text ?? '').trim().slice(0, 2000);
       const words = wordCount(text);
       if (words < MIN_REASONING_WORDS) return res.status(400).json({ error: `Explain it in at least ${MIN_REASONING_WORDS} words` });
+      const items = (c.a as any).tubes?.length ?? (c.a as any).samples?.length ?? 0;
       c.a.reasoning = {
+        quality: reasoningQuality(text, c.a.kind === 'metals' ? 'metals' : 'indicators', items),
         text,
         words,
         inputMode: req.body?.inputMode === 'voice' ? 'voice' : 'typed',

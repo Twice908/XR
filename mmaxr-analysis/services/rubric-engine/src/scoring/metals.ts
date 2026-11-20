@@ -10,6 +10,7 @@ import {
   retrievalEffort,
   revisionQuality,
   slotOf,
+  withReasoning,
 } from './chemistry';
 import { LABELS, RUBRIC_VERSION, type Device, type DimensionResult, type EventRow, type Report, type SensorData, type TruthInfo } from './types';
 
@@ -52,14 +53,15 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
     // A conclusion is supported when it rests on at least two tests and follows what the student's own results mostly say.
     if (said !== null && results.length >= 2 && majorityAgrees) consistent++;
   }
-  const blend = 0.6 * (right / n) + 0.4 * (consistent / n);
+  const rz = withReasoning(0.6 * (right / n) + 0.4 * (consistent / n), truth);
+  const blend = rz.blend;
   const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
   return {
     ...base,
     score,
-    basis: `${right}/${n} samples identified correctly, and ${consistent}/${n} conclusions rest on at least two tests that mostly agree with them.`,
+    basis: `${right}/${n} samples identified correctly, and ${consistent}/${n} conclusions rest on at least two tests that mostly agree with them.${rz.note}`,
     evidence: cap(metals(events).map((e) => e.id)),
-    measures: { samples: n, correct: right, supported: consistent, blend: r2(blend) },
+    measures: { samples: n, correct: right, supported: consistent, blend: r2(blend), ...rz.measures },
   };
 }
 

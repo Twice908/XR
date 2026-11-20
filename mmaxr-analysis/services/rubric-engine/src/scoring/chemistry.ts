@@ -31,6 +31,22 @@ const median = (xs: number[]) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+/**
+ * Blends how well the student explained their conclusions into a dimension's score: 75% what they concluded,
+ * 25% how well the explanation is grounded. Sessions with no explanation (older ones) score as before.
+ */
+export function withReasoning(blend: number, truth: TruthInfo | null): { blend: number; note: string; measures: Record<string, number | string | boolean | null> } {
+  const q = truth?.reasoning?.quality;
+  if (!truth?.reasoning || !q) return { blend, note: '', measures: {} };
+  const mixed = 0.75 * blend + 0.25 * q.score;
+  const how = truth.reasoning.inputMode === 'voice' ? 'aloud' : 'in writing';
+  return {
+    blend: mixed,
+    note: ` Their spoken or written reasoning (${how}, ${truth.reasoning.words} words) cited ${q.evidence} piece${q.evidence === 1 ? '' : 's'} of evidence, gave ${q.causal} reason${q.causal === 1 ? '' : 's'} and covered ${Math.round(q.coverage * 100)}% of the items.`,
+    measures: { reasoningScore: q.score, reasoningWords: truth.reasoning.words, reasoningMode: truth.reasoning.inputMode },
+  };
+}
+
 export const cap = (ids: number[], n = 8) => ids.slice(0, n);
 export const r1 = (n: number) => Math.round(n * 10) / 10;
 export const r2 = (n: number) => Math.round(n * 100) / 100;
@@ -238,16 +254,18 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
   const right = fin.tubes.filter((t) => t.conclusion === t.truth).length;
   const phNear = fin.tubes.filter((t) => t.recordedPh !== null && t.actualPh !== null && Math.abs(t.recordedPh - t.actualPh) <= 1).length;
   const coherent = fin.tubes.filter((t) => consistent(t.conclusion, t.recordedPh)).length;
-  const blend = 0.5 * (right / n) + 0.25 * (phNear / n) + 0.25 * (coherent / n);
+  const base = 0.5 * (right / n) + 0.25 * (phNear / n) + 0.25 * (coherent / n);
+  const rz = withReasoning(base, truth);
+  const blend = rz.blend;
   const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
   return {
     key: 'causalCoherence',
     label: LABELS.causalCoherence,
     score,
     max: 3,
-    basis: `${right}/${n} tubes identified correctly, ${phNear}/${n} pH values within 1, and ${coherent}/${n} conclusions agree with the student's own pH.`,
+    basis: `${right}/${n} tubes identified correctly, ${phNear}/${n} pH values within 1, and ${coherent}/${n} conclusions agree with the student's own pH.${rz.note}`,
     evidence: fin.event ? [fin.event.id] : [],
-    measures: { tubes: n, correct: right, phWithinOne: phNear, selfConsistent: coherent, blend: r2(blend) },
+    measures: { tubes: n, correct: right, phWithinOne: phNear, selfConsistent: coherent, blend: r2(blend), ...rz.measures },
   };
 }
 
