@@ -17,9 +17,11 @@ export interface Checkpoint {
   detail: string | null;
   glandsInvolved: string[];
   juicesInvolved: string[];
+  componentsInvolved: string[];
   targetNutrient: string;
   answerGlands: string[];
   answerJuices: string[];
+  answerComponents: string[];
   answerNutrients: string[];
   revealExplanation: string;
   expectedKeywords: string[];
@@ -38,6 +40,7 @@ export interface Scenario {
 export interface Selection {
   glands: string[];
   juices: string[];
+  components: string[];
   nutrients: string[];
 }
 
@@ -57,7 +60,7 @@ export interface Commit {
   thinkMs: number;
   speakMs: number;
   committedAt: number;
-  selectionScore: { glands: number; juices: number; nutrients: number; allCorrect: boolean };
+  selectionScore: { glands: number; juices: number; components: number; nutrients: number; allCorrect: boolean };
   coverage: number;
   matched: string[];
   missed: string[];
@@ -134,11 +137,12 @@ const jaccard = (a: string[], b: string[]) => {
 export function scoreSelection(cp: Checkpoint, s: Selection) {
   const glands = jaccard(s.glands, cp.answerGlands);
   const juices = jaccard(s.juices, cp.answerJuices);
+  const components = jaccard(s.components, cp.answerComponents);
   const nutrients = jaccard(s.nutrients, cp.answerNutrients);
-  return { glands, juices, nutrients, allCorrect: glands === 1 && juices === 1 && nutrients === 1 };
+  return { glands, juices, components, nutrients, allCorrect: glands === 1 && juices === 1 && components === 1 && nutrients === 1 };
 }
 
-export function cleanSelection(raw: any, choices: { glands: Option[]; juices: Option[]; nutrients: Option[] }): Selection | null {
+export function cleanSelection(raw: any, choices: { glands: Option[]; juices: Option[]; components: Option[]; nutrients: Option[] }): Selection | null {
   const pick = (v: unknown, pool: Option[]): string[] | null => {
     if (!Array.isArray(v)) return null;
     const ids = new Set(pool.map((o) => o.id));
@@ -147,8 +151,9 @@ export function cleanSelection(raw: any, choices: { glands: Option[]; juices: Op
   };
   const glands = pick(raw?.glands, choices.glands);
   const juices = pick(raw?.juices, choices.juices);
+  const components = pick(raw?.components, choices.components);
   const nutrients = pick(raw?.nutrients, choices.nutrients);
-  return glands && juices && nutrients ? { glands, juices, nutrients } : null;
+  return glands && juices && components && nutrients ? { glands, juices, components, nutrients } : null;
 }
 
 /* ---------------- what the browser may see / what is revealed ---------------- */
@@ -169,7 +174,7 @@ export function redactBiology(lesson: any): any {
   };
 }
 
-export function revealFor(cp: Checkpoint, commit: Commit, choices: { glands: Option[]; juices: Option[]; nutrients: Option[] }) {
+export function revealFor(cp: Checkpoint, commit: Commit, choices: { glands: Option[]; juices: Option[]; components: Option[]; nutrients: Option[] }) {
   const label = (pool: Option[], id: string) => pool.find((o) => o.id === id)?.label ?? id;
   return {
     checkpoint: cp.id,
@@ -177,6 +182,7 @@ export function revealFor(cp: Checkpoint, commit: Commit, choices: { glands: Opt
     answer: {
       glands: cp.answerGlands.map((id) => ({ id, label: label(choices.glands, id) })),
       juices: cp.answerJuices.map((id) => ({ id, label: label(choices.juices, id) })),
+      components: cp.answerComponents.map((id) => ({ id, label: label(choices.components, id) })),
       nutrients: cp.answerNutrients.map((id) => ({ id, label: label(choices.nutrients, id) })),
       targetNutrient: cp.targetNutrient,
     },
@@ -194,5 +200,5 @@ export function scoreFinal(scenarios: Scenario[], answers: Record<string, string
 /** Words that would give an unanswered checkpoint away. Used only by the coach's deterministic guard. */
 export function secretTerms(cp: Checkpoint): string[] {
   const syn = Object.values(cp.keywordSynonyms ?? {}).flat();
-  return [...new Set([...cp.expectedKeywords, ...syn, ...cp.juicesInvolved, ...cp.glandsInvolved].map((t) => t.replace(/\s*\(.*\)\s*/g, ' ').trim()).filter((t) => t.length >= 3))];
+  return [...new Set([...cp.expectedKeywords, ...syn, ...cp.juicesInvolved, ...cp.glandsInvolved, ...(cp.componentsInvolved ?? [])].map((t) => t.replace(/\s*\(.*\)\s*/g, ' ').trim()).filter((t) => t.length >= 3))];
 }

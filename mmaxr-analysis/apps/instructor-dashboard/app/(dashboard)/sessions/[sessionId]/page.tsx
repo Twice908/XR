@@ -7,7 +7,7 @@ import { Card } from '@astryxdesign/core/Card'
 import { Grid } from '@astryxdesign/core/Grid'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Heading } from '@astryxdesign/core/Heading'
-import { Link } from '@astryxdesign/core/Link'
+import { BackLink } from '@/components/BackLink'
 import { ProgressBar } from '@astryxdesign/core/ProgressBar'
 import { Spinner } from '@astryxdesign/core/Spinner'
 import { Text } from '@astryxdesign/core/Text'
@@ -33,7 +33,7 @@ export default function SessionPage({ params }: { params: Promise<{ sessionId: s
   if (error || !data) {
     return (
       <VStack gap={4}>
-        <Link href="/">← Students</Link>
+        <BackLink href="/">← Students</BackLink>
         <Banner status="error" title="Could not load this session" description={(error as Error | undefined)?.message ?? 'Session not found'} collapsible={false} />
       </VStack>
     )
@@ -49,7 +49,7 @@ export default function SessionPage({ params }: { params: Promise<{ sessionId: s
   return (
     <VStack gap={8}>
       <VStack gap={3}>
-        <Link href={student ? `/students/${encodeURIComponent(student.id)}` : '/'}>← {student ? student.username : 'Students'}</Link>
+        <BackLink href={student ? `/students/${encodeURIComponent(student.id)}` : '/'}>← {student ? student.username : 'Students'}</BackLink>
         <HStack gap={3} vAlign="center" style={{ flexWrap: 'wrap' }}>
           <Heading level={1} type="display-3" weight="semibold">
             {lessonLabel(lesson ? String(lesson) : null)}

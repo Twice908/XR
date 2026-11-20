@@ -7,7 +7,7 @@ import { sound } from './sound'
 
 /*
  * The anatomy theatre. A teaching torso stands on a pedestal; detailed models of the tooth, stomach and liver
- * float beside it as magnified insets. A food bolus travels the digestive path and the camera flies with it.
+ * float beside it as magnified insets. The salivary glands and the pancreas have no downloaded model, so they are built here from simple shapes. A food bolus travels the digestive path and the camera flies with it.
  * Nothing in this file names an answer: reveal labels come from the server.
  */
 
@@ -43,7 +43,7 @@ const PATH: [number, number, number][] = [
 ]
 
 interface Inset {
-  key: 'tooth' | 'stomach' | 'liver'
+  key: 'tooth' | 'stomach' | 'liver' | 'salivary' | 'pancreas'
   group: THREE.Group
   home: THREE.Vector3
   baseScale: number
@@ -204,6 +204,7 @@ export class BiologyScene {
     this.events.onProgress?.(1, 1)
     if (base) this.placeTorso(base.scene)
     this.buildAnchors()
+    this.addProceduralInsets()
     void this.loadInsets(loader)
   }
 
@@ -234,7 +235,7 @@ export class BiologyScene {
     const samples = Array.from({ length: 300 }, (_, i) => ({ t: i / 299, p: this.path.getPoint(i / 299) }))
     this.tAt = this.anchors.map((a) => samples.reduce((best, s) => (s.p.distanceTo(a) < best.d ? { d: s.p.distanceTo(a), t: s.t } : best), { d: 1e9, t: 0 }).t)
     this.tAt[0] = 0
-    const sizes: Record<string, [number, number, number]> = { mouth: [0.06, 0.06, 0.06], stomach: [0.105, 0.09, 0.07], liver_pancreas: [0.14, 0.1, 0.07], small_intestine: [0.12, 0.12, 0.07], large_intestine: [0.19, 0.24, 0.07] }
+    const sizes: Record<string, [number, number, number]> = { salivary_glands: [0.07, 0.04, 0.05], mouth: [0.06, 0.06, 0.06], esophagus: [0.03, 0.09, 0.04], stomach: [0.105, 0.09, 0.07], liver: [0.1, 0.07, 0.07], pancreas: [0.1, 0.035, 0.05], small_intestine: [0.12, 0.12, 0.07], villi: [0.05, 0.07, 0.05], large_intestine: [0.19, 0.24, 0.07] }
     this.lesson.checkpoints.forEach((cp, i) => {
       const s = sizes[cp.id] ?? [0.1, 0.1, 0.07]
       const halo = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), new THREE.MeshBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }))
@@ -258,36 +259,46 @@ export class BiologyScene {
         return null
       })
       if (!gltf || this.disposed) continue
-      const model = gltf.scene
-      const box = new THREE.Box3().setFromObject(model)
-      const size = box.getSize(new THREE.Vector3())
-      const k = w.size / (w.by === 'height' ? size.y : size.x || 1)
-      model.scale.multiplyScalar(k)
-      const b2 = new THREE.Box3().setFromObject(model)
-      model.position.sub(b2.getCenter(new THREE.Vector3()))
-      model.traverse((o) => {
-        if (o instanceof THREE.Mesh) {
-          o.castShadow = false
-          o.receiveShadow = false
-          for (const m of Array.isArray(o.material) ? o.material : [o.material]) (m as THREE.MeshStandardMaterial).side = THREE.DoubleSide
-        }
-      })
-      const group = new THREE.Group()
-      group.add(model)
-      group.position.copy(w.home)
-      group.scale.setScalar(0.001)
-      group.visible = false
-      const light = new THREE.PointLight(w.tint, 0, 1.4)
-      light.position.set(0, 0, 0.35)
-      group.add(light)
-      const home = w.home.clone()
-      this.scene.add(group)
-      const line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({ color: w.tint, dashSize: 0.025, gapSize: 0.02, transparent: true, opacity: 0 }))
-      line.frustumCulled = false
-      this.scene.add(line)
-      this.insets[w.key] = { key: w.key, group, home, baseScale: 1, ready: true, shown: 0, target: 0, light, line }
-      this.refreshInsetFor(this.currentIndex)
+      this.addInset(w, gltf.scene)
     }
+  }
+
+  /** Models made in code: the salivary glands and the pancreas. They are ready at once. */
+  private addProceduralInsets() {
+    this.addInset({ key: 'salivary', home: V(0.62, 1.2, 0.25), size: 0.4, by: 'width', tint: 0xffc48a }, buildSalivaryGlands())
+    this.addInset({ key: 'pancreas', home: V(0.7, 0.7, 0.28), size: 0.42, by: 'width', tint: 0xffe08a }, buildPancreas())
+  }
+
+  private addInset(w: { key: Inset['key']; home: THREE.Vector3; size: number; by: 'height' | 'width'; tint: number }, model: THREE.Object3D) {
+    const box = new THREE.Box3().setFromObject(model)
+    const size = box.getSize(new THREE.Vector3())
+    const k = w.size / (w.by === 'height' ? size.y : size.x || 1)
+    model.scale.multiplyScalar(k)
+    const b2 = new THREE.Box3().setFromObject(model)
+    model.position.sub(b2.getCenter(new THREE.Vector3()))
+    model.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        o.castShadow = false
+        o.receiveShadow = false
+        for (const m of Array.isArray(o.material) ? o.material : [o.material]) (m as THREE.MeshStandardMaterial).side = THREE.DoubleSide
+      }
+    })
+    const group = new THREE.Group()
+    group.add(model)
+    group.userData.parts = model.userData.parts
+    group.position.copy(w.home)
+    group.scale.setScalar(0.001)
+    group.visible = false
+    const light = new THREE.PointLight(w.tint, 0, 1.4)
+    light.position.set(0, 0, 0.35)
+    group.add(light)
+    const home = w.home.clone()
+    this.scene.add(group)
+    const line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({ color: w.tint, dashSize: 0.025, gapSize: 0.02, transparent: true, opacity: 0 }))
+    line.frustumCulled = false
+    this.scene.add(line)
+    this.insets[w.key] = { key: w.key, group, home, baseScale: 1, ready: true, shown: 0, target: 0, light, line }
+    this.refreshInsetFor(this.currentIndex)
   }
 
   isDetailReady(key: string | null): boolean {
@@ -308,7 +319,7 @@ export class BiologyScene {
   }
 
   private defaultInsetHome(key: string) {
-    return key === 'tooth' ? V(-0.62, 1.2, 0.25) : key === 'stomach' ? V(0.66, 0.95, 0.28) : V(-0.7, 0.78, 0.28)
+    return key === 'tooth' ? V(-0.62, 1.2, 0.25) : key === 'salivary' ? V(0.62, 1.2, 0.25) : key === 'pancreas' ? V(0.7, 0.7, 0.28) : key === 'stomach' ? V(0.66, 0.95, 0.28) : V(-0.7, 0.78, 0.28)
   }
 
   private flyTo(pos: THREE.Vector3, target: THREE.Vector3, ms = 1700): Promise<void> {
@@ -320,6 +331,16 @@ export class BiologyScene {
       this.camera.position.lerpVectors(p0, pos, k)
       this.controls.target.lerpVectors(t0, target, k)
     }, easeInOut)
+  }
+
+  /** Zoom out to see the whole body (on), or return to this stop's own view (off). */
+  overview(on: boolean) {
+    if (this.busy) return
+    if (on) void this.flyTo(V(0, 0.85, 3.1), V(0, 0.68, 0), 900)
+    else {
+      const v = this.viewFor(Math.max(0, this.currentIndex))
+      void this.flyTo(v.pos, v.target, 900)
+    }
   }
 
   /** Fly to checkpoint i with the food bolus; resolves when both have arrived. */
@@ -429,7 +450,7 @@ export class BiologyScene {
     this.temps = []
   }
 
-  private label(text: string, at: THREE.Vector3, color = '#14161a', bg = '#f4f1e8') {
+  private label(text: string, at: THREE.Vector3, color = '#14161a', bg = '#f4f1e8', scale = 1) {
     const c = document.createElement('canvas')
     c.width = 512
     c.height = 140
@@ -451,12 +472,23 @@ export class BiologyScene {
     const tex = new THREE.CanvasTexture(c)
     tex.colorSpace = THREE.SRGBColorSpace
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0 }))
-    sp.scale.set(0.3, 0.082, 1)
+    sp.scale.set(0.3 * scale, 0.082 * scale, 1)
     sp.position.copy(at)
     sp.renderOrder = 9
     this.temp(sp)
     void this.animate(400, (k) => ((sp.material as THREE.SpriteMaterial).opacity = k))
     return sp
+  }
+
+  /** Several labels one above the other, e.g. the enzymes found in a juice. */
+  private labelStack(labels: string[], at: THREE.Vector3, gap = 0.065, scale = 0.7) {
+    labels.slice(0, 6).forEach((t, i) => this.label(t, V(at.x, at.y - i * gap, at.z), '#14161a', '#f4f1e8', scale))
+  }
+
+  /** World position of a named part of a procedural inset. */
+  private partAt(key: Inset['key'], part: string, fallback: THREE.Vector3): THREE.Vector3 {
+    const obj = (this.insets[key]?.group.userData.parts as Record<string, THREE.Object3D> | undefined)?.[part]
+    return obj ? obj.getWorldPosition(new THREE.Vector3()) : fallback
   }
 
   /** A line of beads, used for starch, protein and fat chains. */
@@ -473,27 +505,37 @@ export class BiologyScene {
 
   /* ---------------- reveal animations ---------------- */
   /** Plays the "what really happens here" animation for a stop. `labels` are the server's answer labels. */
-  async playReveal(cpId: string, labels: string[]): Promise<void> {
+  async playReveal(cpId: string, labels: string[], minMs = 5000): Promise<void> {
     const i = this.lesson.checkpoints.findIndex((c) => c.id === cpId)
     if (i < 0 || this.busy) return
     this.busy = true
     const halo = this.halos[i]
     const a = this.anchors[i]
+    const started = performance.now()
+    const back = this.viewFor(i)
+    // Pull back so the whole body and the action are in view together.
+    void this.flyTo(V(0, 0.85, 3.1), V(0, 0.68, 0), 1000)
     try {
       if (halo) void this.animate(700, (k) => ((halo.material as THREE.MeshBasicMaterial).color.setHex(0x66ffaa), ((halo.material as THREE.MeshBasicMaterial).opacity = 0.35 * k)))
       const flavour = labels.filter(Boolean)
       switch (cpId) {
+        case 'salivary_glands': await this.animSalivary(a, flavour); break
         case 'mouth': await this.animMouth(a, flavour); break
+        case 'esophagus': await this.animSwallow(a); break
         case 'stomach': await this.animStomach(a, flavour); break
-        case 'liver_pancreas': await this.animLiver(a, flavour); break
-        case 'small_intestine': await this.animAbsorb(a, flavour); break
+        case 'liver': await this.animLiver(a, flavour); break
+        case 'pancreas': await this.animPancreas(a, flavour); break
+        case 'small_intestine': await this.animIntestinal(a, flavour); break
+        case 'villi': await this.animAbsorb(a, flavour); break
         case 'large_intestine': await this.animWater(a, flavour); break
       }
-      await this.wait(500)
+      const left = minMs - (performance.now() - started)
+      if (left > 0) await this.wait(left)
     } finally {
       this.clearTemps()
       this.busy = false
     }
+    await this.flyTo(back.pos, back.target, 900)
   }
 
   private async animMouth(a: THREE.Vector3, labels: string[]) {
@@ -507,6 +549,7 @@ export class BiologyScene {
       if (tooth && base) await this.animate(160, (k) => tooth.scale.set(base.x * (1.05 - 0.05 * k), base.y * (0.9 + 0.1 * k), base.z))
     }
     if (labels[0]) this.label(labels[0], V(at.x, at.y + 0.1, at.z))
+    if (labels[1]) this.label(labels[1], V(at.x, at.y + 0.19, at.z))
     sound.fizz(1)
     this.burst(V(at.x, at.y + 0.15, at.z), 26, { color: 0xb8e6ff, size: 0.005, speed: 0.12, life: 1.1, gravity: 0.7, up: -0.2, spread: 0.6 })
     await this.wait(900)
@@ -528,6 +571,7 @@ export class BiologyScene {
     const home = this.insets.stomach?.home ?? V(a.x + 0.6, a.y, a.z + 0.2)
     const base = st?.scale.clone()
     if (labels[0]) this.label(labels[0], V(home.x, home.y + 0.36, home.z))
+    this.labelStack(labels.slice(1), V(home.x + 0.3, home.y + 0.1, home.z + 0.1))
     const beads = this.chain(V(home.x, home.y - 0.34, home.z + 0.12), 8, 0xe5484d)
     sound.fizz(1.6)
     for (let n = 0; n < 4; n++) {
@@ -564,6 +608,99 @@ export class BiologyScene {
     await this.animate(1300, (k) => smalls.forEach((m) => m.position.addScaledVector(m.userData.v as THREE.Vector3, 0.016 * (1 - k))), easeOut)
   }
 
+  private async animSalivary(a: THREE.Vector3, labels: string[]) {
+    const ins = this.insets.salivary
+    const home = ins?.home ?? V(a.x + 0.6, a.y, a.z + 0.2)
+    const parts: [string, string, number][] = [['parotidR', 'Parotid', 0xf6b26b], ['parotidL', 'Parotid', 0xf6b26b], ['submandR', 'Submandibular', 0xf4a261], ['submandL', 'Submandibular', 0xf4a261], ['sublingR', 'Sublingual', 0xf7c984], ['sublingL', 'Sublingual', 0xf7c984]]
+    const mouth = this.partAt('salivary', 'mouth', V(home.x, home.y - 0.08, home.z + 0.1))
+    sound.fizz(1.2)
+    parts.forEach(([key, name, color], i) => {
+      const at = this.partAt('salivary', key, home)
+      if (i % 2 === 0) this.label(name, V(at.x + (key.endsWith('R') ? -0.15 : 0.15), at.y + 0.05, at.z + 0.12))
+      this.burst(at, 10, { color, size: 0.005, speed: 0.1, life: 1.2, gravity: 0, up: 0.1, spread: 0.6 })
+    })
+    this.labelStack(labels, V(home.x + 0.34, home.y + 0.12, home.z + 0.1))
+    // saliva runs down the ducts into the mouth
+    for (let n = 0; n < 5; n++) {
+      parts.forEach(([key]) => {
+        const at = this.partAt('salivary', key, home)
+        const m = this.temp(new THREE.Mesh(new THREE.SphereGeometry(0.007, 8, 6), new THREE.MeshBasicMaterial({ color: 0xb8e6ff, transparent: true, opacity: 0.9 })))
+        m.position.copy(at)
+        m.userData.from = at.clone()
+        void this.animate(900, (k) => m.position.lerpVectors(at, mouth, k), easeInOut)
+      })
+      await this.wait(260)
+    }
+    await this.wait(700)
+  }
+
+  private async animSwallow(a: THREE.Vector3) {
+    const i = Math.max(0, this.lesson.checkpoints.findIndex((c) => c.id === 'esophagus'))
+    const t0 = Math.max(0, (this.tAt[i] ?? 0) - 0.07)
+    const t1 = Math.min(1, (this.tAt[i] ?? 0) + 0.07)
+    const bolus = this.temp(new THREE.Mesh(new THREE.SphereGeometry(0.014, 16, 12), new THREE.MeshStandardMaterial({ color: 0xffb347, emissive: 0xff8a1f, emissiveIntensity: 0.5 })))
+    const rings = [0, 1, 2].map(() => {
+      const r = this.temp(new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.004, 8, 28), new THREE.MeshBasicMaterial({ color: 0xff7ab6, transparent: true, opacity: 0.8 })))
+      r.rotation.x = Math.PI / 2
+      return r
+    })
+    this.label('Peristalsis', V(a.x + 0.22, a.y + 0.06, a.z + 0.1))
+    this.label('Epiglottis', V(a.x - 0.22, a.y + 0.2, a.z + 0.1))
+    sound.whoosh(0.9)
+    await this.animate(2600, (k) => {
+      const t = t0 + (t1 - t0) * k
+      bolus.position.copy(this.path.getPoint(t))
+      rings.forEach((r, n) => {
+        const tt = Math.min(1, Math.max(0, t - 0.035 + n * 0.0))
+        r.position.copy(this.path.getPoint(Math.min(1, tt + 0.018 * (n + 1))))
+        r.scale.setScalar(1 + 0.25 * Math.sin(k * 14 - n * 1.2))
+      })
+    }, easeInOut)
+  }
+
+  private async animPancreas(a: THREE.Vector3, labels: string[]) {
+    const ins = this.insets.pancreas
+    const home = ins?.home ?? V(a.x + 0.7, a.y, a.z + 0.2)
+    const base = ins?.group.scale.clone()
+    const duct = this.partAt('pancreas', 'head', home)
+    const target = V(a.x + 0.02, a.y - 0.03, a.z + 0.06)
+    this.labelStack(labels, V(home.x - 0.02, home.y + 0.1, home.z + 0.1))
+    const colors = [0xe5484d, 0xf2d04a, 0xffffff, 0x66ccff]
+    sound.fizz(1.3)
+    for (let n = 0; n < 4; n++) {
+      if (ins && base) void this.animate(380, (k) => ins.group.scale.setScalar(base.x * (1 + 0.06 * Math.sin(k * Math.PI))))
+      colors.forEach((c, j) => {
+        const m = this.temp(new THREE.Mesh(new THREE.SphereGeometry(0.008, 10, 8), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.95 })))
+        m.position.copy(duct)
+        void this.animate(1100 + j * 120, (k) => m.position.lerpVectors(duct, target, k), easeInOut)
+      })
+      await this.wait(420)
+    }
+    this.burst(target, 22, { color: 0xb18cff, size: 0.006, speed: 0.18, life: 1.1, gravity: 0.05, up: 0.2, swirl: true })
+    await this.wait(900)
+  }
+
+  private async animIntestinal(a: THREE.Vector3, labels: string[]) {
+    const origin = V(a.x + 0.36, a.y - 0.02, a.z + 0.15)
+    const rows: { color: number; to: number }[] = [{ color: 0xf2d04a, to: 0xff7ab6 }, { color: 0xe5484d, to: 0xfff2f2 }, { color: 0xffb02e, to: 0x66ccff }]
+    const chains = rows.map((r, n) => this.chain(V(origin.x, origin.y + 0.1 - n * 0.09, origin.z), 8, r.color, 0.028))
+    this.labelStack(labels, V(origin.x - 0.3, origin.y + 0.2, origin.z), 0.048, 0.5)
+    sound.fizz(1.1)
+    this.burst(V(origin.x, origin.y, origin.z + 0.05), 24, { color: 0xffa8c8, size: 0.005, speed: 0.2, life: 1.2, gravity: 0.05, up: 0.3, swirl: true })
+    await this.wait(900)
+    sound.crack()
+    await this.animate(1500, (k) => {
+      chains.forEach((beads, n) => beads.forEach((b, i) => {
+        b.position.x += (i % 2 ? 1 : -1) * 0.0005 * k * 3
+        b.position.y += Math.sin(i + k * 6) * 0.0003
+        const m = b.material as THREE.MeshStandardMaterial
+        m.color.lerp(new THREE.Color(rows[n].to), k * 0.12)
+        m.emissive.lerp(new THREE.Color(rows[n].to), k * 0.12)
+      }))
+    })
+    await this.wait(600)
+  }
+
   private async animAbsorb(a: THREE.Vector3, labels: string[]) {
     const origin = V(a.x + 0.55, a.y - 0.05, a.z + 0.15)
     const villi: THREE.Mesh[] = []
@@ -578,7 +715,7 @@ export class BiologyScene {
     wall.position.set(origin.x, origin.y, origin.z)
     const vessel = this.temp(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.012, 0.012), new THREE.MeshBasicMaterial({ color: 0xff2a2a })))
     vessel.position.set(origin.x, origin.y - 0.025, origin.z)
-    if (labels[0]) this.label(labels[0], V(origin.x, origin.y + 0.2, origin.z))
+    this.label(labels[0] ?? 'Villi', V(origin.x, origin.y + 0.2, origin.z))
     await this.animate(900, (k) => villi.forEach((v, i) => ((v.scale.y = Math.min(1, k * 1.4 - i * 0.015)), (v.position.y = origin.y + 0.035 * v.scale.y))), easeOut)
     const colors = [0xffd23f, 0xff7ab6, 0x66ccff, 0x4ade80]
     for (let r = 0; r < 4; r++) {
@@ -653,7 +790,7 @@ export class BiologyScene {
       const s = Math.max(0.001, ins.shown)
       ins.group.visible = ins.shown > 0.01
       // The close-up sways gently so it reads as a 3D object, and bobs on the spot.
-      if (this.busy === false || ins.target === 0) ins.group.scale.setScalar(s)
+      if (this.busy === false || ins.target === 0 || ins.shown < 0.98) ins.group.scale.setScalar(s)
       ins.group.rotation.y = Math.sin(time * 0.6) * 0.5
       ins.group.position.y = ins.home.y + Math.sin(time * 1.4) * 0.01
       ins.light.intensity = ins.shown * 1.6
@@ -715,4 +852,107 @@ export class BiologyScene {
     })
     this.renderer.dispose()
   }
+}
+
+/* ---------------- models made from shapes ---------------- */
+
+const mat = (color: number, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.65, metalness: 0.02, ...extra })
+
+/** A lobulated gland: a tube along a curve covered with small rounded lobules. */
+function lobulatedGland(curve: THREE.CatmullRomCurve3, radius: (t: number) => number, color: number, lobules = 170): THREE.Group {
+  const g = new THREE.Group()
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 1, 24, false), mat(color)))
+  const body = g.children[0] as THREE.Mesh
+  // Taper the tube to the requested radius along its length.
+  const pos = body.geometry.attributes.position as THREE.BufferAttribute
+  const seg = 48
+  const ring = 25
+  for (let i = 0; i <= seg; i++) {
+    const t = i / seg
+    const c = curve.getPointAt(t)
+    for (let j = 0; j < ring; j++) {
+      const idx = i * ring + j
+      const p = new THREE.Vector3(pos.getX(idx), pos.getY(idx), pos.getZ(idx)).sub(c)
+      p.setLength(radius(t))
+      pos.setXYZ(idx, c.x + p.x, c.y + p.y, c.z + p.z)
+    }
+  }
+  pos.needsUpdate = true
+  body.geometry.computeVertexNormals()
+  let seed = 7
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
+  for (let n = 0; n < lobules; n++) {
+    const t = rnd()
+    const c = curve.getPointAt(t)
+    const a = rnd() * Math.PI * 2
+    const r = radius(t)
+    const lobe = new THREE.Mesh(new THREE.SphereGeometry(r * (0.16 + rnd() * 0.16), 10, 8), mat(color, { roughness: 0.8 }))
+    lobe.position.set(c.x + Math.cos(a) * r * 0.85, c.y + Math.sin(a) * r * 0.85, c.z + (rnd() - 0.5) * r * 0.7)
+    g.add(lobe)
+  }
+  return g
+}
+
+/** Pancreas: head tucked into the C of the duodenum (left of the picture), body, and tail pointing right, with its duct. */
+function buildPancreas(): THREE.Group {
+  const root = new THREE.Group()
+  const curve = new THREE.CatmullRomCurve3([V(-0.42, -0.1, 0), V(-0.26, -0.04, 0), V(-0.04, 0.03, 0), V(0.22, 0.1, 0), V(0.46, 0.2, 0)])
+  const radius = (t: number) => 0.13 - 0.085 * t + (t < 0.18 ? 0.02 : 0)
+  const gland = lobulatedGland(curve, radius, 0xf0b97a)
+  gland.scale.z = 0.7
+  root.add(gland)
+  const duct = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.012, 8, false), mat(0xfff2c9, { emissive: 0xffe08a, emissiveIntensity: 0.35 }))
+  root.add(duct)
+  // The duodenum wraps round the head.
+  const duo = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.05, 14, 40, Math.PI * 1.35), mat(0xe58a8a, { transparent: true, opacity: 0.85 }))
+  duo.position.set(-0.36, -0.04, -0.02)
+  duo.rotation.z = Math.PI * 0.25
+  root.add(duo)
+  const head = new THREE.Object3D()
+  head.position.set(-0.42, -0.1, 0.05)
+  root.add(head)
+  root.userData.parts = { head }
+  return root
+}
+
+/** Salivary glands: parotid, submandibular and sublingual pairs around a see-through head and tongue. */
+function buildSalivaryGlands(): THREE.Group {
+  const root = new THREE.Group()
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 24), new THREE.MeshStandardMaterial({ color: 0x9fb8ff, transparent: true, opacity: 0.1, depthWrite: false, roughness: 0.4 }))
+  shell.scale.set(1, 1.15, 0.85)
+  root.add(shell)
+  const tongue = new THREE.Mesh(new THREE.SphereGeometry(0.2, 20, 14), mat(0xe5707e))
+  tongue.scale.set(1.1, 0.4, 1.3)
+  tongue.position.set(0, -0.24, 0.12)
+  root.add(tongue)
+  const mouth = new THREE.Object3D()
+  mouth.position.set(0, -0.2, 0.2)
+  const parts: Record<string, THREE.Object3D> = { mouth }
+  root.add(mouth)
+  const gland = (name: string, side: number, color: number, size: [number, number, number], at: [number, number, number], lobes: number) => {
+    const g = new THREE.Group()
+    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), mat(color))
+    body.scale.set(...size)
+    g.add(body)
+    for (let i = 0; i < lobes; i++) {
+      const l = new THREE.Mesh(new THREE.SphereGeometry(size[0] * 0.38, 8, 6), mat(color, { roughness: 0.85 }))
+      const a = (i / lobes) * Math.PI * 2
+      l.position.set(Math.cos(a) * size[0] * 0.75, Math.sin(a) * size[1] * 0.75, size[2] * 0.3)
+      g.add(l)
+    }
+    g.position.set(at[0] * side, at[1], at[2])
+    root.add(g)
+    parts[name + (side > 0 ? 'R' : 'L')] = g
+    // A thin duct to the mouth.
+    const dest = new THREE.Vector3(0.0, -0.2, 0.2)
+    const duct = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([g.position.clone(), g.position.clone().lerp(dest, 0.5).add(V(0, -0.04, 0.06)), dest]), 12, 0.006, 6), mat(0xfff2c9, { emissive: 0xffe08a, emissiveIntensity: 0.3 }))
+    root.add(duct)
+  }
+  for (const side of [1, -1]) {
+    gland('parotid', side, 0xf6b26b, [0.11, 0.15, 0.08], [0.46, 0.0, -0.02], 6)
+    gland('submand', side, 0xf4a261, [0.1, 0.07, 0.07], [0.27, -0.36, 0.06], 5)
+    gland('subling', side, 0xf7c984, [0.07, 0.05, 0.05], [0.1, -0.3, 0.16], 4)
+  }
+  root.userData.parts = parts
+  return root
 }

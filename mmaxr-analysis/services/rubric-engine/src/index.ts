@@ -68,7 +68,8 @@ async function getTruth(sessionId: string): Promise<TruthInfo | null> {
   try {
     const res = await fetch(`${LESSON_LOADER_URL}/internal/assignments/${encodeURIComponent(sessionId)}`, { headers: { 'x-internal-key': INTERNAL_KEY } });
     if (!res.ok) return null;
-    const a = (await res.json()) as { kind?: string; tubes: TruthInfo['tubes']; submission: { tubes: { tube: number; conclusion: string | null; ph: number | null }[] } | null; biology?: TruthInfo['biology'] };
+    const a = (await res.json()) as { kind?: string; tubes: TruthInfo['tubes']; submission: { tubes: { tube: number; conclusion: string | null; ph: number | null }[] } | null; biology?: TruthInfo['biology']; optics?: TruthInfo['optics'] };
+    if (a.kind === 'optics') return { tubes: [], submission: null, optics: a.optics };
     if (a.kind === 'biology') return { tubes: [], submission: null, biology: a.biology };
     return { tubes: a.tubes ?? [], submission: a.submission ?? null };
   } catch {

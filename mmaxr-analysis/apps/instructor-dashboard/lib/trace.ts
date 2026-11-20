@@ -80,7 +80,7 @@ export function describeEvent(e: TraceEvent): string {
       return 'Started the “what if?” challenge'
     case 'predict_selection': {
       const n = (k: string) => (Array.isArray(d[k]) ? (d[k] as unknown[]).length : 0)
-      return `Stop ${str(d.sample)}: predicted ${n('glands')} gland${n('glands') === 1 ? '' : 's'}, ${n('juices')} juice${n('juices') === 1 ? '' : 's'}, ${n('nutrients')} nutrient${n('nutrients') === 1 ? '' : 's'} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
+      return `Stop ${str(d.sample)}: predicted ${n('glands')} gland${n('glands') === 1 ? '' : 's'}, ${n('juices')} juice${n('juices') === 1 ? '' : 's'}, ${n('components')} enzyme${n('components') === 1 ? '' : 's'}/chemical${n('components') === 1 ? '' : 's'}, ${n('nutrients')} nutrient${n('nutrients') === 1 ? '' : 's'} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
     }
     case 'commit_explanation':
       return `Stop ${str(d.sample)}: explained ${d.inputMode === 'voice' ? 'aloud' : 'in writing'} (${str(d.words)} words)`
@@ -102,6 +102,7 @@ export function lessonLabel(id: string | null): string {
   if (id.startsWith('biology')) return 'Human Digestive System'
   if (id.startsWith('metals')) return 'Metals & Non-Metals'
   if (id.startsWith('chemistry')) return 'Acids, Bases & Indicators'
+  if (id.startsWith('physics-light')) return 'Light: Reflection & Spherical Mirrors'
   if (id.startsWith('physics')) return 'Bohr Model Spectral Lab'
   return id
 }

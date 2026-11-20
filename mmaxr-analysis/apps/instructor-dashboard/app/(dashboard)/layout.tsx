@@ -2,16 +2,20 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Spinner } from '@astryxdesign/core/Spinner'
 import { AccountMenu } from '@/components/AccountMenu'
 import { Wordmark } from '@/components/Wordmark'
 import { useAuth } from '@/lib/auth'
+import { recordVisit } from '@/lib/navTrail'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { status } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+
+  useEffect(() => recordVisit(pathname), [pathname])
 
   useEffect(() => {
     if (status === 'signedOut') router.replace('/login')

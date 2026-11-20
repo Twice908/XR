@@ -64,13 +64,26 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
       hud!.setBusy('Checking your explanation…')
       try {
         const reveal = await commitStop(session, body)
-        exp.recordReveal(reveal)
-        hud!.setBusy(null)
         if (audio) void uploadAudio(session, body.checkpoint, audio).catch(() => {})
         const wrong = !reveal.selectionScore.allCorrect || reveal.coverage < 0.5
         if (wrong) coach?.event('prediction_mismatch', say.mismatch(exp.stop.cp.organName), buildBiologySnapshot(exp))
-        const labels = reveal.answer.juices.filter((j) => j.id !== 'none').map((j) => j.label)
-        void scene.playReveal(body.checkpoint, labels.length ? labels : reveal.answer.nutrients.map((n) => n.label))
+        const labels = [...reveal.answer.juices, ...reveal.answer.components].filter((j) => j.id !== 'none').map((j) => j.label)
+        // Hold a second, clear the lower panel, then let the enzyme action play on its own with a mini timer.
+        hud!.setBusy('Answer received. Watch what happens inside…')
+        await new Promise((r) => setTimeout(r, 1000))
+        hud!.setWatching(true)
+        hud!.setBusy(null)
+        exp.recordReveal(reveal)
+        const total = 5000
+        const t0 = performance.now()
+        const tick = window.setInterval(() => hud!.setTimer(total - (performance.now() - t0)), 100)
+        hud!.setTimer(total)
+        try {
+          await scene.playReveal(body.checkpoint, labels.length ? labels : reveal.answer.nutrients.map((n) => n.label), total)
+        } finally {
+          window.clearInterval(tick)
+          hud!.setWatching(false)
+        }
       } catch (err) {
         hud!.setBusy(null)
         toast((err as Error).message, 'error')
@@ -130,6 +143,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
         hud!.update()
       }
     },
+    onView: (overview) => scene.overview(overview),
     onLayout: (insets) => scene.setInsets(insets),
   }
 

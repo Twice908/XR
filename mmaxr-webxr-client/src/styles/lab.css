@@ -659,6 +659,62 @@
   box-shadow: var(--shadow-high);
   pointer-events: auto;
 }
+.bio-card[hidden] {
+  display: none;
+}
+.bio-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bio-close:hover {
+  background: rgb(255 255 255 / 0.2);
+}
+.bio-reopen {
+  position: absolute;
+  left: 50%;
+  bottom: var(--spacing-6, 32px);
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+.bio-reopen[hidden] {
+  display: none;
+}
+.bio-timer {
+  position: absolute;
+  left: 50%;
+  bottom: var(--spacing-6, 32px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px 8px 10px;
+  border-radius: 999px;
+  background: rgb(20 22 28 / 0.8);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+.bio-timer[hidden] {
+  display: none;
+}
+.bio-timer-n {
+  min-width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #052e12;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .bio-prompt {
   font-size: var(--font-size-base);
   font-weight: 500;
@@ -726,8 +782,18 @@
   border-color: rgb(239 68 68 / 0.55);
   color: #fca5a5;
 }
+.bio-steps {
+  max-width: 100%;
+}
+/* Ten stops: only the current one shows its name, the rest are numbers. */
+.bio-steps .step:not(.current) {
+  padding-right: 4px;
+}
+.bio-steps .step:not(.current) .step-l {
+  display: none;
+}
 .bio-steps .step-l {
-  max-width: 92px;
+  max-width: 132px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -739,4 +805,164 @@
     border-radius: var(--radius-container) var(--radius-container) 0 0;
     max-height: 58dvh;
   }
+}
+.optics-card {
+  max-height: 42dvh;
+}
+.optics-card .opt-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.optics-card .opt-list .conf-btn,
+.optics-card .conf-btn {
+  padding: 8px 10px;
+}
+.optics-card .conf-btn .t-support {
+  font-size: 12px;
+}
+.optics-card .optics-predict {
+  gap: var(--spacing-3);
+}
+@media (max-width: 1000px) {
+  .optics-card .opt-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Light: reflection & spherical mirrors (cards, table, reveal) ---- */
+.tool-miss .tool-check {
+  background: rgb(245 158 11 / 0.25);
+  color: #fbbf24;
+}
+.optics-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--spacing-3);
+}
+.optics-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.optics-field .select {
+  width: 100%;
+}
+.optics-predict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.optics-anomaly {
+  padding: 10px 12px;
+  border-radius: var(--radius-element);
+  border: 1px solid rgb(251 191 36 / 0.55);
+  background: rgb(251 191 36 / 0.1);
+  color: #fde68a;
+}
+.optics-note {
+  width: 100%;
+  resize: vertical;
+  background: rgb(0 0 0 / 0.3);
+  border-color: rgb(255 255 255 / 0.18);
+  color: inherit;
+}
+.optics-compare th,
+.optics-compare td {
+  white-space: nowrap;
+}
+.optics-group td {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 12px;
+  background: rgb(255 255 255 / 0.05);
+}
+.optics-table select {
+  min-width: 140px;
+}
+.optics-table select.cell-bad {
+  border-color: #f87171;
+  box-shadow: 0 0 0 1px #f87171;
+}
+.optics-table select.cell-fixed {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 1px #4ade80;
+}
+.optics-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.optics-chip {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  border: 1px solid transparent;
+}
+.optics-chip.ok {
+  background: rgb(34 197 94 / 0.18);
+  border-color: rgb(34 197 94 / 0.5);
+}
+.optics-chip.bad {
+  background: rgb(239 68 68 / 0.16);
+  border-color: rgb(239 68 68 / 0.5);
+}
+.optics-uses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-3);
+}
+.optics-use {
+  padding: var(--spacing-3);
+  border-radius: var(--radius-element);
+  background: var(--color-background-muted);
+}
+.optics-use ul {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+
+/* Optics trays: a tidy card centred in the space right of the experiments list, not a full-width slab. */
+@media (min-width: 1001px) {
+  .optics-card,
+  .optics-table-panel {
+    left: calc(312px + (100% - 328px) / 2);
+    right: auto;
+    transform: translate(-50%, 120%);
+    width: min(660px, calc(100% - 344px));
+    max-height: 52dvh;
+    padding: var(--spacing-4) var(--spacing-5, 20px);
+  }
+  .optics-table-panel {
+    width: min(920px, calc(100% - 344px));
+  }
+  .optics-card.open,
+  .optics-table-panel.open {
+    transform: translate(-50%, 0);
+  }
+  .optics-card .optics-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Answer options carry letters, so the order they come in is the session's own, not the textbook's. */
+.opt-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.opt-letter {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.1);
+  font-size: 12px;
+  font-weight: 600;
+}
+.opt-row[aria-checked='true'] .opt-letter {
+  background: #fff;
+  color: #111;
 }

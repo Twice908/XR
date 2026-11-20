@@ -16,6 +16,8 @@ export interface BiologyHudHandlers {
   onContinue(): void
   onScenario(id: string, option: string): void
   onSubmitFinal(): void
+  /** The student closed (true) or reopened (false) the question panel to look at the whole model. */
+  onView(overview: boolean): void
   onLayout(insets: { left: number; right: number; top: number; bottom: number }): void
 }
 
@@ -28,6 +30,7 @@ const CONFIDENCE: { value: Confidence; label: string; hint: string }[] = [
 const GROUPS: { key: Group; question: string }[] = [
   { key: 'glands', question: 'Which glands act here?' },
   { key: 'juices', question: 'Which digestive juices?' },
+  { key: 'components', question: 'Which enzymes or chemicals are in them?' },
   { key: 'nutrients', question: 'Which nutrients are being worked on?' },
 ]
 
@@ -53,6 +56,10 @@ export class BiologyHud {
   private traveling = false
   private busyLabel: string | null = null
   private lastKey = ''
+  private watching = false
+  private collapsed = false
+  private reopen = button('Show question ↑', { variant: 'primary', size: 'sm', onClick: () => this.setCollapsed(false) })
+  private timer = h('div', { class: 'bio-timer', role: 'timer', 'aria-live': 'off', hidden: '' })
 
   constructor(
     private readonly exp: JourneyExperiment,
@@ -61,13 +68,15 @@ export class BiologyHud {
   ) {
     this.soundToggle = button(sound.muted ? 'Sound off' : 'Sound on', { size: 'sm', variant: 'ghost', onClick: () => this.toggleSound() })
     this.toggles.append(this.soundToggle)
-    exp.lesson.checkpoints.forEach((cp, i) => this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, String(i + 1)), h('span', { class: 'step-l' }, cp.organName.split(' (')[0].replace(' & Anus', '')))))
+    exp.lesson.checkpoints.forEach((cp, i) => this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, String(i + 1)), h('span', { class: 'step-l' }, cp.organName.split(' (')[0].replace(' & Anus', '').replace(' & Oesophagus', '').replace(' & Gallbladder', '')))))
     this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, '★'), h('span', { class: 'step-l' }, 'What if?')))
     this.root = h(
       'div',
       { class: 'hud' },
       h('header', { class: 'hud-top' }, h('div', { class: 'row' }, button('← Back', { variant: 'ghost', size: 'sm', onClick: () => handlers.onBack() }), h('h1', { class: 't-label hud-title' }, title)), this.stepper, this.toggles),
       this.card,
+      h('div', { class: 'bio-reopen', hidden: '' }, this.reopen),
+      this.timer,
     )
     window.addEventListener('resize', this.layout)
     this.update()
@@ -105,7 +114,7 @@ export class BiologyHud {
   layout = () => {
     const narrow = this.isNarrow()
     const open = this.extraPanels.find((p) => p.classList.contains('open'))
-    const cardH = this.card.getBoundingClientRect().height
+    const cardH = this.watching || this.collapsed ? 0 : this.card.getBoundingClientRect().height
     const bottom = narrow && open ? open.getBoundingClientRect().height + 8 : cardH + 28
     this.handlers.onLayout({ left: 0, right: 0, top: narrow ? 52 : 56, bottom })
   }
@@ -114,6 +123,29 @@ export class BiologyHud {
   setTraveling(on: boolean) {
     this.traveling = on
     this.update()
+  }
+  private setCollapsed(on: boolean) {
+    if (this.collapsed === on) return
+    this.collapsed = on
+    this.handlers.onView(on)
+    this.update()
+  }
+
+  /** While the enzyme animation plays the lower panel is removed completely. */
+  setWatching(on: boolean) {
+    this.watching = on
+    if (!on) this.setTimer(null)
+    this.update()
+  }
+  /** Mini countdown shown over the animation. */
+  setTimer(msLeft: number | null, label = 'Watch the enzymes at work') {
+    if (msLeft === null) {
+      this.timer.hidden = true
+      return
+    }
+    this.timer.hidden = false
+    const s = Math.max(0, Math.ceil(msLeft / 1000))
+    this.timer.replaceChildren(h('span', { class: 'bio-timer-n' }, `${s}s`), h('span', { class: 't-label' }, msLeft <= 0 ? 'Finishing…' : label))
   }
   setBusy(label: string | null) {
     this.busyLabel = label
@@ -133,9 +165,11 @@ export class BiologyHud {
       li.classList.toggle('current', i === stepIndex && e.stage !== 'done')
     })
     // A new stop or stage starts with a clean slate for the voice and text boxes.
-    const key = `${e.index}:${e.stage}:${this.traveling}:${this.busyLabel}`
+    const key = `${e.index}:${e.stage}:${this.traveling}:${this.busyLabel}:${this.watching}`
     if (key !== this.lastKey) {
       this.lastKey = key
+      // Moving on to another stop or stage brings the panel back; the scene flies to the new view itself.
+      this.collapsed = false
       if (e.stage === 'predict') {
         this.recorded = null
         this.micFailed = false
@@ -146,11 +180,14 @@ export class BiologyHud {
       if (e.stage === 'revealed') this.reviseDraft = null
     }
     this.card.replaceChildren(...this.render())
+    this.card.hidden = this.watching || this.collapsed
+    ;(this.reopen.parentElement as HTMLElement).hidden = !(this.collapsed && !this.watching)
     requestAnimationFrame(this.layout)
   }
 
   private render(): Node[] {
     const e = this.exp
+    if (this.watching || this.collapsed) return []
     if (this.traveling) return [h('div', { class: 'row', style: 'gap:12px' }, h('span', { class: 'spinner' }), h('span', { class: 't-label' }, 'Following the food to the next stop…'))]
     if (this.busyLabel) return [h('div', { class: 'row', style: 'gap:12px' }, h('span', { class: 'spinner' }), h('span', { class: 't-label' }, this.busyLabel))]
     switch (e.stage) {
@@ -163,7 +200,7 @@ export class BiologyHud {
   }
 
   private head(stop: Stop, sub: string): Node {
-    return h('div', { class: 'stack', style: 'gap:4px' }, h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, stop.cp.organName), badge(`Stop ${this.exp.n} of ${this.exp.stops.length}`, 'info')), h('p', { class: 't-support' }, sub))
+    return h('div', { class: 'stack', style: 'gap:4px' }, h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, stop.cp.organName), h('div', { class: 'row', style: 'gap:8px' }, badge(`Stop ${this.exp.n} of ${this.exp.stops.length}`, 'info'), h('button', { class: 'bio-close', type: 'button', 'aria-label': 'Close this panel to see the whole model', title: 'Close and view the whole model', onclick: () => this.setCollapsed(true) }, '✕'))), h('p', { class: 't-support' }, sub))
   }
 
   /* ---- predict ---- */
@@ -177,7 +214,7 @@ export class BiologyHud {
     return [
       this.head(s, 'Look at the highlighted organ, then commit to a prediction before you explain.'),
       h('p', { class: 'bio-prompt' }, s.cp.prompt),
-      ...GROUPS.map((g) => h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, g.question), chips(g.key, e.lesson.choices[g.key]))),
+      ...GROUPS.map((g) => h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, g.question), chips(g.key, e.optionsFor(g.key)))),
       h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'How sure are you?'), conf),
       h('div', { class: 'dialog-actions' }, lock),
     ]
@@ -199,7 +236,7 @@ export class BiologyHud {
     this.micNote.textContent = !support.recorder ? 'This browser cannot record. Type your explanation instead.' : this.micFailed ? 'The microphone is not available. Type your explanation instead.' : this.recorded ? `Recorded ${(this.recorded.durationMs / 1000).toFixed(0)}s. You can record again or edit the text.` : needsAudio ? 'Explaining aloud is part of this lab.' : ''
     return [
       this.head(s, 'Your prediction is locked. Now explain why, in your own words.'),
-      h('div', { class: 'chips' }, ...[...sel('glands'), ...sel('juices'), ...sel('nutrients')].map((l) => h('span', { class: 'chip chip-static' }, l))),
+      h('div', { class: 'chips' }, ...[...sel('glands'), ...sel('juices'), ...sel('components'), ...sel('nutrients')].map((l) => h('span', { class: 'chip chip-static' }, l))),
       h('p', { class: 'bio-prompt' }, s.cp.prompt),
       h('div', { class: 'row', style: 'gap:12px;flex-wrap:wrap' }, this.micButton, this.micNote),
       this.textArea,
@@ -292,6 +329,7 @@ export class BiologyHud {
       h('p', { class: 'bio-reveal' }, r.explanation),
       row('glands', 'Glands', r.answer.glands),
       row('juices', 'Juices', r.answer.juices),
+      row('components', 'Enzymes & chemicals', r.answer.components),
       row('nutrients', 'Nutrients', r.answer.nutrients),
       h('div', { class: 'stack', style: 'gap:6px' }, h('div', { class: 'row row-between' }, h('span', { class: 't-label' }, 'Key ideas in your explanation'), h('span', { class: 't-label t-mono' }, `${matched} of ${kws.length} · ${pct}%`)), h('div', { class: 'chips' }, ...kws.map((k) => h('span', { class: `chip chip-static ${k.matched ? 'ok' : 'miss'}` }, `${k.matched ? '✓' : '○'} ${k.keyword}`)))),
       ...reviseBox,
@@ -314,7 +352,7 @@ export class BiologyHud {
           'div',
           { class: 'stack', style: 'gap:6px' },
           h('p', { class: 'bio-prompt' }, sc.question),
-          h('div', { class: 'opt-list', role: 'radiogroup', 'aria-label': sc.question }, ...sc.options.map((o) => h('button', { class: 'conf-btn', type: 'button', role: 'radio', 'aria-checked': String(e.scenarioAnswers[sc.id] === o.id), onclick: () => this.handlers.onScenario(sc.id, o.id) }, h('span', { class: 't-label' }, o.label)))),
+          h('div', { class: 'opt-list', role: 'radiogroup', 'aria-label': sc.question }, ...e.scenarioOptions(sc.id).map((o) => h('button', { class: 'conf-btn', type: 'button', role: 'radio', 'aria-checked': String(e.scenarioAnswers[sc.id] === o.id), onclick: () => this.handlers.onScenario(sc.id, o.id) }, h('span', { class: 't-label' }, o.label)))),
         ),
       ),
       h('div', { class: 'dialog-actions' }, button('Submit my answers', { variant: 'primary', disabled: !e.canSubmitFinal, onClick: () => this.handlers.onSubmitFinal() })),

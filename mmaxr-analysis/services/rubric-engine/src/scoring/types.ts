@@ -31,7 +31,7 @@ export interface BiologyTruth {
   checkpoints: {
     id: string;
     n: number;
-    selection: { glands: number; juices: number; nutrients: number; allCorrect: boolean };
+    selection: { glands: number; juices: number; components?: number; nutrients: number; allCorrect: boolean };
     coverageFirst: number;
     coverageFinal: number;
     revisions: number;
@@ -42,7 +42,22 @@ export interface BiologyTruth {
   final: { correct: number; total: number } | null;
 }
 
+/** Light: Reflection & Spherical Mirrors. Per-case scores are the number of correct image fields (0-4). */
+export interface OpticsTruth {
+  plane: { correct: number; total: number };
+  laws?: { correct: number; total: number };
+  rules: { correct: number; total: number };
+  cases: { id: string; mirror: 'concave' | 'convex'; anomaly: boolean; firstScore: number; finalScore: number | null; revised: boolean }[];
+  /** One entry per explanation the student gave, as measured by the lesson service. */
+  explanations?: {
+    required: number;
+    given: { kind: string; id: string; inputMode: 'voice' | 'typed'; speakMs: number; dwellMs: number; thinkMs: number; words: number; pasted: number; blurs: number }[];
+  };
+  submitted: boolean;
+}
+
 export interface TruthInfo {
+  optics?: OpticsTruth;
   /** Digestive-system journey: per-stop results held by the lesson service. */
   biology?: BiologyTruth;
   tubes: { tube: number; type: string; ph: number }[];
@@ -79,7 +94,7 @@ export interface StatItem {
 
 export interface Report {
   rubricVersion: string;
-  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'physics_bohr' | 'unknown';
+  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'physics_optics' | 'physics_bohr' | 'unknown';
   device: Device;
   complete: boolean;
   dimensions: DimensionResult[];

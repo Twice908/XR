@@ -51,13 +51,13 @@ function causalCoherence(truth: TruthInfo | null): DimensionResult {
   const stops = truth?.biology?.checkpoints ?? [];
   if (!stops.length) return { ...base, score: null, basis: 'No stops answered yet.', evidence: [], measures: {} };
   const cov = avg(stops.map((s) => s.coverageFirst));
-  const sel = avg(stops.map((s) => (s.selection.glands + s.selection.juices + s.selection.nutrients) / 3));
+  const sel = avg(stops.map((s) => (s.selection.glands + s.selection.juices + (s.selection.components ?? s.selection.juices) + s.selection.nutrients) / 4));
   const blend = 0.6 * cov + 0.4 * sel;
   const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
   return {
     ...base,
     score,
-    basis: `First explanations covered ${Math.round(cov * 100)}% of the key ideas and the predicted glands, juices and nutrients were ${Math.round(sel * 100)}% right, across ${stops.length} stop${stops.length > 1 ? 's' : ''}.`,
+    basis: `First explanations covered ${Math.round(cov * 100)}% of the key ideas and the predicted glands, juices, enzymes and nutrients were ${Math.round(sel * 100)}% right, across ${stops.length} stop${stops.length > 1 ? 's' : ''}.`,
     evidence: [],
     measures: { stops: stops.length, keyIdeas: r2(cov), selections: r2(sel), blend: r2(blend) },
   };

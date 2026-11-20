@@ -3,12 +3,13 @@ import type { BiologyCheckpoint, BiologyFinalResult, BiologyLessonContract, Biol
 
 export type Stage = 'predict' | 'explain' | 'revealed' | 'final' | 'done'
 export type Confidence = 1 | 2 | 3
-export type Group = 'glands' | 'juices' | 'nutrients'
+export type Group = 'glands' | 'juices' | 'components' | 'nutrients'
 export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
 
 export interface Selection {
   glands: string[]
   juices: string[]
+  components: string[]
   nutrients: string[]
 }
 
@@ -28,6 +29,34 @@ export interface Stop {
 
 export class StateError extends Error {}
 
+/** Small seeded generator so a shuffled order stays put while the HUD re-renders. */
+function mulberry32(seed: number) {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+const hashString = (s: string) => {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619)
+  return h >>> 0
+}
+
+/** Fisher-Yates with a seeded generator. Entries flagged `last` (the "none" choice) stay at the end. */
+export function shuffleOptions<T extends { id: string }>(items: T[], seed: string, keepLast: (o: T) => boolean = (o) => o.id === 'none'): T[] {
+  const rnd = mulberry32(hashString(seed))
+  const pool = items.filter((o) => !keepLast(o))
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1))
+    ;[pool[i], pool[j]] = [pool[j], pool[i]]
+  }
+  return [...pool, ...items.filter(keepLast)]
+}
+
 export const wordCount = (s: string) => s.trim().split(/\s+/).filter(Boolean).length
 
 /** The student's side of the guided journey. It holds no answers: the reveal arrives from the server per stop. */
@@ -39,15 +68,28 @@ export class JourneyExperiment {
   finalResult: BiologyFinalResult | null = null
   private arrivedAt: number
   private predictedAt = 0
+  /** Fresh for every run, so the option order differs between attempts and between stops. */
+  private readonly seed = String(Math.random())
 
   constructor(
     readonly lesson: BiologyLessonContract,
     private readonly emit: Emit,
     private readonly now: () => number = Date.now,
   ) {
-    this.stops = lesson.checkpoints.map((cp) => ({ cp, selection: { glands: [], juices: [], nutrients: [] }, confidence: null, explanation: '', inputMode: 'typed', speakMs: 0, thinkMs: 0, reveal: null, revisions: 0, coverage: 0 }))
+    this.stops = lesson.checkpoints.map((cp) => ({ cp, selection: { glands: [], juices: [], components: [], nutrients: [] }, confidence: null, explanation: '', inputMode: 'typed', speakMs: 0, thinkMs: 0, reveal: null, revisions: 0, coverage: 0 }))
     this.arrivedAt = this.now()
     this.emit(XapiVerb.INVESTIGATED, { action: 'arrive_checkpoint', target: this.stop.cp.id, value: 1 })
+  }
+
+  /** The answer pool for a group in this stop's own random order. Stable until the next stop. */
+  optionsFor(group: Group, stopIndex = this.index) {
+    const id = this.stops[Math.min(stopIndex, this.stops.length - 1)].cp.id
+    return shuffleOptions(this.lesson.choices[group], `${this.seed}|${id}|${group}`)
+  }
+  /** Scenario options, shuffled once per run. */
+  scenarioOptions(scenarioId: string) {
+    const sc = this.lesson.transfer.scenarios.find((x) => x.id === scenarioId)
+    return sc ? shuffleOptions(sc.options, `${this.seed}|${scenarioId}`, () => false) : []
   }
 
   get stop(): Stop {
@@ -84,11 +126,11 @@ export class JourneyExperiment {
 
   get canLock(): boolean {
     const s = this.stop
-    return this.stage === 'predict' && s.selection.glands.length > 0 && s.selection.juices.length > 0 && s.selection.nutrients.length > 0 && s.confidence !== null
+    return this.stage === 'predict' && s.selection.glands.length > 0 && s.selection.juices.length > 0 && s.selection.components.length > 0 && s.selection.nutrients.length > 0 && s.confidence !== null
   }
 
   lockPrediction(): void {
-    if (!this.canLock) throw new StateError('Choose a gland, a juice and a nutrient, then say how sure you are.')
+    if (!this.canLock) throw new StateError('Choose a gland, a juice, an enzyme or chemical and a nutrient, then say how sure you are.')
     const s = this.stop
     this.predictedAt = this.now()
     s.thinkMs = this.predictedAt - this.arrivedAt
@@ -96,8 +138,8 @@ export class JourneyExperiment {
     this.emit(XapiVerb.PREDICTED, {
       action: 'predict_selection',
       target: `checkpoint:${s.cp.id}`,
-      value: [...s.selection.glands, ...s.selection.juices, ...s.selection.nutrients].join(','),
-      data: { sample: this.n, tool: 'explain', checkpoint: s.cp.id, confidence: s.confidence, decisionMs: s.thinkMs, glands: s.selection.glands, juices: s.selection.juices, nutrients: s.selection.nutrients },
+      value: [...s.selection.glands, ...s.selection.juices, ...s.selection.components, ...s.selection.nutrients].join(','),
+      data: { sample: this.n, tool: 'explain', checkpoint: s.cp.id, confidence: s.confidence, decisionMs: s.thinkMs, glands: s.selection.glands, juices: s.selection.juices, components: s.selection.components, nutrients: s.selection.nutrients },
     })
   }
 

@@ -10,7 +10,7 @@ const lesson: BiologyLessonContract = {
   modelUrl: 'http://x/d.glb',
   assets: { digestiveSystem: 'a', stomach: 'b', liver: 'c', tooth: 'd' },
   config: { isGuidedTour: true, requireAudioExplanation: true, minExplanationWords: 4, maxRevisions: 2 },
-  choices: { glands: [{ id: 'salivary', label: 'Salivary' }, { id: 'none', label: 'None' }], juices: [{ id: 'saliva', label: 'Saliva' }, { id: 'none', label: 'None' }], nutrients: [{ id: 'carbs', label: 'Carbs' }] },
+  choices: { glands: [{ id: 'salivary', label: 'Salivary' }, { id: 'none', label: 'None' }], juices: [{ id: 'saliva', label: 'Saliva' }, { id: 'none', label: 'None' }], components: [{ id: 'amylase', label: 'Amylase' }, { id: 'pepsin', label: 'Pepsin' }, { id: 'hcl', label: 'HCl' }, { id: 'mucus', label: 'Mucus' }, { id: 'none', label: 'None' }], nutrients: [{ id: 'carbs', label: 'Carbs' }] },
   checkpoints: [
     { id: 'mouth', organName: 'Mouth', prompt: 'p1', cameraPosition: { x: 0, y: 0, z: 0 }, lookAtTarget: { x: 0, y: 0, z: 0 }, modelAnchor: { x: 0, y: 0, z: 0 }, detail: 'tooth' },
     { id: 'stomach', organName: 'Stomach', prompt: 'p2', cameraPosition: { x: 0, y: 0, z: 0 }, lookAtTarget: { x: 0, y: 0, z: 0 }, modelAnchor: { x: 0, y: 0, z: 0 }, detail: 'stomach' },
@@ -19,8 +19,8 @@ const lesson: BiologyLessonContract = {
 }
 
 const reveal = (cp: string, all: boolean, coverage: number): BiologyReveal => ({
-  checkpoint: cp, explanation: 'x', answer: { glands: [], juices: [], nutrients: [], targetNutrient: 't' },
-  selectionScore: { glands: all ? 1 : 0.5, juices: 1, nutrients: 1, allCorrect: all }, keywords: [], coverage,
+  checkpoint: cp, explanation: 'x', answer: { glands: [], juices: [], components: [], nutrients: [], targetNutrient: 't' },
+  selectionScore: { glands: all ? 1 : 0.5, juices: 1, components: 1, nutrients: 1, allCorrect: all }, keywords: [], coverage,
 })
 
 function setup() {
@@ -28,11 +28,38 @@ function setup() {
   let t = 1000
   const exp = new JourneyExperiment(lesson, (verb, object) => events.push({ verb, object }), () => (t += 800))
   const lock = () => {
-    exp.toggle('glands', 'salivary'); exp.toggle('juices', 'saliva'); exp.toggle('nutrients', 'carbs'); exp.setConfidence(2)
+    exp.toggle('glands', 'salivary'); exp.toggle('juices', 'saliva'); exp.toggle('components', 'amylase'); exp.toggle('nutrients', 'carbs'); exp.setConfidence(2)
     exp.lockPrediction()
   }
   return { exp, events, lock }
 }
+
+describe('option order', () => {
+  it('is stable within a stop, keeps "none" last, and keeps every option', () => {
+    const { exp } = setup()
+    const a = exp.optionsFor('components').map((o) => o.id)
+    expect(exp.optionsFor('components').map((o) => o.id)).toEqual(a)
+    expect(a[a.length - 1]).toBe('none')
+    expect([...a].sort()).toEqual(['amylase', 'hcl', 'mucus', 'none', 'pepsin'])
+  })
+  it('does not follow the lesson order across many runs', () => {
+    const firsts = new Set<string>()
+    for (let i = 0; i < 40; i++) firsts.add(setup().exp.optionsFor('components')[0].id)
+    expect(firsts.size).toBeGreaterThan(1)
+  })
+  it('differs between stops', () => {
+    const orders = new Set<string>()
+    for (let i = 0; i < 30; i++) {
+      const { exp } = setup()
+      orders.add(exp.optionsFor('components', 0).map((o) => o.id).join() === exp.optionsFor('components', 1).map((o) => o.id).join() ? 'same' : 'diff')
+    }
+    expect(orders.has('diff')).toBe(true)
+  })
+  it('shuffles scenario options without losing any', () => {
+    const { exp } = setup()
+    expect(exp.scenarioOptions('s1').map((o) => o.id).sort()).toEqual(['a', 'b'])
+  })
+})
 
 describe('JourneyExperiment', () => {
   it('holds no answers: stops carry only what the student chose', () => {
@@ -50,6 +77,8 @@ describe('JourneyExperiment', () => {
     exp.toggle('juices', 'saliva')
     exp.toggle('nutrients', 'carbs')
     expect(exp.canLock).toBe(false)
+    exp.toggle('components', 'amylase')
+    expect(exp.canLock).toBe(false) // still no confidence
     exp.setConfidence(3)
     expect(exp.canLock).toBe(true)
   })
@@ -102,7 +131,7 @@ describe('JourneyExperiment', () => {
     exp.next()
     expect(exp.index).toBe(1)
     expect(exp.stage).toBe('predict')
-    exp.toggle('glands', 'salivary'); exp.toggle('juices', 'saliva'); exp.toggle('nutrients', 'carbs'); exp.setConfidence(1); exp.lockPrediction()
+    exp.toggle('glands', 'salivary'); exp.toggle('juices', 'saliva'); exp.toggle('components', 'amylase'); exp.toggle('nutrients', 'carbs'); exp.setConfidence(1); exp.lockPrediction()
     exp.commitPayload('pepsin and acid break down protein', 'typed', 0); exp.recordReveal(reveal('stomach', true, 1))
     exp.next()
     expect(exp.stage).toBe('final')

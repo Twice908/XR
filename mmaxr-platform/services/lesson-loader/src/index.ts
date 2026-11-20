@@ -5,6 +5,7 @@ import fs from 'fs';
 import { createClient } from 'redis';
 import { cleanSelection, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, wordCount, type BiologyAssignment, type Checkpoint, type Commit, type Scenario } from './biology';
 import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
+import { allTrialsDone, buildReveal, checkExplanation, cleanTable, flatCases, judgeTrial, makePlan, owesExplanation, personalize, redactOptics, stageBlocker, trialKey, truthFor, type OpticsAssignment, type OpticsTrial } from './optics';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -35,7 +36,7 @@ function readLesson(lessonId: string): any | null {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indicators' }) | MetalsAssignment | BiologyAssignment | null> {
+async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indicators' }) | MetalsAssignment | BiologyAssignment | OpticsAssignment | null> {
   const raw = await redis.get(key(sessionId));
   return raw ? JSON.parse(raw) : null;
 }
@@ -43,7 +44,7 @@ async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indic
 async function loadAssignment(sessionId: string): Promise<Assignment | null> {
   const a = await loadAny(sessionId);
   const k = (a as { kind?: string } | null)?.kind;
-  return a && k !== 'metals' && k !== 'biology' ? (a as Assignment) : null;
+  return a && k !== 'metals' && k !== 'biology' && k !== 'optics' ? (a as Assignment) : null;
 }
 async function loadBiology(sessionId: string): Promise<BiologyAssignment | null> {
   const a = await loadAny(sessionId);
@@ -53,7 +54,17 @@ async function loadMetals(sessionId: string): Promise<MetalsAssignment | null> {
   const a = await loadAny(sessionId);
   return a && (a as MetalsAssignment).kind === 'metals' ? (a as MetalsAssignment) : null;
 }
-const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
+async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
+  const a = await loadAny(sessionId);
+  if (!a || (a as OpticsAssignment).kind !== 'optics') return null;
+  const op = a as OpticsAssignment;
+  // A session started before runs were randomised gets a run of its own now.
+  if (!op.plan) op.plan = makePlan(readLesson(op.lessonId));
+  return op;
+}
+/** This session's own run of the optics lab: values drawn, everything in its shuffled order. */
+const opticsLesson = (a: OpticsAssignment) => personalize(readLesson(a.lessonId), a.plan);
+const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment | OpticsAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
 
 /** Is this bearer token the one session-auth issued for this session? */
 async function sessionFor(req: express.Request, sessionId: string): Promise<{ studentId: string; lessonId: string } | null> {
@@ -150,6 +161,20 @@ app.get(
         }
       }
       return res.json(redactBiology(lesson));
+    }
+    if (lesson.type === 'physics_optics') {
+      const sessionId = String(req.query.sessionId ?? '');
+      if (sessionId) {
+        const who = await sessionFor(req, sessionId);
+        if (!who) return res.status(401).json({ error: 'Invalid session' });
+        let op = await loadOptics(sessionId);
+        if (!op) {
+          op = { kind: 'optics', lessonId: lesson.lessonId, studentId: who.studentId, plan: makePlan(lesson), trials: {}, submission: null, createdAt: Date.now() };
+          await saveAssignment(sessionId, op);
+        }
+        return res.json(redactOptics(opticsLesson(op)));
+      }
+      return res.json(redactOptics(personalize(lesson, makePlan(lesson))));
     }
     if (lesson.type !== 'chemistry_indicators') return res.json(lesson);
 
@@ -294,6 +319,128 @@ app.post(
   }),
 );
 
+// ---------------- Light: Reflection & Spherical Mirrors ----------------
+
+const opticsSession = async (req: express.Request, res: express.Response) => {
+  const { sessionId } = req.params;
+  if (!(await sessionFor(req, sessionId))) {
+    res.status(401).json({ error: 'Invalid session' });
+    return null;
+  }
+  const a = await loadOptics(sessionId);
+  if (!a) {
+    res.status(404).json({ error: 'No optics lab is running for this session' });
+    return null;
+  }
+  return { sessionId, a, lesson: opticsLesson(a) };
+};
+
+// Commit a prediction for one surface, ray rule or image, and only then learn what really happens. The first
+// prediction is kept for good: asking again returns the same truth but never replaces what was predicted.
+app.post(
+  '/sessions/:sessionId/optics/trial',
+  wrap(async (req, res) => {
+    const ctx = await opticsSession(req, res);
+    if (!ctx) return;
+    const { sessionId, a, lesson } = ctx;
+    if (a.submission) return res.status(409).json({ error: 'This experiment was already submitted' });
+    const kind = req.body?.kind;
+    const id = String(req.body?.id ?? '');
+    if (kind !== 'plane' && kind !== 'law' && kind !== 'rule' && kind !== 'case') return res.status(400).json({ error: 'Unknown trial' });
+    const blocker = stageBlocker(lesson, a, kind, id);
+    if (blocker) return res.status(409).json({ error: blocker });
+    const judged = judgeTrial(lesson, kind, id, req.body?.prediction);
+    if (!judged) return res.status(400).json({ error: 'Unknown trial or incomplete prediction' });
+    const confidence = [1, 2, 3].includes(Number(req.body?.confidence)) ? (Number(req.body.confidence) as 1 | 2 | 3) : null;
+    if (!confidence) return res.status(400).json({ error: 'Say how sure you are' });
+
+    const k = trialKey(kind, id);
+    if (!a.trials[k]) {
+      const now = Date.now();
+      const trial: OpticsTrial = { kind, id, prediction: judged.stored, confidence, thinkMs: Math.max(0, Math.min(3_600_000, Number(req.body?.thinkMs) || 0)), at: now, resultAt: now, match: judged.result.match, score: judged.score };
+      a.trials[k] = trial;
+      await saveAssignment(sessionId, a);
+    }
+    // Repeat calls are judged on the stored first prediction, not on whatever was sent this time.
+    const first = a.trials[k];
+    const stable = judgeTrial(lesson, kind, id, first.prediction)!;
+    res.json(stable.result);
+  }),
+);
+
+// The explanation a run owes. It is timed from the moment the result was shown, must draw on this session's own
+// numbers, and is kept for the instructor along with how it was given (typed or spoken, pasted, tab left).
+app.post(
+  '/sessions/:sessionId/optics/explain',
+  wrap(async (req, res) => {
+    const ctx = await opticsSession(req, res);
+    if (!ctx) return;
+    const { sessionId, a, lesson } = ctx;
+    if (a.submission) return res.status(409).json({ error: 'This experiment was already submitted' });
+    const kind = req.body?.kind;
+    const id = String(req.body?.id ?? '');
+    if (kind !== 'plane' && kind !== 'law' && kind !== 'rule' && kind !== 'case') return res.status(400).json({ error: 'Unknown trial' });
+    const r = checkExplanation(lesson, a, kind, id, req.body ?? {}, Date.now());
+    if ('error' in r) return res.status(400).json({ error: r.error });
+    const t = a.trials[trialKey(kind, id)];
+    if (!t.explanation) {
+      t.explanation = r.explanation;
+      await saveAssignment(sessionId, a);
+    }
+    res.json({ ok: true, words: t.explanation.words });
+  }),
+);
+
+// Explain-aloud audio, kept with the session for the instructor.
+app.post(
+  '/sessions/:sessionId/optics/audio',
+  wrap(async (req, res) => {
+    const ctx = await opticsSession(req, res);
+    if (!ctx) return;
+    const { sessionId, a } = ctx;
+    const kind = String(req.body?.kind ?? '');
+    const id = String(req.body?.id ?? '');
+    const b64 = String(req.body?.fileBase64 ?? '');
+    const type = String(req.body?.contentType ?? 'audio/webm');
+    const t = a.trials[`${kind}:${id}`];
+    if (!t?.explanation) return res.status(409).json({ error: 'Explain this run first' });
+    if (!/^audio\//.test(type) || b64.length === 0 || b64.length > 5_000_000) return res.status(400).json({ error: 'Invalid audio' });
+    const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
+    const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: `optics_${sessionId}_${kind}_${id}.${ext}`, contentType: type, fileBase64: b64 }),
+    });
+    if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });
+    const data = (await store.json()) as { url?: string };
+    t.explanation.audioUrl = data.url;
+    await saveAssignment(sessionId, a);
+    res.status(201).json({ stored: true });
+  }),
+);
+
+// One-shot lock-in: stores the student's table, then discloses the textbook answers and the real-world uses.
+app.post(
+  '/sessions/:sessionId/optics/submit',
+  wrap(async (req, res) => {
+    const ctx = await opticsSession(req, res);
+    if (!ctx) return;
+    const { sessionId, a, lesson } = ctx;
+    if (owesExplanation(a)) return res.status(409).json({ error: 'Explain every run before locking in your table' });
+    if (!allTrialsDone(lesson, a)) return res.status(409).json({ error: 'Run every experiment before locking in your table' });
+    if (!a.submission) {
+      const notes: Record<string, string> = {};
+      for (const c of flatCases(lesson)) {
+        const t = String(req.body?.notes?.[c.id] ?? '').trim().slice(0, 600);
+        if (t) notes[c.id] = t;
+      }
+      a.submission = { table: cleanTable(req.body?.table, lesson, a), notes, submittedAt: Date.now() };
+      await saveAssignment(sessionId, a);
+    }
+    res.json(buildReveal(lesson, a));
+  }),
+);
+
 // ---------------- Human Digestive System ----------------
 
 const MAX_EXPLANATION = 2000;
@@ -434,6 +581,25 @@ app.get(
   '/internal/assignments/:sessionId',
   wrap(async (req, res) => {
     if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+    const op = await loadOptics(req.params.sessionId);
+    if (op) {
+      const lesson = opticsLesson(op);
+      const items = [
+        ...lesson.planeMirror.scenarios.map((x: any) => ({ id: x.id, name: x.name, facts: x.explanation, terms: [lesson.planeMirror.predictionOptions.find((o: any) => o.id === x.result)?.label ?? ''].filter(Boolean), open: !op.trials[trialKey('plane', x.id)] })),
+        ...lesson.lawsOfReflection.laws.map((x: any) => ({ id: x.id, name: x.topic, facts: x.explanation, terms: [x.options.find((o: any) => o.id === x.answer)?.label ?? ''].filter((t: string) => t.length > 6), open: !op.trials[trialKey('law', x.id)] })),
+        ...lesson.rayRules.rules.map((x: any) => ({ id: x.id, name: x.incident, facts: x.explanation, terms: [lesson.rayRules.outcomes.find((o: any) => o.id === x.reflected)?.label ?? ''].filter(Boolean), open: !op.trials[trialKey('rule', x.id)] })),
+        ...flatCases(lesson).map((x) => ({ id: x.id, name: `${x.mirror} mirror, object ${x.objectPosition}`, facts: `${x.expected.position}, ${x.expected.size}, ${x.expected.nature}, ${x.expected.orientation}. ${x.anomalyExplanation}`.trim(), terms: [x.expected.position], open: !op.trials[trialKey('case', x.id)] })),
+      ];
+      return res.json({
+        kind: 'optics',
+        lessonId: op.lessonId,
+        studentId: op.studentId,
+        submitted: op.submission !== null,
+        submission: null,
+        tubes: items.map((x, i) => ({ tube: i + 1, id: x.id, name: x.name, formula: '', type: '', ph: 0, facts: x.facts, terms: x.terms, open: x.open })),
+        optics: truthFor(lesson, op),
+      });
+    }
     const bio = await loadBiology(req.params.sessionId);
     if (bio) {
       const lesson = readLesson(bio.lessonId);

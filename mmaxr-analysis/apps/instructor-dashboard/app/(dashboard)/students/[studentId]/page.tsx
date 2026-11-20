@@ -8,6 +8,7 @@ import { EmptyState } from '@astryxdesign/core/EmptyState'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Heading } from '@astryxdesign/core/Heading'
 import { Link } from '@astryxdesign/core/Link'
+import { BackLink } from '@/components/BackLink'
 import { Spinner } from '@astryxdesign/core/Spinner'
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@astryxdesign/core/Table'
 import { Text } from '@astryxdesign/core/Text'
@@ -28,7 +29,7 @@ export default function StudentPage({ params }: { params: Promise<{ studentId: s
   return (
     <VStack gap={8}>
       <VStack gap={4}>
-        <Link href="/">← Students</Link>
+        <BackLink href="/">← Students</BackLink>
         <HStack gap={4} vAlign="center">
           <Avatar name={name} size="lg" tooltip={false} />
           <VStack gap={1}>
