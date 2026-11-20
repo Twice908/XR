@@ -19,6 +19,8 @@ export interface MotionTrial {
   expectedKeywords?: string[];
   keywordSynonyms?: Record<string, string[]>;
   coachSecrets?: string[];
+  /** The law this question is about. Held back until the result has been watched, so it cannot hint at the answer. */
+  law?: { name: string; formula?: string };
 }
 export interface MotionScenario {
   id: string;
@@ -51,8 +53,10 @@ export const allTrials = (lesson: { scenarios: MotionScenario[] }): MotionTrial[
 
 /** What the browser may see: no answers, outcomes, explanations, keywords or coach secrets. */
 export function redactMotion(lesson: any): any {
+  const { laws: _laws, ...rest } = lesson;
+  void _laws;
   return {
-    ...lesson,
+    ...rest,
     scenarios: lesson.scenarios.map((s: MotionScenario) => ({
       id: s.id,
       tabName: s.tabName,
@@ -98,6 +102,7 @@ export function observeFor(t: MotionTrial, p: MotionPrediction) {
     fieldMatch: p.fieldMatch ?? {},
     answer: t.answer,
     outcome: t.outcome,
+    law: t.law ?? null,
     // Anomalies keep their explanation back until the student has tried to explain.
     explanation: t.anomaly && t.expectedKeywords?.length && !p.explanation ? null : t.explanation,
   };

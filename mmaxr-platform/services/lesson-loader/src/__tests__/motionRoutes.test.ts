@@ -116,7 +116,7 @@ describe('motion routes', () => {
     t = motionInternal(store!, lesson);
     expect(t.tubes.find((x: any) => x.id === 'kin_1').open).toBe(false);
     expect(t.motion.trials[0]).toMatchObject({ id: 'kin_1', match: true, confidence: 2, thinkMs: 5000, coverage: null });
-    expect(t.motion.total).toBe(14);
+    expect(t.motion.total).toBe(21);
     expect(t.submitted).toBe(false);
   });
 

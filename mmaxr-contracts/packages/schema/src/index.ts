@@ -455,6 +455,8 @@ export interface MotionObservation {
   fieldMatch: Record<string, boolean>;
   answer: Record<string, number | string>;
   outcome: string;
+  /** The law the question was about, revealed with the result. */
+  law: { name: string; formula?: string } | null;
   explanation: string | null;
 }
 export interface MotionExplanationResult {

@@ -33,6 +33,8 @@ describe('redaction', () => {
     for (const key of ['"answer"', 'expectedKeywords', 'keywordSynonyms', 'coachSecrets', '"outcome"', '"explanation"']) expect(text).not.toContain(key);
     expect(text).not.toContain('"tolerance"');
     expect(text).toContain('kin_2');
+    expect(text).not.toContain('"law"');
+    expect(text).not.toContain('"laws"');
   });
 });
 

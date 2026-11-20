@@ -253,7 +253,7 @@ export class MotionHud {
     return h(
       'div',
       { class: `mo-result ${o.match ? 'match' : 'miss'}` },
-      h('div', { class: 'row', style: 'gap:8px' }, badge(o.match ? 'Your prediction matched' : 'Not what you predicted', o.match ? 'success' : 'warning'), t.trial.anomaly && !o.match ? badge('A surprising one', 'info') : null),
+      h('div', { class: 'row', style: 'gap:8px;flex-wrap:wrap' }, badge(o.match ? 'Your prediction matched' : 'Not what you predicted', o.match ? 'success' : 'warning'), t.trial.anomaly && !o.match ? badge('A surprising one', 'info') : null, o.law ? badge(o.law.name, 'neutral') : null, o.law?.formula ? h('span', { class: 'chip chip-static t-mono' }, o.law.formula) : null),
       h('p', { class: 'bio-prompt' }, o.outcome),
       this.compare(t),
     )

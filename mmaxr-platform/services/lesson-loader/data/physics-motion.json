@@ -3,8 +3,8 @@
   "type": "physics_mechanics_sandbox",
   "subject": "Physics",
   "title": "Motion, Forces & Gravitation Sandbox",
-  "summary": "Drive a car around a loop, push crates in a cargo bay and drop things in air and vacuum. Predict first, then watch what really happens.",
-  "durationMinutes": 25,
+  "summary": "Drive a car around a loop, test Newton's three laws of motion with crates and balls, and drop things in air and vacuum before exploring the law of universal gravitation. Predict first, then watch what really happens.",
+  "durationMinutes": 35,
   "assets": {
     "car": "http://localhost:3007/assets/models/car-model.glb",
     "crate": "http://localhost:3007/assets/models/modular-crate.glb",
@@ -56,7 +56,10 @@
           "explanation": "In a straight line in one direction, distance and displacement are the same size.",
           "coachSecrets": [
             "same size"
-          ]
+          ],
+          "law": {
+            "name": "Motion"
+          }
         },
         {
           "id": "kin_2",
@@ -123,7 +126,10 @@
           "coachSecrets": [
             "displacement is zero",
             "zero displacement"
-          ]
+          ],
+          "law": {
+            "name": "Motion"
+          }
         },
         {
           "id": "kin_3",
@@ -156,7 +162,10 @@
           "coachSecrets": [
             "5 m/s",
             "velocity is zero"
-          ]
+          ],
+          "law": {
+            "name": "Motion"
+          }
         },
         {
           "id": "kin_4",
@@ -218,7 +227,10 @@
             "centripetal",
             "towards the centre",
             "toward the centre"
-          ]
+          ],
+          "law": {
+            "name": "Motion"
+          }
         },
         {
           "id": "tr_kin",
@@ -251,7 +263,10 @@
             "choice": "b"
           },
           "outcome": "50 m.",
-          "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 30² + 40² = 50²."
+          "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 30² + 40² = 50².",
+          "law": {
+            "name": "Motion"
+          }
         }
       ]
     },
@@ -259,7 +274,7 @@
       "id": "dynamics_bay",
       "tabName": "Newton's Laws",
       "title": "The Cargo Bay",
-      "setup": "A cargo bay with a heavy crate (80 kg) on a rough floor, a crate floating in zero gravity, two balls on a rail, and a Newton's cradle.",
+      "setup": "A cargo bay in three parts: a heavy crate on a rough floor and a floating crate in zero gravity (Newton's first and second laws), a pair of crates pushed apart by a spring (third law), and two balls and a Newton's cradle (momentum).",
       "trials": [
         {
           "id": "dyn_1",
@@ -324,7 +339,10 @@
           "coachSecrets": [
             "static friction",
             "forces cancel"
-          ]
+          ],
+          "law": {
+            "name": "Newton's 1st law · Inertia"
+          }
         },
         {
           "id": "dyn_2",
@@ -389,6 +407,155 @@
             "never stops",
             "constant speed",
             "first law"
+          ],
+          "law": {
+            "name": "Newton's 1st law · Inertia"
+          }
+        },
+        {
+          "id": "dyn_ma",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "push_20kg",
+          "law": {
+            "name": "Newton's 2nd law",
+            "formula": "F = m a"
+          },
+          "prompt": "In zero gravity you push the 20 kg crate with a steady 40 N. Predict its acceleration.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "accel",
+                "label": "Acceleration",
+                "unit": "m/s²"
+              }
+            ]
+          },
+          "answer": {
+            "accel": 2
+          },
+          "tolerance": 0.3,
+          "outcome": "2 m/s²: every second its speed grows by 2 m/s.",
+          "explanation": "Newton's second law: F = m a, so a = F ÷ m = 40 N ÷ 20 kg = 2 m/s². The bigger the force, the bigger the acceleration; the bigger the mass, the smaller it is.",
+          "coachSecrets": [
+            "2 m/s"
+          ]
+        },
+        {
+          "id": "dyn_ma2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "push_40kg",
+          "law": {
+            "name": "Newton's 2nd law",
+            "formula": "F = m a"
+          },
+          "prompt": "Now you push a 40 kg crate with the same 40 N. Compared with the 20 kg crate, its acceleration is…",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "double",
+                "label": "Double"
+              },
+              {
+                "id": "same",
+                "label": "The same"
+              },
+              {
+                "id": "half",
+                "label": "Half as big"
+              },
+              {
+                "id": "quarter",
+                "label": "A quarter as big"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "half"
+          },
+          "outcome": "Half as big: 1 m/s², not 2.",
+          "explanation": "a = F ÷ m. Same force, twice the mass, so half the acceleration. Mass is how strongly an object resists being accelerated.",
+          "coachSecrets": [
+            "1 m/s"
+          ]
+        },
+        {
+          "id": "dyn_third",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "push_apart",
+          "law": {
+            "name": "Newton's 3rd law · Action and reaction"
+          },
+          "prompt": "A 60 kg crate and a 20 kg crate float touching in space. A spring between them pushes them apart with 30 N. Which crate feels the bigger force from the spring?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "light",
+                "label": "The light crate"
+              },
+              {
+                "id": "heavy",
+                "label": "The heavy crate"
+              },
+              {
+                "id": "equal",
+                "label": "Both feel the same force, pointing in opposite directions"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "equal"
+          },
+          "outcome": "Both feel exactly 30 N, in opposite directions. The light crate speeds off three times faster (1.5 m/s² against 0.5 m/s²).",
+          "explanation": "Newton's third law: when one object pushes another, the other pushes back equally hard in the opposite direction. The forces are equal, but by F = m a the lighter crate gets the bigger acceleration.",
+          "expectedKeywords": [
+            "third law",
+            "equal",
+            "opposite",
+            "force",
+            "mass"
+          ],
+          "keywordSynonyms": {
+            "third law": [
+              "action reaction",
+              "action and reaction",
+              "newtons third",
+              "reaction force",
+              "every action"
+            ],
+            "equal": [
+              "same size",
+              "same",
+              "equally",
+              "identical"
+            ],
+            "opposite": [
+              "opposing",
+              "other direction",
+              "reverse",
+              "back"
+            ],
+            "force": [
+              "push",
+              "forces",
+              "pushes"
+            ],
+            "mass": [
+              "heavy",
+              "heavier",
+              "lighter",
+              "light",
+              "weight"
+            ]
+          },
+          "coachSecrets": [
+            "30 N each",
+            "equal and opposite"
           ]
         },
         {
@@ -458,7 +625,11 @@
             "6.7",
             "2.7",
             "momentum is conserved"
-          ]
+          ],
+          "law": {
+            "name": "Momentum",
+            "formula": "p = m v"
+          }
         },
         {
           "id": "dyn_4",
@@ -494,7 +665,11 @@
           "explanation": "Momentum and energy are both conserved. Only two balls leaving at the same speed conserves both; one ball would need a different speed that breaks energy conservation.",
           "coachSecrets": [
             "same number"
-          ]
+          ],
+          "law": {
+            "name": "Momentum",
+            "formula": "p = m v"
+          }
         },
         {
           "id": "tr_dyn",
@@ -523,7 +698,43 @@
             "choice": "truck"
           },
           "outcome": "The truck.",
-          "explanation": "The truck has far more momentum (mass × velocity). Stopping it in the same time means a bigger change in momentum, so a bigger force."
+          "explanation": "The truck has far more momentum (mass × velocity). Stopping it in the same time means a bigger change in momentum, so a bigger force.",
+          "law": {
+            "name": "Momentum",
+            "formula": "p = m v"
+          }
+        },
+        {
+          "id": "tr_third",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Newton's 3rd law · Action and reaction"
+          },
+          "prompt": "A rocket in empty space fires hot gas out of its engine. What pushes the rocket forwards?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "gas",
+                "label": "The gas pushing back on the rocket"
+              },
+              {
+                "id": "air",
+                "label": "The air behind it"
+              },
+              {
+                "id": "nothing",
+                "label": "Nothing: it only moves because it is already moving"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "gas"
+          },
+          "outcome": "The gas pushing back on the rocket.",
+          "explanation": "The engine pushes the gas backwards, so by the third law the gas pushes the rocket forwards with an equal force. Rockets work in a vacuum because they need nothing to push against except their own exhaust."
         }
       ]
     },
@@ -531,7 +742,7 @@
       "id": "gravitation_drop",
       "tabName": "Gravitation",
       "title": "The Drop Tower",
-      "setup": "Two tall glass tubes, 4.9 m high: one full of air, one with the air pumped out. A metal ball and a feather wait at the top of each.",
+      "setup": "A drop tower with two tall glass tubes, 4.9 m high: one full of air, one pumped empty. Beside it, two masses show Newton's law of universal gravitation, F = G m₁ m₂ / r².",
       "trials": [
         {
           "id": "grav_1",
@@ -560,7 +771,11 @@
             "choice": "ball"
           },
           "outcome": "The metal ball lands first; the feather floats down.",
-          "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly."
+          "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly.",
+          "law": {
+            "name": "Free fall",
+            "formula": "h = ½ g t²"
+          }
         },
         {
           "id": "grav_2",
@@ -618,7 +833,11 @@
               "identical"
             ]
           },
-          "coachSecrets": []
+          "coachSecrets": [],
+          "law": {
+            "name": "Free fall",
+            "formula": "h = ½ g t²"
+          }
         },
         {
           "id": "grav_3",
@@ -641,7 +860,152 @@
           },
           "tolerance": 0.25,
           "outcome": "1.0 s.",
-          "explanation": "h = ½ g t² gives t = √(2 × 4.9 ÷ 9.8) = 1 s. The feather takes the same."
+          "explanation": "h = ½ g t² gives t = √(2 × 4.9 ÷ 9.8) = 1 s. The feather takes the same.",
+          "law": {
+            "name": "Free fall",
+            "formula": "h = ½ g t²"
+          }
+        },
+        {
+          "id": "grav_f1",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "gravity_double_r",
+          "law": {
+            "name": "Universal gravitation",
+            "formula": "F = G m₁ m₂ / r²"
+          },
+          "prompt": "Two masses attract each other with a force F = G m₁ m₂ / r². You move them so the distance between them doubles. What happens to the force?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "half",
+                "label": "It halves"
+              },
+              {
+                "id": "quarter",
+                "label": "It falls to a quarter"
+              },
+              {
+                "id": "double",
+                "label": "It doubles"
+              },
+              {
+                "id": "same",
+                "label": "It stays the same"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "quarter"
+          },
+          "outcome": "The force falls to a quarter. Double the distance, a quarter of the pull.",
+          "explanation": "Gravity follows an inverse-square law: F is proportional to 1/r². Doubling r makes r² four times bigger, so the force is four times smaller.",
+          "expectedKeywords": [
+            "inverse square",
+            "distance",
+            "force",
+            "quarter"
+          ],
+          "keywordSynonyms": {
+            "inverse square": [
+              "square of the distance",
+              "r squared",
+              "distance squared",
+              "squared",
+              "one over r squared",
+              "1/r2"
+            ],
+            "quarter": [
+              "four times",
+              "1/4",
+              "a fourth",
+              "divided by four",
+              "4 times smaller",
+              "weaker"
+            ],
+            "distance": [
+              "apart",
+              "further",
+              "farther",
+              "separation",
+              "r"
+            ],
+            "force": [
+              "attraction",
+              "gravity",
+              "pull",
+              "gravitational"
+            ]
+          },
+          "coachSecrets": [
+            "inverse-square"
+          ]
+        },
+        {
+          "id": "grav_f2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "gravity_double_m",
+          "law": {
+            "name": "Universal gravitation",
+            "formula": "F = G m₁ m₂ / r²"
+          },
+          "prompt": "Back at the original distance, one of the two masses is doubled. The force between them…",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "half",
+                "label": "Halves"
+              },
+              {
+                "id": "same",
+                "label": "Stays the same"
+              },
+              {
+                "id": "double",
+                "label": "Doubles"
+              },
+              {
+                "id": "quadruple",
+                "label": "Becomes four times bigger"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "double"
+          },
+          "outcome": "It doubles. Force is proportional to each mass.",
+          "explanation": "F = G m₁ m₂ / r² is proportional to m₁ and to m₂. Double one mass and the force doubles. The two bodies always pull on each other with equal forces, whatever their masses."
+        },
+        {
+          "id": "grav_f3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "gravity_earth",
+          "law": {
+            "name": "Universal gravitation",
+            "formula": "F = G m₁ m₂ / r²"
+          },
+          "prompt": "A 1 kg ball sits at Earth's surface. Use F = G m₁ m₂ / r² with G = 6.67 × 10⁻¹¹ N·m²/kg², Earth's mass 5.97 × 10²⁴ kg and Earth's radius 6.37 × 10⁶ m. What is the gravitational force on the ball?",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "force",
+                "label": "Force",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "force": 9.8
+          },
+          "tolerance": 0.4,
+          "outcome": "About 9.8 N. That is the ball's weight, and 9.8 N per kilogram is why g = 9.8 m/s².",
+          "explanation": "F = (6.67×10⁻¹¹ × 5.97×10²⁴ × 1) ÷ (6.37×10⁶)² ≈ 9.8 N. Dividing by the ball's 1 kg gives g = 9.8 m/s², the same number as in the drop tower."
         },
         {
           "id": "tr_grav",
@@ -670,7 +1034,11 @@
             "choice": "same"
           },
           "outcome": "They land together.",
-          "explanation": "With no air there is no air resistance, so gravity accelerates both equally. This was demonstrated on the Moon in 1971."
+          "explanation": "With no air there is no air resistance, so gravity accelerates both equally. This was demonstrated on the Moon in 1971.",
+          "law": {
+            "name": "Universal gravitation",
+            "formula": "F = G m₁ m₂ / r²"
+          }
         }
       ]
     }
@@ -679,5 +1047,31 @@
     "hasTabs": true,
     "hasForceSlider": true,
     "hasPlayPauseButton": true
-  }
+  },
+  "laws": [
+    {
+      "id": "n1",
+      "name": "Law of inertia",
+      "formula": "",
+      "summary": "An object keeps its velocity unless a net force acts."
+    },
+    {
+      "id": "n2",
+      "name": "Law of acceleration",
+      "formula": "F = m a",
+      "summary": "Acceleration is force divided by mass."
+    },
+    {
+      "id": "n3",
+      "name": "Action and reaction",
+      "formula": "",
+      "summary": "Every action has an equal and opposite reaction."
+    },
+    {
+      "id": "grav",
+      "name": "Universal gravitation",
+      "formula": "F = G m₁ m₂ / r²",
+      "summary": "Every mass attracts every other mass."
+    }
+  ]
 }

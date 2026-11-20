@@ -28,7 +28,7 @@ const lesson: MotionLessonContract = {
     { id: 'b', tabName: 'B', title: 'Module B', setup: '', trials: [{ id: 'b1', kind: 'prediction', anomaly: false, action: 'go', prompt: 'p', needsExplanation: false, input: { type: 'choice', options: [{ id: 'x', label: 'X' }] } }] },
   ],
 }
-const obs = (trial: string, match: boolean, explanation: string | null): MotionObservation => ({ trial, match, fieldMatch: {}, answer: {}, outcome: 'o', explanation })
+const obs = (trial: string, match: boolean, explanation: string | null): MotionObservation => ({ trial, match, fieldMatch: {}, answer: {}, outcome: 'o', law: null, explanation })
 
 function setup() {
   const events: { verb: XapiVerb; object: { action?: string; data?: Record<string, unknown> } }[] = []

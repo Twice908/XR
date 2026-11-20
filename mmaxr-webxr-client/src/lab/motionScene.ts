@@ -64,8 +64,11 @@ const f2 = (n: number) => (Math.abs(n) < 0.005 ? '0.00' : n.toFixed(2))
 const CAR_YAW = 0 // the model drives towards +z; set to Math.PI if it ever faces backwards
 const CRATE_HEAVY = 3.2
 const CRATE_FLOAT = 2.4
+const CRATE_BIG = 3.4
 const CRADLE_SCALE = 7
 const TUBE_SEGMENTS = 3
+const PAIR_X = 9.5 // where the two-mass gravity station stands in the drop-tower module
+const PAIR_Y = 2.3
 const R_BALL = 0.2 // the metal ball in the drop tower
 const POD = 0.3 // height of the tube pedestals
 
@@ -114,10 +117,18 @@ export class MotionScene {
   // ---- dynamics ----
   private crateHeavy = new THREE.Group()
   private crateFloat = new THREE.Group()
+  private crateBig = new THREE.Group()
+  private spring: THREE.Mesh | null = null
   private stars: THREE.Points | null = null
   private ballHeavy: THREE.Mesh
   private ballLight: THREE.Mesh
   private cradleBalls: THREE.Group[] = []
+  private pairA = new THREE.Mesh(new THREE.SphereGeometry(0.55, 40, 28), new THREE.MeshStandardMaterial({ color: 0x4f8cff, emissive: 0x16306a, roughness: 0.35, metalness: 0.2 }))
+  private pairB = new THREE.Mesh(new THREE.SphereGeometry(0.4, 36, 24), new THREE.MeshStandardMaterial({ color: 0xff9f43, emissive: 0x6a3a10, roughness: 0.35, metalness: 0.2 }))
+  private pairArrowA = new BoldArrow(0xffd166, 0.07)
+  private pairArrowB = new BoldArrow(0xffd166, 0.07)
+  private pairLabelA!: THREE.Sprite
+  private pairLabelB!: THREE.Sprite
   private labelHeavy!: THREE.Sprite
   private labelLight!: THREE.Sprite
   private pushArrow = new BoldArrow(0x60a5fa, 0.07)
@@ -135,7 +146,7 @@ export class MotionScene {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
-    this.renderer.toneMappingExposure = 1.05
+    this.renderer.toneMappingExposure = 0.95
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
     this.renderer.xr.enabled = true
@@ -180,25 +191,14 @@ export class MotionScene {
   /* ---------------- stage ---------------- */
   private buildStage() {
     const scene = this.scene
-    scene.background = new THREE.Color(0x0b0e14)
-    scene.fog = new THREE.Fog(0x0b0e14, 90, 260)
+    // The same moody studio look as the indicators and metals labs: a dark room, one warm key spotlight with
+    // shadows, an amber and a cyan rim light, a soft cool fill and drifting dust.
+    scene.background = new THREE.Color(0x0b0d12)
+    scene.fog = new THREE.Fog(0x0b0d12, 70, 230)
     const pmrem = new THREE.PMREMGenerator(this.renderer)
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    scene.environmentIntensity = 0.7
-    scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x1a1a14, 0.7))
-    const sun = new THREE.DirectionalLight(0xfff1dd, 2.2)
-    sun.position.set(-20, 40, 25)
-    sun.castShadow = true
-    sun.shadow.mapSize.set(2048, 2048)
-    const sc = sun.shadow.camera as THREE.OrthographicCamera
-    sc.left = -45
-    sc.right = 45
-    sc.top = 45
-    sc.bottom = -45
-    sc.far = 120
-    sun.shadow.bias = -0.0004
-    scene.add(sun, sun.target)
-    this.sun = sun
+    scene.environmentIntensity = 0.4
+    scene.add(new THREE.HemisphereLight(0x9bb4ff, 0x1a1410, 0.28))
 
     for (const id of Object.keys(MODULE_X)) {
       const g = new THREE.Group()
@@ -211,14 +211,67 @@ export class MotionScene {
     this.buildDynamics()
     this.buildGravitation()
   }
-  private sun!: THREE.DirectionalLight
 
-  private ground(g: THREE.Group, color: number, size = 400, rough = 0.95) {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: 0.05 }))
-    m.rotation.x = -Math.PI / 2
-    m.position.y = -0.03
-    m.receiveShadow = true
-    g.add(m)
+  /**
+   * A lit stage for one module: a glossy platform with a glowing edge, an optional back wall, a key spotlight
+   * with shadows, amber and cyan rim lights and dust. Sizes are in metres, centred on (cx, cz).
+   */
+  private stageSet(g: THREE.Group, o: { cx: number; cz: number; w: number; d: number; wall?: { z: number; h: number }; key: [number, number, number]; aim: [number, number, number]; keyI: number; rimI: number; rimAt: [number, number, number]; dust?: { n: number; h: number } }) {
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshStandardMaterial({ color: 0x0d1016, roughness: 0.7, metalness: 0.1 }))
+    floor.rotation.x = -Math.PI / 2
+    floor.position.y = -0.4
+    floor.receiveShadow = true
+    g.add(floor)
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(o.w, 0.34, o.d), new THREE.MeshStandardMaterial({ color: 0x151a22, roughness: 0.36, metalness: 0.25 }))
+    deck.position.set(o.cx, -0.2, o.cz)
+    deck.receiveShadow = true
+    g.add(deck)
+    // glowing edge, like the rings on the biology stage
+    const glow = new THREE.MeshBasicMaterial({ color: 0x4f8cff, transparent: true, opacity: 0.55, depthWrite: false })
+    const t = Math.max(0.06, o.w / 600)
+    for (const [w, d, x, z] of [
+      [o.w, t, o.cx, o.cz - o.d / 2],
+      [o.w, t, o.cx, o.cz + o.d / 2],
+      [t, o.d, o.cx - o.w / 2, o.cz],
+      [t, o.d, o.cx + o.w / 2, o.cz],
+    ] as const) {
+      const e = new THREE.Mesh(new THREE.BoxGeometry(w, 0.04, d), glow)
+      e.position.set(x, 0.0, z)
+      g.add(e)
+    }
+    if (o.wall) {
+      const wall = new THREE.Mesh(new THREE.PlaneGeometry(o.w * 1.3, o.wall.h), new THREE.MeshStandardMaterial({ color: 0x1b2029, roughness: 0.85 }))
+      wall.position.set(o.cx, o.wall.h / 2 - 0.2, o.wall.z)
+      wall.receiveShadow = true
+      g.add(wall)
+      const strip = new THREE.Mesh(new THREE.BoxGeometry(o.w * 1.3, 0.05, 0.05), new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.5 }))
+      strip.position.set(o.cx, 0.3, o.wall.z + 0.05)
+      g.add(strip)
+    }
+    const key = new THREE.SpotLight(0xfff3e0, o.keyI, 0, Math.PI / 4.2, 0.7, 1.6)
+    key.position.set(...o.key)
+    key.target.position.set(...o.aim)
+    key.castShadow = true
+    key.shadow.mapSize.set(2048, 2048)
+    key.shadow.bias = -0.0004
+    g.add(key, key.target)
+    const rimA = new THREE.PointLight(0xf59e0b, o.rimI, 0, 2)
+    rimA.position.set(o.cx - o.rimAt[0], o.rimAt[1], o.cz + o.rimAt[2])
+    const rimB = new THREE.PointLight(0x22d3ee, o.rimI * 0.8, 0, 2)
+    rimB.position.set(o.cx + o.rimAt[0], o.rimAt[1] * 0.9, o.cz + o.rimAt[2])
+    g.add(rimA, rimB)
+    if (o.dust) {
+      const pos = new Float32Array(o.dust.n * 3)
+      for (let i = 0; i < o.dust.n; i++) {
+        pos[i * 3] = o.cx + (Math.random() - 0.5) * o.w
+        pos[i * 3 + 1] = Math.random() * o.dust.h
+        pos[i * 3 + 2] = o.cz + (Math.random() - 0.5) * o.d
+      }
+      const dg = new THREE.BufferGeometry()
+      dg.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+      const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0xcdd6ff, size: 0.03, transparent: true, opacity: 0.3, depthWrite: false }))
+      g.add(dust)
+    }
   }
 
   private label(text: string, color = '#e6edf7', scale = 1): THREE.Sprite {
@@ -243,7 +296,7 @@ export class MotionScene {
   /* ---------------- kinematics ---------------- */
   private buildKinematics() {
     const g = this.groups.kinematics_track
-    this.ground(g, 0x1c2a1c)
+    this.stageSet(g, { cx: -22, cz: 4, w: 100, d: 66, key: [-6, 70, 40], aim: [-20, 0, 6], keyI: 11000, rimI: 4500, rimAt: [52, 22, -18] })
     this.car.add(this.carFallback())
     g.add(this.car)
     // the start flag
@@ -340,7 +393,7 @@ export class MotionScene {
   /* ---------------- dynamics ---------------- */
   private buildDynamics() {
     const g = this.groups.dynamics_bay
-    this.ground(g, 0x121722, 400, 0.6)
+    this.stageSet(g, { cx: 0, cz: 0, w: 32, d: 11, wall: { z: -5.8, h: 11 }, key: [3, 11, 9], aim: [0, 0.8, 0], keyI: 950, rimI: 160, rimAt: [15, 6, -3], dust: { n: 160, h: 6 } })
     // station A: heavy crate on a rough floor
     const pad = new THREE.Mesh(new THREE.BoxGeometry(9, 0.1, 5), new THREE.MeshStandardMaterial({ color: 0x3a3f49, roughness: 0.95, metalness: 0.4 }))
     pad.position.set(-9, 0.03, 0)
@@ -364,6 +417,13 @@ export class MotionScene {
     this.crateFloat.add(this.crateFallback(0x7b7466, CRATE_FLOAT))
     this.crateFloat.position.set(-3, 1.8, 0)
     g.add(this.crateFloat)
+    this.crateBig.add(this.crateFallback(0x6b5a46, CRATE_BIG))
+    this.crateBig.visible = false
+    g.add(this.crateBig)
+    this.spring = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1, 14), new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.8 }))
+    this.spring.rotation.z = Math.PI / 2
+    this.spring.visible = false
+    g.add(this.spring)
     const b = this.label('Floating crate · 20 kg', '#bfe0ff', 0.9)
     b.position.set(-3, 3.8, 0)
     g.add(b)
@@ -436,7 +496,7 @@ export class MotionScene {
   /* ---------------- gravitation ---------------- */
   private buildGravitation() {
     const g = this.groups.gravitation_drop
-    this.ground(g, 0x161b26, 400, 0.5)
+    this.stageSet(g, { cx: 3.5, cz: 0, w: 26, d: 12, wall: { z: -6.4, h: 13 }, key: [4, 13, 11], aim: [3.5, 3, 0], keyI: 1100, rimI: 190, rimAt: [14, 8, -3], dust: { n: 160, h: 8 } })
     for (const [key, x, label, tone] of [['air', -3, 'AIR', '#ffd9a0'] as const, ['vacuum', 3, 'VACUUM', '#9fd0ff'] as const]) {
       const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1, POD, 40), new THREE.MeshStandardMaterial({ color: 0x2c313c, metalness: 0.8, roughness: 0.3 }))
       pod.position.set(x, POD / 2, 0)
@@ -476,6 +536,134 @@ export class MotionScene {
       this.drops[key] = rec
       this.resetDrop(key)
     }
+    // Newton's law of universal gravitation: two masses with equal and opposite pulls
+    const pod = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.8, 0.3, 56), new THREE.MeshStandardMaterial({ color: 0x2c313c, metalness: 0.8, roughness: 0.3 }))
+    pod.position.set(PAIR_X, 0.15, 0)
+    pod.receiveShadow = true
+    g.add(pod)
+    for (const m of [this.pairA, this.pairB]) {
+      m.castShadow = true
+      g.add(m)
+    }
+    for (const a of [this.pairArrowA, this.pairArrowB]) {
+      a.renderOrder = 9
+      g.add(a)
+    }
+    this.pairLabelA = this.label('Mass A', '#a8c8ff', 0.6)
+    this.pairLabelB = this.label('Mass B', '#ffd0a0', 0.6)
+    g.add(this.pairLabelA, this.pairLabelB)
+    const law = this.label('F = G m₁ m₂ / r²', '#ffe08a', 0.95)
+    law.position.set(PAIR_X, 5.4, 0)
+    g.add(law)
+    this.setPair(3, 2, 1, 1)
+  }
+
+  /** Lays out the two masses r metres apart. Sizes follow the cube root of the mass; arrows show the pull (1 = the starting pull). */
+  private setPair(r: number, mA: number, mB: number, force: number) {
+    const rA = 0.55 * Math.cbrt(mA / 2)
+    const rB = 0.4 * Math.cbrt(mB / 1)
+    this.pairA.scale.setScalar(rA / 0.55)
+    this.pairB.scale.setScalar(rB / 0.4)
+    const xa = PAIR_X - r / 2
+    const xb = PAIR_X + r / 2
+    this.pairA.position.set(xa, PAIR_Y, 0)
+    this.pairB.position.set(xb, PAIR_Y, 0)
+    const len = Math.min(0.45 * r, 0.2 + 0.5 * force)
+    this.pairArrowA.visible = this.pairArrowB.visible = true
+    this.pairArrowA.position.set(xa, PAIR_Y + 1.0, 0)
+    this.pairArrowA.setDirection(V(1, 0, 0))
+    this.pairArrowA.setLength(len, 0.3, 0.26)
+    this.pairArrowB.position.set(xb, PAIR_Y + 1.0, 0)
+    this.pairArrowB.setDirection(V(-1, 0, 0))
+    this.pairArrowB.setLength(len, 0.3, 0.26)
+    this.pairLabelA.position.set(xa, PAIR_Y + 1.7, 0)
+    this.pairLabelB.position.set(xb, PAIR_Y + 1.7, 0)
+  }
+
+  /** Newton's law of universal gravitation, played out on the two masses. */
+  private async runPair(action: string): Promise<void> {
+    this.abort()
+    const v = this.view('G')
+    await this.flyTo(v.pos, v.target, 1100)
+    if (this.disposed) return
+    const st = { t: 0 }
+    const smooth = (a: number, b: number, t: number) => easeInOut(Math.max(0, Math.min(1, (t - a) / (b - a))))
+    const earth = action === 'gravity_earth'
+    const keepColor = (this.pairA.material as THREE.MeshStandardMaterial).color.getHex()
+    if (earth) {
+      ;(this.pairA.material as THREE.MeshStandardMaterial).color.setHex(0x2f7bd8)
+      ;(this.pairA.material as THREE.MeshStandardMaterial).emissive.setHex(0x0a2a55)
+      this.pairA.scale.setScalar(1.7 / 0.55)
+      this.pairA.position.set(PAIR_X, PAIR_Y - 1.1, 0)
+      this.pairB.scale.setScalar(0.14 / 0.4)
+      this.pairLabelA.position.set(PAIR_X - 2.6, PAIR_Y - 0.6, 0)
+      this.pairLabelB.position.set(PAIR_X + 0.9, PAIR_Y + 1.7, 0)
+    }
+    const G = 6.67e-11
+    const M = 5.97e24
+    const R = 6.37e6
+    const Fearth = (G * M * 1) / (R * R)
+    return this.begin({
+      update: (dt) => {
+        st.t += dt
+        const t = st.t
+        let gauges: Gauge[] = []
+        if (action === 'gravity_double_r') {
+          const r = 3 + 3 * smooth(1.6, 3.6, t)
+          const F = 9 / (r * r)
+          this.setPair(r, 2, 1, F)
+          gauges = [
+            { label: 'Distance r', value: `${f1(r)} m`, tone: 'info' },
+            { label: 'Force on A', value: `${f2(F)} F₀`, tone: 'warn' },
+            { label: 'Force on B', value: `${f2(F)} F₀`, tone: 'warn' },
+            { label: 'r² compared with start', value: `×${f1((r * r) / 9)}` },
+          ]
+          if (t > 3.7 && t < 3.8) this.events.onNote?.('Double the distance: the force is a quarter, 1/r².')
+        } else if (action === 'gravity_double_m') {
+          const mB = 1 + smooth(1.6, 3.0, t)
+          const F = mB
+          this.setPair(3, 2, mB, F)
+          gauges = [
+            { label: 'Distance r', value: '3.0 m' },
+            { label: 'Mass B', value: `${f1(mB)} × start`, tone: 'info' },
+            { label: 'Force on A', value: `${f2(F)} F₀`, tone: 'warn' },
+            { label: 'Force on B', value: `${f2(F)} F₀`, tone: 'warn' },
+          ]
+          if (t > 3.1 && t < 3.2) this.events.onNote?.('Double one mass: the pull doubles, on both of them.')
+        } else {
+          const fall = smooth(2.4, 3.2, t)
+          this.pairB.position.set(PAIR_X, 3.05 + (1 - fall) * 1.25, 0)
+          this.pairLabelB.position.y = PAIR_Y + 1.7
+          const len = 0.9
+          this.pairArrowB.visible = true
+          this.pairArrowB.position.set(PAIR_X, this.pairB.position.y, 0)
+          this.pairArrowB.setDirection(V(0, -1, 0))
+          this.pairArrowB.setLength(len, 0.3, 0.26)
+          this.pairArrowA.visible = true
+          this.pairArrowA.position.set(PAIR_X + 0.7, PAIR_Y + 0.55, 0.4)
+          this.pairArrowA.setDirection(V(0, 1, 0))
+          this.pairArrowA.setLength(len, 0.3, 0.26)
+          gauges = [
+            { label: 'G', value: '6.67×10⁻¹¹ N·m²/kg²' },
+            { label: 'Earth’s mass', value: '5.97×10²⁴ kg' },
+            { label: 'Ball’s mass', value: '1 kg' },
+            { label: 'Distance to centre', value: '6.37×10⁶ m' },
+            { label: 'Force F', value: `${f1(Fearth)} N`, tone: 'warn' },
+          ]
+          if (t > 3.4 && t < 3.5) this.events.onNote?.('The same pull acts on the ball and on the Earth. On the ball it is its weight: 9.8 N per kg, so g = 9.8 m/s².')
+        }
+        this.emitGauges(dt, () => gauges)
+        if (t > 7) return 400
+        return null
+      },
+      done: () => {
+        if (earth) {
+          ;(this.pairA.material as THREE.MeshStandardMaterial).color.setHex(keepColor)
+          ;(this.pairA.material as THREE.MeshStandardMaterial).emissive.setHex(0x16306a)
+        }
+        this.setPair(3, 2, 1, 1)
+      },
+    })
   }
 
   private featherFallback(): THREE.Object3D {
@@ -557,6 +745,8 @@ export class MotionScene {
     this.crateHeavy.add(make(CRATE_HEAVY, 1))
     this.crateFloat.clear()
     this.crateFloat.add(make(CRATE_FLOAT, null))
+    this.crateBig.clear()
+    this.crateBig.add(make(CRATE_BIG, 1))
   }
 
   private useCradle(model: THREE.Object3D) {
@@ -730,14 +920,20 @@ export class MotionScene {
         return { pos: V(X - 9 + 1.5, 2.6, 7.5), target: V(X - 9, 0.7, 0) }
       case 'B':
         return { pos: V(X - 3, 2.6, 8.5), target: V(X - 3, 1.8, 0) }
+      case 'B2':
+        return { pos: V(X - 3, 2.8, 10.5), target: V(X - 3, 2.0, 0) }
       case 'C':
         return { pos: V(X + 3, 3.4, 9), target: V(X + 3, 0.4, 0) }
       case 'D':
         return { pos: V(X + 9, 2.3, 5.2), target: V(X + 9, 1.1, 0) }
       case 'dyn':
         return { pos: V(X - 1, 6, 20), target: V(X - 1, 0.9, 0) }
-      default:
+      case 'tubes':
         return { pos: V(Y, 4, 14.5), target: V(Y, 3.3, 0) }
+      case 'G':
+        return { pos: V(Y + 9.5, 3.4, 11), target: V(Y + 9.5, 2.3, 0) }
+      default:
+        return { pos: V(Y + 3.5, 4.6, 19), target: V(Y + 3.5, 3.1, 0) }
     }
   }
 
@@ -760,9 +956,6 @@ export class MotionScene {
       this.resetDrop('air')
       this.resetDrop('vacuum')
     }
-    const lights = MODULE_X[moduleId]
-    this.sun.position.set(lights - 20, 40, 25)
-    this.sun.target.position.set(lights, 0, 10)
     if (instant) {
       this.camera.position.copy(v.pos)
       this.controls.target.copy(v.target)
@@ -772,12 +965,15 @@ export class MotionScene {
   private resetDyn() {
     this.crateHeavy.position.set(-9, 0.1, 0)
     this.crateFloat.position.set(-3, 1.8, 0)
+    this.crateFloat.scale.setScalar(1)
+    this.crateBig.visible = false
+    if (this.spring) this.spring.visible = false
     this.resetBalls()
     for (const p of this.cradleBalls) p.rotation.z = 0
   }
 
   private hideArrows() {
-    for (const a of [this.arrowDisp, this.arrowVel, this.arrowAcc, this.pushArrow, this.frictionArrow]) a.visible = false
+    for (const a of [this.arrowDisp, this.arrowVel, this.arrowAcc, this.pushArrow, this.frictionArrow, this.pairArrowA, this.pairArrowB]) a.visible = false
   }
 
   /* ---------------- running experiments ---------------- */
@@ -826,7 +1022,17 @@ export class MotionScene {
       case 'push_heavy':
         return this.runPushHeavy(20)
       case 'push_float':
-        return this.runPushFloat()
+        return this.runZeroG({ force: 40, mass: 20, pushTime: 0.5, total: 14, notes: true })
+      case 'push_20kg':
+        return this.runZeroG({ force: 40, mass: 20, pushTime: 3, total: 6.5, notes: false })
+      case 'push_40kg':
+        return this.runZeroG({ force: 40, mass: 40, pushTime: 3, total: 6.5, notes: false })
+      case 'push_apart':
+        return this.runPushApart()
+      case 'gravity_double_r':
+      case 'gravity_double_m':
+      case 'gravity_earth':
+        return this.runPair(action)
       case 'collide':
         return this.runCollide()
       case 'cradle':
@@ -1083,27 +1289,31 @@ export class MotionScene {
     })
   }
 
-  /* ---- dynamics: floating crate ---- */
-  private async runPushFloat(): Promise<void> {
+  /* ---- dynamics: floating crate (Newton's first and second laws) ---- */
+  private async runZeroG(o: { force: number; mass: number; pushTime: number; total: number; notes: boolean }): Promise<void> {
     this.abort()
     const v = this.view('B')
     await this.flyTo(v.pos, v.target, 1100)
     if (this.disposed) return
-    const m = 20
+    this.crateBig.visible = false
+    this.crateFloat.position.set(-3, 1.8, 0)
+    this.crateFloat.scale.setScalar(Math.cbrt(o.mass / 20))
     const st = { t: 0, v: 0, dist: 0 }
     const pos = this.stars!.geometry.attributes.position as THREE.BufferAttribute
     const half = 7
+    const arrowLen = 1.8
     return this.begin({
       update: (dt) => {
         st.t += dt
-        const force = st.t < 0.5 ? 40 : 0
-        st.v += (force / m) * dt
+        const force = st.t < o.pushTime ? o.force : 0
+        const accel = force / o.mass
+        st.v += accel * dt
         st.dist += st.v * dt
         this.pushArrow.visible = force > 0
         if (force > 0) {
-          this.pushArrow.position.set(-3 - 2.4, 1.8, 0)
+          this.pushArrow.position.set(-3 - 2.4, 1.8 + (o.mass > 20 ? 0.25 : 0), 0)
           this.pushArrow.setDirection(V(1, 0, 0))
-          this.pushArrow.setLength(1.8, 0.45, 0.3)
+          this.pushArrow.setLength(arrowLen, 0.45, 0.3)
         }
         const a = pos.array as Float32Array
         for (let i = 0; i < a.length; i += 3) {
@@ -1114,19 +1324,85 @@ export class MotionScene {
         this.crateFloat.rotation.y = Math.sin(st.t * 0.4) * 0.05
         this.emitGauges(dt, () => [
           { label: 'Force on the crate', value: `${f1(force)} N`, tone: 'info' },
+          { label: 'Mass', value: `${f1(o.mass)} kg` },
+          { label: 'Acceleration', value: `${f2(accel)} m/s²`, tone: accel > 0 ? 'ok' : undefined },
           { label: 'Speed', value: `${f2(st.v)} m/s` },
           { label: 'Distance drifted', value: `${f1(st.dist)} m` },
-          { label: 'Net force', value: `${f1(force)} N` },
         ])
-        if (st.t > 1.6 && st.t < 1.7) this.events.onNote?.('The push is over. Nothing is acting on the crate now.')
-        if (st.t > 9) this.events.onNote?.('Still the same speed. Nothing slows it down.')
-        if (st.t > 14) {
-          return 300
-        }
+        if (o.notes && st.t > 1.6 && st.t < 1.7) this.events.onNote?.('The push is over. Nothing is acting on the crate now.')
+        if (o.notes && st.t > 9) this.events.onNote?.('Still the same speed. Nothing slows it down.')
+        if (!o.notes && st.t > o.pushTime && st.t < o.pushTime + 0.1) this.events.onNote?.(`F = m a  →  ${f1(o.force)} N ÷ ${f1(o.mass)} kg = ${f2(o.force / o.mass)} m/s²`)
+        if (st.t > o.total) return 400
         return null
       },
       done: () => {
         this.pushArrow.visible = false
+        this.crateFloat.scale.setScalar(1)
+      },
+    })
+  }
+
+  /* ---- dynamics: action and reaction (Newton's third law) ---- */
+  private async runPushApart(): Promise<void> {
+    this.abort()
+    const v = this.view('B2')
+    await this.flyTo(v.pos, v.target, 1100)
+    if (this.disposed) return
+    const mL = 20
+    const mR = 60
+    const F = 30
+    const hl = (CRATE_FLOAT * 0.36) / 2
+    const hr = (CRATE_BIG * 0.36) / 2
+    const cx = -3
+    const y = 1.8
+    const st = { t: 0, xl: cx - hl - 0.02, xr: cx + hr + 0.02, vl: 0, vr: 0 }
+    this.crateBig.visible = true
+    this.crateBig.position.set(st.xr, y, 0)
+    this.crateFloat.position.set(st.xl, y, 0)
+    this.crateFloat.rotation.y = 0
+    const push = 0.6
+    const spring = this.spring!
+    const lenArrow = 1.6
+    return this.begin({
+      update: (dt) => {
+        st.t += dt
+        const f = st.t < push ? F : 0
+        st.vl -= (f / mL) * dt
+        st.vr += (f / mR) * dt
+        st.xl += st.vl * dt
+        st.xr += st.vr * dt
+        this.crateFloat.position.x = st.xl
+        this.crateBig.position.x = st.xr
+        const gap = Math.max(0.05, st.xr - hr - (st.xl + hl))
+        spring.visible = f > 0
+        spring.position.set((st.xl + hl + st.xr - hr) / 2, y + 0.45, 0)
+        spring.scale.set(1, Math.max(0.05, gap), 1)
+        // equal and opposite: the same length, pointing apart
+        this.frictionArrow.visible = f > 0
+        this.pushArrow.visible = f > 0
+        if (f > 0) {
+          this.frictionArrow.position.set(st.xl - hl - 0.1, y + 0.9, 0.5)
+          this.frictionArrow.setDirection(V(-1, 0, 0))
+          this.frictionArrow.setLength(lenArrow, 0.4, 0.3)
+          this.pushArrow.position.set(st.xr + hr + 0.1, y + 0.9, 0.5)
+          this.pushArrow.setDirection(V(1, 0, 0))
+          this.pushArrow.setLength(lenArrow, 0.4, 0.3)
+        }
+        this.emitGauges(dt, () => [
+          { label: 'Force on the light crate', value: `${f1(f)} N ←`, tone: 'warn' },
+          { label: 'Force on the heavy crate', value: `${f1(f)} N →`, tone: 'info' },
+          { label: 'Light crate (20 kg)', value: `${f2(Math.abs(st.vl))} m/s`, tone: 'ok' },
+          { label: 'Heavy crate (60 kg)', value: `${f2(st.vr)} m/s`, tone: 'ok' },
+          { label: 'Accelerations', value: f > 0 ? `${f2(f / mL)} and ${f2(f / mR)} m/s²` : '0 m/s²' },
+        ])
+        if (st.t > push + 0.1 && st.t < push + 0.2) this.events.onNote?.('Equal forces, opposite directions. The light crate gets the bigger acceleration.')
+        if (st.t > 5.2) return 500
+        return null
+      },
+      done: () => {
+        this.pushArrow.visible = false
+        this.frictionArrow.visible = false
+        spring.visible = false
       },
     })
   }
@@ -1234,7 +1510,7 @@ export class MotionScene {
     this.abort()
     this.resetDrop('air')
     this.resetDrop('vacuum')
-    const v = this.view('grav')
+    const v = this.view('tubes')
     await this.flyTo(v.pos, v.target, 1000)
     if (this.disposed) return
     const rec = this.drops[which]
