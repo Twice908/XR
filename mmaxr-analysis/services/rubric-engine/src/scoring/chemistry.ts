@@ -22,7 +22,7 @@ export const d = (e: EventRow) => (e.object_data?.data ?? {}) as Record<string, 
 export const action = (e: EventRow) => e.object_data?.action ?? '';
 /** Tube (indicators lab) or sample (metals lab) an event is about. */
 export const slotOf = (e: EventRow) => Number(d(e).tube ?? d(e).sample);
-const RESULT_ACTIONS = ['liquid_color', 'test_result', 'reveal_shown'];
+const RESULT_ACTIONS = ['liquid_color', 'test_result', 'reveal_shown', 'observe_result', 'transfer_result'];
 export const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 const median = (xs: number[]) => {
   if (!xs.length) return null;

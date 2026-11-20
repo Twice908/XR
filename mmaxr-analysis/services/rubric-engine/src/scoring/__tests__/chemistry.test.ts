@@ -313,3 +313,65 @@ describe('digestive-system journey scoring', () => {
     expect(web.deviceStats.items.some((i) => i.label === 'Camera movement')).toBe(true);
   });
 });
+
+describe('motion sandbox scoring', () => {
+  const tr = (n: number, o: Partial<{ id: string; scenario: string; kind: 'prediction' | 'transfer'; anomaly: boolean; match: boolean; coverage: number | null }> = {}) => ({
+    id: o.id ?? `t${n}`, n, scenario: o.scenario ?? 'kinematics_track', kind: o.kind ?? 'prediction', anomaly: o.anomaly ?? false, match: o.match ?? true, confidence: 2, thinkMs: 8000, coverage: o.coverage ?? null, words: 12,
+  });
+  const truth = (trials: ReturnType<typeof tr>[], total = trials.length) => ({ tubes: [], submission: null, motion: { trials, total } });
+  const events = (rows: { n: number; match: boolean; kind?: 'run' | 'answer'; confidence?: number }[]): EventRow[] => {
+    id = 0; t = 2_000_000;
+    const out: EventRow[] = [ev('investigated', 'enter_lab', { target: 'physics-motion' })];
+    for (const r of rows) {
+      const tool = r.kind ?? 'run';
+      const data = { sample: r.n, tool };
+      out.push(ev('predicted', tool === 'run' ? 'predict_trial' : 'predict_transfer', { target: `trial:${r.n}`, value: 'x', data: { ...data, decisionMs: 9000, confidence: r.confidence ?? 2 } }, 9000));
+      out.push(ev('acted', tool === 'run' ? 'run_trial' : 'answer_transfer', { target: `trial:${r.n}`, value: 'go', data }, 5000));
+      out.push(ev('observed', tool === 'run' ? 'observe_result' : 'transfer_result', { target: `trial:${r.n}`, value: r.match ? 'match' : 'miss', data: { ...data, match: r.match } }, 10));
+    }
+    return out;
+  };
+
+  it('is detected as the motion lab (not the Bohr lab) and scores a strong student', () => {
+    const rows = [1, 2, 3, 4].map((n) => ({ n, match: true, confidence: 3 }));
+    const r = analyze(events(rows), null, truth([tr(1), tr(2, { anomaly: true, coverage: 1 }), tr(3), tr(4, { kind: 'transfer', scenario: 'kinematics_track' })]));
+    expect(r.lessonType).toBe('physics_motion');
+    expect(score(r, 'causalCoherence')).toBe(3);
+    expect(score(r, 'transfer')).toBe(3);
+    expect(score(r, 'revisionQuality')).toBe(3);
+    expect(r.complete).toBe(true);
+  });
+
+  it('credits learning from a surprise: a good explanation, or doing better next time', () => {
+    const rows = [1, 2, 3].map((n) => ({ n, match: n === 3 }));
+    const learned = analyze(events(rows), null, truth([tr(1, { match: false, anomaly: true, coverage: 0.9 }), tr(2, { match: false, anomaly: true, coverage: 0.8 }), tr(3)]));
+    expect(score(learned, 'revisionQuality')).toBe(3);
+    const shrugged = analyze(events(rows), null, truth([tr(1, { match: false, anomaly: true, coverage: 0.1 }), tr(2, { match: false, anomaly: true, coverage: 0 }), tr(3)]));
+    expect(score(shrugged, 'revisionQuality')).toBeLessThanOrEqual(1);
+    const correctedNext = analyze(events(rows), null, truth([tr(1, { match: false }), tr(2), tr(3)]));
+    expect(score(correctedNext, 'revisionQuality')).toBe(3);
+  });
+
+  it('causal coherence follows explanation quality; transfer waits for answers', () => {
+    const rows = [1, 2, 3].map((n) => ({ n, match: true }));
+    expect(score(analyze(events(rows), null, truth([tr(1), tr(2), tr(3)])), 'causalCoherence')).toBeNull();
+    expect(score(analyze(events(rows), null, truth([tr(1, { anomaly: true, coverage: 0.2 }), tr(2), tr(3)])), 'causalCoherence')).toBe(0);
+    expect(score(analyze(events(rows), null, truth([tr(1), tr(2), tr(3)])), 'transfer')).toBeNull();
+    const half = analyze(events(rows), null, truth([tr(1, { kind: 'transfer' }), tr(2, { kind: 'transfer', match: false }), tr(3)]));
+    expect(score(half, 'transfer')).toBe(2);
+  });
+
+  it('flags overconfidence and keeps incomplete sessions incomplete', () => {
+    const rows = [1, 2, 3, 4].map((n) => ({ n, match: false, confidence: 3 }));
+    const r = analyze(events(rows), null, truth([tr(1, { match: false }), tr(2, { match: false }), tr(3, { match: false }), tr(4, { match: false })], 10));
+    expect(score(r, 'metacognitiveCalibration')).toBe(0);
+    expect(r.complete).toBe(false);
+  });
+
+  it('reports device-appropriate stats', () => {
+    const rows = [1, 2].map((n) => ({ n, match: true }));
+    const vr = analyze(events(rows).map((e) => ({ ...e, device: 'vr' })), null, truth([tr(1), tr(2)]));
+    expect(vr.deviceStats.items.some((i) => i.label === 'Eye gaze')).toBe(true);
+    expect(analyze(events(rows), null, truth([tr(1), tr(2)])).deviceStats.items.some((i) => i.label === 'Camera movement')).toBe(true);
+  });
+});

@@ -88,6 +88,25 @@ export function describeEvent(e: TraceEvent): string {
       return `Stop ${str(d.sample)}: reveal shown${d.match === true ? ' (prediction matched)' : d.match === false ? ' (prediction missed some)' : ''}`
     case 'revise_explanation':
       return `Stop ${str(d.sample)}: revised the explanation (key ideas ${Math.round(Number(d.coverageBefore) * 100)}% → ${Math.round(Number(d.coverageAfter) * 100)}%)`
+    case 'select_module':
+      return `Opened the ${str(o.value).replace(/_/g, ' ')} module`
+    case 'predict_trial':
+    case 'predict_transfer': {
+      const v = str(o.value)
+      return `Predicted “${v}” for question ${str(d.sample)} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
+    }
+    case 'run_trial':
+      return `Question ${str(d.sample)}: ran the experiment${d.msSincePrediction ? ` (${Math.round(Number(d.msSincePrediction) / 100) / 10}s after predicting)` : ''}`
+    case 'observe_result':
+      return `Question ${str(d.sample)}: watched the result${d.match === true ? ' (as predicted)' : d.match === false ? ' (not as predicted)' : ''}`
+    case 'answer_transfer':
+      return `Question ${str(d.sample)}: answered the “what if?”`
+    case 'transfer_result':
+      return `Question ${str(d.sample)}: “what if?” ${d.match === true ? 'right' : 'not right'}`
+    case 'explain_result':
+      return `Question ${str(d.sample)}: explained the surprise (${str(d.words)} words, key ideas ${Math.round(Number(d.coverage) * 100)}%)`
+    case 'free_play':
+      return `Tried it freely: ${str(o.value).replace(/_/g, ' ')}`
     case 'submit_final':
       return 'Submitted the “what if?” challenge'
     case 'submit_analysis':
@@ -99,6 +118,7 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id === 'physics-motion' || id.startsWith('physics-motion')) return 'Motion, Forces & Gravitation'
   if (id.startsWith('biology')) return 'Human Digestive System'
   if (id.startsWith('metals')) return 'Metals & Non-Metals'
   if (id.startsWith('chemistry')) return 'Acids, Bases & Indicators'

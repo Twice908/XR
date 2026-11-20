@@ -5,6 +5,8 @@ import fs from 'fs';
 import { createClient } from 'redis';
 import { cleanSelection, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, wordCount, type BiologyAssignment, type Checkpoint, type Commit, type Scenario } from './biology';
 import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
+import { redactMotion, type MotionAssignment } from './motion';
+import { motionInternal, registerMotion } from './motionRoutes';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -43,7 +45,7 @@ async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indic
 async function loadAssignment(sessionId: string): Promise<Assignment | null> {
   const a = await loadAny(sessionId);
   const k = (a as { kind?: string } | null)?.kind;
-  return a && k !== 'metals' && k !== 'biology' ? (a as Assignment) : null;
+  return a && k !== 'metals' && k !== 'biology' && k !== 'motion' ? (a as Assignment) : null;
 }
 async function loadBiology(sessionId: string): Promise<BiologyAssignment | null> {
   const a = await loadAny(sessionId);
@@ -53,7 +55,11 @@ async function loadMetals(sessionId: string): Promise<MetalsAssignment | null> {
   const a = await loadAny(sessionId);
   return a && (a as MetalsAssignment).kind === 'metals' ? (a as MetalsAssignment) : null;
 }
-const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
+async function loadMotion(sessionId: string): Promise<MotionAssignment | null> {
+  const a = await loadAny(sessionId);
+  return a && (a as { kind?: string }).kind === 'motion' ? (a as unknown as MotionAssignment) : null;
+}
+const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment | MotionAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
 
 /** Is this bearer token the one session-auth issued for this session? */
 async function sessionFor(req: express.Request, sessionId: string): Promise<{ studentId: string; lessonId: string } | null> {
@@ -150,6 +156,15 @@ app.get(
         }
       }
       return res.json(redactBiology(lesson));
+    }
+    if (lesson.type === 'physics_mechanics_sandbox') {
+      const sessionId = String(req.query.sessionId ?? '');
+      if (sessionId) {
+        const who = await sessionFor(req, sessionId);
+        if (!who) return res.status(401).json({ error: 'Invalid session' });
+        if (!(await loadMotion(sessionId))) await saveAssignment(sessionId, { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, createdAt: Date.now() });
+      }
+      return res.json(redactMotion(lesson));
     }
     if (lesson.type !== 'chemistry_indicators') return res.json(lesson);
 
@@ -294,6 +309,8 @@ app.post(
   }),
 );
 
+registerMotion(app, { wrap, sessionFor, readLesson, load: loadMotion, save: saveAssignment });
+
 // ---------------- Human Digestive System ----------------
 
 const MAX_EXPLANATION = 2000;
@@ -434,6 +451,8 @@ app.get(
   '/internal/assignments/:sessionId',
   wrap(async (req, res) => {
     if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+    const mo = await loadMotion(req.params.sessionId);
+    if (mo) return res.json(motionInternal(mo, readLesson(mo.lessonId)));
     const bio = await loadBiology(req.params.sessionId);
     if (bio) {
       const lesson = readLesson(bio.lessonId);

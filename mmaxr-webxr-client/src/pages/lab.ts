@@ -14,6 +14,7 @@ import { buildSnapshot, describe as say } from '../lab/coachContext'
 import { Hud, type HudHandlers } from '../lab/hud'
 import { startMetalsLab } from './metalsLab'
 import { startBiologyLab } from './biologyLab'
+import { startMotionLab } from './motionLab'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
 import { banner, button, toast } from '../ui/components'
@@ -47,6 +48,12 @@ export function labPage(lessonId: string): Page {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        return
+      }
+      if (raw.type === 'physics_mechanics_sandbox') {
+        telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
+        telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
+        metalsCleanup = await startMotionLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
         return
       }
       if (raw.type === 'biology_digestive_system') {

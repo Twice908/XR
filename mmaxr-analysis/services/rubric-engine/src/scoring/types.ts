@@ -42,7 +42,14 @@ export interface BiologyTruth {
   final: { correct: number; total: number } | null;
 }
 
+export interface MotionTruth {
+  trials: { id: string; n: number; scenario: string; kind: 'prediction' | 'transfer'; anomaly: boolean; match: boolean; confidence: number; thinkMs: number; coverage: number | null; words: number }[];
+  total: number;
+}
+
 export interface TruthInfo {
+  /** Motion, forces and gravitation sandbox: per-trial results held by the lesson service. */
+  motion?: MotionTruth;
   /** Digestive-system journey: per-stop results held by the lesson service. */
   biology?: BiologyTruth;
   tubes: { tube: number; type: string; ph: number }[];
@@ -79,7 +86,7 @@ export interface StatItem {
 
 export interface Report {
   rubricVersion: string;
-  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'physics_bohr' | 'unknown';
+  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'physics_motion' | 'physics_bohr' | 'unknown';
   device: Device;
   complete: boolean;
   dimensions: DimensionResult[];

@@ -202,3 +202,13 @@ describe('digestive-system journey', () => {
     expect(coach(done.out)[0]).toMatchObject({ reason: 'wrapup', blocked: false });
   });
 });
+
+describe('motion sandbox', () => {
+  it('tells the coach not to reveal outcomes, and lists explanations only at wrap-up', async () => {
+    const { buildSystemPrompt } = await import('../prompt');
+    const hello = { type: 'hello', sessionId: 's', studentId: 'u', token: 't', lessonId: 'physics-motion', title: 'Motion', labType: 'physics_mechanics_sandbox' } as never;
+    expect(buildSystemPrompt(hello, null)).toContain('motion, forces and gravitation sandbox');
+    const wrap = buildSystemPrompt(hello, [{ tube: 2, id: 'kin_2', name: 'kin_2', formula: '', type: '', ph: 0, facts: 'Displacement is zero after a lap.', terms: ['zero displacement'], open: false }]);
+    expect(wrap).toContain('Question 2: Displacement is zero after a lap.');
+  });
+});
