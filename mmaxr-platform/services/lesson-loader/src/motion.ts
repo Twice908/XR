@@ -37,7 +37,7 @@ export interface MotionPrediction {
   /** Set once the student has watched the result. */
   match: boolean | null;
   fieldMatch: Record<string, boolean> | null;
-  explanation?: { text: string; coverage: number; matched: string[]; missed: string[]; words: number; at: number };
+  explanation?: { text: string; coverage: number; matched: string[]; missed: string[]; words: number; at: number; inputMode?: 'voice' | 'typed'; speakMs?: number; audioUrl?: string };
 }
 export interface MotionAssignment {
   kind: 'motion';

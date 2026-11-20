@@ -1,6 +1,6 @@
 import '../styles/motion.css'
 import type { Confidence, MotionExperiment, TrialState } from '../state/motion'
-import { wordCount } from '../state/motion'
+import { VoiceBox } from './voiceBox'
 import { h } from '../ui/dom'
 import { badge, button, setDisabled } from '../ui/components'
 import { sound } from './sound'
@@ -14,8 +14,7 @@ export interface MotionHudHandlers {
   onConfidence(c: Confidence): void
   onLock(): void
   onRun(): void
-  onExplanation(text: string): void
-  onExplain(): void
+  onExplain(text: string, inputMode: 'voice' | 'typed', speakMs: number, audio: Blob | null): void
   onNext(): void
   onReplay(): void
   onFreeDrive(on: boolean): void
@@ -46,8 +45,7 @@ export class MotionHud {
   private freeDriving = false
   private force = 200
   private lastKey = ''
-  private textArea: HTMLTextAreaElement | null = null
-  private wordLabel: HTMLElement | null = null
+  private box: VoiceBox | null = null
   private explainBtn: HTMLButtonElement | null = null
   private lockBtn: HTMLButtonElement | null = null
   private summary = false
@@ -262,28 +260,21 @@ export class MotionHud {
   }
 
   private renderObserved(t: TrialState): (Node | null)[] {
-    this.textArea = h('textarea', { class: 'input bio-text', rows: '3', placeholder: 'Why did it happen? Explain in your own words…', 'aria-label': 'Your explanation', oninput: () => this.onType() }) as HTMLTextAreaElement
-    this.textArea.value = t.explanation
-    this.wordLabel = h('span', { class: 't-support t-mono' })
-    this.explainBtn = button('Check my explanation', { variant: 'primary', onClick: () => this.handlers.onExplain() })
+    this.box?.destroy()
+    const box = new VoiceBox({ minWords: this.exp.minWords, initial: t.explanation, placeholder: 'Why did it happen? Speak it or type it…', onChange: () => this.paintExplain() })
+    this.box = box
+    this.explainBtn = button('Check my explanation', { variant: 'primary', onClick: () => box.ready && this.handlers.onExplain(box.text, box.mode, box.speakMs, box.audio) })
     this.paintExplain()
     return [
       this.head(t),
       this.result(t),
-      h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, t.trial.anomaly ? 'That may have surprised you. Why does it happen?' : 'Why does it happen?'), this.textArea),
-      h('div', { class: 'row row-between' }, this.wordLabel, this.explainBtn),
+      h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, t.trial.anomaly ? 'That may have surprised you. Why does it happen?' : 'Why does it happen?'), box.el),
+      h('div', { class: 'dialog-actions' }, this.explainBtn),
     ]
   }
 
-  private onType() {
-    this.handlers.onExplanation(this.textArea?.value ?? '')
-    this.paintExplain()
-  }
   private paintExplain() {
-    const t = this.exp.current
-    const words = wordCount(t.explanation)
-    if (this.wordLabel) this.wordLabel.textContent = `${words} / ${this.exp.minWords} words`
-    if (this.explainBtn) setDisabled(this.explainBtn, words < this.exp.minWords)
+    if (this.explainBtn && this.box) setDisabled(this.explainBtn, !this.box.ready)
   }
 
   private renderDone(t: TrialState): (Node | null)[] {
@@ -374,6 +365,7 @@ export class MotionHud {
   }
 
   destroy() {
+    this.box?.destroy()
     window.removeEventListener('resize', this.layout)
     this.root.remove()
   }

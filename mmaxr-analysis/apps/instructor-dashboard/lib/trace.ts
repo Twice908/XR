@@ -104,7 +104,9 @@ export function describeEvent(e: TraceEvent): string {
     case 'transfer_result':
       return `Question ${str(d.sample)}: “what if?” ${d.match === true ? 'right' : 'not right'}`
     case 'explain_result':
-      return `Question ${str(d.sample)}: explained the surprise (${str(d.words)} words, key ideas ${Math.round(Number(d.coverage) * 100)}%)`
+      return `Question ${str(d.sample)}: explained the surprise ${d.inputMode === 'voice' ? 'aloud' : 'in writing'} (${str(d.words)} words, key ideas ${Math.round(Number(d.coverage) * 100)}%)`
+    case 'explain_conclusions':
+      return `Explained their conclusions ${d.inputMode === 'voice' ? 'aloud' : 'in writing'} (${str(d.words)} words)`
     case 'free_play':
       return `Tried it freely: ${str(o.value).replace(/_/g, ' ')}`
     case 'submit_final':

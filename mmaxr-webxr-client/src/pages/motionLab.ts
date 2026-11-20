@@ -3,7 +3,7 @@ import type { MotionLessonContract } from '@mmaxr/schema'
 import { go } from '../router'
 import { CoachClient, loadMode } from '../services/aiCoach'
 import type { LabSession } from '../services/session'
-import { explainResult, lockPrediction, observeResult } from '../services/motionApi'
+import { explainResult, lockPrediction, observeResult, uploadExplainAudio } from '../services/motionApi'
 import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
 import { MotionHud, type MotionHudHandlers } from '../lab/motionHud'
@@ -120,15 +120,16 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       if (working) return
       void runAndObserve()
     },
-    onExplanation: (text) => exp.setExplanation(text),
-    onExplain: async () => {
+    onExplain: async (text, mode, speakMs, audio) => {
       if (working) return
+      exp.setExplanation(text, mode, speakMs)
       const body = guard(() => exp.explainPayload())
       if (!body) return
       working = true
       hud!.setBusy('Checking your explanation…')
       try {
-        const r = await explainResult(session, body.trial, body.explanation)
+        const r = await explainResult(session, body.trial, body.explanation, body.inputMode, body.speakMs)
+        if (audio) void uploadExplainAudio(session, body.trial, audio).catch(() => {})
         exp.recordExplained(r)
         coach?.event('revision', say.explained(exp.current.n), buildMotionSnapshot(exp))
         if (exp.allDone) coach?.reveal(buildMotionSnapshot(exp))

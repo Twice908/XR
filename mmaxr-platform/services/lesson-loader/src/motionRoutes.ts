@@ -100,9 +100,35 @@ export function registerMotion(app: express.Express, d: MotionDeps) {
       const min = lesson.config?.minExplanationWords ?? 6;
       if (wordCount(text) < min) return res.status(400).json({ error: `Explain it in at least ${min} words` });
       const s = scoreExplanation(trial, text);
-      p.explanation = { text, coverage: s.coverage, matched: s.matched, missed: s.missed, words: s.words, at: Date.now() };
+      p.explanation = { text, coverage: s.coverage, matched: s.matched, missed: s.missed, words: s.words, at: Date.now(), inputMode: req.body?.inputMode === 'voice' ? 'voice' : 'typed', speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)) };
       await d.save(c.sessionId, a);
       res.json({ keywords: s.results, coverage: s.coverage, explanation: trial.explanation });
+    }),
+  );
+
+  // The spoken explanation, kept with the session for the instructor.
+  app.post(
+    '/sessions/:sessionId/motion/audio',
+    d.wrap(async (req, res) => {
+      const c = await ctx(req, res);
+      if (!c) return;
+      const { a, trial } = c;
+      const ex = a.predictions[trial.id]?.explanation;
+      if (!ex) return res.status(409).json({ error: 'Explain this one first' });
+      const b64 = String(req.body?.fileBase64 ?? '');
+      const type = String(req.body?.contentType ?? 'audio/webm');
+      if (!/^audio\//.test(type) || b64.length === 0 || b64.length > 5_000_000) return res.status(400).json({ error: 'Invalid audio' });
+      const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
+      const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: `motion_${c.sessionId}_${trial.id}.${ext}`, contentType: type, fileBase64: b64 }),
+      });
+      if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });
+      const data = (await store.json()) as { url?: string };
+      ex.audioUrl = data.url;
+      await d.save(c.sessionId, a);
+      res.status(201).json({ stored: true });
     }),
   );
 }
@@ -120,7 +146,7 @@ export function motionInternal(a: MotionAssignment, lesson: { scenarios: MotionS
     motion: {
       trials: trials.map((t, i) => {
         const p = a.predictions[t.id];
-        return p && p.match !== null ? { id: t.id, n: i + 1, scenario: (lesson.scenarios.find((s) => s.trials.includes(t)) as MotionScenario).id, kind: t.kind, anomaly: t.anomaly, match: p.match, confidence: p.confidence, thinkMs: p.thinkMs, coverage: p.explanation?.coverage ?? null, words: p.explanation?.words ?? 0 } : null;
+        return p && p.match !== null ? { id: t.id, n: i + 1, scenario: (lesson.scenarios.find((s) => s.trials.includes(t)) as MotionScenario).id, kind: t.kind, anomaly: t.anomaly, match: p.match, confidence: p.confidence, thinkMs: p.thinkMs, coverage: p.explanation?.coverage ?? null, words: p.explanation?.words ?? 0, inputMode: p.explanation?.inputMode ?? null, speakMs: p.explanation?.speakMs ?? 0 } : null;
       }).filter(Boolean),
       total: trials.length,
     },

@@ -20,6 +20,8 @@ export interface TrialState {
   confidence: Confidence | null
   observation: MotionObservation | null
   explanation: string
+  inputMode: 'voice' | 'typed'
+  speakMs: number
   explained: MotionExplanationResult | null
   openedAt: number
   lockedAt: number
@@ -41,7 +43,7 @@ export class MotionExperiment {
   ) {
     let n = 0
     for (const s of lesson.scenarios)
-      for (const trial of s.trials) this.trials.push({ trial, scenario: s.id, n: ++n, stage: 'open', numbers: {}, choice: null, confidence: null, observation: null, explanation: '', explained: null, openedAt: 0, lockedAt: 0, thinkMs: 0 })
+      for (const trial of s.trials) this.trials.push({ trial, scenario: s.id, n: ++n, stage: 'open', numbers: {}, choice: null, confidence: null, observation: null, explanation: '', inputMode: 'typed', speakMs: 0, explained: null, openedAt: 0, lockedAt: 0, thinkMs: 0 })
     this.scenarioId = lesson.scenarios[0].id
     this.open(this.current)
   }
@@ -182,18 +184,21 @@ export class MotionExperiment {
   }
 
   // ---- explain ----
-  setExplanation(text: string): void {
-    this.current.explanation = text
+  setExplanation(text: string, inputMode: 'voice' | 'typed' = 'typed', speakMs = 0): void {
+    const t = this.current
+    t.explanation = text
+    t.inputMode = inputMode
+    t.speakMs = speakMs
   }
   get canExplain(): boolean {
     const t = this.current
     return t.stage === 'observed' && wordCount(t.explanation) >= this.minWords
   }
-  explainPayload(): { trial: string; explanation: string } {
+  explainPayload(): { trial: string; explanation: string; inputMode: 'voice' | 'typed'; speakMs: number } {
     const t = this.current
     if (t.stage !== 'observed') throw new StateError('Watch the result first.')
     if (wordCount(t.explanation) < this.minWords) throw new StateError(`Write at least ${this.minWords} words.`)
-    return { trial: t.trial.id, explanation: t.explanation.trim() }
+    return { trial: t.trial.id, explanation: t.explanation.trim(), inputMode: t.inputMode, speakMs: t.speakMs }
   }
   recordExplained(r: MotionExplanationResult): void {
     const t = this.current
@@ -201,7 +206,7 @@ export class MotionExperiment {
     t.stage = 'done'
     this.lingering = t
     if (t.observation) t.observation = { ...t.observation, explanation: r.explanation }
-    this.emit(XapiVerb.EXPLAINED, { action: 'explain_result', target: `trial:${t.trial.id}`, data: { sample: t.n, trial: t.trial.id, words: wordCount(t.explanation), coverage: r.coverage } })
+    this.emit(XapiVerb.EXPLAINED, { action: 'explain_result', target: `trial:${t.trial.id}`, data: { sample: t.n, trial: t.trial.id, words: wordCount(t.explanation), coverage: r.coverage, inputMode: t.inputMode, speakMs: t.speakMs } })
     this.maybeFinish()
   }
 

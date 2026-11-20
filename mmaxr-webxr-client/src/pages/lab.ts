@@ -15,6 +15,9 @@ import { Hud, type HudHandlers } from '../lab/hud'
 import { startMetalsLab } from './metalsLab'
 import { startBiologyLab } from './biologyLab'
 import { startOpticsLab } from './opticsLab'
+import { askReasoning } from '../lab/reasoningDialog'
+import { sendReasoning } from '../services/reasoningApi'
+import { wordsIn } from '../lab/voiceBox'
 import { startMotionLab } from './motionLab'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
@@ -108,10 +111,18 @@ export function labPage(lessonId: string): Page {
       }
 
       let submitting = false
+      let reasoned = false
       const submit = async () => {
         if (submitting || !exp.canSubmit) return
         submitting = true
         try {
+          if (!reasoned) {
+            const why = await askReasoning({ title: 'Explain your conclusions', description: 'Before you see the answers, tell us how you decided what each tube is. Speak it or type it.' })
+            if (!why) return
+            await sendReasoning(session, why)
+            telemetry.emit(XapiVerb.EXPLAINED, { action: 'explain_conclusions', data: { words: wordsIn(why.text), inputMode: why.inputMode, speakMs: why.speakMs } })
+            reasoned = true
+          }
           const payload = guard(() => exp.submissionPayload())
           if (!payload) return
           hud!.hint('Submitting your analysis…', null)

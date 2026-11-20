@@ -114,6 +114,17 @@ describe('MotionExperiment', () => {
     expect(exp.current.observation?.explanation).toBe('why')
   })
 
+  it('carries whether the explanation was spoken', () => {
+    const { exp, events } = setup()
+    exp.setNumber('distance', '1'); exp.setNumber('displacement', '1'); exp.setConfidence(1)
+    exp.recordLocked(0); exp.startRun(); exp.recordObservation(obs('a1', true, 'e')); exp.advance()
+    exp.setChoice('x'); exp.setConfidence(2); exp.recordLocked(0); exp.startRun(); exp.recordObservation(obs('a2', false, null))
+    exp.setExplanation('this is long enough now', 'voice', 8000)
+    expect(exp.explainPayload()).toMatchObject({ inputMode: 'voice', speakMs: 8000 })
+    exp.recordExplained({ keywords: [], coverage: 1, explanation: 'e' })
+    expect(events.at(-1)?.object.data).toMatchObject({ inputMode: 'voice', speakMs: 8000 })
+  })
+
   it('a question with no simulation emits answer events instead of run events', () => {
     const { exp, events } = setup()
     exp.setNumber('distance', '1'); exp.setNumber('displacement', '1'); exp.setConfidence(1)

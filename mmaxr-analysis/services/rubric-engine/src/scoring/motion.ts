@@ -64,8 +64,11 @@ function stats(truth: TruthInfo | null, events: EventRow[], sensor: SensorData |
   const hand = sensor ? travel(sensor, 'hand', first, last) : null;
   const m = (v: number | null) => (v === null ? '–' : `${r2(v)} m`);
   const md = median(think);
+  const explained = ts.filter((t) => t.coverage !== null);
+  const aloud = explained.filter((t) => t.inputMode === 'voice');
   const common: StatItem[] = [
     { label: 'Time to decide', value: md === null ? '–' : `${r1(md / 1000)}s`, hint: 'Median time from reading a question to locking a prediction' },
+    { label: 'Explained aloud', value: `${aloud.length} of ${explained.length}`, hint: 'Explanations spoken rather than typed' },
     { label: 'Surprises predicted', value: `${anomalies.filter((t) => t.match).length} of ${anomalies.length}`, hint: 'The counter-intuitive results the student called correctly' },
   ];
   if (device === 'vr') return { kind: 'vr', items: [...common, { label: 'Head travel', value: m(head), hint: 'How much they moved to watch each experiment' }, { label: 'Hand travel', value: m(hand), hint: 'Controller / hand path' }, { label: 'Eye gaze', value: 'Not recorded', hint: 'Gaze on the moving object needs an eye-tracking headset' }] };

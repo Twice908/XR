@@ -1,3 +1,6 @@
+import { askReasoning } from '../lab/reasoningDialog'
+import { sendReasoning } from '../services/reasoningApi'
+import { wordsIn } from '../lab/voiceBox'
 import { XapiVerb } from '@mmaxr/schema'
 import type { MaterialKind, MetalsLessonContract } from '@mmaxr/schema'
 import { go } from '../router'
@@ -28,6 +31,7 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
   const exp = new MetalsExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
   let busy = false
   let submitting = false
+  let reasoned = false
   let coach: CoachClient | null = null
   let idleTimer: number | null = null
   let hud: MetalsHud | null = null
@@ -177,6 +181,13 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
     }
     submitting = true
     try {
+      if (!reasoned) {
+        const why = await askReasoning({ title: 'Explain your conclusions', description: 'Before you see what the samples really were, tell us how you decided metal or non-metal for each. Speak it or type it.' })
+        if (!why) return
+        await sendReasoning(session, why)
+        telemetry.emit(XapiVerb.EXPLAINED, { action: 'explain_conclusions', data: { words: wordsIn(why.text), inputMode: why.inputMode, speakMs: why.speakMs } })
+        reasoned = true
+      }
       const payload = guard(() => exp.submissionPayload())
       if (!payload) return
       hud!.hint('Submitting your analysis…', null)

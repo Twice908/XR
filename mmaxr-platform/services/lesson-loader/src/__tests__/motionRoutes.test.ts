@@ -87,6 +87,17 @@ describe('motion routes', () => {
     expect((await post('explain', { trial: 'dyn_1', explanation: 'trying again with a different explanation text' })).status).toBe(409);
   });
 
+  it('keeps how an explanation was given, and takes its audio only after it', async () => {
+    fresh();
+    await post('predict', { trial: 'dyn_1', value: { choice: 'stays' }, confidence: 2 });
+    await post('observe', { trial: 'dyn_1' });
+    expect((await post('audio', { trial: 'dyn_1', contentType: 'audio/webm', fileBase64: 'AAAA' })).status).toBe(409);
+    await post('explain', { trial: 'dyn_1', explanation: 'Friction balances the push so the net force is zero and nothing moves at all.', inputMode: 'voice', speakMs: 9000 });
+    expect((await post('audio', { trial: 'dyn_1', contentType: 'text/plain', fileBase64: 'AAAA' })).status).toBe(400);
+    const t = motionInternal(store!, lesson) as any;
+    expect(t.motion.trials[0]).toMatchObject({ inputMode: 'voice', speakMs: 9000 });
+  });
+
   it('a question without an explanation step refuses one', async () => {
     fresh();
     await post('predict', { trial: 'kin_1', value: { distance: 50, displacement: 50 }, confidence: 2 });

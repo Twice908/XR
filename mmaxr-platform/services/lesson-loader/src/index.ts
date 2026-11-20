@@ -8,6 +8,7 @@ import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as r
 import { allTrialsDone, buildReveal, checkExplanation, cleanTable, flatCases, judgeTrial, makePlan, owesExplanation, personalize, redactOptics, stageBlocker, trialKey, truthFor, type OpticsAssignment, type OpticsTrial } from './optics';
 import { redactMotion, type MotionAssignment } from './motion';
 import { motionInternal, registerMotion } from './motionRoutes';
+import { reasoningSummary, registerReasoning } from './reasoningRoutes';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -456,6 +457,7 @@ app.post(
   }),
 );
 registerMotion(app, { wrap, sessionFor, readLesson, load: loadMotion, save: saveAssignment });
+registerReasoning(app, { wrap, sessionFor, load: loadAny as never, save: saveAssignment as never });
 
 // ---------------- Human Digestive System ----------------
 
@@ -647,6 +649,7 @@ app.get(
         studentId: m.studentId,
         submitted: m.submission !== null,
         submission: m.submission && { tubes: m.submission.samples.map((s) => ({ tube: s.sample, conclusion: s.conclusion, ph: null, hypothesis: s.hypothesis })) },
+        reasoning: reasoningSummary(m as never),
         tubes: m.samples.map((x, i) => ({ tube: i + 1, id: x.id, name: x.name, formula: x.formula, type: x.trueType, ph: 0, facts: factsFor(x) })),
       });
     }
@@ -658,6 +661,7 @@ app.get(
       studentId: a.studentId,
       submitted: a.submission !== null,
       submission: a.submission,
+      reasoning: reasoningSummary(a as never),
       tubes: a.tubes.map((s, i) => ({ tube: i + 1, id: s.id, name: s.name, formula: s.formula, type: verdictOf(s.type), ph: s.ph })),
     });
   }),

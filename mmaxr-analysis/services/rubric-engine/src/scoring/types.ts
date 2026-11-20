@@ -43,7 +43,7 @@ export interface BiologyTruth {
 }
 
 export interface MotionTruth {
-  trials: { id: string; n: number; scenario: string; kind: 'prediction' | 'transfer'; anomaly: boolean; match: boolean; confidence: number; thinkMs: number; coverage: number | null; words: number }[];
+  trials: { id: string; n: number; scenario: string; kind: 'prediction' | 'transfer'; anomaly: boolean; match: boolean; confidence: number; thinkMs: number; coverage: number | null; words: number; inputMode?: 'voice' | 'typed' | null; speakMs?: number }[];
   total: number;
 }
 
