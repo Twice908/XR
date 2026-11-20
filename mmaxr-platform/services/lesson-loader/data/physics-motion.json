@@ -1,0 +1,683 @@
+{
+  "lessonId": "physics-motion",
+  "type": "physics_mechanics_sandbox",
+  "subject": "Physics",
+  "title": "Motion, Forces & Gravitation Sandbox",
+  "summary": "Drive a car around a loop, push crates in a cargo bay and drop things in air and vacuum. Predict first, then watch what really happens.",
+  "durationMinutes": 25,
+  "assets": {
+    "car": "http://localhost:3007/assets/models/car-model.glb",
+    "crate": "http://localhost:3007/assets/models/modular-crate.glb",
+    "feathers": "http://localhost:3007/assets/models/3_great_feathers_pack.glb",
+    "cradle": "http://localhost:3007/assets/models/newtons-cradle.glb",
+    "pipe": "http://localhost:3007/assets/models/pipe-glass-large-long.glb",
+    "trackStraight": "http://localhost:3007/assets/models/race-track-straight.glb",
+    "trackCurve": "http://localhost:3007/assets/models/race-track-curve-90.glb"
+  },
+  "config": {
+    "enableScenarioSwitcher": true,
+    "minExplanationWords": 6,
+    "minPredictionMs": 0
+  },
+  "scenarios": [
+    {
+      "id": "kinematics_track",
+      "tabName": "Kinematics",
+      "title": "The Track",
+      "setup": "A race car on a straight run-up that leads into a circular track. The odometer counts distance; the arrow shows displacement from where you started.",
+      "trials": [
+        {
+          "id": "kin_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "drive_straight",
+          "prompt": "The car drives forward 50 m along the straight. Predict the distance on the odometer and its displacement from the start.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "distance",
+                "label": "Distance",
+                "unit": "m"
+              },
+              {
+                "id": "displacement",
+                "label": "Displacement",
+                "unit": "m"
+              }
+            ]
+          },
+          "answer": {
+            "distance": 50,
+            "displacement": 50
+          },
+          "tolerance": 3,
+          "outcome": "Distance 50 m, displacement 50 m.",
+          "explanation": "In a straight line in one direction, distance and displacement are the same size.",
+          "coachSecrets": [
+            "same size"
+          ]
+        },
+        {
+          "id": "kin_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "drive_lap",
+          "prompt": "Now the car drives one complete lap of the circular track and stops back where the lap began. Predict the distance and the displacement.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "distance",
+                "label": "Distance",
+                "unit": "m"
+              },
+              {
+                "id": "displacement",
+                "label": "Displacement",
+                "unit": "m"
+              }
+            ]
+          },
+          "answer": {
+            "distance": 100,
+            "displacement": 0
+          },
+          "tolerance": {
+            "distance": 8,
+            "displacement": 2
+          },
+          "outcome": "Distance 100 m, displacement 0 m.",
+          "explanation": "Displacement is a vector: the straight line from where you started to where you ended. Come back to the start and it is zero, even though the odometer shows the whole 100 m you travelled.",
+          "expectedKeywords": [
+            "displacement",
+            "vector",
+            "start",
+            "zero",
+            "distance"
+          ],
+          "keywordSynonyms": {
+            "vector": [
+              "direction"
+            ],
+            "start": [
+              "starting point",
+              "same place",
+              "back where",
+              "beginning",
+              "origin"
+            ],
+            "zero": [
+              "0",
+              "nothing",
+              "none",
+              "no change",
+              "cancels"
+            ],
+            "displacement": [
+              "net change in position",
+              "straight line",
+              "shortest"
+            ]
+          },
+          "coachSecrets": [
+            "displacement is zero",
+            "zero displacement"
+          ]
+        },
+        {
+          "id": "kin_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "drive_lap_steady",
+          "prompt": "The car drives one lap again, taking 20 s at a steady pace. Predict its average speed and its average velocity for the lap.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "speed",
+                "label": "Average speed",
+                "unit": "m/s"
+              },
+              {
+                "id": "velocity",
+                "label": "Average velocity",
+                "unit": "m/s"
+              }
+            ]
+          },
+          "answer": {
+            "speed": 5,
+            "velocity": 0
+          },
+          "tolerance": 0.6,
+          "outcome": "Average speed 5 m/s, average velocity 0 m/s.",
+          "explanation": "Speed is distance over time (100 m ÷ 20 s = 5 m/s). Velocity is displacement over time, and the displacement for a full lap is zero.",
+          "coachSecrets": [
+            "5 m/s",
+            "velocity is zero"
+          ]
+        },
+        {
+          "id": "kin_4",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "drive_lap_steady",
+          "prompt": "Watch the same steady lap. The speedometer never changes. Is the car accelerating?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "yes_direction",
+                "label": "Yes: its direction keeps changing"
+              },
+              {
+                "id": "no_steady",
+                "label": "No: its speed is constant"
+              },
+              {
+                "id": "only_straight",
+                "label": "Only on the straight parts"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "yes_direction"
+          },
+          "outcome": "Yes. The speed is steady but the velocity arrow keeps turning, so the car is accelerating towards the centre.",
+          "explanation": "Velocity has a direction as well as a size. Changing direction is changing velocity, and any change in velocity is acceleration, even at constant speed.",
+          "expectedKeywords": [
+            "velocity",
+            "direction",
+            "change",
+            "acceleration"
+          ],
+          "keywordSynonyms": {
+            "change": [
+              "changes",
+              "changing",
+              "turning",
+              "turns",
+              "different"
+            ],
+            "direction": [
+              "heading",
+              "way",
+              "turn"
+            ],
+            "acceleration": [
+              "accelerating",
+              "accelerates",
+              "accelerate"
+            ],
+            "velocity": [
+              "vector"
+            ]
+          },
+          "coachSecrets": [
+            "centripetal",
+            "towards the centre",
+            "toward the centre"
+          ]
+        },
+        {
+          "id": "tr_kin",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "prompt": "A hiker walks 30 m north and then 40 m east. What is the size of her displacement?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "a",
+                "label": "70 m"
+              },
+              {
+                "id": "b",
+                "label": "50 m"
+              },
+              {
+                "id": "c",
+                "label": "10 m"
+              },
+              {
+                "id": "d",
+                "label": "0 m"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "b"
+          },
+          "outcome": "50 m.",
+          "explanation": "Displacement is the straight line from start to finish. The two legs are at right angles, so 30² + 40² = 50²."
+        }
+      ]
+    },
+    {
+      "id": "dynamics_bay",
+      "tabName": "Newton's Laws",
+      "title": "The Cargo Bay",
+      "setup": "A cargo bay with a heavy crate (80 kg) on a rough floor, a crate floating in zero gravity, two balls on a rail, and a Newton's cradle.",
+      "trials": [
+        {
+          "id": "dyn_1",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "push_heavy",
+          "prompt": "You push the heavy crate on the floor with a small force of 20 N. What happens?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "slides",
+                "label": "It slides away slowly"
+              },
+              {
+                "id": "stays",
+                "label": "It does not move"
+              },
+              {
+                "id": "speeds",
+                "label": "It speeds up steadily"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "stays"
+          },
+          "outcome": "It does not move. The floor pushes back with exactly 20 N.",
+          "explanation": "Friction from the floor grows to match your push, up to a limit. While your force is below that limit the forces cancel, so the crate has no acceleration.",
+          "expectedKeywords": [
+            "friction",
+            "force",
+            "balance",
+            "inertia"
+          ],
+          "keywordSynonyms": {
+            "friction": [
+              "static",
+              "rough",
+              "grip",
+              "floor"
+            ],
+            "balance": [
+              "balanced",
+              "equal",
+              "opposite",
+              "cancel",
+              "cancels",
+              "cancelled"
+            ],
+            "force": [
+              "push",
+              "forces"
+            ],
+            "inertia": [
+              "resists",
+              "resist",
+              "heavy",
+              "mass"
+            ]
+          },
+          "coachSecrets": [
+            "static friction",
+            "forces cancel"
+          ]
+        },
+        {
+          "id": "dyn_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "push_float",
+          "prompt": "You give the floating crate a short push in space, then let go. What does it do afterwards?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "stops",
+                "label": "It slows down and stops soon"
+              },
+              {
+                "id": "constant",
+                "label": "It keeps going at the same speed"
+              },
+              {
+                "id": "speeds",
+                "label": "It keeps speeding up"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "constant"
+          },
+          "outcome": "It drifts on at a constant speed and never stops by itself.",
+          "explanation": "Nothing pushes or drags it after the push, so there is no net force. Newton's first law: an object keeps its velocity unless a net force acts. This is inertia.",
+          "expectedKeywords": [
+            "inertia",
+            "force",
+            "friction",
+            "constant"
+          ],
+          "keywordSynonyms": {
+            "friction": [
+              "resistance",
+              "air",
+              "drag",
+              "nothing"
+            ],
+            "force": [
+              "push",
+              "pushes",
+              "net force"
+            ],
+            "constant": [
+              "same speed",
+              "steady",
+              "forever",
+              "never stops",
+              "keeps moving",
+              "keeps going"
+            ],
+            "inertia": [
+              "first law",
+              "newton"
+            ]
+          },
+          "coachSecrets": [
+            "never stops",
+            "constant speed",
+            "first law"
+          ]
+        },
+        {
+          "id": "dyn_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "collide",
+          "prompt": "A heavy ball (5 kg) rolls at 4 m/s into a light ball (1 kg) that is standing still. What happens just after they collide?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "together",
+                "label": "They stick and move off at the same speed"
+              },
+              {
+                "id": "heavy_slows",
+                "label": "The heavy ball slows down; the light ball shoots off faster than the heavy ball was going"
+              },
+              {
+                "id": "heavy_stops",
+                "label": "The heavy ball stops dead; the light ball leaves at 4 m/s"
+              },
+              {
+                "id": "bounce",
+                "label": "The heavy ball bounces back; the light ball hardly moves"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "heavy_slows"
+          },
+          "outcome": "The heavy ball slows to about 2.7 m/s; the light ball shoots off at about 6.7 m/s.",
+          "explanation": "Total momentum (mass × velocity) is conserved. The heavy ball hands some momentum to the light ball, and a small mass needs a big speed to carry it.",
+          "expectedKeywords": [
+            "momentum",
+            "conserved",
+            "transfer",
+            "mass"
+          ],
+          "keywordSynonyms": {
+            "conserved": [
+              "conservation",
+              "conserve",
+              "same total",
+              "stays the same",
+              "total"
+            ],
+            "transfer": [
+              "transferred",
+              "passes",
+              "passed",
+              "gives",
+              "gave",
+              "shared",
+              "handed"
+            ],
+            "mass": [
+              "heavy",
+              "heavier",
+              "lighter",
+              "light",
+              "weight"
+            ]
+          },
+          "coachSecrets": [
+            "6.7",
+            "2.7",
+            "momentum is conserved"
+          ]
+        },
+        {
+          "id": "dyn_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "cradle",
+          "prompt": "On the Newton's cradle you lift two balls on the left and let go. How many balls swing out on the right?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "1",
+                "label": "One"
+              },
+              {
+                "id": "2",
+                "label": "Two"
+              },
+              {
+                "id": "3",
+                "label": "Three"
+              },
+              {
+                "id": "5",
+                "label": "All five"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "2"
+          },
+          "outcome": "Two balls swing out, the same number you lifted.",
+          "explanation": "Momentum and energy are both conserved. Only two balls leaving at the same speed conserves both; one ball would need a different speed that breaks energy conservation.",
+          "coachSecrets": [
+            "same number"
+          ]
+        },
+        {
+          "id": "tr_dyn",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "prompt": "A loaded truck and a bicycle travel at the same speed. Both brake to a stop in the same time. Which needs the bigger braking force?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "truck",
+                "label": "The truck"
+              },
+              {
+                "id": "bike",
+                "label": "The bicycle"
+              },
+              {
+                "id": "same",
+                "label": "They need the same force"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "truck"
+          },
+          "outcome": "The truck.",
+          "explanation": "The truck has far more momentum (mass × velocity). Stopping it in the same time means a bigger change in momentum, so a bigger force."
+        }
+      ]
+    },
+    {
+      "id": "gravitation_drop",
+      "tabName": "Gravitation",
+      "title": "The Drop Tower",
+      "setup": "Two tall glass tubes, 4.9 m high: one full of air, one with the air pumped out. A metal ball and a feather wait at the top of each.",
+      "trials": [
+        {
+          "id": "grav_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "drop_air",
+          "prompt": "In the AIR tube you drop a metal ball and a feather together. Which reaches the bottom first?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "ball",
+                "label": "The metal ball"
+              },
+              {
+                "id": "feather",
+                "label": "The feather"
+              },
+              {
+                "id": "same",
+                "label": "They land together"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "ball"
+          },
+          "outcome": "The metal ball lands first; the feather floats down.",
+          "explanation": "Air pushes back on the feather much more than on the dense ball, so the feather falls slowly."
+        },
+        {
+          "id": "grav_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "drop_vacuum",
+          "prompt": "In the VACUUM tube you drop the metal ball and the feather together. Which reaches the bottom first?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "ball",
+                "label": "The metal ball"
+              },
+              {
+                "id": "feather",
+                "label": "The feather"
+              },
+              {
+                "id": "same",
+                "label": "They land together"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "same"
+          },
+          "outcome": "They land at exactly the same moment.",
+          "explanation": "Gravity accelerates every object at the same rate, about 9.8 m/s², whatever its mass. The feather only fell slowly in air because of air resistance.",
+          "expectedKeywords": [
+            "gravity",
+            "acceleration",
+            "air resistance",
+            "same"
+          ],
+          "keywordSynonyms": {
+            "gravity": [
+              "gravitational",
+              "9.8",
+              "g"
+            ],
+            "acceleration": [
+              "accelerates",
+              "accelerate",
+              "rate"
+            ],
+            "air resistance": [
+              "air",
+              "drag"
+            ],
+            "same": [
+              "equal",
+              "equally",
+              "together",
+              "identical"
+            ]
+          },
+          "coachSecrets": []
+        },
+        {
+          "id": "grav_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "drop_vacuum",
+          "prompt": "The tube is 4.9 m tall. In the vacuum, how many seconds until the ball reaches the bottom? Use g ≈ 9.8 m/s² and h = ½ g t².",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "time",
+                "label": "Time to fall",
+                "unit": "s"
+              }
+            ]
+          },
+          "answer": {
+            "time": 1
+          },
+          "tolerance": 0.25,
+          "outcome": "1.0 s.",
+          "explanation": "h = ½ g t² gives t = √(2 × 4.9 ÷ 9.8) = 1 s. The feather takes the same."
+        },
+        {
+          "id": "tr_grav",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "prompt": "An astronaut on the Moon (no air) drops a hammer and a feather from the same height at the same time. What happens?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "hammer",
+                "label": "The hammer lands first"
+              },
+              {
+                "id": "feather",
+                "label": "The feather lands first"
+              },
+              {
+                "id": "same",
+                "label": "They land together"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "same"
+          },
+          "outcome": "They land together.",
+          "explanation": "With no air there is no air resistance, so gravity accelerates both equally. This was demonstrated on the Moon in 1971."
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasForceSlider": true,
+    "hasPlayPauseButton": true
+  }
+}

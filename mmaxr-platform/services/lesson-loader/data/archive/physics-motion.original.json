@@ -1,0 +1,78 @@
+{
+  "lessonId": "physics-motion",
+  "type": "physics_mechanics_sandbox",
+  "title": "Motion, Forces & Gravitation Sandbox",
+  "modelUrl": "http://localhost:3007/assets/models/physics_sandbox.glb",
+  "Assets": {
+    // import from "/models"
+    // car model / wooden crate / feather/ metal ball / newtons cradle /pipe-glass
+  },
+  "config": {
+    "enableScenarioSwitcher": true
+  },
+  "scenarios": [
+    {
+      "id": "kinematics_track",
+      "tabName": "Kinematics",
+      "setup": "A race car on a circular and straight track.",
+      "tasks": [
+        {
+          "id": "kin_1",
+          "prompt": "Drive the car forward 50m. Predict the Distance and Displacement.",
+          "expectedOutcome": "Distance = 50m, Displacement = 50m"
+        },
+        {
+          "id": "kin_2_anomaly",
+          "prompt": "Drive the car in a complete circle back to the start. Predict the Displacement.",
+          "expectedOutcome": "Displacement = 0m (Distance = 100m)",
+          "isAnomaly": true,
+          "explanation": "Displacement is a vector (shortest path from start to end). If you return to the start, your displacement is zero, even though you traveled a distance!"
+        }
+      ]
+    },
+    {
+      "id": "dynamics_bay",
+      "tabName": "Newton's Laws",
+      "setup": "A cargo bay with a heavy crate on the floor and a floating crate in space.",
+      "tasks": [
+        {
+          "id": "dyn_1_anomaly",
+          "prompt": "Push the floating crate in space with a small force. What happens?",
+          "expectedOutcome": "It moves at a constant speed forever.",
+          "isAnomaly": true,
+          "explanation": "In space (zero friction), an object in motion stays in motion. This is Newton's First Law (Inertia)."
+        },
+        {
+          "id": "dyn_2",
+          "prompt": "Roll the heavy ball into the light ball. Predict what happens after they collide.",
+          "expectedOutcome": "Heavy ball slows down, light ball speeds up.",
+          "explanation": "Momentum is conserved. The heavy ball transfers its momentum to the lighter ball."
+        }
+      ]
+    },
+    {
+      "id": "gravitation_drop",
+      "tabName": "Gravitation",
+      "setup": "Two tall tubes: one filled with air, one vacuum.",
+      "tasks": [
+        {
+          "id": "grav_1",
+          "prompt": "Drop a metal ball and a feather in the AIR tube. Predict which hits the ground first.",
+          "expectedOutcome": "The metal ball."
+        },
+        {
+          "id": "grav_2_anomaly",
+          "prompt": "Drop the metal ball and feather in the VACUUM tube. Predict which hits the ground first.",
+          "expectedOutcome": "They hit at the same time.",
+          "isAnomaly": true,
+          "explanation": "Gravity accelerates all objects at the same rate (9.8 m/s²). In a vacuum, there is no air resistance to slow down the feather!"
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasForceSlider": true,
+    "hasPlayPauseButton": true
+  }
+}

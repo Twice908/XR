@@ -55,7 +55,7 @@ export interface SensorDataRow {
 }
 // 6. chemistry lesson contract
 
-export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract | OpticsLessonContract;
+export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract | OpticsLessonContract | MotionLessonContract;
 
 export interface PhysicsLessonContract {
   lessonId: string;
@@ -126,7 +126,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics";
+  type: "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox";
   title: string;
   subject: string | null;
   summary: string | null;
@@ -407,4 +407,58 @@ export interface OpticsReveal {
   tableTotal: number;
   cases: OpticsRevealCase[];
   uses: { mirror: string; examples: string[]; why: string }[];
+}
+
+// ---------------- Motion, Forces & Gravitation ----------------
+
+export interface MotionField {
+  id: string;
+  label: string;
+  unit: string;
+}
+export type MotionInput = { type: 'numeric'; fields: MotionField[] } | { type: 'choice'; options: { id: string; label: string }[] };
+export interface MotionTrial {
+  id: string;
+  kind: 'prediction' | 'transfer';
+  anomaly: boolean;
+  /** Which simulation to run once the prediction is locked; null for a question with no simulation. */
+  action: string | null;
+  prompt: string;
+  input: MotionInput;
+  /** True when the student must explain the surprise before the explanation is shown. */
+  needsExplanation: boolean;
+}
+export interface MotionScenario {
+  id: string;
+  tabName: string;
+  title: string;
+  setup: string;
+  trials: MotionTrial[];
+}
+export interface MotionLessonContract {
+  lessonId: string;
+  type: 'physics_mechanics_sandbox';
+  /** Not used: the sandbox is built from the individual models in `assets`. */
+  modelUrl?: string;
+  subject: string;
+  title: string;
+  summary: string;
+  durationMinutes: number;
+  assets: { car: string; crate: string; feathers: string; cradle: string; pipe: string; trackStraight: string; trackCurve: string };
+  config: { enableScenarioSwitcher: boolean; minExplanationWords: number };
+  scenarios: MotionScenario[];
+  uiSchema: { hasTabs: boolean; hasForceSlider: boolean; hasPlayPauseButton: boolean };
+}
+export interface MotionObservation {
+  trial: string;
+  match: boolean;
+  fieldMatch: Record<string, boolean>;
+  answer: Record<string, number | string>;
+  outcome: string;
+  explanation: string | null;
+}
+export interface MotionExplanationResult {
+  keywords: { keyword: string; matched: boolean }[];
+  coverage: number;
+  explanation: string;
 }
