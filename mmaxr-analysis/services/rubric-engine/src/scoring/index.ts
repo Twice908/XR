@@ -23,7 +23,7 @@ export function detectLesson(events: EventRow[]): Report['lessonType'] {
   const target = String(entered?.object_data?.target ?? '');
   if (target.startsWith('physics-light') || events.some((e) => e.object_data?.action === 'predict_image')) return 'physics_optics';
   if (target.startsWith('physics-sound') || events.some((e) => e.object_data?.action === 'predict_sound')) return 'physics_waves_sound';
-  if (target.startsWith('physics-motion') || target.startsWith('physics-magnetism') || target.startsWith('physics-electricity') || events.some((e) => e.object_data?.action === 'predict_trial')) return 'physics_motion';
+  if (target.startsWith('physics-motion') || target.startsWith('physics-magnetism') || target.startsWith('physics-electricity') || target.startsWith('matter-') || events.some((e) => e.object_data?.action === 'predict_trial')) return 'physics_motion';
   if (target.startsWith('biology-respiratory')) return 'biology_respiratory_system';
   if (target.startsWith('biology') || events.some((e) => e.object_data?.action === 'predict_selection')) return 'biology_digestive_system';
   if (target.startsWith('metals') || events.some((e) => e.object_data?.action === 'predict_outcome')) return 'chemistry_metals';

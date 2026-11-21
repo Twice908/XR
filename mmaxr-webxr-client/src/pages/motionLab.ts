@@ -11,6 +11,7 @@ import { buildMotionSnapshot, say } from '../lab/motionCoach'
 import { MotionScene, type MotionSceneEvents, type SandboxScene } from '../lab/motionScene'
 import { MagnetismScene } from '../lab/magnetismScene'
 import { CircuitsScene } from '../lab/circuitsScene'
+import { MatterScene } from '../lab/matterScene'
 import { CoachPanel } from '../lab/coachPanel'
 import { MotionExperiment, StateError } from '../state/motion'
 import { toast } from '../ui/components'
@@ -38,7 +39,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
     onNote: (n) => hud?.setNote(n),
   }
   // the motion sandbox and the magnetism lab share this page: same questions, locked predictions and explanations
-  const scene: SandboxScene = lesson.type === 'physics_circuits' ? new CircuitsScene(canvas, lesson, events) : lesson.type === 'physics_electromagnetism' ? new MagnetismScene(canvas, lesson, events) : new MotionScene(canvas, lesson, events)
+  const scene: SandboxScene = lesson.type === 'physics_circuits' ? new CircuitsScene(canvas, lesson, events) : lesson.type === 'physics_electromagnetism' ? new MagnetismScene(canvas, lesson, events) : lesson.type === 'science_matter_properties' ? new MatterScene(canvas, lesson, events) : new MotionScene(canvas, lesson, events)
 
 
   /** Puts the equipment for the current question on the table, so the picture matches what is being asked. */

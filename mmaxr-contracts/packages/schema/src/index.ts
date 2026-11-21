@@ -126,7 +126,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_waves_sound";
+  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_waves_sound" | "science_matter_properties";
   title: string;
   subject: string | null;
   summary: string | null;
@@ -455,7 +455,7 @@ export interface MotionScenario {
 }
 export interface MotionLessonContract {
   lessonId: string;
-  type: 'physics_mechanics_sandbox' | 'physics_electromagnetism' | 'physics_circuits';
+  type: 'physics_mechanics_sandbox' | 'physics_electromagnetism' | 'physics_circuits' | 'science_matter_properties';
   /** Not used: the sandbox is built from the individual models in `assets`. */
   modelUrl?: string;
   subject: string;
@@ -465,6 +465,8 @@ export interface MotionLessonContract {
   /** Model files by name: the motion sandbox uses car, crate…; the magnetism lab uses compass, horseshoe… */
   assets: Record<string, string>;
   config: { enableScenarioSwitcher: boolean; minExplanationWords: number };
+  /** The matter lab's liquids (name, density in g/mL, display colour), used to draw them. */
+  liquids?: Record<string, { name: string; density: number; color: number }>;
   scenarios: MotionScenario[];
   uiSchema: { hasTabs: boolean; hasForceSlider: boolean; hasPlayPauseButton: boolean };
 }
