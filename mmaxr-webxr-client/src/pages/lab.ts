@@ -54,7 +54,7 @@ export function labPage(lessonId: string): Page {
         metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
         return
       }
-      if (raw.type === 'physics_mechanics_sandbox' || raw.type === 'physics_electromagnetism') {
+      if (raw.type === 'physics_mechanics_sandbox' || raw.type === 'physics_electromagnetism' || raw.type === 'science_matter_properties') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startMotionLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })

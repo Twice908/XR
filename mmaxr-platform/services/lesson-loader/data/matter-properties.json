@@ -1,0 +1,3120 @@
+{
+  "lessonId": "matter-properties",
+  "type": "science_matter_properties",
+  "subject": "Chemistry",
+  "title": "Matter & Its Properties Lab",
+  "summary": "Heat ice into steam and watch the mass stay the same, test substances to tell physical from chemical change, and weigh and pour liquids to see how density decides who sinks. Predict first, then watch what really happens.",
+  "durationMinutes": 35,
+  "assets": {
+    "cylinder": "http://localhost:3007/assets/models/graduated-cylinder.glb",
+    "thermometer": "http://localhost:3007/assets/models/thermometer.glb",
+    "scale": "http://localhost:3007/assets/models/weighing-scale.glb",
+    "burner": "http://localhost:3007/assets/models/bunsen-burner.glb",
+    "hammer": "http://localhost:3007/assets/models/claw-hammer.glb",
+    "magnet": "http://localhost:3007/assets/models/horseshoe-magnet.glb"
+  },
+  "config": {
+    "enableScenarioSwitcher": true,
+    "minExplanationWords": 6,
+    "minPredictionMs": 0,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logMeasurementValues": true,
+      "logLatency": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "states_changes",
+      "tabName": "States & Changes",
+      "title": "The Hot Plate",
+      "setup": "A beaker on a hot plate that stands on a weighing scale, with a digital thermometer. Heat it, or cool it, and watch the state of the water change.",
+      "trials": [
+        {
+          "id": "state_1",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "heat",
+          "law": {
+            "name": "Conservation of mass"
+          },
+          "prompt": "A beaker (100 g) holds 150 g of ice. You heat it until all the ice has melted into water, nothing escaping. What happens to the mass the scale shows?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "down",
+                "label": "It decreases"
+              },
+              {
+                "id": "up",
+                "label": "It increases"
+              },
+              {
+                "id": "same",
+                "label": "It stays exactly the same"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "same"
+          },
+          "outcome": "The scale reads 250 g before and 250 g after: exactly the same.",
+          "explanation": "Matter is neither created nor destroyed when a substance changes state. The same particles are there, only arranged differently, so the mass does not change.",
+          "expectedKeywords": [
+            "mass",
+            "conserved",
+            "state",
+            "matter"
+          ],
+          "keywordSynonyms": {
+            "mass": [
+              "amount",
+              "weight",
+              "how much"
+            ],
+            "conserved": [
+              "conservation",
+              "stays the same",
+              "same",
+              "unchanged",
+              "constant",
+              "not lost",
+              "not created",
+              "nothing lost"
+            ],
+            "state": [
+              "solid",
+              "liquid",
+              "gas",
+              "phase",
+              "physical change"
+            ],
+            "matter": [
+              "substance",
+              "particles",
+              "atoms",
+              "molecules",
+              "water"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "mode": "melt",
+            "sub": 150,
+            "beaker": 100,
+            "lid": false
+          },
+          "variants": [
+            {
+              "prompt": "A beaker (100 g) holds 150 g of ice. You heat it until all the ice has melted into water, nothing escaping. What happens to the mass the scale shows?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "down",
+                    "label": "It decreases"
+                  },
+                  {
+                    "id": "up",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays exactly the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "The scale reads 250 g before and 250 g after: exactly the same.",
+              "explanation": "Matter is neither created nor destroyed when a substance changes state. The same particles are there, only arranged differently, so the mass does not change.",
+              "expectedKeywords": [
+                "mass",
+                "conserved",
+                "state",
+                "matter"
+              ],
+              "keywordSynonyms": {
+                "mass": [
+                  "amount",
+                  "weight",
+                  "how much"
+                ],
+                "conserved": [
+                  "conservation",
+                  "stays the same",
+                  "same",
+                  "unchanged",
+                  "constant",
+                  "not lost",
+                  "not created",
+                  "nothing lost"
+                ],
+                "state": [
+                  "solid",
+                  "liquid",
+                  "gas",
+                  "phase",
+                  "physical change"
+                ],
+                "matter": [
+                  "substance",
+                  "particles",
+                  "atoms",
+                  "molecules",
+                  "water"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "melt",
+                "sub": 150,
+                "beaker": 100,
+                "lid": false
+              }
+            },
+            {
+              "prompt": "A beaker (80 g) holds 220 g of ice. You heat it until every bit has melted. What does the scale read afterwards?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "mass",
+                    "label": "Mass on the scale",
+                    "unit": "g"
+                  }
+                ]
+              },
+              "answer": {
+                "mass": 300
+              },
+              "tolerance": 2,
+              "outcome": "300 g, exactly what it read at the start.",
+              "explanation": "Matter is neither created nor destroyed when a substance changes state. The same particles are there, only arranged differently, so the mass does not change. Here 80 g + 220 g = 300 g before and after.",
+              "expectedKeywords": [
+                "mass",
+                "conserved",
+                "state",
+                "matter"
+              ],
+              "keywordSynonyms": {
+                "mass": [
+                  "amount",
+                  "weight",
+                  "how much"
+                ],
+                "conserved": [
+                  "conservation",
+                  "stays the same",
+                  "same",
+                  "unchanged",
+                  "constant",
+                  "not lost",
+                  "not created",
+                  "nothing lost"
+                ],
+                "state": [
+                  "solid",
+                  "liquid",
+                  "gas",
+                  "phase",
+                  "physical change"
+                ],
+                "matter": [
+                  "substance",
+                  "particles",
+                  "atoms",
+                  "molecules",
+                  "water"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "melt",
+                "sub": 220,
+                "beaker": 80,
+                "lid": false
+              }
+            },
+            {
+              "prompt": "A sealed bottle (60 g) holds 300 g of water. You put it in a freezer until the water is frozen solid. What does the scale read afterwards?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "mass",
+                    "label": "Mass on the scale",
+                    "unit": "g"
+                  }
+                ]
+              },
+              "answer": {
+                "mass": 360
+              },
+              "tolerance": 2,
+              "outcome": "360 g, the same as when the water was liquid.",
+              "explanation": "Matter is neither created nor destroyed when a substance changes state. The same particles are there, only arranged differently, so the mass does not change. Freezing only changes the state: 60 g + 300 g = 360 g before and after.",
+              "expectedKeywords": [
+                "mass",
+                "conserved",
+                "state",
+                "matter"
+              ],
+              "keywordSynonyms": {
+                "mass": [
+                  "amount",
+                  "weight",
+                  "how much"
+                ],
+                "conserved": [
+                  "conservation",
+                  "stays the same",
+                  "same",
+                  "unchanged",
+                  "constant",
+                  "not lost",
+                  "not created",
+                  "nothing lost"
+                ],
+                "state": [
+                  "solid",
+                  "liquid",
+                  "gas",
+                  "phase",
+                  "physical change"
+                ],
+                "matter": [
+                  "substance",
+                  "particles",
+                  "atoms",
+                  "molecules",
+                  "water"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "freeze",
+                "sub": 300,
+                "beaker": 60,
+                "lid": true
+              }
+            },
+            {
+              "prompt": "A strong sealed flask (90 g) holds 120 g of water. You heat it until all the water has boiled into steam, which cannot escape. What happens to the mass the scale shows?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "down",
+                    "label": "It decreases"
+                  },
+                  {
+                    "id": "up",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays exactly the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "The scale reads 210 g before and 210 g after: exactly the same.",
+              "explanation": "Matter is neither created nor destroyed when a substance changes state. The same particles are there, only arranged differently, so the mass does not change. The steam is still inside the flask, so all 120 g of it is still on the scale.",
+              "expectedKeywords": [
+                "mass",
+                "conserved",
+                "state",
+                "matter"
+              ],
+              "keywordSynonyms": {
+                "mass": [
+                  "amount",
+                  "weight",
+                  "how much"
+                ],
+                "conserved": [
+                  "conservation",
+                  "stays the same",
+                  "same",
+                  "unchanged",
+                  "constant",
+                  "not lost",
+                  "not created",
+                  "nothing lost"
+                ],
+                "state": [
+                  "solid",
+                  "liquid",
+                  "gas",
+                  "phase",
+                  "physical change"
+                ],
+                "matter": [
+                  "substance",
+                  "particles",
+                  "atoms",
+                  "molecules",
+                  "water"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "boil_sealed",
+                "sub": 120,
+                "beaker": 90,
+                "lid": true
+              }
+            },
+            {
+              "prompt": "An open beaker (100 g) holds 200 g of water. You boil it for a while until about a third of the water has gone. What happens to the mass the scale shows?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "down",
+                    "label": "It decreases"
+                  },
+                  {
+                    "id": "up",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays exactly the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "down"
+              },
+              "outcome": "The scale falls from 300 g to about 233 g: the steam that left took its mass with it.",
+              "explanation": "The mass did not vanish: it is carried away by the steam into the air. If the steam were trapped, the scale would show exactly the same. Matter is conserved; it just left the beaker.",
+              "expectedKeywords": [
+                "steam",
+                "escaped",
+                "gas",
+                "mass"
+              ],
+              "keywordSynonyms": {
+                "steam": [
+                  "vapour",
+                  "vapor",
+                  "water vapour",
+                  "gas"
+                ],
+                "escaped": [
+                  "escapes",
+                  "left",
+                  "leaves",
+                  "lost",
+                  "went",
+                  "carried",
+                  "floats away",
+                  "goes into the air"
+                ],
+                "gas": [
+                  "air",
+                  "vapour",
+                  "vapor"
+                ],
+                "mass": [
+                  "weight",
+                  "amount",
+                  "matter"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mode": "boil_open",
+                "sub": 200,
+                "beaker": 100,
+                "lid": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "state_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "heat",
+          "law": {
+            "name": "Heating curve"
+          },
+          "prompt": "A beaker holds a mixture of ice and water, heated gently. While the ice is melting, what does the thermometer do?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "rise",
+                "label": "It keeps rising steadily"
+              },
+              {
+                "id": "zero",
+                "label": "It stays at 0 °C until all the ice has melted"
+              },
+              {
+                "id": "fall",
+                "label": "It falls"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "zero"
+          },
+          "outcome": "It holds at 0 °C the whole time the ice is melting, then rises once the ice has gone.",
+          "explanation": "All the heat goes into breaking the bonds that hold the ice together, not into making the particles move faster. The temperature stays at the melting point until the change of state is complete.",
+          "coachSecrets": [],
+          "params": {
+            "mode": "curve",
+            "sub": 100,
+            "beaker": 100,
+            "lid": false,
+            "show": "melt"
+          },
+          "variants": [
+            {
+              "prompt": "A beaker holds a mixture of ice and water, heated gently. While the ice is melting, what does the thermometer do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "rise",
+                    "label": "It keeps rising steadily"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "It stays at 0 °C until all the ice has melted"
+                  },
+                  {
+                    "id": "fall",
+                    "label": "It falls"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "zero"
+              },
+              "outcome": "It holds at 0 °C the whole time the ice is melting, then rises once the ice has gone.",
+              "explanation": "All the heat goes into breaking the bonds that hold the ice together, not into making the particles move faster. The temperature stays at the melting point until the change of state is complete.",
+              "coachSecrets": [],
+              "params": {
+                "mode": "curve",
+                "sub": 100,
+                "beaker": 100,
+                "lid": false,
+                "show": "melt"
+              }
+            },
+            {
+              "prompt": "Water in an open beaker is boiling vigorously at 100 °C. You turn the hot plate up to its highest setting. What does the thermometer read now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "It stays at 100 °C"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It rises well above 100 °C"
+                  },
+                  {
+                    "id": "less",
+                    "label": "It falls below 100 °C"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "It stays at 100 °C: the water just boils away faster.",
+              "explanation": "While water is boiling, all the extra heat goes into turning liquid into gas, not into raising the temperature. The boiling point is fixed, whatever the heat.",
+              "coachSecrets": [],
+              "params": {
+                "mode": "curve",
+                "sub": 150,
+                "beaker": 100,
+                "lid": false,
+                "show": "boil"
+              }
+            },
+            {
+              "prompt": "You heat a beaker of pure ice. At what temperature does the ice start to melt?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "temp",
+                    "label": "Melting point",
+                    "unit": "°C"
+                  }
+                ]
+              },
+              "answer": {
+                "temp": 0
+              },
+              "tolerance": 1,
+              "outcome": "0 °C.",
+              "explanation": "Pure ice melts at 0 °C at normal pressure, and the temperature stays there until the ice has all melted.",
+              "coachSecrets": [],
+              "params": {
+                "mode": "curve",
+                "sub": 120,
+                "beaker": 100,
+                "lid": false,
+                "show": "melt"
+              }
+            },
+            {
+              "prompt": "About how much bigger is the volume when a litre of liquid water boils into steam?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "two",
+                    "label": "About twice as big"
+                  },
+                  {
+                    "id": "huge",
+                    "label": "More than a thousand times bigger"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "huge"
+              },
+              "outcome": "About 1,700 times bigger.",
+              "explanation": "In a gas the particles are far apart and fly freely, so a given amount of matter fills far more space than the same amount as a liquid. The mass has not changed, but the volume is enormous.",
+              "coachSecrets": [],
+              "params": {
+                "mode": "curve",
+                "sub": 100,
+                "beaker": 100,
+                "lid": true,
+                "show": "volume"
+              }
+            },
+            {
+              "prompt": "Water boils in a beaker at normal air pressure. At what temperature does it boil?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "temp",
+                    "label": "Boiling point",
+                    "unit": "°C"
+                  }
+                ]
+              },
+              "answer": {
+                "temp": 100
+              },
+              "tolerance": 1,
+              "outcome": "100 °C.",
+              "explanation": "At normal pressure pure water boils at 100 °C, and the thermometer stays there for as long as it boils.",
+              "coachSecrets": [],
+              "params": {
+                "mode": "curve",
+                "sub": 140,
+                "beaker": 100,
+                "lid": false,
+                "show": "boil"
+              }
+            }
+          ]
+        },
+        {
+          "id": "state_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "particles",
+          "law": {
+            "name": "States of matter"
+          },
+          "prompt": "Which state of matter can be squashed into a much smaller volume most easily?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "solid",
+                "label": "Solid"
+              },
+              {
+                "id": "liquid",
+                "label": "Liquid"
+              },
+              {
+                "id": "gas",
+                "label": "Gas"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "gas"
+          },
+          "outcome": "Gas.",
+          "explanation": "The particles of a gas are far apart with lots of empty space between them, so they can be pushed much closer together.",
+          "coachSecrets": [],
+          "params": {
+            "focus": "gas"
+          },
+          "variants": [
+            {
+              "prompt": "Which state of matter can be squashed into a much smaller volume most easily?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "solid",
+                    "label": "Solid"
+                  },
+                  {
+                    "id": "liquid",
+                    "label": "Liquid"
+                  },
+                  {
+                    "id": "gas",
+                    "label": "Gas"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "gas"
+              },
+              "outcome": "Gas.",
+              "explanation": "The particles of a gas are far apart with lots of empty space between them, so they can be pushed much closer together.",
+              "coachSecrets": [],
+              "params": {
+                "focus": "gas"
+              }
+            },
+            {
+              "prompt": "Which state of matter has a fixed shape and a fixed volume?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "solid",
+                    "label": "Solid"
+                  },
+                  {
+                    "id": "liquid",
+                    "label": "Liquid"
+                  },
+                  {
+                    "id": "gas",
+                    "label": "Gas"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "solid"
+              },
+              "outcome": "Solid.",
+              "explanation": "The particles of a solid are held in fixed positions, vibrating on the spot, so it keeps its shape and its volume.",
+              "coachSecrets": [],
+              "params": {
+                "focus": "solid"
+              }
+            },
+            {
+              "prompt": "In which state of matter are the particles furthest apart?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "solid",
+                    "label": "Solid"
+                  },
+                  {
+                    "id": "liquid",
+                    "label": "Liquid"
+                  },
+                  {
+                    "id": "gas",
+                    "label": "Gas"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "gas"
+              },
+              "outcome": "Gas.",
+              "explanation": "Gas particles move freely and spread out to fill their container, so they are far apart.",
+              "coachSecrets": [],
+              "params": {
+                "focus": "gas"
+              }
+            },
+            {
+              "prompt": "Which state of matter takes the shape of its container but keeps a fixed volume?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "solid",
+                    "label": "Solid"
+                  },
+                  {
+                    "id": "liquid",
+                    "label": "Liquid"
+                  },
+                  {
+                    "id": "gas",
+                    "label": "Gas"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "liquid"
+              },
+              "outcome": "Liquid.",
+              "explanation": "Liquid particles are close together but can slide past each other, so a liquid flows and fills the bottom of its container while keeping the same volume.",
+              "coachSecrets": [],
+              "params": {
+                "focus": "liquid"
+              }
+            },
+            {
+              "prompt": "In which state of matter can the particles not move from place to place, only vibrate?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "solid",
+                    "label": "Solid"
+                  },
+                  {
+                    "id": "liquid",
+                    "label": "Liquid"
+                  },
+                  {
+                    "id": "gas",
+                    "label": "Gas"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "solid"
+              },
+              "outcome": "Solid.",
+              "explanation": "In a solid each particle is held in place by its neighbours and can only vibrate around that position.",
+              "coachSecrets": [],
+              "params": {
+                "focus": "solid"
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_state",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "States of matter"
+          },
+          "prompt": "On a hot day a puddle of water disappears. Where has the water gone?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "air",
+                "label": "It has evaporated into the air as water vapour"
+              },
+              {
+                "id": "gone",
+                "label": "It has been destroyed"
+              },
+              {
+                "id": "ground",
+                "label": "It has turned into soil"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "air"
+          },
+          "outcome": "It evaporated into the air as water vapour.",
+          "explanation": "Liquid water has changed state to a gas. No matter was destroyed: the water is now in the air as vapour.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "On a hot day a puddle of water disappears. Where has the water gone?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "air",
+                    "label": "It has evaporated into the air as water vapour"
+                  },
+                  {
+                    "id": "gone",
+                    "label": "It has been destroyed"
+                  },
+                  {
+                    "id": "ground",
+                    "label": "It has turned into soil"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "air"
+              },
+              "outcome": "It evaporated into the air as water vapour.",
+              "explanation": "Liquid water has changed state to a gas. No matter was destroyed: the water is now in the air as vapour."
+            },
+            {
+              "prompt": "Drops of water form on the outside of a cold glass of water on a warm day. Where does the water come from?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "air",
+                    "label": "From water vapour in the air, which cooled and condensed"
+                  },
+                  {
+                    "id": "glass",
+                    "label": "It leaks through the glass"
+                  },
+                  {
+                    "id": "none",
+                    "label": "It is made from the cold"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "air"
+              },
+              "outcome": "From water vapour in the air.",
+              "explanation": "Water vapour in the warm air cools against the cold glass and changes from gas to liquid. This is condensation."
+            },
+            {
+              "prompt": "A sealed bag holds a lump of dry ice (solid carbon dioxide). The dry ice turns into gas and the bag swells. What happens to the mass of the sealed bag?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "down",
+                    "label": "It decreases"
+                  },
+                  {
+                    "id": "up",
+                    "label": "It increases"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "It stays the same.",
+              "explanation": "The solid became a gas inside the sealed bag. Nothing could escape, so the total mass is unchanged."
+            },
+            {
+              "prompt": "A candle in an open dish is melted and then left to set again. Which statement is true?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "Only the state of the wax changed, and it can be reversed"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "The wax became a new substance"
+                  },
+                  {
+                    "id": "lost",
+                    "label": "Some of the wax was destroyed"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "physical"
+              },
+              "outcome": "Only the state of the wax changed, and it can be reversed.",
+              "explanation": "Melting and freezing are changes of state. The wax is the same substance in both."
+            },
+            {
+              "prompt": "Which of these changes is a change of state?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "freeze",
+                    "label": "Water freezing into ice"
+                  },
+                  {
+                    "id": "rust",
+                    "label": "Iron rusting"
+                  },
+                  {
+                    "id": "burn",
+                    "label": "Paper burning"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "freeze"
+              },
+              "outcome": "Water freezing into ice.",
+              "explanation": "Freezing changes only the state of the water. Rusting and burning make new substances."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "properties_changes",
+      "tabName": "Physical vs. Chemical",
+      "title": "The Test Bench",
+      "setup": "A bench with samples to test and four tools: a hammer, a magnet, a small circuit with a bulb, and a Bunsen burner. There is also a beaker of water for dissolving things.",
+      "trials": [
+        {
+          "id": "prop_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "burn",
+          "law": {
+            "name": "Physical and chemical change"
+          },
+          "prompt": "Substance A is a strip of silvery magnesium ribbon. You hold it in the burner flame and it ignites. Is this a physical or a chemical change?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "physical",
+                "label": "A physical change"
+              },
+              {
+                "id": "chemical",
+                "label": "A chemical change"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "chemical"
+          },
+          "outcome": "It burns with a dazzling white light and leaves a white powder, magnesium oxide: a brand new substance.",
+          "explanation": "A chemical change makes a new substance with new properties, and it is hard or impossible to reverse. A physical change alters only the form or the state, and the substance stays the same. The silvery metal has combined with oxygen to make a white powder that is nothing like magnesium.",
+          "coachSecrets": [],
+          "params": {
+            "substance": "magnesium",
+            "process": "burn"
+          },
+          "variants": [
+            {
+              "prompt": "Substance A is a strip of silvery magnesium ribbon. You hold it in the burner flame and it ignites. Is this a physical or a chemical change?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "A physical change"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "chemical"
+              },
+              "outcome": "It burns with a dazzling white light and leaves a white powder, magnesium oxide: a brand new substance.",
+              "explanation": "A chemical change makes a new substance with new properties, and it is hard or impossible to reverse. A physical change alters only the form or the state, and the substance stays the same. The silvery metal has combined with oxygen to make a white powder that is nothing like magnesium.",
+              "coachSecrets": [],
+              "params": {
+                "substance": "magnesium",
+                "process": "burn"
+              }
+            },
+            {
+              "prompt": "Substance B is a block of wax. You warm it gently over the burner until it becomes a clear liquid puddle. Is this a physical or a chemical change?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "A physical change"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "physical"
+              },
+              "outcome": "The wax melts into a puddle, and sets back into the same wax when it cools.",
+              "explanation": "A chemical change makes a new substance with new properties, and it is hard or impossible to reverse. A physical change alters only the form or the state, and the substance stays the same. Melting is a change of state: the wax is the same substance as a liquid.",
+              "coachSecrets": [],
+              "params": {
+                "substance": "wax",
+                "process": "melt"
+              }
+            },
+            {
+              "prompt": "Substance C is white sugar. You heat it strongly in the flame and it turns brown, then black, giving off steam and smoke. Is this a physical or a chemical change?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "A physical change"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "chemical"
+              },
+              "outcome": "It turns into black carbon and gives off water vapour: new substances that cannot turn back into sugar.",
+              "explanation": "A chemical change makes a new substance with new properties, and it is hard or impossible to reverse. A physical change alters only the form or the state, and the substance stays the same. Heating has broken the sugar down into carbon and water; you cannot get the sugar back.",
+              "coachSecrets": [],
+              "params": {
+                "substance": "sugar",
+                "process": "burn"
+              }
+            },
+            {
+              "prompt": "Substance D is a shiny orange copper strip. You hold it in the flame and its surface turns black. Is this a physical or a chemical change?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "A physical change"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "chemical"
+              },
+              "outcome": "The surface turns into black copper oxide, a new substance.",
+              "explanation": "A chemical change makes a new substance with new properties, and it is hard or impossible to reverse. A physical change alters only the form or the state, and the substance stays the same. The copper has reacted with oxygen from the air, making black copper oxide.",
+              "coachSecrets": [],
+              "params": {
+                "substance": "copper",
+                "process": "burn"
+              }
+            },
+            {
+              "prompt": "Substance E is a few purple-black iodine crystals in a closed tube. You warm the tube gently: purple gas fills it, and on cooling the crystals form again. Is this a physical or a chemical change?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "A physical change"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "physical"
+              },
+              "outcome": "The crystals turn to purple vapour and then back into the same crystals.",
+              "explanation": "A chemical change makes a new substance with new properties, and it is hard or impossible to reverse. A physical change alters only the form or the state, and the substance stays the same. Turning from solid to gas and back is only a change of state: the iodine is the same substance throughout.",
+              "coachSecrets": [],
+              "params": {
+                "substance": "iodine",
+                "process": "sublime"
+              }
+            }
+          ]
+        },
+        {
+          "id": "prop_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "dissolve",
+          "law": {
+            "name": "Dissolving is physical"
+          },
+          "prompt": "Substance F is white salt. You stir it into a beaker of water until it disappears completely. Then you boil the water away. Will you get the original salt back?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "yes",
+                "label": "Yes: the original substance comes back"
+              },
+              {
+                "id": "no",
+                "label": "No: it has been changed into something different"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "yes"
+          },
+          "outcome": "White salt crystals are left in the beaker, just as before.",
+          "explanation": "Dissolving is a physical change: the particles of the solid spread out among the water particles, but they are still there and unchanged. When the water evaporates they come together again as the original solid.",
+          "expectedKeywords": [
+            "dissolve",
+            "physical",
+            "particles",
+            "evaporate"
+          ],
+          "keywordSynonyms": {
+            "dissolve": [
+              "dissolves",
+              "dissolved",
+              "dissolving",
+              "disappear",
+              "disappears"
+            ],
+            "physical": [
+              "not chemical",
+              "no new substance",
+              "same substance",
+              "reversible",
+              "can be reversed",
+              "change of state"
+            ],
+            "particles": [
+              "molecules",
+              "ions",
+              "atoms",
+              "bits",
+              "pieces",
+              "still there",
+              "still present"
+            ],
+            "evaporate": [
+              "evaporates",
+              "evaporated",
+              "evaporating",
+              "boil off",
+              "water leaves",
+              "dries",
+              "dry"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "substance": "salt",
+            "recover": true
+          },
+          "variants": [
+            {
+              "prompt": "Substance F is white salt. You stir it into a beaker of water until it disappears completely. Then you boil the water away. Will you get the original salt back?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes",
+                    "label": "Yes: the original substance comes back"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: it has been changed into something different"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "yes"
+              },
+              "outcome": "White salt crystals are left in the beaker, just as before.",
+              "explanation": "Dissolving is a physical change: the particles of the solid spread out among the water particles, but they are still there and unchanged. When the water evaporates they come together again as the original solid.",
+              "expectedKeywords": [
+                "dissolve",
+                "physical",
+                "particles",
+                "evaporate"
+              ],
+              "keywordSynonyms": {
+                "dissolve": [
+                  "dissolves",
+                  "dissolved",
+                  "dissolving",
+                  "disappear",
+                  "disappears"
+                ],
+                "physical": [
+                  "not chemical",
+                  "no new substance",
+                  "same substance",
+                  "reversible",
+                  "can be reversed",
+                  "change of state"
+                ],
+                "particles": [
+                  "molecules",
+                  "ions",
+                  "atoms",
+                  "bits",
+                  "pieces",
+                  "still there",
+                  "still present"
+                ],
+                "evaporate": [
+                  "evaporates",
+                  "evaporated",
+                  "evaporating",
+                  "boil off",
+                  "water leaves",
+                  "dries",
+                  "dry"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "substance": "salt",
+                "recover": true
+              }
+            },
+            {
+              "prompt": "Substance G is white sugar. It vanishes when stirred into warm water. You then gently evaporate all the water. Will you get the original sugar back?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes",
+                    "label": "Yes: the original substance comes back"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: it has been changed into something different"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "yes"
+              },
+              "outcome": "White sugar crystals are left in the dish.",
+              "explanation": "Dissolving is a physical change: the particles of the solid spread out among the water particles, but they are still there and unchanged. When the water evaporates they come together again as the original solid. (Gentle heating keeps the sugar from burning.)",
+              "expectedKeywords": [
+                "dissolve",
+                "physical",
+                "particles",
+                "evaporate"
+              ],
+              "keywordSynonyms": {
+                "dissolve": [
+                  "dissolves",
+                  "dissolved",
+                  "dissolving",
+                  "disappear",
+                  "disappears"
+                ],
+                "physical": [
+                  "not chemical",
+                  "no new substance",
+                  "same substance",
+                  "reversible",
+                  "can be reversed",
+                  "change of state"
+                ],
+                "particles": [
+                  "molecules",
+                  "ions",
+                  "atoms",
+                  "bits",
+                  "pieces",
+                  "still there",
+                  "still present"
+                ],
+                "evaporate": [
+                  "evaporates",
+                  "evaporated",
+                  "evaporating",
+                  "boil off",
+                  "water leaves",
+                  "dries",
+                  "dry"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "substance": "sugar",
+                "recover": true
+              }
+            },
+            {
+              "prompt": "Substance H is blue copper sulfate crystals. They dissolve to give a blue solution. You evaporate the water. Will you get the original copper sulfate back?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes",
+                    "label": "Yes: the original substance comes back"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: it has been changed into something different"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "yes"
+              },
+              "outcome": "Blue copper sulfate crystals form again as the water leaves.",
+              "explanation": "Dissolving is a physical change: the particles of the solid spread out among the water particles, but they are still there and unchanged. When the water evaporates they come together again as the original solid.",
+              "expectedKeywords": [
+                "dissolve",
+                "physical",
+                "particles",
+                "evaporate"
+              ],
+              "keywordSynonyms": {
+                "dissolve": [
+                  "dissolves",
+                  "dissolved",
+                  "dissolving",
+                  "disappear",
+                  "disappears"
+                ],
+                "physical": [
+                  "not chemical",
+                  "no new substance",
+                  "same substance",
+                  "reversible",
+                  "can be reversed",
+                  "change of state"
+                ],
+                "particles": [
+                  "molecules",
+                  "ions",
+                  "atoms",
+                  "bits",
+                  "pieces",
+                  "still there",
+                  "still present"
+                ],
+                "evaporate": [
+                  "evaporates",
+                  "evaporated",
+                  "evaporating",
+                  "boil off",
+                  "water leaves",
+                  "dries",
+                  "dry"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "substance": "copper_sulfate",
+                "recover": true
+              }
+            },
+            {
+              "prompt": "A fizzing tablet is dropped into water and fizzes until it has gone, giving off bubbles of gas. You then evaporate the water. Will you get the original tablet back?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes",
+                    "label": "Yes: the original substance comes back"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: it has been changed into something different"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no"
+              },
+              "outcome": "Only a little white residue remains: not the tablet.",
+              "explanation": "Here a chemical reaction happened: the tablet's ingredients reacted to make new substances, including carbon dioxide gas that escaped. Evaporating the water cannot bring the original tablet back, so this is a chemical change, unlike simple dissolving.",
+              "expectedKeywords": [
+                "chemical",
+                "reaction",
+                "new",
+                "gas"
+              ],
+              "keywordSynonyms": {
+                "chemical": [
+                  "chemical change",
+                  "chemically"
+                ],
+                "reaction": [
+                  "react",
+                  "reacted",
+                  "reacts"
+                ],
+                "new": [
+                  "different",
+                  "new substance",
+                  "new substances"
+                ],
+                "gas": [
+                  "bubbles",
+                  "carbon dioxide",
+                  "fizz",
+                  "fizzing"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "substance": "tablet",
+                "recover": false
+              }
+            },
+            {
+              "prompt": "A strip of magnesium ribbon is dropped into dilute acid. It fizzes and vanishes. You then evaporate the liquid. Will you get the original magnesium back?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes",
+                    "label": "Yes: the original substance comes back"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: it has been changed into something different"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no"
+              },
+              "outcome": "A white salt is left, not shiny magnesium.",
+              "explanation": "The magnesium reacted with the acid to make a new salt and hydrogen gas. That is a chemical change: the magnesium is gone for good. Dissolving a salt in water would have been reversible, but this was a reaction.",
+              "expectedKeywords": [
+                "chemical",
+                "reaction",
+                "new",
+                "gas"
+              ],
+              "keywordSynonyms": {
+                "chemical": [
+                  "chemical change",
+                  "chemically"
+                ],
+                "reaction": [
+                  "react",
+                  "reacted",
+                  "reacts"
+                ],
+                "new": [
+                  "different",
+                  "new substance",
+                  "salt"
+                ],
+                "gas": [
+                  "bubbles",
+                  "hydrogen",
+                  "fizz",
+                  "fizzing"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "substance": "magnesium_acid",
+                "recover": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "prop_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "test_tool",
+          "law": {
+            "name": "Physical properties"
+          },
+          "prompt": "You hit a strip of copper with the hammer. What happens to it?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "flat",
+                "label": "It flattens and bends without breaking"
+              },
+              {
+                "id": "shatter",
+                "label": "It shatters into pieces"
+              },
+              {
+                "id": "none",
+                "label": "Nothing at all: it is unchanged"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "flat"
+          },
+          "outcome": "It flattens and bends: copper is malleable.",
+          "explanation": "Metals are malleable: their layers of atoms can slide, so they can be hammered into shape. A brittle solid would shatter instead.",
+          "coachSecrets": [],
+          "params": {
+            "tool": "hammer",
+            "substance": "copper"
+          },
+          "variants": [
+            {
+              "prompt": "You hit a strip of copper with the hammer. What happens to it?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "flat",
+                    "label": "It flattens and bends without breaking"
+                  },
+                  {
+                    "id": "shatter",
+                    "label": "It shatters into pieces"
+                  },
+                  {
+                    "id": "none",
+                    "label": "Nothing at all: it is unchanged"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "flat"
+              },
+              "outcome": "It flattens and bends: copper is malleable.",
+              "explanation": "Metals are malleable: their layers of atoms can slide, so they can be hammered into shape. A brittle solid would shatter instead.",
+              "coachSecrets": [],
+              "params": {
+                "tool": "hammer",
+                "substance": "copper"
+              }
+            },
+            {
+              "prompt": "You hit a lump of yellow sulfur with the hammer. What happens to it?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "flat",
+                    "label": "It flattens and bends without breaking"
+                  },
+                  {
+                    "id": "shatter",
+                    "label": "It shatters into pieces"
+                  },
+                  {
+                    "id": "none",
+                    "label": "Nothing at all: it is unchanged"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "shatter"
+              },
+              "outcome": "It shatters into pieces: sulfur is brittle.",
+              "explanation": "Non-metals such as sulfur are usually brittle: when hit, the layers cannot slide and the solid breaks apart.",
+              "coachSecrets": [],
+              "params": {
+                "tool": "hammer",
+                "substance": "sulfur"
+              }
+            },
+            {
+              "prompt": "You bring a magnet close to some iron filings, a copper strip and some salt. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "iron",
+                    "label": "Only the iron is pulled towards the magnet"
+                  },
+                  {
+                    "id": "all",
+                    "label": "All three are pulled towards the magnet"
+                  },
+                  {
+                    "id": "none",
+                    "label": "None of them are"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "iron"
+              },
+              "outcome": "Only the iron is attracted.",
+              "explanation": "Iron is magnetic. Copper is a metal but it is not magnetic, and salt is not a metal at all.",
+              "coachSecrets": [],
+              "params": {
+                "tool": "magnet",
+                "substance": "iron"
+              }
+            },
+            {
+              "prompt": "A circuit has a battery and a bulb. You connect a graphite (pencil lead) rod into the gap. What happens to the bulb?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "on",
+                    "label": "The bulb lights up"
+                  },
+                  {
+                    "id": "off",
+                    "label": "The bulb stays off"
+                  },
+                  {
+                    "id": "dim",
+                    "label": "The bulb glows then goes out"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "on"
+              },
+              "outcome": "The bulb lights up.",
+              "explanation": "Graphite is a non-metal, but its electrons are free to move along its layers, so it conducts electricity.",
+              "coachSecrets": [],
+              "params": {
+                "tool": "circuit",
+                "substance": "graphite"
+              }
+            },
+            {
+              "prompt": "You connect a dry crystal of salt into the gap in the circuit. What happens to the bulb?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "on",
+                    "label": "The bulb lights up"
+                  },
+                  {
+                    "id": "off",
+                    "label": "The bulb stays off"
+                  },
+                  {
+                    "id": "dim",
+                    "label": "The bulb glows dimly"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "off"
+              },
+              "outcome": "The bulb stays off.",
+              "explanation": "A solid salt crystal does not conduct: its ions are locked in place. (Dissolved in water it would conduct.)",
+              "coachSecrets": [],
+              "params": {
+                "tool": "circuit",
+                "substance": "salt"
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_prop",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Physical and chemical change"
+          },
+          "prompt": "A cook cracks an egg into a hot pan and it turns white and solid. Which kind of change is this?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "chemical",
+                "label": "A chemical change: the egg proteins have changed"
+              },
+              {
+                "id": "physical",
+                "label": "A physical change: the egg only changed state"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "chemical"
+          },
+          "outcome": "A chemical change.",
+          "explanation": "Cooking an egg changes its proteins permanently into new substances; it cannot be uncooked.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A cook cracks an egg into a hot pan and it turns white and solid. Which kind of change is this?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change: the egg proteins have changed"
+                  },
+                  {
+                    "id": "physical",
+                    "label": "A physical change: the egg only changed state"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "chemical"
+              },
+              "outcome": "A chemical change.",
+              "explanation": "Cooking an egg changes its proteins permanently into new substances; it cannot be uncooked."
+            },
+            {
+              "prompt": "You mix iron filings and sand and then pull out the iron with a magnet. Which statement is true?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "The iron and the sand were never changed into anything new"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "The iron and sand reacted to make a new substance"
+                  },
+                  {
+                    "id": "destroyed",
+                    "label": "Some of the iron was used up"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "physical"
+              },
+              "outcome": "The iron and the sand were never changed.",
+              "explanation": "A mixture can be separated by physical means because each substance keeps its own properties."
+            },
+            {
+              "prompt": "A nail left outside turns brown and flaky. Which kind of change is this?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change: iron has reacted to make rust"
+                  },
+                  {
+                    "id": "physical",
+                    "label": "A physical change: the iron only changed colour"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "chemical"
+              },
+              "outcome": "A chemical change.",
+              "explanation": "Iron reacts with oxygen and water to make rust, a different substance that is flaky and not magnetic like iron."
+            },
+            {
+              "prompt": "You crush a can flat. Which kind of change is this?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "physical",
+                    "label": "A physical change: only the shape changed"
+                  },
+                  {
+                    "id": "chemical",
+                    "label": "A chemical change: a new substance was made"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "physical"
+              },
+              "outcome": "A physical change.",
+              "explanation": "The metal is still the same substance; only its shape changed."
+            },
+            {
+              "prompt": "Which of these is a sign that a chemical change has happened?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "gas",
+                    "label": "Bubbles of a new gas, a permanent colour change, or heat given out"
+                  },
+                  {
+                    "id": "size",
+                    "label": "Something got smaller"
+                  },
+                  {
+                    "id": "move",
+                    "label": "Something moved"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "gas"
+              },
+              "outcome": "Bubbles of a new gas, a permanent colour change, or heat given out.",
+              "explanation": "These are clues that a new substance has formed. A change in size or position is not."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "density_measurement",
+      "tabName": "Density & Measurement",
+      "title": "The Density Bench",
+      "setup": "A weighing scale, a measuring cylinder and a row of liquids in different colours. Measure mass and volume, then see how the liquids behave together.",
+      "trials": [
+        {
+          "id": "den_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "weigh_liquids",
+          "law": {
+            "name": "Density",
+            "formula": "ρ = m / V"
+          },
+          "prompt": "You weigh the same volume (50 mL) of honey, water and vegetable oil on the scale. Which liquid has the highest density?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "honey",
+                "label": "Honey"
+              },
+              {
+                "id": "water",
+                "label": "Water"
+              },
+              {
+                "id": "oil",
+                "label": "Vegetable oil"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "honey"
+          },
+          "outcome": "Honey. Densities (g/mL): honey 1.42, water 1, vegetable oil 0.92.",
+          "explanation": "Density is mass divided by volume. For the same volume, the liquid with the bigger mass is the denser one: it packs more matter into the same space.",
+          "coachSecrets": [],
+          "params": {
+            "liquids": [
+              "honey",
+              "water",
+              "oil"
+            ],
+            "volume": 50
+          },
+          "variants": [
+            {
+              "prompt": "You weigh the same volume (50 mL) of honey, water and vegetable oil on the scale. Which liquid has the highest density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "honey",
+                    "label": "Honey"
+                  },
+                  {
+                    "id": "water",
+                    "label": "Water"
+                  },
+                  {
+                    "id": "oil",
+                    "label": "Vegetable oil"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "honey"
+              },
+              "outcome": "Honey. Densities (g/mL): honey 1.42, water 1, vegetable oil 0.92.",
+              "explanation": "Density is mass divided by volume. For the same volume, the liquid with the bigger mass is the denser one: it packs more matter into the same space.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey",
+                  "water",
+                  "oil"
+                ],
+                "volume": 50
+              }
+            },
+            {
+              "prompt": "You weigh the same volume (50 mL) of water, rubbing alcohol and corn syrup on the scale. Which liquid has the highest density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "water",
+                    "label": "Water"
+                  },
+                  {
+                    "id": "alcohol",
+                    "label": "Rubbing alcohol"
+                  },
+                  {
+                    "id": "syrup",
+                    "label": "Corn syrup"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "syrup"
+              },
+              "outcome": "Corn syrup. Densities (g/mL): corn syrup 1.33, water 1, rubbing alcohol 0.79.",
+              "explanation": "Density is mass divided by volume. For the same volume, the liquid with the bigger mass is the denser one: it packs more matter into the same space.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "water",
+                  "alcohol",
+                  "syrup"
+                ],
+                "volume": 50
+              }
+            },
+            {
+              "prompt": "You weigh the same volume (50 mL) of milk, vegetable oil and glycerine on the scale. Which liquid has the highest density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "milk",
+                    "label": "Milk"
+                  },
+                  {
+                    "id": "oil",
+                    "label": "Vegetable oil"
+                  },
+                  {
+                    "id": "glycerine",
+                    "label": "Glycerine"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "glycerine"
+              },
+              "outcome": "Glycerine. Densities (g/mL): glycerine 1.26, milk 1.03, vegetable oil 0.92.",
+              "explanation": "Density is mass divided by volume. For the same volume, the liquid with the bigger mass is the denser one: it packs more matter into the same space.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "milk",
+                  "oil",
+                  "glycerine"
+                ],
+                "volume": 50
+              }
+            },
+            {
+              "prompt": "You weigh the same volume (50 mL) of honey, water and vegetable oil on the scale. Which liquid has the lowest density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "honey",
+                    "label": "Honey"
+                  },
+                  {
+                    "id": "water",
+                    "label": "Water"
+                  },
+                  {
+                    "id": "oil",
+                    "label": "Vegetable oil"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "oil"
+              },
+              "outcome": "Vegetable oil. Densities (g/mL): honey 1.42, water 1, vegetable oil 0.92.",
+              "explanation": "Density is mass divided by volume. For the same volume, the liquid with the bigger mass is the denser one: it packs more matter into the same space.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey",
+                  "water",
+                  "oil"
+                ],
+                "volume": 50
+              }
+            },
+            {
+              "prompt": "You weigh the same volume (50 mL) of rubbing alcohol, water and milk on the scale. Which liquid has the lowest density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "alcohol",
+                    "label": "Rubbing alcohol"
+                  },
+                  {
+                    "id": "water",
+                    "label": "Water"
+                  },
+                  {
+                    "id": "milk",
+                    "label": "Milk"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "alcohol"
+              },
+              "outcome": "Rubbing alcohol. Densities (g/mL): milk 1.03, water 1, rubbing alcohol 0.79.",
+              "explanation": "Density is mass divided by volume. For the same volume, the liquid with the bigger mass is the denser one: it packs more matter into the same space.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "alcohol",
+                  "water",
+                  "milk"
+                ],
+                "volume": 50
+              }
+            }
+          ]
+        },
+        {
+          "id": "den_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "measure",
+          "law": {
+            "name": "Density",
+            "formula": "ρ = m / V"
+          },
+          "prompt": "A 50 mL sample of honey is poured into the measuring cylinder and weighed: the scale reads 71 g. Calculate its density.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "density",
+                "label": "Density",
+                "unit": "g/mL"
+              }
+            ]
+          },
+          "answer": {
+            "density": 1.42
+          },
+          "tolerance": 0.06,
+          "outcome": "1.42 g/mL.",
+          "explanation": "Density = mass ÷ volume = 71 g ÷ 50 mL = 1.42 g/mL.",
+          "coachSecrets": [],
+          "params": {
+            "liquids": [
+              "honey"
+            ],
+            "volume": 50,
+            "mode": "density"
+          },
+          "variants": [
+            {
+              "prompt": "A 50 mL sample of honey is poured into the measuring cylinder and weighed: the scale reads 71 g. Calculate its density.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "density",
+                    "label": "Density",
+                    "unit": "g/mL"
+                  }
+                ]
+              },
+              "answer": {
+                "density": 1.42
+              },
+              "tolerance": 0.06,
+              "outcome": "1.42 g/mL.",
+              "explanation": "Density = mass ÷ volume = 71 g ÷ 50 mL = 1.42 g/mL.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey"
+                ],
+                "volume": 50,
+                "mode": "density"
+              }
+            },
+            {
+              "prompt": "The density of honey is 1.42 g/mL. You pour 80 mL into the measuring cylinder. What will the scale read?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "mass",
+                    "label": "Mass",
+                    "unit": "g"
+                  }
+                ]
+              },
+              "answer": {
+                "mass": 113.6
+              },
+              "tolerance": 3.4,
+              "outcome": "113.6 g.",
+              "explanation": "Mass = density × volume = 1.42 g/mL × 80 mL = 113.6 g.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey"
+                ],
+                "volume": 80,
+                "mode": "mass"
+              }
+            },
+            {
+              "prompt": "A 40 mL sample of vegetable oil is poured into the measuring cylinder and weighed: the scale reads 36.8 g. Calculate its density.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "density",
+                    "label": "Density",
+                    "unit": "g/mL"
+                  }
+                ]
+              },
+              "answer": {
+                "density": 0.92
+              },
+              "tolerance": 0.06,
+              "outcome": "0.92 g/mL.",
+              "explanation": "Density = mass ÷ volume = 36.8 g ÷ 40 mL = 0.92 g/mL.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "oil"
+                ],
+                "volume": 40,
+                "mode": "density"
+              }
+            },
+            {
+              "prompt": "You weigh out 39.5 g of rubbing alcohol, whose density is 0.79 g/mL. What volume will it fill in the measuring cylinder?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "volume",
+                    "label": "Volume",
+                    "unit": "mL"
+                  }
+                ]
+              },
+              "answer": {
+                "volume": 50
+              },
+              "tolerance": 2,
+              "outcome": "50 mL.",
+              "explanation": "Volume = mass ÷ density = 39.5 g ÷ 0.79 g/mL = 50 mL.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "alcohol"
+                ],
+                "volume": 50,
+                "mode": "volume"
+              }
+            },
+            {
+              "prompt": "The density of water is 1 g/mL. You pour 65 mL into the measuring cylinder. What will the scale read?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "mass",
+                    "label": "Mass",
+                    "unit": "g"
+                  }
+                ]
+              },
+              "answer": {
+                "mass": 65.0
+              },
+              "tolerance": 1.9,
+              "outcome": "65 g.",
+              "explanation": "Mass = density × volume = 1 g/mL × 65 mL = 65 g.",
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "water"
+                ],
+                "volume": 65,
+                "mode": "mass"
+              }
+            }
+          ]
+        },
+        {
+          "id": "den_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "layer",
+          "law": {
+            "name": "Density and layers"
+          },
+          "prompt": "You carefully pour honey, water and vegetable oil into one tall container. Predict the order they settle in.",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "right",
+                "label": "Honey → Water → Vegetable oil (bottom to top)"
+              },
+              {
+                "id": "w0",
+                "label": "Vegetable oil → Water → Honey (bottom to top)"
+              },
+              {
+                "id": "w1",
+                "label": "Water → Honey → Vegetable oil (bottom to top)"
+              },
+              {
+                "id": "w2",
+                "label": "Honey → Vegetable oil → Water (bottom to top)"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "right"
+          },
+          "outcome": "They settle in layers, densest at the bottom: Honey → Water → Vegetable oil. Densities (g/mL): Honey 1.42, Water 1, Vegetable oil 0.92.",
+          "explanation": "The densest liquid sinks to the bottom and the least dense floats on top: the layers are in order of density. This is the same thing the scale told you, now visible: more mass in the same volume means heavier per mL, so it sinks beneath the lighter liquids.",
+          "expectedKeywords": [
+            "density",
+            "dense",
+            "sinks",
+            "floats"
+          ],
+          "keywordSynonyms": {
+            "density": [
+              "denser",
+              "heavier per",
+              "mass per",
+              "mass and volume"
+            ],
+            "dense": [
+              "denser",
+              "densest",
+              "heavier",
+              "heaviest"
+            ],
+            "sinks": [
+              "sink",
+              "bottom",
+              "falls",
+              "goes down",
+              "below"
+            ],
+            "floats": [
+              "float",
+              "top",
+              "rises",
+              "above",
+              "on top",
+              "lighter"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "liquids": [
+              "honey",
+              "water",
+              "oil"
+            ]
+          },
+          "variants": [
+            {
+              "prompt": "You carefully pour honey, water and vegetable oil into one tall container. Predict the order they settle in.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "Honey → Water → Vegetable oil (bottom to top)"
+                  },
+                  {
+                    "id": "w0",
+                    "label": "Vegetable oil → Water → Honey (bottom to top)"
+                  },
+                  {
+                    "id": "w1",
+                    "label": "Water → Honey → Vegetable oil (bottom to top)"
+                  },
+                  {
+                    "id": "w2",
+                    "label": "Honey → Vegetable oil → Water (bottom to top)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "They settle in layers, densest at the bottom: Honey → Water → Vegetable oil. Densities (g/mL): Honey 1.42, Water 1, Vegetable oil 0.92.",
+              "explanation": "The densest liquid sinks to the bottom and the least dense floats on top: the layers are in order of density. This is the same thing the scale told you, now visible: more mass in the same volume means heavier per mL, so it sinks beneath the lighter liquids.",
+              "expectedKeywords": [
+                "density",
+                "dense",
+                "sinks",
+                "floats"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "heavier per",
+                  "mass per",
+                  "mass and volume"
+                ],
+                "dense": [
+                  "denser",
+                  "densest",
+                  "heavier",
+                  "heaviest"
+                ],
+                "sinks": [
+                  "sink",
+                  "bottom",
+                  "falls",
+                  "goes down",
+                  "below"
+                ],
+                "floats": [
+                  "float",
+                  "top",
+                  "rises",
+                  "above",
+                  "on top",
+                  "lighter"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey",
+                  "water",
+                  "oil"
+                ]
+              }
+            },
+            {
+              "prompt": "You carefully pour corn syrup, dish soap and vegetable oil into one tall container. Predict the order they settle in.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "Corn syrup → Dish soap → Vegetable oil (bottom to top)"
+                  },
+                  {
+                    "id": "w0",
+                    "label": "Vegetable oil → Dish soap → Corn syrup (bottom to top)"
+                  },
+                  {
+                    "id": "w1",
+                    "label": "Dish soap → Corn syrup → Vegetable oil (bottom to top)"
+                  },
+                  {
+                    "id": "w2",
+                    "label": "Corn syrup → Vegetable oil → Dish soap (bottom to top)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "They settle in layers, densest at the bottom: Corn syrup → Dish soap → Vegetable oil. Densities (g/mL): Corn syrup 1.33, Dish soap 1.06, Vegetable oil 0.92.",
+              "explanation": "The densest liquid sinks to the bottom and the least dense floats on top: the layers are in order of density. This is the same thing the scale told you, now visible: more mass in the same volume means heavier per mL, so it sinks beneath the lighter liquids.",
+              "expectedKeywords": [
+                "density",
+                "dense",
+                "sinks",
+                "floats"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "heavier per",
+                  "mass per",
+                  "mass and volume"
+                ],
+                "dense": [
+                  "denser",
+                  "densest",
+                  "heavier",
+                  "heaviest"
+                ],
+                "sinks": [
+                  "sink",
+                  "bottom",
+                  "falls",
+                  "goes down",
+                  "below"
+                ],
+                "floats": [
+                  "float",
+                  "top",
+                  "rises",
+                  "above",
+                  "on top",
+                  "lighter"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "syrup",
+                  "soap",
+                  "oil"
+                ]
+              }
+            },
+            {
+              "prompt": "You carefully pour honey, dish soap and rubbing alcohol into one tall container. Predict the order they settle in.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "Honey → Dish soap → Rubbing alcohol (bottom to top)"
+                  },
+                  {
+                    "id": "w0",
+                    "label": "Rubbing alcohol → Dish soap → Honey (bottom to top)"
+                  },
+                  {
+                    "id": "w1",
+                    "label": "Dish soap → Honey → Rubbing alcohol (bottom to top)"
+                  },
+                  {
+                    "id": "w2",
+                    "label": "Honey → Rubbing alcohol → Dish soap (bottom to top)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "They settle in layers, densest at the bottom: Honey → Dish soap → Rubbing alcohol. Densities (g/mL): Honey 1.42, Dish soap 1.06, Rubbing alcohol 0.79.",
+              "explanation": "The densest liquid sinks to the bottom and the least dense floats on top: the layers are in order of density. This is the same thing the scale told you, now visible: more mass in the same volume means heavier per mL, so it sinks beneath the lighter liquids.",
+              "expectedKeywords": [
+                "density",
+                "dense",
+                "sinks",
+                "floats"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "heavier per",
+                  "mass per",
+                  "mass and volume"
+                ],
+                "dense": [
+                  "denser",
+                  "densest",
+                  "heavier",
+                  "heaviest"
+                ],
+                "sinks": [
+                  "sink",
+                  "bottom",
+                  "falls",
+                  "goes down",
+                  "below"
+                ],
+                "floats": [
+                  "float",
+                  "top",
+                  "rises",
+                  "above",
+                  "on top",
+                  "lighter"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey",
+                  "soap",
+                  "alcohol"
+                ]
+              }
+            },
+            {
+              "prompt": "You carefully pour corn syrup, water and rubbing alcohol into one tall container. Predict the order they settle in.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "Corn syrup → Water → Rubbing alcohol (bottom to top)"
+                  },
+                  {
+                    "id": "w0",
+                    "label": "Rubbing alcohol → Water → Corn syrup (bottom to top)"
+                  },
+                  {
+                    "id": "w1",
+                    "label": "Water → Corn syrup → Rubbing alcohol (bottom to top)"
+                  },
+                  {
+                    "id": "w2",
+                    "label": "Corn syrup → Rubbing alcohol → Water (bottom to top)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "They settle in layers, densest at the bottom: Corn syrup → Water → Rubbing alcohol. Densities (g/mL): Corn syrup 1.33, Water 1, Rubbing alcohol 0.79.",
+              "explanation": "The densest liquid sinks to the bottom and the least dense floats on top: the layers are in order of density. This is the same thing the scale told you, now visible: more mass in the same volume means heavier per mL, so it sinks beneath the lighter liquids.",
+              "expectedKeywords": [
+                "density",
+                "dense",
+                "sinks",
+                "floats"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "heavier per",
+                  "mass per",
+                  "mass and volume"
+                ],
+                "dense": [
+                  "denser",
+                  "densest",
+                  "heavier",
+                  "heaviest"
+                ],
+                "sinks": [
+                  "sink",
+                  "bottom",
+                  "falls",
+                  "goes down",
+                  "below"
+                ],
+                "floats": [
+                  "float",
+                  "top",
+                  "rises",
+                  "above",
+                  "on top",
+                  "lighter"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "syrup",
+                  "water",
+                  "alcohol"
+                ]
+              }
+            },
+            {
+              "prompt": "You carefully pour honey, corn syrup, water and vegetable oil into one tall container. Predict the order they settle in.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right",
+                    "label": "Honey → Corn syrup → Water → Vegetable oil (bottom to top)"
+                  },
+                  {
+                    "id": "w0",
+                    "label": "Vegetable oil → Water → Corn syrup → Honey (bottom to top)"
+                  },
+                  {
+                    "id": "w1",
+                    "label": "Corn syrup → Honey → Water → Vegetable oil (bottom to top)"
+                  },
+                  {
+                    "id": "w2",
+                    "label": "Honey → Corn syrup → Vegetable oil → Water (bottom to top)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "They settle in layers, densest at the bottom: Honey → Corn syrup → Water → Vegetable oil. Densities (g/mL): Honey 1.42, Corn syrup 1.33, Water 1, Vegetable oil 0.92.",
+              "explanation": "The densest liquid sinks to the bottom and the least dense floats on top: the layers are in order of density. This is the same thing the scale told you, now visible: more mass in the same volume means heavier per mL, so it sinks beneath the lighter liquids.",
+              "expectedKeywords": [
+                "density",
+                "dense",
+                "sinks",
+                "floats"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "heavier per",
+                  "mass per",
+                  "mass and volume"
+                ],
+                "dense": [
+                  "denser",
+                  "densest",
+                  "heavier",
+                  "heaviest"
+                ],
+                "sinks": [
+                  "sink",
+                  "bottom",
+                  "falls",
+                  "goes down",
+                  "below"
+                ],
+                "floats": [
+                  "float",
+                  "top",
+                  "rises",
+                  "above",
+                  "on top",
+                  "lighter"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "liquids": [
+                  "honey",
+                  "syrup",
+                  "water",
+                  "oil"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "den_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "drop",
+          "law": {
+            "name": "Density and floating"
+          },
+          "prompt": "You drop a cork (density 0.24 g/mL) into a tall jar of water (density 1 g/mL). What happens?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "float",
+                "label": "It floats"
+              },
+              {
+                "id": "sink",
+                "label": "It sinks"
+              },
+              {
+                "id": "hover",
+                "label": "It hovers in the middle"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "float"
+          },
+          "outcome": "It floats. The cork has a density of 0.24 g/mL; water has 1 g/mL.",
+          "explanation": "An object floats if it is less dense than the liquid, and sinks if it is denser. It is not about size or weight alone, but about mass per volume compared with the liquid's.",
+          "coachSecrets": [],
+          "params": {
+            "object": "cork",
+            "liquid": "water"
+          },
+          "variants": [
+            {
+              "prompt": "You drop a cork (density 0.24 g/mL) into a tall jar of water (density 1 g/mL). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "float"
+              },
+              "outcome": "It floats. The cork has a density of 0.24 g/mL; water has 1 g/mL.",
+              "explanation": "An object floats if it is less dense than the liquid, and sinks if it is denser. It is not about size or weight alone, but about mass per volume compared with the liquid's.",
+              "coachSecrets": [],
+              "params": {
+                "object": "cork",
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "You drop an ice cube (density 0.92 g/mL) into a tall jar of water (density 1 g/mL). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "float"
+              },
+              "outcome": "It floats. The an ice cube has a density of 0.92 g/mL; water has 1 g/mL.",
+              "explanation": "An object floats if it is less dense than the liquid, and sinks if it is denser. It is not about size or weight alone, but about mass per volume compared with the liquid's.",
+              "coachSecrets": [],
+              "params": {
+                "object": "ice",
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "You drop an ice cube (density 0.92 g/mL) into a tall jar of rubbing alcohol (density 0.79 g/mL). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "sink"
+              },
+              "outcome": "It sinks. The an ice cube has a density of 0.92 g/mL; rubbing alcohol has 0.79 g/mL.",
+              "explanation": "An object floats if it is less dense than the liquid, and sinks if it is denser. It is not about size or weight alone, but about mass per volume compared with the liquid's.",
+              "coachSecrets": [],
+              "params": {
+                "object": "ice",
+                "liquid": "alcohol"
+              }
+            },
+            {
+              "prompt": "You drop a steel bolt (density 7.8 g/mL) into a tall jar of water (density 1 g/mL). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "sink"
+              },
+              "outcome": "It sinks. The steel bolt has a density of 7.8 g/mL; water has 1 g/mL.",
+              "explanation": "An object floats if it is less dense than the liquid, and sinks if it is denser. It is not about size or weight alone, but about mass per volume compared with the liquid's.",
+              "coachSecrets": [],
+              "params": {
+                "object": "steel",
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "You drop a lump of candle wax (density 0.9 g/mL) into a tall jar of vegetable oil (density 0.92 g/mL). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "float"
+              },
+              "outcome": "It floats. The lump of candle wax has a density of 0.9 g/mL; vegetable oil has 0.92 g/mL.",
+              "explanation": "An object floats if it is less dense than the liquid, and sinks if it is denser. It is not about size or weight alone, but about mass per volume compared with the liquid's.",
+              "coachSecrets": [],
+              "params": {
+                "object": "wax",
+                "liquid": "oil"
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_den",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Density"
+          },
+          "prompt": "A tonne of feathers and a tonne of lead: which has the greater density?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "lead",
+                "label": "The lead"
+              },
+              {
+                "id": "feathers",
+                "label": "The feathers"
+              },
+              {
+                "id": "same",
+                "label": "They have the same density"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "lead"
+          },
+          "outcome": "The lead.",
+          "explanation": "Density is mass per volume. A tonne of lead takes up very little space, while a tonne of feathers fills a huge volume, so lead packs far more mass into each cm³.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A tonne of feathers and a tonne of lead: which has the greater density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lead",
+                    "label": "The lead"
+                  },
+                  {
+                    "id": "feathers",
+                    "label": "The feathers"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They have the same density"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "lead"
+              },
+              "outcome": "The lead.",
+              "explanation": "Density is mass per volume. A tonne of lead takes up very little space, while a tonne of feathers fills a huge volume, so lead packs far more mass into each cm³."
+            },
+            {
+              "prompt": "A ship made of steel, which is much denser than water, floats. Why?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "hollow",
+                    "label": "Its hollow shape means its overall density, steel and air together, is less than water's"
+                  },
+                  {
+                    "id": "steel",
+                    "label": "Steel is less dense than water"
+                  },
+                  {
+                    "id": "big",
+                    "label": "Big objects always float"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "hollow"
+              },
+              "outcome": "Its hollow shape lowers its average density.",
+              "explanation": "What matters is the average density of the whole object. A hollow hull full of air is overall less dense than water, so it floats."
+            },
+            {
+              "prompt": "Oil floats on top of vinegar when you pour them together. What does this tell you?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Oil is less dense than vinegar"
+                  },
+                  {
+                    "id": "more",
+                    "label": "Oil is more dense than vinegar"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They have the same density"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "Oil is less dense than vinegar.",
+              "explanation": "The less dense liquid always ends up on top."
+            },
+            {
+              "prompt": "You squash a lump of modelling clay flat. What happens to its density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "It stays the same: mass and volume have not changed"
+                  },
+                  {
+                    "id": "up",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "down",
+                    "label": "It decreases"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "It stays the same.",
+              "explanation": "Squashing changes the shape only. The mass and the volume are unchanged, so the density is too."
+            },
+            {
+              "prompt": "A 10 cm³ block has a mass of 27 g. What is its density?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "2.7",
+                    "label": "2.7 g/cm³"
+                  },
+                  {
+                    "id": "270",
+                    "label": "270 g/cm³"
+                  },
+                  {
+                    "id": "0.37",
+                    "label": "0.37 g/cm³"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "2.7"
+              },
+              "outcome": "2.7 g/cm³.",
+              "explanation": "Density = mass ÷ volume = 27 g ÷ 10 cm³ = 2.7 g/cm³."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "laws": [
+    {
+      "id": "conservation",
+      "name": "Conservation of mass",
+      "summary": "Matter is neither created nor destroyed in a change of state."
+    },
+    {
+      "id": "density",
+      "name": "Density",
+      "formula": "ρ = m / V",
+      "summary": "Mass per unit volume decides sinking and floating."
+    }
+  ],
+  "liquids": {
+    "honey": {
+      "name": "Honey",
+      "density": 1.42,
+      "color": 14195487
+    },
+    "syrup": {
+      "name": "Corn syrup",
+      "density": 1.33,
+      "color": 11754015
+    },
+    "soap": {
+      "name": "Dish soap",
+      "density": 1.06,
+      "color": 6475944
+    },
+    "water": {
+      "name": "Water",
+      "density": 1.0,
+      "color": 3900150
+    },
+    "oil": {
+      "name": "Vegetable oil",
+      "density": 0.92,
+      "color": 15913532
+    },
+    "alcohol": {
+      "name": "Rubbing alcohol",
+      "density": 0.79,
+      "color": 16027569
+    },
+    "milk": {
+      "name": "Milk",
+      "density": 1.03,
+      "color": 16052712
+    },
+    "glycerine": {
+      "name": "Glycerine",
+      "density": 1.26,
+      "color": 13625583
+    }
+  },
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasTemperatureSlider": true,
+    "hasDigitalScaleDisplay": true,
+    "hasMeasuringCylinderReadout": true
+  }
+}

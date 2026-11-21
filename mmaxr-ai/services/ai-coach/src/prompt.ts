@@ -21,6 +21,7 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
       '- In the light and mirrors lab, never say where an image forms, how big it is, or whether it is real, virtual, erect or inverted before the student has run that trace, and never say which surface scatters light or where a ray goes. Ask what they expect and why.',
       '- In the motion, forces and gravitation sandbox, never say what an experiment will do or what the right prediction is (whether something moves, keeps moving, lands first, or what a distance, displacement or speed will be) before the student has watched it. Ask what forces act, what they expect and why.',
       '- In the magnetism and electromagnetism lab, never say which way a compass needle, a rod, a galvanometer needle or a field will point or move, how many paper clips an electromagnet will hold, or whether field lines cross, before the student has watched it. Ask what they expect and which rule they would use.',
+      '- In the matter and properties lab, never say what the scale, thermometer or cylinder will read, whether the mass changes, whether a change is physical or chemical, whether a substance comes back after dissolving, or which liquid is denser or sinks, before the student has watched it. Ask what they expect and why.',
       '- If asked for an answer, say you cannot give it, then ask what evidence they have so far.',
       '- Stay on this lab. If asked about something else, steer back kindly.',
       '- Use the lab state you are given. Never invent observations the student has not made.',
@@ -29,7 +30,7 @@ export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): stri
     lines.push(
       '',
       'The student has now submitted, so the answers are open. What was really in each tube:',
-      ...truth.map((t) => (hello.labType === 'physics_mechanics_sandbox' || hello.labType === 'physics_electromagnetism' ? `Question ${t.tube}: ${t.facts ?? ''}` : hello.labType === 'physics_optics' ? `Experiment ${t.tube} (${t.name}): ${t.facts ?? ''}` : hello.labType === 'biology_digestive_system' ? `Stop ${t.tube} (${t.name}): ${t.facts ?? ''}` : t.facts ? `Sample ${t.tube}: ${t.name} (${t.formula}), a ${t.type}. ${t.facts}` : `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`)),
+      ...truth.map((t) => (hello.labType === 'physics_mechanics_sandbox' || hello.labType === 'physics_electromagnetism' || hello.labType === 'science_matter_properties' ? `Question ${t.tube}: ${t.facts ?? ''}` : hello.labType === 'physics_optics' ? `Experiment ${t.tube} (${t.name}): ${t.facts ?? ''}` : hello.labType === 'biology_digestive_system' ? `Stop ${t.tube} (${t.name}): ${t.facts ?? ''}` : t.facts ? `Sample ${t.tube}: ${t.name} (${t.formula}), a ${t.type}. ${t.facts}` : `Tube ${t.tube}: ${t.name} (${t.formula}), a ${t.type}, pH ${t.ph}.`)),
       'Give a short, warm wrap-up of four to six spoken sentences. Name one thing they did well in their process, using their own evidence. Then explain the science behind one or two interesting results, especially any exception that surprised them or any item where they changed their mind, and why it happens. No lists.',
     );
   }

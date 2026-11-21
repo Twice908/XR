@@ -22,10 +22,10 @@ describe('motion contract', () => {
   });
 });
 
-describe('the magnetism lab uses the same engine', () => {
-  const mag = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/physics-magnetism.json'), 'utf8'));
+describe.each(['physics-magnetism', 'matter-properties'])('the %s lab uses the same engine', (lessonFile) => {
+  const mag = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data', `${lessonFile}.json`), 'utf8'));
   it('has three tabs, every question with five sets of values, and answers that fit their inputs', () => {
-    expect(mag.scenarios.map((s: any) => s.id)).toEqual(['magnets_fields', 'electromagnetism', 'force_induction']);
+    expect(mag.scenarios).toHaveLength(3);
     for (const t of allTrials(mag)) {
       expect(t.variants).toHaveLength(5);
       for (let i = 0; i < 5; i++) {
@@ -47,7 +47,7 @@ describe('the magnetism lab uses the same engine', () => {
     }
     for (const key of ['"answer"', 'expectedKeywords', 'coachSecrets', '"law"', '"laws"']) expect(pub).not.toContain(key);
   });
-  it('Fleming answers agree with the left-hand rule (current x field)', () => {
+  it.runIf(lessonFile === 'physics-magnetism')('Fleming answers agree with the left-hand rule (current x field)', () => {
     const t = allTrials(mag).find((x) => x.id === 'force_1')!;
     const dir: Record<string, number[]> = { up: [0, 1, 0], down: [0, -1, 0], left: [-1, 0, 0], right: [1, 0, 0], in: [0, 0, -1], out: [0, 0, 1] };
     for (let i = 0; i < 5; i++) {
@@ -185,5 +185,50 @@ describe('explanations and reveal', () => {
   it('keeps secrets for the coach, including the correct choice label', () => {
     expect(secretsOf(trial('dyn_2'))).toContain('It keeps going at the same speed');
     expect(secretsOf(trial('kin_2'))).toContain('zero displacement');
+  });
+});
+
+describe('matter lab: answers agree with the physics', () => {
+  const lab = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/matter-properties.json'), 'utf8'));
+  const trial = (id: string) => allTrials(lab).find((t) => t.id === id)!;
+  const dens = (k: string) => lab.liquids[k].density as number;
+  it('the right layering is always densest at the bottom, and every liquid has a distinct density', () => {
+    const ds = Object.values<any>(lab.liquids).map((l) => l.density);
+    expect(new Set(ds).size).toBe(ds.length);
+    for (let i = 0; i < 5; i++) {
+      const r = resolveTrial(trial('den_3'), i);
+      const keys = (r.params as any).liquids as string[];
+      const right = (r.input as any).options.find((o: any) => o.id === 'right').label as string;
+      const order = [...keys].sort((a, b) => dens(b) - dens(a)).map((k) => lab.liquids[k].name);
+      expect(right).toBe(order.join(' → ') + ' (bottom to top)');
+    }
+  });
+  it('the densest liquid asked about in den_1 really is the densest (or least dense)', () => {
+    for (let i = 0; i < 5; i++) {
+      const r = resolveTrial(trial('den_1'), i);
+      const keys = (r.params as any).liquids as string[];
+      const most = /highest/.test(r.prompt);
+      const pick = [...keys].sort((a, b) => (most ? dens(b) - dens(a) : dens(a) - dens(b)))[0];
+      expect(r.answer.choice).toBe(pick);
+    }
+  });
+  it('density questions give consistent numbers (mass = density × volume)', () => {
+    const d = resolveTrial(trial('den_2'), 1);
+    expect((d.answer as any).mass).toBeCloseTo(dens('honey') * 80, 1);
+    const w = resolveTrial(trial('den_2'), 3);
+    expect((w.answer as any).volume).toBe(50);
+  });
+  it('floating: an object floats exactly when it is less dense than the liquid', () => {
+    for (let i = 0; i < 5; i++) {
+      const r = resolveTrial(trial('den_4'), i);
+      const [, od, ld] = /density ([\d.]+) g\/mL\).*?\(density ([\d.]+) g\/mL/.exec(r.prompt)!.map(Number);
+      expect(r.answer.choice).toBe(od < ld ? 'float' : 'sink');
+    }
+  });
+  it('mass is conserved in every sealed or melting variant, and falls only in the open-boil one', () => {
+    const answers = [0, 1, 2, 3, 4].map((i) => resolveTrial(trial('state_1'), i));
+    expect(answers.map((a) => a.answer.choice ?? 'n')).toEqual(['same', 'n', 'n', 'same', 'down']);
+    expect((answers[1].answer as any).mass).toBe(300);
+    expect((answers[2].answer as any).mass).toBe(360);
   });
 });
