@@ -3,7 +3,7 @@
   "type": "science_matter_properties",
   "subject": "Chemistry",
   "title": "Matter & Its Properties Lab",
-  "summary": "Heat ice into steam and watch the mass stay the same, test substances to tell physical from chemical change, and weigh and pour liquids to see how density decides who sinks. Predict first, then watch what really happens.",
+  "summary": "Heat ice into steam and watch the mass stay the same, test substances to tell physical from chemical change, and weigh and pour liquids to see how density decides who sinks, ending with Archimedes' principle: why things float, how much they displace and how much lighter they feel in a liquid. Predict first, then watch what really happens.",
   "durationMinutes": 35,
   "assets": {
     "cylinder": "http://localhost:3007/assets/models/graduated-cylinder.glb",
@@ -1873,7 +1873,7 @@
       "id": "density_measurement",
       "tabName": "Density & Measurement",
       "title": "The Density Bench",
-      "setup": "A weighing scale, a measuring cylinder and a row of liquids in different colours. Measure mass and volume, then see how the liquids behave together.",
+      "setup": "A weighing scale, a measuring cylinder and a row of liquids in different colours. Measure mass and volume, see how the liquids behave together, then use an overflow can, a spring scale and a lump of clay to find out why things float (Archimedes' principle).",
       "trials": [
         {
           "id": "den_1",
@@ -3051,6 +3051,1875 @@
               "explanation": "Density = mass ÷ volume = 27 g ÷ 10 cm³ = 2.7 g/cm³."
             }
           ]
+        },
+        {
+          "id": "arch_1",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "displace",
+          "law": {
+            "name": "Archimedes' principle",
+            "formula": "F = ρ g V"
+          },
+          "prompt": "An overflow can is filled to the brim with water. You lower a 4 cm iron cube (A) into it and catch what overflows, then do the same with a 8 cm wood cube (B). Which one makes more liquid overflow?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "a",
+                "label": "A: the 4 cm iron cube"
+              },
+              {
+                "id": "b",
+                "label": "B: the 8 cm wood cube"
+              },
+              {
+                "id": "same",
+                "label": "They push out the same amount"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "b"
+          },
+          "outcome": "A displaces 64 mL and B displaces 307 mL (more for B). A sinks (mass 504 g) and B floats (mass 307 g).",
+          "explanation": "An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks.",
+          "expectedKeywords": [
+            "displace",
+            "volume",
+            "submerged",
+            "weight"
+          ],
+          "keywordSynonyms": {
+            "displace": [
+              "displaces",
+              "displaced",
+              "displacement",
+              "pushes aside",
+              "pushes out",
+              "overflow",
+              "overflows",
+              "spills"
+            ],
+            "volume": [
+              "size",
+              "space",
+              "how big",
+              "bigger",
+              "larger"
+            ],
+            "submerged": [
+              "under",
+              "underwater",
+              "under the water",
+              "below the surface",
+              "sinks",
+              "in the water"
+            ],
+            "weight": [
+              "mass",
+              "heavy",
+              "heavier",
+              "float",
+              "floats",
+              "floating"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "a": {
+              "name": "iron",
+              "side": 4,
+              "density": 7.87
+            },
+            "b": {
+              "name": "wood",
+              "side": 8,
+              "density": 0.6
+            },
+            "liquid": "water"
+          },
+          "variants": [
+            {
+              "prompt": "An overflow can is filled to the brim with water. You lower a 4 cm iron cube (A) into it and catch what overflows, then do the same with a 8 cm wood cube (B). Which one makes more liquid overflow?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "A: the 4 cm iron cube"
+                  },
+                  {
+                    "id": "b",
+                    "label": "B: the 8 cm wood cube"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They push out the same amount"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "A displaces 64 mL and B displaces 307 mL (more for B). A sinks (mass 504 g) and B floats (mass 307 g).",
+              "explanation": "An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks.",
+              "expectedKeywords": [
+                "displace",
+                "volume",
+                "submerged",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "displace": [
+                  "displaces",
+                  "displaced",
+                  "displacement",
+                  "pushes aside",
+                  "pushes out",
+                  "overflow",
+                  "overflows",
+                  "spills"
+                ],
+                "volume": [
+                  "size",
+                  "space",
+                  "how big",
+                  "bigger",
+                  "larger"
+                ],
+                "submerged": [
+                  "under",
+                  "underwater",
+                  "under the water",
+                  "below the surface",
+                  "sinks",
+                  "in the water"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "float",
+                  "floats",
+                  "floating"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "a": {
+                  "name": "iron",
+                  "side": 4,
+                  "density": 7.87
+                },
+                "b": {
+                  "name": "wood",
+                  "side": 8,
+                  "density": 0.6
+                },
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "An overflow can is filled to the brim with water. You lower a 5 cm lead cube (A) into it and catch what overflows, then do the same with a 5 cm aluminium cube (B). Which one makes more liquid overflow?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "A: the 5 cm lead cube"
+                  },
+                  {
+                    "id": "b",
+                    "label": "B: the 5 cm aluminium cube"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They push out the same amount"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "A displaces 125 mL and B displaces 125 mL (the same). A sinks (mass 1418 g) and B sinks (mass 338 g).",
+              "explanation": "An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks.",
+              "expectedKeywords": [
+                "displace",
+                "volume",
+                "submerged",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "displace": [
+                  "displaces",
+                  "displaced",
+                  "displacement",
+                  "pushes aside",
+                  "pushes out",
+                  "overflow",
+                  "overflows",
+                  "spills"
+                ],
+                "volume": [
+                  "size",
+                  "space",
+                  "how big",
+                  "bigger",
+                  "larger"
+                ],
+                "submerged": [
+                  "under",
+                  "underwater",
+                  "under the water",
+                  "below the surface",
+                  "sinks",
+                  "in the water"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "float",
+                  "floats",
+                  "floating"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "a": {
+                  "name": "lead",
+                  "side": 5,
+                  "density": 11.34
+                },
+                "b": {
+                  "name": "aluminium",
+                  "side": 5,
+                  "density": 2.7
+                },
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "An overflow can is filled to the brim with water. You lower a 3 cm iron cube (A) into it and catch what overflows, then do the same with a 6 cm aluminium cube (B). Which one makes more liquid overflow?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "A: the 3 cm iron cube"
+                  },
+                  {
+                    "id": "b",
+                    "label": "B: the 6 cm aluminium cube"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They push out the same amount"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "A displaces 27 mL and B displaces 216 mL (more for B). A sinks (mass 212 g) and B sinks (mass 583 g).",
+              "explanation": "An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks.",
+              "expectedKeywords": [
+                "displace",
+                "volume",
+                "submerged",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "displace": [
+                  "displaces",
+                  "displaced",
+                  "displacement",
+                  "pushes aside",
+                  "pushes out",
+                  "overflow",
+                  "overflows",
+                  "spills"
+                ],
+                "volume": [
+                  "size",
+                  "space",
+                  "how big",
+                  "bigger",
+                  "larger"
+                ],
+                "submerged": [
+                  "under",
+                  "underwater",
+                  "under the water",
+                  "below the surface",
+                  "sinks",
+                  "in the water"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "float",
+                  "floats",
+                  "floating"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "a": {
+                  "name": "iron",
+                  "side": 3,
+                  "density": 7.87
+                },
+                "b": {
+                  "name": "aluminium",
+                  "side": 6,
+                  "density": 2.7
+                },
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "An overflow can is filled to the brim with water. You lower a 2 cm steel cube (A) into it and catch what overflows, then do the same with a 6 cm cork cube (B). Which one makes more liquid overflow?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "A: the 2 cm steel cube"
+                  },
+                  {
+                    "id": "b",
+                    "label": "B: the 6 cm cork cube"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They push out the same amount"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "A displaces 8 mL and B displaces 52 mL (more for B). A sinks (mass 63 g) and B floats (mass 52 g).",
+              "explanation": "An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks.",
+              "expectedKeywords": [
+                "displace",
+                "volume",
+                "submerged",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "displace": [
+                  "displaces",
+                  "displaced",
+                  "displacement",
+                  "pushes aside",
+                  "pushes out",
+                  "overflow",
+                  "overflows",
+                  "spills"
+                ],
+                "volume": [
+                  "size",
+                  "space",
+                  "how big",
+                  "bigger",
+                  "larger"
+                ],
+                "submerged": [
+                  "under",
+                  "underwater",
+                  "under the water",
+                  "below the surface",
+                  "sinks",
+                  "in the water"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "float",
+                  "floats",
+                  "floating"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "a": {
+                  "name": "steel",
+                  "side": 2,
+                  "density": 7.85
+                },
+                "b": {
+                  "name": "cork",
+                  "side": 6,
+                  "density": 0.24
+                },
+                "liquid": "water"
+              }
+            },
+            {
+              "prompt": "An overflow can is filled to the brim with water. You lower a 5 cm wood cube (A) into it and catch what overflows, then do the same with a 5 cm wax cube (B). Which one makes more liquid overflow?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "A: the 5 cm wood cube"
+                  },
+                  {
+                    "id": "b",
+                    "label": "B: the 5 cm wax cube"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They push out the same amount"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "A displaces 75 mL and B displaces 112 mL (more for B). A floats (mass 75 g) and B floats (mass 112 g).",
+              "explanation": "An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks.",
+              "expectedKeywords": [
+                "displace",
+                "volume",
+                "submerged",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "displace": [
+                  "displaces",
+                  "displaced",
+                  "displacement",
+                  "pushes aside",
+                  "pushes out",
+                  "overflow",
+                  "overflows",
+                  "spills"
+                ],
+                "volume": [
+                  "size",
+                  "space",
+                  "how big",
+                  "bigger",
+                  "larger"
+                ],
+                "submerged": [
+                  "under",
+                  "underwater",
+                  "under the water",
+                  "below the surface",
+                  "sinks",
+                  "in the water"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "float",
+                  "floats",
+                  "floating"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "a": {
+                  "name": "wood",
+                  "side": 5,
+                  "density": 0.6
+                },
+                "b": {
+                  "name": "wax",
+                  "side": 5,
+                  "density": 0.9
+                },
+                "liquid": "water"
+              }
+            }
+          ]
+        },
+        {
+          "id": "arch_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "spring_scale",
+          "law": {
+            "name": "Archimedes' principle",
+            "formula": "F = ρ g V"
+          },
+          "prompt": "A 200 cm³ iron block hangs from a spring scale in the air, which reads 15.43 N. You slowly lower it into a beaker of water until it is fully under. What happens to the reading?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "down",
+                "label": "It decreases"
+              },
+              {
+                "id": "up",
+                "label": "It increases"
+              },
+              {
+                "id": "same",
+                "label": "It stays the same"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "down"
+          },
+          "outcome": "It falls from 15.43 N to 13.47 N: the liquid pushes the block up with 1.96 N.",
+          "explanation": "A liquid pushes up on anything in it. This upward buoyant force acts against the weight, so the block seems lighter: the scale reads the weight minus the buoyant force.",
+          "coachSecrets": [],
+          "params": {
+            "object": "iron",
+            "volume": 200,
+            "liquid": "water",
+            "density": 7.87
+          },
+          "variants": [
+            {
+              "prompt": "A 200 cm³ iron block hangs from a spring scale in the air, which reads 15.43 N. You slowly lower it into a beaker of water until it is fully under. What happens to the reading?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "down",
+                    "label": "It decreases"
+                  },
+                  {
+                    "id": "up",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "down"
+              },
+              "outcome": "It falls from 15.43 N to 13.47 N: the liquid pushes the block up with 1.96 N.",
+              "explanation": "A liquid pushes up on anything in it. This upward buoyant force acts against the weight, so the block seems lighter: the scale reads the weight minus the buoyant force.",
+              "coachSecrets": [],
+              "params": {
+                "object": "iron",
+                "volume": 200,
+                "liquid": "water",
+                "density": 7.87
+              }
+            },
+            {
+              "prompt": "A 200 cm³ iron block (density 7.87 g/cm³) hangs from a spring scale in the air, reading 15.43 N. You lower it fully into water (density 1 g/cm³). What does the scale read now? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "reading",
+                    "label": "Scale reading",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "reading": 13.47
+              },
+              "tolerance": 0.2,
+              "outcome": "13.47 N. The buoyant force is 1.96 N, so 15.43 − 1.96 = 13.47 N.",
+              "explanation": "Buoyant force = weight of the liquid displaced = ρ g V = 1 × 9.8 × 200 ÷ 1000 = 1.96 N. The scale reads the weight in air minus this: 15.43 − 1.96 = 13.47 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "iron",
+                "volume": 200,
+                "liquid": "water",
+                "density": 7.87
+              }
+            },
+            {
+              "prompt": "A 150 cm³ aluminium block (density 2.7 g/cm³) hangs from a spring scale in the air, reading 3.97 N. You lower it fully into water (density 1 g/cm³). What does the scale read now? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "reading",
+                    "label": "Scale reading",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "reading": 2.5
+              },
+              "tolerance": 0.2,
+              "outcome": "2.5 N. The buoyant force is 1.47 N, so 3.97 − 1.47 = 2.5 N.",
+              "explanation": "Buoyant force = weight of the liquid displaced = ρ g V = 1 × 9.8 × 150 ÷ 1000 = 1.47 N. The scale reads the weight in air minus this: 3.97 − 1.47 = 2.5 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "aluminium",
+                "volume": 150,
+                "liquid": "water",
+                "density": 2.7
+              }
+            },
+            {
+              "prompt": "A 120 cm³ copper block (density 8.96 g/cm³) hangs from a spring scale in the air, reading 10.54 N. You lower it fully into vegetable oil (density 0.92 g/cm³). What does the scale read now? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "reading",
+                    "label": "Scale reading",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "reading": 9.46
+              },
+              "tolerance": 0.2,
+              "outcome": "9.46 N. The buoyant force is 1.08 N, so 10.54 − 1.08 = 9.46 N.",
+              "explanation": "Buoyant force = weight of the liquid displaced = ρ g V = 0.92 × 9.8 × 120 ÷ 1000 = 1.08 N. The scale reads the weight in air minus this: 10.54 − 1.08 = 9.46 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "copper",
+                "volume": 120,
+                "liquid": "oil",
+                "density": 8.96
+              }
+            },
+            {
+              "prompt": "A 250 cm³ iron block (density 7.87 g/cm³) hangs from a spring scale in the air, reading 19.28 N. You lower it fully into rubbing alcohol (density 0.79 g/cm³). What does the scale read now? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "reading",
+                    "label": "Scale reading",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "reading": 17.35
+              },
+              "tolerance": 0.2,
+              "outcome": "17.35 N. The buoyant force is 1.94 N, so 19.28 − 1.94 = 17.35 N.",
+              "explanation": "Buoyant force = weight of the liquid displaced = ρ g V = 0.79 × 9.8 × 250 ÷ 1000 = 1.94 N. The scale reads the weight in air minus this: 19.28 − 1.94 = 17.35 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "iron",
+                "volume": 250,
+                "liquid": "alcohol",
+                "density": 7.87
+              }
+            }
+          ]
+        },
+        {
+          "id": "arch_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "spring_scale",
+          "law": {
+            "name": "Archimedes' principle",
+            "formula": "F = ρ g V"
+          },
+          "prompt": "An iron block and an aluminium block have exactly the same size, 100 cm³. Both are hung from spring scales and lowered fully into water. Which one loses more weight?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "iron",
+                "label": "The heavier iron block loses more"
+              },
+              {
+                "id": "alu",
+                "label": "The lighter aluminium block loses more"
+              },
+              {
+                "id": "same",
+                "label": "They lose exactly the same amount"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "same"
+          },
+          "outcome": "Both lose 0.98 N. The iron reads 6.73 N and the aluminium 1.67 N.",
+          "explanation": "The buoyant force equals the weight of the water displaced. Both blocks are the same size, so they displace the same amount of water and feel the same upward push, however heavy they are.",
+          "expectedKeywords": [
+            "buoyant",
+            "volume",
+            "displaced",
+            "water"
+          ],
+          "keywordSynonyms": {
+            "buoyant": [
+              "buoyancy",
+              "upthrust",
+              "upward force",
+              "lose weight",
+              "lighter",
+              "loss in weight",
+              "apparent weight"
+            ],
+            "volume": [
+              "size",
+              "same size",
+              "same volume",
+              "how big"
+            ],
+            "displaced": [
+              "displaces",
+              "displace",
+              "pushes aside",
+              "pushed aside",
+              "displacement"
+            ],
+            "water": [
+              "liquid",
+              "fluid"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "pair": [
+              "iron",
+              "aluminium"
+            ],
+            "volume": 100,
+            "liquid": "water",
+            "mode": "pair"
+          },
+          "variants": [
+            {
+              "prompt": "An iron block and an aluminium block have exactly the same size, 100 cm³. Both are hung from spring scales and lowered fully into water. Which one loses more weight?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "iron",
+                    "label": "The heavier iron block loses more"
+                  },
+                  {
+                    "id": "alu",
+                    "label": "The lighter aluminium block loses more"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They lose exactly the same amount"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both lose 0.98 N. The iron reads 6.73 N and the aluminium 1.67 N.",
+              "explanation": "The buoyant force equals the weight of the water displaced. Both blocks are the same size, so they displace the same amount of water and feel the same upward push, however heavy they are.",
+              "coachSecrets": [],
+              "params": {
+                "pair": [
+                  "iron",
+                  "aluminium"
+                ],
+                "volume": 100,
+                "liquid": "water",
+                "mode": "pair"
+              },
+              "expectedKeywords": [
+                "buoyant",
+                "volume",
+                "displaced",
+                "water"
+              ],
+              "keywordSynonyms": {
+                "buoyant": [
+                  "buoyancy",
+                  "upthrust",
+                  "upward force",
+                  "lose weight",
+                  "lighter",
+                  "loss in weight",
+                  "apparent weight"
+                ],
+                "volume": [
+                  "size",
+                  "same size",
+                  "same volume",
+                  "how big"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "water": [
+                  "liquid",
+                  "fluid"
+                ]
+              }
+            },
+            {
+              "prompt": "A steel block and a copper block, each 150 cm³, are lowered fully into vegetable oil. Which one is pushed up harder by the oil?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "steel",
+                    "label": "The steel block"
+                  },
+                  {
+                    "id": "copper",
+                    "label": "The copper block"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They are pushed up equally"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both feel 1.35 N upwards.",
+              "explanation": "They displace the same volume of oil (150 cm³), so the weight of oil displaced is the same for both, and so is the buoyant force.",
+              "coachSecrets": [],
+              "params": {
+                "pair": [
+                  "steel",
+                  "copper"
+                ],
+                "volume": 150,
+                "liquid": "oil",
+                "mode": "pair"
+              },
+              "expectedKeywords": [
+                "buoyant",
+                "volume",
+                "displaced",
+                "water"
+              ],
+              "keywordSynonyms": {
+                "buoyant": [
+                  "buoyancy",
+                  "upthrust",
+                  "upward force",
+                  "lose weight",
+                  "lighter",
+                  "loss in weight",
+                  "apparent weight"
+                ],
+                "volume": [
+                  "size",
+                  "same size",
+                  "same volume",
+                  "how big"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "water": [
+                  "liquid",
+                  "fluid"
+                ]
+              }
+            },
+            {
+              "prompt": "The same 200 cm³ iron block is hung from a scale and lowered fully into water, then dried and lowered fully into vegetable oil. Where does the block lose more weight?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "water",
+                    "label": "In the water"
+                  },
+                  {
+                    "id": "oil",
+                    "label": "In the oil"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same in both"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "water"
+              },
+              "outcome": "In water it loses 1.96 N; in oil 1.8 N.",
+              "explanation": "The buoyant force is ρ g V. The volume displaced is the same, but water is denser than oil, so the water displaced weighs more and pushes up harder.",
+              "coachSecrets": [],
+              "params": {
+                "pair": [
+                  "iron",
+                  "iron"
+                ],
+                "volume": 200,
+                "liquid": "water",
+                "mode": "liquids",
+                "liquid2": "oil"
+              },
+              "expectedKeywords": [
+                "buoyant",
+                "volume",
+                "displaced",
+                "water"
+              ],
+              "keywordSynonyms": {
+                "buoyant": [
+                  "buoyancy",
+                  "upthrust",
+                  "upward force",
+                  "lose weight",
+                  "lighter",
+                  "loss in weight",
+                  "apparent weight"
+                ],
+                "volume": [
+                  "size",
+                  "same size",
+                  "same volume",
+                  "how big"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "water": [
+                  "liquid",
+                  "fluid"
+                ]
+              }
+            },
+            {
+              "prompt": "Two iron blocks are lowered fully into water: one is 100 cm³ and the other is 200 cm³. How does the buoyant force on the bigger block compare?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "It is twice as big"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It is the same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It is half as big"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "The 200 cm³ block feels 1.96 N, twice the 0.98 N on the 100 cm³ one.",
+              "explanation": "The buoyant force is proportional to the volume under the liquid, which sets how much liquid is displaced. Twice the volume, twice the force.",
+              "coachSecrets": [],
+              "params": {
+                "pair": [
+                  "iron",
+                  "iron"
+                ],
+                "volume": 100,
+                "volume2": 200,
+                "liquid": "water",
+                "mode": "volumes"
+              },
+              "expectedKeywords": [
+                "buoyant",
+                "volume",
+                "displaced",
+                "water"
+              ],
+              "keywordSynonyms": {
+                "buoyant": [
+                  "buoyancy",
+                  "upthrust",
+                  "upward force",
+                  "lose weight",
+                  "lighter",
+                  "loss in weight",
+                  "apparent weight"
+                ],
+                "volume": [
+                  "size",
+                  "same size",
+                  "same volume",
+                  "how big"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "water": [
+                  "liquid",
+                  "fluid"
+                ]
+              }
+            },
+            {
+              "prompt": "A 120 cm³ cork and a 120 cm³ steel ball are each held fully under water by hand. Which feels the larger upward buoyant force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "cork",
+                    "label": "The cork"
+                  },
+                  {
+                    "id": "steel",
+                    "label": "The steel ball"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They feel the same buoyant force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both feel 1.18 N upwards.",
+              "explanation": "Held fully under, each displaces 120 cm³ of water. The buoyant force depends on the volume displaced, not the material. (The cork floats up when let go only because its own weight is smaller.)",
+              "coachSecrets": [],
+              "params": {
+                "pair": [
+                  "cork",
+                  "steel"
+                ],
+                "volume": 120,
+                "liquid": "water",
+                "mode": "pair"
+              },
+              "expectedKeywords": [
+                "buoyant",
+                "volume",
+                "displaced",
+                "water"
+              ],
+              "keywordSynonyms": {
+                "buoyant": [
+                  "buoyancy",
+                  "upthrust",
+                  "upward force",
+                  "lose weight",
+                  "lighter",
+                  "loss in weight",
+                  "apparent weight"
+                ],
+                "volume": [
+                  "size",
+                  "same size",
+                  "same volume",
+                  "how big"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "water": [
+                  "liquid",
+                  "fluid"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "arch_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "spring_scale",
+          "law": {
+            "name": "Archimedes' principle",
+            "formula": "F = ρ g V"
+          },
+          "prompt": "A solid ball of volume 250 cm³ is held fully under water (density 1 g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "force",
+                "label": "Buoyant force",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "force": 2.45
+          },
+          "tolerance": 0.1,
+          "outcome": "2.45 N.",
+          "explanation": "Buoyant force = weight of liquid displaced = ρ g V = 1 × 9.8 × 250 ÷ 1000 = 2.45 N.",
+          "coachSecrets": [],
+          "params": {
+            "object": "steel",
+            "volume": 250,
+            "liquid": "water",
+            "density": 7.85,
+            "mode": "held"
+          },
+          "variants": [
+            {
+              "prompt": "A solid ball of volume 250 cm³ is held fully under water (density 1 g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Buoyant force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 2.45
+              },
+              "tolerance": 0.1,
+              "outcome": "2.45 N.",
+              "explanation": "Buoyant force = weight of liquid displaced = ρ g V = 1 × 9.8 × 250 ÷ 1000 = 2.45 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "steel",
+                "volume": 250,
+                "liquid": "water",
+                "density": 7.85,
+                "mode": "held"
+              }
+            },
+            {
+              "prompt": "A solid ball of volume 400 cm³ is held fully under vegetable oil (density 0.92 g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Buoyant force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 3.61
+              },
+              "tolerance": 0.14,
+              "outcome": "3.61 N.",
+              "explanation": "Buoyant force = weight of liquid displaced = ρ g V = 0.92 × 9.8 × 400 ÷ 1000 = 3.61 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "steel",
+                "volume": 400,
+                "liquid": "oil",
+                "density": 7.85,
+                "mode": "held"
+              }
+            },
+            {
+              "prompt": "A solid ball of volume 500 cm³ is held fully under rubbing alcohol (density 0.79 g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Buoyant force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 3.87
+              },
+              "tolerance": 0.15,
+              "outcome": "3.87 N.",
+              "explanation": "Buoyant force = weight of liquid displaced = ρ g V = 0.79 × 9.8 × 500 ÷ 1000 = 3.87 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "steel",
+                "volume": 500,
+                "liquid": "alcohol",
+                "density": 7.85,
+                "mode": "held"
+              }
+            },
+            {
+              "prompt": "A solid ball of volume 1000 cm³ is held fully under water (density 1 g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Buoyant force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 9.8
+              },
+              "tolerance": 0.39,
+              "outcome": "9.8 N.",
+              "explanation": "Buoyant force = weight of liquid displaced = ρ g V = 1 × 9.8 × 1000 ÷ 1000 = 9.8 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "steel",
+                "volume": 1000,
+                "liquid": "water",
+                "density": 7.85,
+                "mode": "held"
+              }
+            },
+            {
+              "prompt": "A solid ball of volume 150 cm³ is held fully under corn syrup (density 1.33 g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Buoyant force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 1.96
+              },
+              "tolerance": 0.1,
+              "outcome": "1.96 N.",
+              "explanation": "Buoyant force = weight of liquid displaced = ρ g V = 1.33 × 9.8 × 150 ÷ 1000 = 1.96 N.",
+              "coachSecrets": [],
+              "params": {
+                "object": "steel",
+                "volume": 150,
+                "liquid": "syrup",
+                "density": 7.85,
+                "mode": "held"
+              }
+            }
+          ]
+        },
+        {
+          "id": "arch_5",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "boat",
+          "law": {
+            "name": "Archimedes' principle",
+            "formula": "F = ρ g V"
+          },
+          "prompt": "A lump of 100 g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses 250 cm³, and set it on water (density 1 g/cm³). What happens?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "float",
+                "label": "It floats"
+              },
+              {
+                "id": "sink",
+                "label": "It sinks"
+              },
+              {
+                "id": "hover",
+                "label": "It hovers in the middle"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "float"
+          },
+          "outcome": "It floats, riding with 40% of the boat under the surface.",
+          "explanation": "The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: 100 g of water, which is 100 cm³. Its overall density is 100 g ÷ 250 cm³ = 0.4 g/cm³, which is less than the liquid's 1.",
+          "expectedKeywords": [
+            "density",
+            "volume",
+            "displaced",
+            "weight"
+          ],
+          "keywordSynonyms": {
+            "density": [
+              "denser",
+              "less dense",
+              "mass per",
+              "average density",
+              "overall density"
+            ],
+            "volume": [
+              "space",
+              "bigger",
+              "larger",
+              "hollow",
+              "shape",
+              "spread out",
+              "hull"
+            ],
+            "displaced": [
+              "displaces",
+              "displace",
+              "pushes aside",
+              "pushed aside",
+              "displacement"
+            ],
+            "weight": [
+              "mass",
+              "heavy",
+              "heavier",
+              "lighter",
+              "float",
+              "floats"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "mass": 100,
+            "hull": 250,
+            "liquid": "water",
+            "claydensity": 1.8,
+            "clayvolume": 55.6
+          },
+          "variants": [
+            {
+              "prompt": "A lump of 100 g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses 250 cm³, and set it on water (density 1 g/cm³). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "float"
+              },
+              "outcome": "It floats, riding with 40% of the boat under the surface.",
+              "explanation": "The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: 100 g of water, which is 100 cm³. Its overall density is 100 g ÷ 250 cm³ = 0.4 g/cm³, which is less than the liquid's 1.",
+              "expectedKeywords": [
+                "density",
+                "volume",
+                "displaced",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "less dense",
+                  "mass per",
+                  "average density",
+                  "overall density"
+                ],
+                "volume": [
+                  "space",
+                  "bigger",
+                  "larger",
+                  "hollow",
+                  "shape",
+                  "spread out",
+                  "hull"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "float",
+                  "floats"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mass": 100,
+                "hull": 250,
+                "liquid": "water",
+                "claydensity": 1.8,
+                "clayvolume": 55.6
+              }
+            },
+            {
+              "prompt": "A lump of 100 g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses 80 cm³, and set it on water (density 1 g/cm³). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "sink"
+              },
+              "outcome": "It sinks: it would have to displace 100 mL to hold itself up, but the boat only has 80 mL of hull.",
+              "explanation": "The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: 100 g of water, which is 100 cm³. Its overall density is 100 g ÷ 80 cm³ = 1.25 g/cm³, which is more than the liquid's 1.",
+              "expectedKeywords": [
+                "density",
+                "volume",
+                "displaced",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "less dense",
+                  "mass per",
+                  "average density",
+                  "overall density"
+                ],
+                "volume": [
+                  "space",
+                  "bigger",
+                  "larger",
+                  "hollow",
+                  "shape",
+                  "spread out",
+                  "hull"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "float",
+                  "floats"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mass": 100,
+                "hull": 80,
+                "liquid": "water",
+                "claydensity": 1.8,
+                "clayvolume": 55.6
+              }
+            },
+            {
+              "prompt": "A lump of 150 g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses 170 cm³, and set it on vegetable oil (density 0.92 g/cm³). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "float"
+              },
+              "outcome": "It floats, riding with 96% of the boat under the surface.",
+              "explanation": "The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: 150 g of vegetable oil, which is 163 cm³. Its overall density is 150 g ÷ 170 cm³ = 0.88 g/cm³, which is less than the liquid's 0.92.",
+              "expectedKeywords": [
+                "density",
+                "volume",
+                "displaced",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "less dense",
+                  "mass per",
+                  "average density",
+                  "overall density"
+                ],
+                "volume": [
+                  "space",
+                  "bigger",
+                  "larger",
+                  "hollow",
+                  "shape",
+                  "spread out",
+                  "hull"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "float",
+                  "floats"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mass": 150,
+                "hull": 170,
+                "liquid": "oil",
+                "claydensity": 1.8,
+                "clayvolume": 83.3
+              }
+            },
+            {
+              "prompt": "A lump of 120 g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses 125 cm³, and set it on rubbing alcohol (density 0.79 g/cm³). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "sink"
+              },
+              "outcome": "It sinks: it would have to displace 152 mL to hold itself up, but the boat only has 125 mL of hull.",
+              "explanation": "The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: 120 g of rubbing alcohol, which is 152 cm³. Its overall density is 120 g ÷ 125 cm³ = 0.96 g/cm³, which is more than the liquid's 0.79.",
+              "expectedKeywords": [
+                "density",
+                "volume",
+                "displaced",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "less dense",
+                  "mass per",
+                  "average density",
+                  "overall density"
+                ],
+                "volume": [
+                  "space",
+                  "bigger",
+                  "larger",
+                  "hollow",
+                  "shape",
+                  "spread out",
+                  "hull"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "float",
+                  "floats"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mass": 120,
+                "hull": 125,
+                "liquid": "alcohol",
+                "claydensity": 1.8,
+                "clayvolume": 66.7
+              }
+            },
+            {
+              "prompt": "A lump of 200 g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses 300 cm³, and set it on water (density 1 g/cm³). What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "float",
+                    "label": "It floats"
+                  },
+                  {
+                    "id": "sink",
+                    "label": "It sinks"
+                  },
+                  {
+                    "id": "hover",
+                    "label": "It hovers in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "float"
+              },
+              "outcome": "It floats, riding with 67% of the boat under the surface.",
+              "explanation": "The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: 200 g of water, which is 200 cm³. Its overall density is 200 g ÷ 300 cm³ = 0.67 g/cm³, which is less than the liquid's 1.",
+              "expectedKeywords": [
+                "density",
+                "volume",
+                "displaced",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "density": [
+                  "denser",
+                  "less dense",
+                  "mass per",
+                  "average density",
+                  "overall density"
+                ],
+                "volume": [
+                  "space",
+                  "bigger",
+                  "larger",
+                  "hollow",
+                  "shape",
+                  "spread out",
+                  "hull"
+                ],
+                "displaced": [
+                  "displaces",
+                  "displace",
+                  "pushes aside",
+                  "pushed aside",
+                  "displacement"
+                ],
+                "weight": [
+                  "mass",
+                  "heavy",
+                  "heavier",
+                  "lighter",
+                  "float",
+                  "floats"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "mass": 200,
+                "hull": 300,
+                "liquid": "water",
+                "claydensity": 1.8,
+                "clayvolume": 111.1
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_arch",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Archimedes' principle",
+            "formula": "F = ρ g V"
+          },
+          "prompt": "A steel ship weighs thousands of tonnes, yet it floats. Why?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "hull",
+                "label": "It displaces a huge volume of water, which weighs as much as the ship"
+              },
+              {
+                "id": "light",
+                "label": "Steel is lighter than water"
+              },
+              {
+                "id": "air",
+                "label": "Air in the hull makes it weigh nothing"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "hull"
+          },
+          "outcome": "It displaces water that weighs as much as the ship.",
+          "explanation": "Archimedes' principle: a floating object displaces its own weight of water. The ship's hollow hull displaces so much water that the buoyant force equals its weight.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A steel ship weighs thousands of tonnes, yet it floats. Why?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "hull",
+                    "label": "It displaces a huge volume of water, which weighs as much as the ship"
+                  },
+                  {
+                    "id": "light",
+                    "label": "Steel is lighter than water"
+                  },
+                  {
+                    "id": "air",
+                    "label": "Air in the hull makes it weigh nothing"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "hull"
+              },
+              "outcome": "It displaces water that weighs as much as the ship.",
+              "explanation": "Archimedes' principle: a floating object displaces its own weight of water. The ship's hollow hull displaces so much water that the buoyant force equals its weight."
+            },
+            {
+              "prompt": "A submarine takes water into its ballast tanks. What happens to it?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "sink",
+                    "label": "Its average density goes up, so it sinks"
+                  },
+                  {
+                    "id": "float",
+                    "label": "Its average density goes up, so it rises"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Nothing changes"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "sink"
+              },
+              "outcome": "It sinks.",
+              "explanation": "Taking in water adds weight but not volume, so its average density rises above the sea water's. Pumping the water out lets it rise."
+            },
+            {
+              "prompt": "An egg sinks in plain water but floats when lots of salt is stirred in. Why?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dense",
+                    "label": "Salt water is denser, so the egg is now less dense than the liquid"
+                  },
+                  {
+                    "id": "egg",
+                    "label": "The salt makes the egg lighter"
+                  },
+                  {
+                    "id": "air",
+                    "label": "The salt puts air inside the egg"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "dense"
+              },
+              "outcome": "Salt water is denser than the egg.",
+              "explanation": "The buoyant force is ρ g V. A denser liquid gives a bigger push for the same volume, enough to hold the egg up. This is also why it is easy to float in the Dead Sea."
+            },
+            {
+              "prompt": "A large block of ice floats in water with about nine tenths of it below the surface. What does that tell you?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Ice is a little less dense than water, about 0.92 times as dense"
+                  },
+                  {
+                    "id": "more",
+                    "label": "Ice is denser than water"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Ice and water have exactly the same density"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "Ice is about 0.92 times as dense as water.",
+              "explanation": "A floating object sinks until it displaces its own weight of water. The fraction under water equals the ratio of the densities: 0.92 for ice in water."
+            },
+            {
+              "prompt": "A hydrometer is a weighted glass tube that floats upright in a liquid. In which liquid does it float highest?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dense",
+                    "label": "In the densest liquid"
+                  },
+                  {
+                    "id": "light",
+                    "label": "In the least dense liquid"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same height in all liquids"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "dense"
+              },
+              "outcome": "In the densest liquid.",
+              "explanation": "A denser liquid supplies the same buoyant force from less displaced volume, so less of the tube needs to sink."
+            }
+          ]
         }
       ]
     }
@@ -3066,6 +4935,12 @@
       "name": "Density",
       "formula": "ρ = m / V",
       "summary": "Mass per unit volume decides sinking and floating."
+    },
+    {
+      "id": "archimedes",
+      "name": "Archimedes' principle",
+      "formula": "F = ρ g V",
+      "summary": "The buoyant force equals the weight of the fluid displaced."
     }
   ],
   "liquids": {
@@ -3115,6 +4990,8 @@
     "hasPredictionModal": true,
     "hasTemperatureSlider": true,
     "hasDigitalScaleDisplay": true,
-    "hasMeasuringCylinderReadout": true
+    "hasMeasuringCylinderReadout": true,
+    "hasSpringScaleReadout": true,
+    "hasOverflowCan": true
   }
 }

@@ -98,3 +98,31 @@ export const layerOrder = (keys: string[], rho: Record<string, number>): string[
 export const floats = (objectDensity: number, liquidDensity: number) => objectDensity < liquidDensity
 /** How much of a floating object is under the surface. */
 export const submergedFraction = (objectDensity: number, liquidDensity: number) => Math.min(1, objectDensity / liquidDensity)
+
+// ---- Archimedes' principle ----
+export const G_ACC = 9.8
+/** Weight in newtons of `volume` cm³ of something with density `rho` g/cm³. */
+export const weightN = (rho: number, volume: number) => (rho * volume * G_ACC) / 1000
+/** Buoyant force: the weight of the liquid pushed aside by `volume` cm³ held fully under. */
+export const buoyantN = (liquidRho: number, volume: number) => (liquidRho * volume * G_ACC) / 1000
+/** What a spring scale reads for an object hanging fully under a liquid. Negative means it has to be held down. */
+export const apparentWeightN = (objectRho: number, liquidRho: number, volume: number) => weightN(objectRho, volume) - buoyantN(liquidRho, volume)
+/** Liquid pushed out (cm³) by an object released in it: its own volume if it sinks, its weight's worth of liquid if it floats. */
+export const displacedCm3 = (objectRho: number, liquidRho: number, volume: number) => (objectRho >= liquidRho ? volume : (objectRho * volume) / liquidRho)
+/** A boat floats if its hull can displace liquid weighing as much as the boat: hull volume ≥ mass ÷ liquid density. */
+export const boatFloats = (massG: number, hullCm3: number, liquidRho: number) => hullCm3 >= massG / liquidRho
+/**
+ * A bowl-shaped hull is a half sphere. How deep (as a fraction of its radius) must it sink to displace a fraction f of its
+ * own volume? Solves x²(3 − x)/2 = f for x in [0, 1].
+ */
+export function bowlDepth(f: number): number {
+  const target = Math.max(0, Math.min(1, f))
+  let lo = 0
+  let hi = 1
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2
+    if ((mid * mid * (3 - mid)) / 2 < target) lo = mid
+    else hi = mid
+  }
+  return (lo + hi) / 2
+}

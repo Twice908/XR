@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { density, floats, heatDuration, heatState, heatStages, layerOrder, massOf, scaleMass, submergedFraction } from '../lab/matterPhysics'
+import { apparentWeightN, boatFloats, bowlDepth, buoyantN, displacedCm3, weightN, density, floats, heatDuration, heatState, heatStages, layerOrder, massOf, scaleMass, submergedFraction } from '../lab/matterPhysics'
 
 describe('heating curve', () => {
   it('melting: the temperature holds at 0 °C until all the ice has gone, then rises', () => {
@@ -56,5 +56,36 @@ describe('density', () => {
     expect(floats(7.8, 1)).toBe(false)
     expect(floats(0.92, 0.79)).toBe(false)
     expect(submergedFraction(0.92, 1)).toBeCloseTo(0.92, 6)
+  })
+})
+
+describe("Archimedes' principle", () => {
+  it('buoyant force is the weight of the liquid displaced, and the scale reads weight minus that', () => {
+    expect(buoyantN(1, 1000)).toBeCloseTo(9.8, 6)
+    expect(weightN(7.87, 200)).toBeCloseTo(15.425, 2)
+    expect(apparentWeightN(7.87, 1, 200)).toBeCloseTo(13.465, 2)
+  })
+  it('equal volumes feel equal buoyant forces, whatever the material', () => {
+    expect(buoyantN(1, 100)).toBe(buoyantN(1, 100))
+    expect(apparentWeightN(7.87, 1, 100)).toBeGreaterThan(apparentWeightN(2.7, 1, 100))
+    expect(weightN(7.87, 100) - apparentWeightN(7.87, 1, 100)).toBeCloseTo(weightN(2.7, 100) - apparentWeightN(2.7, 1, 100), 9)
+  })
+  it('a sinking object displaces its volume, a floating one its weight of liquid', () => {
+    expect(displacedCm3(7.87, 1, 64)).toBe(64)
+    expect(displacedCm3(0.6, 1, 512)).toBeCloseTo(307.2, 6)
+    expect(displacedCm3(0.9, 1, 125)).toBeCloseTo(112.5, 6)
+  })
+  it('a clay boat floats only if its hull is big enough', () => {
+    expect(boatFloats(100, 250, 1)).toBe(true)
+    expect(boatFloats(100, 80, 1)).toBe(false)
+    expect(boatFloats(120, 125, 0.79)).toBe(false)
+    expect(boatFloats(150, 170, 0.92)).toBe(true)
+  })
+  it('a bowl sinks deeper the more it has to displace', () => {
+    expect(bowlDepth(0)).toBeCloseTo(0, 3)
+    expect(bowlDepth(1)).toBeCloseTo(1, 3)
+    expect(bowlDepth(0.4)).toBeLessThan(bowlDepth(0.8))
+    const x = bowlDepth(0.5)
+    expect((x * x * (3 - x)) / 2).toBeCloseTo(0.5, 4)
   })
 })

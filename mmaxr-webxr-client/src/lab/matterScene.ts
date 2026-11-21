@@ -5,7 +5,7 @@ import { sound } from './sound'
 import { stageSet } from './stage'
 import type { MotionSceneEvents } from './motionScene'
 import { SceneBase, V, easeInOut, f1, f2, num, smooth } from './sceneBase'
-import { floats, heatDuration, heatState, layerOrder, massOf, scaleMass, submergedFraction } from './matterPhysics'
+import { apparentWeightN, boatFloats, bowlDepth, buoyantN, displacedCm3, weightN, floats, heatDuration, heatState, layerOrder, massOf, scaleMass, submergedFraction } from './matterPhysics'
 
 /*
  * Three small labs in one scene: a hot plate on a scale (states of matter), a bench of tools and samples (physical
@@ -15,6 +15,12 @@ import { floats, heatDuration, heatState, layerOrder, massOf, scaleMass, submerg
 
 /** The bench's dishes stand on a tripod this high, so the burner can sit under them. */
 const RAISE = 3.1
+// where the Archimedes equipment stands along the density bench, and the spring scale's ruler
+const CAN_X = 18
+const SPRING_X = 27
+const TANK_X = 33.5
+const RULER_TOP = 9.2
+const RULER_PER_N = 0.27
 const IDS = ['states_changes', 'properties_changes', 'density_measurement']
 const X = { states_changes: 0, properties_changes: 300, density_measurement: 600 } as Record<string, number>
 
@@ -122,6 +128,30 @@ export class MatterScene extends SceneBase {
   private objLabel!: THREE.Sprite
   private stationLabel!: THREE.Sprite
 
+  // ---- tab 3, part two: Archimedes' principle ----
+  private archi = new THREE.Group()
+  private can = new THREE.Group()
+  private canWater!: Liquid
+  private catchTube = new THREE.Group()
+  private catchLiquid!: Liquid
+  private cube!: THREE.Mesh
+  private springGroup = new THREE.Group()
+  private spring!: THREE.Mesh
+  private block!: THREE.Mesh
+  private ruler = new THREE.Group()
+  private needleMark!: THREE.Mesh
+  private beakerA = new THREE.Group()
+  private beakerWater!: Liquid
+  private arrowUp = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 14), new THREE.MeshBasicMaterial({ color: 0x4ade80 }))
+  private arrowDown = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 14), new THREE.MeshBasicMaterial({ color: 0xff5470 }))
+  private shaftUp = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1, 10), new THREE.MeshBasicMaterial({ color: 0x4ade80 }))
+  private shaftDown = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1, 10), new THREE.MeshBasicMaterial({ color: 0xff5470 }))
+  private tank = new THREE.Group()
+  private tankWater!: Liquid
+  private clay = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 16), std(0x9a6b3f, 0.85))
+  private boat = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x9a6b3f, roughness: 0.85, side: THREE.DoubleSide }))
+  private archiLabel!: THREE.Sprite
+
   constructor(canvas: HTMLCanvasElement, private readonly lesson: MotionLessonContract, events: MotionSceneEvents = {}) {
     super(canvas, events)
     this.liquids = lesson.liquids ?? {}
@@ -129,6 +159,7 @@ export class MatterScene extends SceneBase {
     this.buildStates()
     this.buildBench()
     this.buildDensity()
+    this.buildArchimedes()
     this.sizeNow()
   }
 
@@ -1242,7 +1273,7 @@ export class MatterScene extends SceneBase {
   /* =============================== tab 3 =============================== */
   private buildDensity() {
     const g = this.groups.density_measurement
-    stageSet(g, { cx: 1, cz: 0, w: 30, d: 14, wall: { z: -7.4, h: 12 }, key: [3, 15, 10], aim: [1, 3, 0], keyI: 1100, rimI: 180, rimAt: [15, 8, -3], dust: { n: 140, h: 8 } })
+    stageSet(g, { cx: 11, cz: 0, w: 50, d: 14, wall: { z: -7.4, h: 12 }, key: [8, 15, 10], aim: [8, 3, 0], keyI: 1500, rimI: 200, rimAt: [24, 8, -3], dust: { n: 200, h: 8 } })
     const { anchor } = this.buildScale(g, 3, 1.9)
     // the measuring cylinder rides on the pan; a procedural cylinder until the model is dressed on
     this.cyl.position.y = 0.3
@@ -1344,6 +1375,9 @@ export class MatterScene extends SceneBase {
       g.add(b)
       this.bottles.push(b)
     })
+    this.archi.visible = false
+    this.stationLabel.visible = true
+    this.bottles.forEach((b) => (b.visible = true))
     this.jar.visible = action === 'layer' || action === 'drop'
     this.cyl.visible = action === 'weigh_liquids' || action === 'measure'
     this.pans[1].anchor.parent!.visible = action === 'weigh_liquids' || action === 'measure'
@@ -1560,6 +1594,368 @@ export class MatterScene extends SceneBase {
     })
   }
 
+  /* =============================== tab 3, part two: Archimedes =============================== */
+  private buildArchimedes() {
+    const g = this.groups.density_measurement
+    g.add(this.archi)
+    this.archi.visible = false
+    this.archiLabel = this.label('', '#cfe6ff', 0.95)
+    this.archiLabel.position.set(27, 9.6, 0)
+    this.archi.add(this.archiLabel)
+    // --- the overflow can, with its spout and a catching cylinder ---
+    this.can.position.set(CAN_X, 0, 0)
+    const wall = glassBeaker(1.8, 3.8)
+    const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.5, 14), glassMat())
+    spout.rotation.z = -Math.PI / 2.6
+    spout.position.set(2.3, 3.15, 0)
+    this.canWater = new Liquid(1.75, 0x5aa9ff, 0.5)
+    this.canWater.setLevel(0.1, 3.0)
+    this.can.add(wall, spout, this.canWater)
+    this.catchTube = glassBeaker(0.75, 3.2)
+    this.catchTube.position.set(CAN_X + 3.6, 0, 0)
+    this.catchLiquid = new Liquid(0.7, 0x5aa9ff, 0.7)
+    this.catchTube.add(this.catchLiquid)
+    for (let i = 1; i <= 7; i++) {
+      const tick = new THREE.Mesh(new THREE.BoxGeometry(i % 2 ? 0.22 : 0.38, 0.03, 0.03), new THREE.MeshBasicMaterial({ color: 0xe6edf7 }))
+      tick.position.set(0.78, 0.1 + (i / 7) * 2.9, 0)
+      this.catchTube.add(tick)
+    }
+    this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), std(0x9aa3b2, 0.35, 0.8))
+    this.cube.castShadow = true
+    this.cube.visible = false
+    this.archi.add(this.can, this.catchTube, this.cube)
+    // --- the spring scale: a spring from a bracket, a block, a ruler and a beaker of liquid ---
+    this.springGroup.position.set(SPRING_X, 0, 0)
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 10, 14), std(0x2a2f39, 0.5, 0.7))
+    post.position.set(-1.6, 5, -0.4)
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.14, 0.14), std(0x2a2f39, 0.5, 0.7))
+    arm.position.set(0, 9.9, -0.4)
+    this.springGroup.add(post, arm)
+    this.spring = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 1, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xcfd6e2, metalness: 1, roughness: 0.25, wireframe: true }))
+    this.block = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), std(0x9aa3b2, 0.35, 0.8))
+    this.block.castShadow = true
+    this.springGroup.add(this.spring, this.block)
+    this.beakerA = glassBeaker(1.7, 4.2)
+    this.beakerA.position.y = 0
+    this.beakerWater = new Liquid(1.65, 0x5aa9ff, 0.45)
+    this.beakerWater.setLevel(0.1, 3.0)
+    this.beakerA.add(this.beakerWater)
+    this.springGroup.add(this.beakerA)
+    // a ruler beside the spring, graduated in newtons, with a pointer
+    this.ruler.position.set(1.7, 0, 0)
+    const rb = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6.2, 0.05), std(0xf3efe2, 0.6))
+    rb.position.set(0, 6.6, 0)
+    this.ruler.add(rb)
+    for (let n = 0; n <= 20; n += 2) {
+      const t = new THREE.Mesh(new THREE.BoxGeometry(n % 10 === 0 ? 0.36 : 0.22, 0.03, 0.06), new THREE.MeshBasicMaterial({ color: 0x1a1a1a }))
+      t.position.set(0.04, RULER_TOP - n * RULER_PER_N, 0.03)
+      this.ruler.add(t)
+    }
+    const l0 = this.label('0 N', '#1a1a1a', 0.3)
+    l0.position.set(0.7, RULER_TOP, 0.05)
+    const l20 = this.label('20 N', '#1a1a1a', 0.3)
+    l20.position.set(0.7, RULER_TOP - 20 * RULER_PER_N, 0.05)
+    this.needleMark = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.06, 0.08), new THREE.MeshBasicMaterial({ color: 0xd7263d }))
+    this.ruler.add(l0, l20, this.needleMark)
+    this.springGroup.add(this.ruler)
+    for (const o of [this.arrowUp, this.arrowDown, this.shaftUp, this.shaftDown]) {
+      o.visible = false
+      this.springGroup.add(o)
+    }
+    this.archi.add(this.springGroup)
+    // --- the tank for the clay boat ---
+    this.tank.position.set(TANK_X, 0, 0)
+    const box = new THREE.Mesh(new THREE.BoxGeometry(5.4, 3.6, 2.8), glassMat())
+    box.position.y = 1.9
+    box.renderOrder = 5
+    this.tankWater = new Liquid(1, 0x5aa9ff, 0.45)
+    this.tankWater.geometry.dispose()
+    this.tankWater.geometry = new THREE.BoxGeometry(5.3, 1, 2.7)
+    this.tankWater.setLevel(0.1, 2.6)
+    this.tank.add(box, this.tankWater, this.clay, this.boat)
+    this.clay.visible = false
+    this.boat.visible = false
+    this.archi.add(this.tank)
+  }
+
+  private showArchi(which: 'can' | 'scale' | 'tank') {
+    this.statesStage.visible = false
+    this.archi.visible = true
+    this.jar.visible = false
+    this.cyl.visible = false
+    this.pans[1].anchor.parent!.visible = false
+    this.bottles.forEach((b) => (b.visible = false))
+    this.layers.forEach((l, i) => {
+      l.visible = false
+      this.layerLabels[i].visible = false
+    })
+    this.dropper.visible = false
+    this.objLabel.visible = false
+    this.stationLabel.visible = false
+    this.can.visible = this.catchTube.visible = which === 'can'
+    this.springGroup.visible = which === 'scale'
+    this.tank.visible = which === 'tank'
+    this.cube.visible = false
+    this.relabel(this.archiLabel, which === 'can' ? 'Overflow can' : which === 'scale' ? 'Spring scale' : 'Clay boat')
+    this.archiLabel.position.set(which === 'can' ? CAN_X + 1.8 : which === 'scale' ? SPRING_X : TANK_X, 9.2, 0)
+  }
+
+  private matColor(k: string): number {
+    return ({ iron: 0x7d8594, aluminium: 0xc9d1dc, lead: 0x5a5f6b, steel: 0x9aa3b2, copper: 0xd2742f, wood: 0xb58850, cork: 0xc9964f, wax: 0xf3e6c4, brass: 0xc9a23a, clay: 0x9a6b3f } as Record<string, number>)[k] ?? 0xaaaaaa
+  }
+
+  /** Puts the overflow can, spring scale or tank in order for one question, before it is run. */
+  private setupArchi(action: string, p: Record<string, unknown>) {
+    const liq = String(p.liquid ?? 'water')
+    const color = this.liquidInfo(liq).color
+    if (action === 'displace') {
+      this.showArchi('can')
+      ;(this.canWater.material as THREE.MeshStandardMaterial).color.setHex(color)
+      ;(this.catchLiquid.material as THREE.MeshStandardMaterial).color.setHex(color)
+      this.canWater.setLevel(0.1, 3.0)
+      this.catchLiquid.setLevel(0, 0)
+      const v = this.view('can')
+      void this.flyTo(v.pos, v.target, 900)
+    } else if (action === 'spring_scale') {
+      this.showArchi('scale')
+      ;(this.beakerWater.material as THREE.MeshStandardMaterial).color.setHex(color)
+      this.hangBlock(String(p.object ?? 'iron'), num(p.volume, 200), 'iron', 0, false)
+      const v = this.view('spring')
+      void this.flyTo(v.pos, v.target, 900)
+    } else if (action === 'boat') {
+      this.showArchi('tank')
+      ;(this.tankWater.material as THREE.MeshStandardMaterial).color.setHex(color)
+      this.clay.visible = false
+      this.boat.visible = false
+      const v = this.view('tank')
+      void this.flyTo(v.pos, v.target, 900)
+    }
+  }
+
+  /** Hangs a block from the spring: `drop` is how far down (0 = in air, 1 = fully under), `reading` the scale's reading. */
+  private hangBlock(obj: string, volume: number, _fallback: string, reading: number, immersed: boolean, drop = 0) {
+    const side = Math.cbrt(volume) * 0.22
+    this.block.scale.set(side, side, side)
+    ;(this.block.material as THREE.MeshStandardMaterial).color.setHex(this.matColor(obj))
+    const springLen = Math.max(0.6, 1.6 + Math.max(0, reading) * 0.22)
+    const top = 9.9
+    this.spring.scale.set(1, springLen, 1)
+    this.spring.position.set(0, top - springLen / 2, 0)
+    const blockY = top - springLen - side / 2 - 0.2
+    void drop
+    this.block.position.set(0, blockY, 0)
+    this.needleMark.position.set(0, RULER_TOP - Math.max(0, Math.min(20, reading)) * RULER_PER_N, 0.06)
+    void immersed
+    return { side, blockY, springLen }
+  }
+
+  private arrows(show: boolean, y: number, up: number, down: number) {
+    for (const o of [this.arrowUp, this.arrowDown, this.shaftUp, this.shaftDown]) o.visible = show
+    if (!show) return
+    const upLen = Math.max(0.2, Math.min(3, up * 0.28))
+    const dnLen = Math.max(0.2, Math.min(3.4, down * 0.28))
+    this.shaftUp.scale.set(1, upLen, 1)
+    this.shaftUp.position.set(0.95, y + upLen / 2, 0)
+    this.arrowUp.position.set(0.95, y + upLen + 0.25, 0)
+    this.shaftDown.scale.set(1, dnLen, 1)
+    this.shaftDown.position.set(-0.95, y - dnLen / 2, 0)
+    this.arrowDown.rotation.x = Math.PI
+    this.arrowDown.position.set(-0.95, y - dnLen - 0.25, 0)
+  }
+
+  private async runDisplace(p: { a: { name: string; side: number; density: number }; b: { name: string; side: number; density: number }; liquid: string }): Promise<void> {
+    this.abort()
+    this.setupArchi('displace', p)
+    const v = this.view('can')
+    await this.flyTo(v.pos, v.target, 1100)
+    if (this.disposed) return
+    const liq = this.liquidInfo(p.liquid)
+    const items = [p.a, p.b]
+    const per = 7
+    const results: { name: string; ml: number }[] = []
+    const st = { t: 0 }
+    const UNIT = 0.2
+    return this.begin({
+      update: (dt) => {
+        st.t += dt
+        const i = Math.min(1, Math.floor(st.t / per))
+        const o = items[i]
+        const local = st.t - i * per
+        const side = o.side * UNIT
+        const floatsNow = o.density < liq.density
+        const ml = displacedCm3(o.density, liq.density, o.side ** 3)
+        const lower = smooth(0.8, 2.6, local)
+        const out = smooth(5.8, 6.7, local)
+        const sub = floatsNow ? Math.min(1, o.density / liq.density) : 1
+        this.cube.visible = true
+        this.cube.scale.set(side, side, side)
+        ;(this.cube.material as THREE.MeshStandardMaterial).color.setHex(this.matColor(o.name))
+        // the cube comes down into the can: a floating one settles with `sub` of itself under the surface, a sinking one goes to the bottom
+        const surface = 3.0
+        const settleY = floatsNow ? surface - sub * side + side / 2 : 0.1 + side / 2
+        const y0 = surface + 3.4
+        const y = y0 + (settleY - y0) * lower + out * (y0 - settleY)
+        this.cube.position.set(CAN_X, y, 0)
+        // what overflows is the volume that has gone under the surface
+        const frac = Math.max(0, Math.min(1, (y0 - y) / Math.max(0.01, y0 - settleY)))
+        const pushed = ml * frac * (1 - out)
+        const level = Math.min(3.0, 3.0)
+        this.canWater.setLevel(0.1, level)
+        this.catchLiquid.setLevel(0.05, 0.05 + (pushed / 350) * 2.9)
+        if (local > 4.2 && !results[i]) results[i] = { name: `${o.side} cm ${o.name} cube`, ml }
+        this.relabel(this.archiLabel, `${o.side} cm ${o.name} cube ${floatsNow ? '(floats)' : '(sinks)'}`)
+        this.emitGauges(dt, () => [
+          { label: 'Now testing', value: `${i === 0 ? 'A' : 'B'}: ${o.name}`, tone: 'info' },
+          { label: 'Overflow', value: `${f1(pushed)} mL`, tone: 'ok' },
+          ...results.filter(Boolean).map((r, k) => ({ label: `${k === 0 ? 'A' : 'B'} displaced`, value: `${f1(r.ml)} mL`, tone: 'warn' as const })),
+        ])
+        if (local > per - 0.2 && i === 0) this.catchLiquid.setLevel(0, 0)
+        if (st.t > per * 2 - 0.1) return 800
+        return null
+      },
+      done: () => {
+        this.cube.visible = false
+        this.catchLiquid.setLevel(0, 0)
+        this.canWater.setLevel(0.1, 3.0)
+      },
+    })
+  }
+
+  private async runSpring(p: { tests: { object: string; volume: number; liquid: string }[]; held: boolean }): Promise<void> {
+    this.abort()
+    const first = p.tests[0]
+    this.setupArchi('spring_scale', { object: first.object, volume: first.volume, liquid: first.liquid })
+    const v = this.view('spring')
+    await this.flyTo(v.pos, v.target, 1100)
+    if (this.disposed) return
+    const per = 6.4
+    const rows: { name: string; air: number; liq: number }[] = []
+    const st = { t: 0 }
+    const MAT: Record<string, number> = { iron: 7.87, aluminium: 2.7, lead: 11.34, steel: 7.85, copper: 8.96, wood: 0.6, cork: 0.24, wax: 0.9, brass: 8.5 }
+    return this.begin({
+      update: (dt) => {
+        st.t += dt
+        const i = Math.min(p.tests.length - 1, Math.floor(st.t / per))
+        const t = p.tests[i]
+        const local = st.t - i * per
+        const rho = MAT[t.object] ?? 7.87
+        const lrho = this.liquidInfo(t.liquid).density
+        const W = weightN(rho, t.volume)
+        const B = buoyantN(lrho, t.volume)
+        const A = apparentWeightN(rho, lrho, t.volume)
+        ;(this.beakerWater.material as THREE.MeshStandardMaterial).color.setHex(this.liquidInfo(t.liquid).color)
+        // the block goes in and stays there for the last test, so its reading is on screen when the run ends
+        const down = smooth(1.4, 3.0, local) * (i === p.tests.length - 1 ? 1 : 1 - smooth(5.2, 6.2, local))
+        const reading = W + (A - W) * down
+        const h = this.hangBlock(t.object, t.volume, t.object, reading, down > 0.5, down)
+        // the beaker is lifted up around the block until it is fully under, like in a real lab
+        const needed = Math.max(0, h.blockY + h.side / 2 + 0.25 - 3.0)
+        this.beakerA.position.y = needed * down
+        this.beakerWater.setLevel(0.1, 3.0)
+        this.arrows(down > 0.8, h.blockY, B, W)
+        if (local > 3.4 && !rows[i]) rows[i] = { name: `${t.volume} cm³ ${t.object}`, air: W, liq: A }
+        this.relabel(this.archiLabel, `${t.volume} cm³ ${t.object} in ${this.liquidInfo(t.liquid).name.toLowerCase()}`)
+        this.emitGauges(dt, () => [
+          { label: 'Block', value: `${t.volume} cm³ ${t.object}`, tone: 'info' },
+          { label: 'Weight in air', value: `${f2(W)} N` },
+          { label: 'Scale reading', value: `${f2(reading)} N${reading < 0 ? ' (held down)' : ''}`, tone: 'warn' },
+          { label: 'Loss in weight', value: `${f2(W - reading)} N`, tone: 'ok' },
+          ...(p.held ? [{ label: 'Buoyant force', value: `${f2(B)} N`, tone: 'ok' as const }] : []),
+          ...rows.filter(Boolean).slice(0, i).map((r) => ({ label: r.name, value: `${f2(r.air)} → ${f2(r.liq)} N` })),
+        ])
+        if (st.t > per * p.tests.length - 0.1) {
+          this.events.onNote?.('Buoyant force = weight of the liquid displaced. The scale reads the weight in air minus the buoyant force.')
+          return 800
+        }
+        return null
+      },
+      done: () => {
+        this.arrows(false, 0, 0, 0)
+        this.beakerA.position.y = 0
+        this.beakerWater.setLevel(0.1, 3.0)
+      },
+    })
+  }
+
+  private async runBoat(p: { mass: number; hull: number; liquid: string; clayvolume: number }): Promise<void> {
+    this.abort()
+    this.setupArchi('boat', p)
+    const v = this.view('tank')
+    await this.flyTo(v.pos, v.target, 1100)
+    if (this.disposed) return
+    const liq = this.liquidInfo(p.liquid)
+    const need = p.mass / liq.density
+    const floatsNow = boatFloats(p.mass, p.hull, liq.density)
+    const f = Math.min(1, need / p.hull)
+    const UNIT = 0.2
+    const lumpR = Math.cbrt((3 * p.clayvolume) / (4 * Math.PI)) * UNIT * 1.6
+    const hullR = Math.cbrt((1.5 * p.hull) / Math.PI) * UNIT
+    const surface = 2.6
+    this.clay.scale.setScalar(lumpR / 0.5)
+    this.boat.scale.setScalar(hullR)
+    const depth = bowlDepth(f) * hullR
+    const floatY = surface - depth + hullR // the bowl's rim height when afloat: centre of the sphere sits `hullR - depth` above the water
+    const st = { t: 0 }
+    return this.begin({
+      update: (dt) => {
+        st.t += dt
+        const t = st.t
+        // first the lump, which sinks; then the same clay as a boat
+        this.clay.visible = t < 3.6
+        this.boat.visible = t >= 3.6
+        const dropL = smooth(0.4, 1.4, t)
+        const sink = smooth(1.4, 2.4, t)
+        this.clay.position.set(0, 6 + (surface + lumpR - 6) * dropL + (0.1 + lumpR - surface - lumpR) * sink, 0)
+        const tb = t - 3.6
+        const dropB = smooth(0.2, 1.2, tb)
+        const settle = smooth(1.2, 2.8, tb)
+        let y = 6 + (surface + hullR * 0.3 - 6) * dropB
+        if (floatsNow) y = y + (floatY - y) * settle + Math.sin(tb * 5) * 0.05 * (1 - settle)
+        else y = y + (0.1 + 0.05 - y) * settle
+        this.boat.position.set(0, tb < 0 ? 6 : y, 0)
+        this.boat.rotation.x = 0
+        const lumpDone = t > 2.6
+        this.emitGauges(dt, () => [
+          { label: 'Clay', value: `${p.mass} g (${f2(1.8)} g/cm³)`, tone: 'info' },
+          { label: 'Clay lump', value: lumpDone ? 'sinks' : '…', tone: 'warn' },
+          { label: 'Boat hull volume', value: `${p.hull} cm³` },
+          { label: `${liq.name} to displace`, value: `${f1(need)} cm³ (weighs ${p.mass} g)`, tone: 'info' },
+          { label: 'Boat', value: tb > 2.4 ? (floatsNow ? `floats, ${Math.round(f * 100)}% under` : 'sinks') : '…', tone: 'ok' },
+        ])
+        if (tb > 4.4) {
+          this.events.onNote?.(floatsNow ? 'The hull displaces as much liquid as the boat weighs, so it floats.' : 'The hull cannot displace enough liquid to hold the boat up, so it sinks.')
+          return 800
+        }
+        return null
+      },
+      done: () => {
+        this.clay.visible = false
+        this.boat.visible = false
+      },
+    })
+  }
+
+  /** The tests a spring-scale question asks the scene to run: one block, a pair, two liquids, or two sizes. */
+  private springTests(params: Record<string, unknown>): { tests: { object: string; volume: number; liquid: string }[]; held: boolean } {
+    const object = String(params.object ?? 'iron')
+    const volume = num(params.volume, 200)
+    const liquid = String(params.liquid ?? 'water')
+    const mode = String(params.mode ?? '')
+    const pair = (params.pair as string[]) ?? []
+    if (mode === 'pair' && pair.length === 2) return { tests: pair.map((o) => ({ object: o, volume, liquid })), held: false }
+    if (mode === 'liquids') return { tests: [{ object: pair[0] ?? object, volume, liquid }, { object: pair[0] ?? object, volume, liquid: String(params.liquid2 ?? 'oil') }], held: false }
+    if (mode === 'volumes') return { tests: [{ object: pair[0] ?? object, volume, liquid }, { object: pair[0] ?? object, volume: num(params.volume2, volume * 2), liquid }], held: false }
+    return { tests: [{ object, volume, liquid }], held: mode === 'held' }
+  }
+
+  private archiParams(action: string, params: Record<string, unknown>): Record<string, unknown> {
+    if (action === 'spring_scale') {
+      const t = this.springTests(params).tests[0]
+      return { object: t.object, volume: t.volume, liquid: t.liquid }
+    }
+    return params
+  }
+
   /* =============================== views and control =============================== */
   private view(name: string): { pos: THREE.Vector3; target: THREE.Vector3 } {
     const X1 = X.properties_changes
@@ -1575,6 +1971,12 @@ export class MatterScene extends SceneBase {
         return { pos: V(X2 + 1, 5.4, 16.5), target: V(X2 - 0.5, 2.4, 0) }
       case 'jar':
         return { pos: V(X2 + 8, 4.4, 14), target: V(X2 + 8, 1.6, 0) }
+      case 'can':
+        return { pos: V(X2 + CAN_X + 2, 5.2, 14), target: V(X2 + CAN_X + 1.8, 1.8, 0) }
+      case 'spring':
+        return { pos: V(X2 + SPRING_X + 1, 6.5, 16), target: V(X2 + SPRING_X + 0.5, 4.2, 0) }
+      case 'tank':
+        return { pos: V(X2 + TANK_X, 4.6, 13), target: V(X2 + TANK_X, 1.8, 0) }
       case 'a1':
         return { pos: V(-2.5, 6, 18.5), target: V(-3.6, 2.4, 0) }
       case 'a2':
@@ -1626,6 +2028,11 @@ export class MatterScene extends SceneBase {
       case 'test_tool':
         this.setupBench(action, params)
         break
+      case 'displace':
+      case 'spring_scale':
+      case 'boat':
+        this.setupArchi(action, this.archiParams(action, params))
+        break
       case 'weigh_liquids':
       case 'measure':
       case 'layer':
@@ -1662,6 +2069,15 @@ export class MatterScene extends SceneBase {
         return this.runWeigh({ liquids: (params.liquids as string[]) ?? ['water'], volume: num(params.volume, 50) })
       case 'measure':
         return this.runWeigh({ liquids: (params.liquids as string[]) ?? ['water'], volume: num(params.volume, 50), mode: String(params.mode ?? '') })
+      case 'displace': {
+        const a = (params.a as { name: string; side: number; density: number }) ?? { name: 'iron', side: 4, density: 7.87 }
+        const b = (params.b as { name: string; side: number; density: number }) ?? { name: 'wood', side: 8, density: 0.6 }
+        return this.runDisplace({ a, b, liquid: String(params.liquid ?? 'water') })
+      }
+      case 'spring_scale':
+        return this.runSpring(this.springTests(params))
+      case 'boat':
+        return this.runBoat({ mass: num(params.mass, 100), hull: num(params.hull, 250), liquid: String(params.liquid ?? 'water'), clayvolume: num(params.clayvolume, 55) })
       case 'layer':
         return this.runLayer({ liquids: (params.liquids as string[]) ?? ['honey', 'water', 'oil'] })
       case 'drop':

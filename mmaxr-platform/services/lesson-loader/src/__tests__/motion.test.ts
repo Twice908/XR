@@ -231,4 +231,47 @@ describe('matter lab: answers agree with the physics', () => {
     expect((answers[1].answer as any).mass).toBe(300);
     expect((answers[2].answer as any).mass).toBe(360);
   });
+
+  describe("Archimedes' principle questions", () => {
+    const dl = (k: string) => (k === 'iron' ? 7.87 : k === 'aluminium' ? 2.7 : k === 'lead' ? 11.34 : k === 'steel' ? 7.85 : k === 'copper' ? 8.96 : k === 'wood' ? 0.6 : k === 'cork' ? 0.24 : k === 'wax' ? 0.9 : 1.8);
+    it('are added after the density questions, which are untouched', () => {
+      const ids = lab.scenarios[2].trials.map((t: any) => t.id);
+      expect(ids.slice(0, 5)).toEqual(['den_1', 'den_2', 'den_3', 'den_4', 'tr_den']);
+      expect(ids.slice(5)).toEqual(['arch_1', 'arch_2', 'arch_3', 'arch_4', 'arch_5', 'tr_arch']);
+    });
+    it('displacement: a floater pushes out its weight of liquid, a sinker its own volume', () => {
+      for (let i = 0; i < 5; i++) {
+        const r: any = resolveTrial(trial('arch_1'), i);
+        const liq = dens(r.params.liquid);
+        const d = (o: any) => (o.density >= liq ? o.side ** 3 : (o.density * o.side ** 3) / liq);
+        const da = d(r.params.a);
+        const db = d(r.params.b);
+        const right = Math.abs(da - db) < 0.5 ? 'same' : da > db ? 'a' : 'b';
+        expect(r.answer.choice).toBe(right);
+      }
+    });
+    it('scale readings: weight in air minus the buoyant force, g = 9.8', () => {
+      for (let i = 1; i < 5; i++) {
+        const r: any = resolveTrial(trial('arch_2'), i);
+        const { object, volume, liquid } = r.params;
+        expect(r.answer.reading).toBeCloseTo(((dl(object) - dens(liquid)) * volume * 9.8) / 1000, 1);
+      }
+      expect(resolveTrial(trial('arch_2'), 0).answer.choice).toBe('down');
+    });
+    it('equal volumes lose equal weight, and the buoyant-force sums are right', () => {
+      for (let i = 0; i < 5; i++) {
+        const r: any = resolveTrial(trial('arch_4'), i);
+        expect(r.answer.force).toBeCloseTo((dens(r.params.liquid) * r.params.volume * 9.8) / 1000, 1);
+      }
+      for (const i of [0, 1, 4]) expect(resolveTrial(trial('arch_3'), i).answer.choice).toBe('same');
+      expect(resolveTrial(trial('arch_3'), 2).answer.choice).toBe('water');
+      expect(resolveTrial(trial('arch_3'), 3).answer.choice).toBe('double');
+    });
+    it('a clay boat floats exactly when its hull can displace its own weight of liquid', () => {
+      for (let i = 0; i < 5; i++) {
+        const r: any = resolveTrial(trial('arch_5'), i);
+        expect(r.answer.choice).toBe(r.params.hull >= r.params.mass / dens(r.params.liquid) ? 'float' : 'sink');
+      }
+    });
+  });
 });

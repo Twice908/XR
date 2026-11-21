@@ -124,7 +124,7 @@ v=[
 mk(S2,'tr_prop','transfer',False,None,{"name":"Physical and chemical change"},v)
 
 # ======================= Tab 3: Density & measurement =======================
-S3={"id":"density_measurement","tabName":"Density & Measurement","title":"The Density Bench","setup":"A weighing scale, a measuring cylinder and a row of liquids in different colours. Measure mass and volume, then see how the liquids behave together.","trials":[]}
+S3={"id":"density_measurement","tabName":"Density & Measurement","title":"The Density Bench","setup":"A weighing scale, a measuring cylinder and a row of liquids in different colours. Measure mass and volume, see how the liquids behave together, then use an overflow can, a spring scale and a lump of clay to find out why things float (Archimedes' principle).","trials":[]}
 LIQ={'honey':("Honey",1.42,0xd89b1f),'syrup':("Corn syrup",1.33,0xb35a1f),'soap':("Dish soap",1.06,0x62d0a8),'water':("Water",1.00,0x3b82f6),'oil':("Vegetable oil",0.92,0xf2d23c),'alcohol':("Rubbing alcohol",0.79,0xf48fb1),'milk':("Milk",1.03,0xf4f1e8),'glycerine':("Glycerine",1.26,0xcfe8ef)}
 def lab(k): return LIQ[k][0]
 def dens(k): return LIQ[k][1]
@@ -182,13 +182,92 @@ v=[
  trs("A 10 cm³ block has a mass of 27 g. What is its density?",[("2.7","2.7 g/cm³"),("270","270 g/cm³"),("0.37","0.37 g/cm³")],"2.7","2.7 g/cm³.","Density = mass ÷ volume = 27 g ÷ 10 cm³ = 2.7 g/cm³.")]
 mk(S3,'tr_den','transfer',False,None,{"name":"Density"},v)
 
-L={"lessonId":"matter-properties","type":"science_matter_properties","subject":"Chemistry","title":"Matter & Its Properties Lab","summary":"Heat ice into steam and watch the mass stay the same, test substances to tell physical from chemical change, and weigh and pour liquids to see how density decides who sinks. Predict first, then watch what really happens.","durationMinutes":35,
+
+# ---- Archimedes' principle: appended after the density questions, nothing above is changed ----
+G=9.8
+MAT={'iron':("iron",7.87),'aluminium':("aluminium",2.70),'lead':("lead",11.34),'steel':("steel",7.85),'copper':("copper",8.96),'wood':("wood",0.60),'cork':("cork",0.24),'wax':("wax",0.90),'brass':("brass",8.50),'clay':("clay",1.80)}
+def mname(k): return MAT[k][0]
+def mrho(k): return MAT[k][1]
+def vol(side): return side**3                       # cm³ of a cube
+def displaced(k,side,liq):                         # mL of liquid pushed out by a cube released in `liq`
+    v=vol(side); m=mrho(k)*v
+    return v if mrho(k)>=dens(liq) else m/dens(liq)
+
+ARCH={"name":"Archimedes' principle","formula":"F = ρ g V"}
+def a1(ka,sa,kb,sb,liq='water'):
+    da=displaced(ka,sa,liq); db=displaced(kb,sb,liq)
+    A=f"a {sa} cm {mname(ka)} cube"; B=f"a {sb} cm {mname(kb)} cube"
+    ma=mrho(ka)*vol(sa); mb=mrho(kb)*vol(sb)
+    if abs(da-db)<0.5: right="same"
+    else: right="a" if da>db else "b"
+    fa="floats" if mrho(ka)<dens(liq) else "sinks"; fb="floats" if mrho(kb)<dens(liq) else "sinks"
+    out=f"A displaces {f(da,0)} mL and B displaces {f(db,0)} mL ({'the same' if right=='same' else 'more for '+('A' if right=='a' else 'B')}). A {fa} (mass {f(ma,0)} g) and B {fb} (mass {f(mb,0)} g)."
+    ex="An object pushes aside water equal to the volume of it that is under the surface. A sinking object is fully under, so it displaces its own volume. A floating object sinks until the water it displaces weighs as much as it does. So how much overflows depends on the volume under water, not on how heavy the object looks."
+    kw=["displace","volume","submerged","weight"]
+    syn={"displace":["displaces","displaced","displacement","pushes aside","pushes out","overflow","overflows","spills"],"volume":["size","space","how big","bigger","larger"],"submerged":["under","underwater","under the water","below the surface","sinks","in the water"],"weight":["mass","heavy","heavier","float","floats","floating"]}
+    return {"prompt":f"An overflow can is filled to the brim with {lab(liq).lower()}. You lower {A} (A) into it and catch what overflows, then do the same with {B} (B). Which one makes more liquid overflow?","input":ch(("a",f"A: the {sa} cm {mname(ka)} cube"),("b",f"B: the {sb} cm {mname(kb)} cube"),("same","They push out the same amount")),"answer":{"choice":right},"outcome":out,"explanation":ex,"expectedKeywords":kw,"keywordSynonyms":syn,"coachSecrets":[],"params":{"a":{"name":mname(ka),"side":sa,"density":mrho(ka)},"b":{"name":mname(kb),"side":sb,"density":mrho(kb)},"liquid":liq}}
+v=[a1('iron',4,'wood',8),a1('lead',5,'aluminium',5),a1('iron',3,'aluminium',6),a1('steel',2,'cork',6),a1('wood',5,'wax',5)]
+mk(S3,'arch_1','prediction',True,'displace',ARCH,v)
+
+def weight_n(k,V): return mrho(k)*V/1000*G
+def buoy_n(liq,V): return dens(liq)*V/1000*G
+def a2_choice(k,V,liq):
+    W=weight_n(k,V); B=buoy_n(liq,V)
+    return {"prompt":f"A {V} cm³ {mname(k)} block hangs from a spring scale in the air, which reads {f(W,2)} N. You slowly lower it into a beaker of {lab(liq).lower()} until it is fully under. What happens to the reading?","input":ch(("down","It decreases"),("up","It increases"),("same","It stays the same")),"answer":{"choice":"down"},"outcome":f"It falls from {f(W,2)} N to {f(W-B,2)} N: the liquid pushes the block up with {f(B,2)} N.","explanation":"A liquid pushes up on anything in it. This upward buoyant force acts against the weight, so the block seems lighter: the scale reads the weight minus the buoyant force.","coachSecrets":[],"params":{"object":k,"volume":V,"liquid":liq,"density":mrho(k)}}
+def a2_num(k,V,liq):
+    W=weight_n(k,V); B=buoy_n(liq,V)
+    return {"prompt":f"A {V} cm³ {mname(k)} block (density {f(mrho(k),2)} g/cm³) hangs from a spring scale in the air, reading {f(W,2)} N. You lower it fully into {lab(liq).lower()} (density {f(dens(liq),2)} g/cm³). What does the scale read now? (g = 9.8 N/kg)","input":num(("reading","Scale reading","N")),"answer":{"reading":round(W-B,2)},"tolerance":0.2,"outcome":f"{f(W-B,2)} N. The buoyant force is {f(B,2)} N, so {f(W,2)} − {f(B,2)} = {f(W-B,2)} N.","explanation":f"Buoyant force = weight of the liquid displaced = ρ g V = {f(dens(liq),2)} × 9.8 × {V} ÷ 1000 = {f(B,2)} N. The scale reads the weight in air minus this: {f(W,2)} − {f(B,2)} = {f(W-B,2)} N.","coachSecrets":[],"params":{"object":k,"volume":V,"liquid":liq,"density":mrho(k)}}
+v=[a2_choice('iron',200,'water'),a2_num('iron',200,'water'),a2_num('aluminium',150,'water'),a2_num('copper',120,'oil'),a2_num('iron',250,'alcohol')]
+mk(S3,'arch_2','prediction',False,'spring_scale',ARCH,v)
+
+def a3(prompt,opts,right,out,expl,params,kw=None,syn=None):
+    d={"prompt":prompt,"input":ch(*opts),"answer":{"choice":right},"outcome":out,"explanation":expl,"coachSecrets":[],"params":params}
+    d["expectedKeywords"]=kw or ["buoyant","volume","displaced","water"]
+    d["keywordSynonyms"]=syn or {"buoyant":["buoyancy","upthrust","upward force","lose weight","lighter","loss in weight","apparent weight"],"volume":["size","same size","same volume","how big"],"displaced":["displaces","displace","pushes aside","pushed aside","displacement"],"water":["liquid","fluid"]}
+    return d
+V3=100
+def blk(k,V,liq): return {"object":k,"volume":V,"liquid":liq,"density":mrho(k)}
+v=[
+ a3(f"An iron block and an aluminium block have exactly the same size, {V3} cm³. Both are hung from spring scales and lowered fully into water. Which one loses more weight?",[("iron","The heavier iron block loses more"),("alu","The lighter aluminium block loses more"),("same","They lose exactly the same amount")],"same",f"Both lose {f(buoy_n('water',V3),2)} N. The iron reads {f(weight_n('iron',V3)-buoy_n('water',V3),2)} N and the aluminium {f(weight_n('aluminium',V3)-buoy_n('water',V3),2)} N.","The buoyant force equals the weight of the water displaced. Both blocks are the same size, so they displace the same amount of water and feel the same upward push, however heavy they are.",{"pair":["iron","aluminium"],"volume":V3,"liquid":"water","mode":"pair"}),
+ a3("A steel block and a copper block, each 150 cm³, are lowered fully into vegetable oil. Which one is pushed up harder by the oil?",[("steel","The steel block"),("copper","The copper block"),("same","They are pushed up equally")],"same",f"Both feel {f(buoy_n('oil',150),2)} N upwards.","They displace the same volume of oil (150 cm³), so the weight of oil displaced is the same for both, and so is the buoyant force.",{"pair":["steel","copper"],"volume":150,"liquid":"oil","mode":"pair"}),
+ a3("The same 200 cm³ iron block is hung from a scale and lowered fully into water, then dried and lowered fully into vegetable oil. Where does the block lose more weight?",[("water","In the water"),("oil","In the oil"),("same","The same in both")],"water",f"In water it loses {f(buoy_n('water',200),2)} N; in oil {f(buoy_n('oil',200),2)} N.","The buoyant force is ρ g V. The volume displaced is the same, but water is denser than oil, so the water displaced weighs more and pushes up harder.",{"pair":["iron","iron"],"volume":200,"liquid":"water","mode":"liquids","liquid2":"oil"}),
+ a3("Two iron blocks are lowered fully into water: one is 100 cm³ and the other is 200 cm³. How does the buoyant force on the bigger block compare?",[("double","It is twice as big"),("same","It is the same"),("half","It is half as big")],"double",f"The 200 cm³ block feels {f(buoy_n('water',200),2)} N, twice the {f(buoy_n('water',100),2)} N on the 100 cm³ one.","The buoyant force is proportional to the volume under the liquid, which sets how much liquid is displaced. Twice the volume, twice the force.",{"pair":["iron","iron"],"volume":100,"volume2":200,"liquid":"water","mode":"volumes"}),
+ a3("A 120 cm³ cork and a 120 cm³ steel ball are each held fully under water by hand. Which feels the larger upward buoyant force?",[("cork","The cork"),("steel","The steel ball"),("same","They feel the same buoyant force")],"same",f"Both feel {f(buoy_n('water',120),2)} N upwards.","Held fully under, each displaces 120 cm³ of water. The buoyant force depends on the volume displaced, not the material. (The cork floats up when let go only because its own weight is smaller.)",{"pair":["cork","steel"],"volume":120,"liquid":"water","mode":"pair"}),
+]
+mk(S3,'arch_3','prediction',True,'spring_scale',ARCH,v)
+
+def a4(liq,V):
+    B=buoy_n(liq,V)
+    return {"prompt":f"A solid ball of volume {V} cm³ is held fully under {lab(liq).lower()} (density {f(dens(liq),2)} g/cm³). What buoyant force does the liquid exert on it? (g = 9.8 N/kg)","input":num(("force","Buoyant force","N")),"answer":{"force":round(B,2)},"tolerance":round(max(0.1,0.04*B),2),"outcome":f"{f(B,2)} N.","explanation":f"Buoyant force = weight of liquid displaced = ρ g V = {f(dens(liq),2)} × 9.8 × {V} ÷ 1000 = {f(B,2)} N.","coachSecrets":[],"params":{"object":"steel","volume":V,"liquid":liq,"density":mrho('steel'),"mode":"held"}}
+v=[a4('water',250),a4('oil',400),a4('alcohol',500),a4('water',1000),a4('syrup',150)]
+mk(S3,'arch_4','prediction',False,'spring_scale',ARCH,v)
+
+CLAYM=100
+def a5(m,hull,liq,note):
+    need=m/dens(liq)
+    floats_=hull>=need
+    cv=m/mrho('clay')
+    outcome=(f"It floats, riding with {f(need/hull*100,0)}% of the boat under the surface." if floats_ else f"It sinks: it would have to displace {f(need,0)} mL to hold itself up, but the boat only has {hull} mL of hull.")
+    return {"prompt":f"A lump of {m} g of clay (density 1.8 g/cm³) sinks in water. You mould the same clay into a boat whose hull encloses {hull} cm³, and set it on {lab(liq).lower()} (density {f(dens(liq),2)} g/cm³). What happens?","input":ch(("float","It floats"),("sink","It sinks"),("hover","It hovers in the middle")),"answer":{"choice":"float" if floats_ else "sink"},"outcome":outcome,"explanation":f"The clay has the same mass in either shape, but a boat shape takes up far more space. To float, the boat must displace liquid that weighs as much as it does: {m} g of {lab(liq).lower()}, which is {f(need,0)} cm³. Its overall density is {m} g ÷ {hull} cm³ = {f(m/hull,2)} g/cm³, which is {'less' if floats_ else 'more'} than the liquid's {f(dens(liq),2)}.","expectedKeywords":["density","volume","displaced","weight"],"keywordSynonyms":{"density":["denser","less dense","mass per","average density","overall density"],"volume":["space","bigger","larger","hollow","shape","spread out","hull"],"displaced":["displaces","displace","pushes aside","pushed aside","displacement"],"weight":["mass","heavy","heavier","lighter","float","floats"]},"coachSecrets":[],"params":{"mass":m,"hull":hull,"liquid":liq,"claydensity":mrho('clay'),"clayvolume":round(cv,1)}}
+v=[a5(100,250,'water',''),a5(100,80,'water',''),a5(150,170,'oil',''),a5(120,125,'alcohol',''),a5(200,300,'water','')]
+mk(S3,'arch_5','prediction',True,'boat',ARCH,v)
+
+v=[
+ trs("A steel ship weighs thousands of tonnes, yet it floats. Why?",[("hull","It displaces a huge volume of water, which weighs as much as the ship"),("light","Steel is lighter than water"),("air","Air in the hull makes it weigh nothing")],"hull","It displaces water that weighs as much as the ship.","Archimedes' principle: a floating object displaces its own weight of water. The ship's hollow hull displaces so much water that the buoyant force equals its weight."),
+ trs("A submarine takes water into its ballast tanks. What happens to it?",[("sink","Its average density goes up, so it sinks"),("float","Its average density goes up, so it rises"),("same","Nothing changes")],"sink","It sinks.","Taking in water adds weight but not volume, so its average density rises above the sea water's. Pumping the water out lets it rise."),
+ trs("An egg sinks in plain water but floats when lots of salt is stirred in. Why?",[("dense","Salt water is denser, so the egg is now less dense than the liquid"),("egg","The salt makes the egg lighter"),("air","The salt puts air inside the egg")],"dense","Salt water is denser than the egg.","The buoyant force is ρ g V. A denser liquid gives a bigger push for the same volume, enough to hold the egg up. This is also why it is easy to float in the Dead Sea."),
+ trs("A large block of ice floats in water with about nine tenths of it below the surface. What does that tell you?",[("less","Ice is a little less dense than water, about 0.92 times as dense"),("more","Ice is denser than water"),("same","Ice and water have exactly the same density")],"less","Ice is about 0.92 times as dense as water.","A floating object sinks until it displaces its own weight of water. The fraction under water equals the ratio of the densities: 0.92 for ice in water."),
+ trs("A hydrometer is a weighted glass tube that floats upright in a liquid. In which liquid does it float highest?",[("dense","In the densest liquid"),("light","In the least dense liquid"),("same","The same height in all liquids")],"dense","In the densest liquid.","A denser liquid supplies the same buoyant force from less displaced volume, so less of the tube needs to sink."),
+]
+mk(S3,'tr_arch','transfer',False,None,ARCH,vt:=v)
+
+L={"lessonId":"matter-properties","type":"science_matter_properties","subject":"Chemistry","title":"Matter & Its Properties Lab","summary":"Heat ice into steam and watch the mass stay the same, test substances to tell physical from chemical change, and weigh and pour liquids to see how density decides who sinks, ending with Archimedes' principle: why things float, how much they displace and how much lighter they feel in a liquid. Predict first, then watch what really happens.","durationMinutes":35,
  "assets":{"cylinder":M+"graduated-cylinder.glb","thermometer":M+"thermometer.glb","scale":M+"weighing-scale.glb","burner":M+"bunsen-burner.glb","hammer":M+"claw-hammer.glb","magnet":M+"horseshoe-magnet.glb"},
  "config":{"enableScenarioSwitcher":True,"minExplanationWords":6,"minPredictionMs":0,"telemetryRules":{"requirePredictionBeforeAction":True,"logMeasurementValues":True,"logLatency":True}},
  "scenarios":[S1,S2,S3],
- "laws":[{"id":"conservation","name":"Conservation of mass","summary":"Matter is neither created nor destroyed in a change of state."},{"id":"density","name":"Density","formula":"ρ = m / V","summary":"Mass per unit volume decides sinking and floating."}],
+ "laws":[{"id":"conservation","name":"Conservation of mass","summary":"Matter is neither created nor destroyed in a change of state."},{"id":"density","name":"Density","formula":"ρ = m / V","summary":"Mass per unit volume decides sinking and floating."},{"id":"archimedes","name":"Archimedes' principle","formula":"F = ρ g V","summary":"The buoyant force equals the weight of the fluid displaced."}],
  "liquids":{k:{"name":v[0],"density":v[1],"color":v[2]} for k,v in LIQ.items()},
- "uiSchema":{"hasTabs":True,"hasPredictionModal":True,"hasTemperatureSlider":True,"hasDigitalScaleDisplay":True,"hasMeasuringCylinderReadout":True}}
+ "uiSchema":{"hasTabs":True,"hasPredictionModal":True,"hasTemperatureSlider":True,"hasDigitalScaleDisplay":True,"hasMeasuringCylinderReadout":True,"hasSpringScaleReadout":True,"hasOverflowCan":True}}
 # a coach secret the student can already read protects nothing
 for sc in L['scenarios']:
     vis0=(sc['setup']+L['summary']).lower()
