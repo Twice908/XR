@@ -3,9 +3,11 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { createClient } from 'redis';
-import { cleanSelection, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, wordCount, type BiologyAssignment, type Checkpoint, type Commit, type Scenario } from './biology';
+import { cleanSelection, groupsOf, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, wordCount, type BiologyAssignment, type Checkpoint, type Commit, type Scenario } from './biology';
 import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
 import { allTrialsDone, buildReveal, checkExplanation, cleanTable, flatCases, judgeTrial, makePlan, owesExplanation, personalize, redactOptics, stageBlocker, trialKey, truthFor, type OpticsAssignment, type OpticsTrial } from './optics';
+import { registerSound, soundInternal, soundLessonFor } from './soundRoutes';
+import type { SoundAssignment } from './sound';
 import { drawVariants, redactMotion, type MotionAssignment } from './motion';
 import { motionInternal, registerMotion } from './motionRoutes';
 import { reasoningSummary, registerReasoning } from './reasoningRoutes';
@@ -30,6 +32,7 @@ const ASSIGNMENT_TTL = 86_400;
 const key = (sessionId: string) => `assignment:${sessionId}`;
 
 const dataDir = path.join(__dirname, '../data');
+const isBiologyLesson = (l: { type?: string }) => l.type === 'biology_digestive_system' || l.type === 'biology_respiratory_system';
 const LESSON_ID_RE = /^[a-z0-9-]+$/;
 
 function readLesson(lessonId: string): any | null {
@@ -47,7 +50,7 @@ async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indic
 async function loadAssignment(sessionId: string): Promise<Assignment | null> {
   const a = await loadAny(sessionId);
   const k = (a as { kind?: string } | null)?.kind;
-  return a && k !== 'metals' && k !== 'biology' && k !== 'optics' && k !== 'motion' ? (a as Assignment) : null;
+  return a && k !== 'metals' && k !== 'biology' && k !== 'optics' && k !== 'motion' && k !== 'sound' ? (a as Assignment) : null;
 }
 async function loadBiology(sessionId: string): Promise<BiologyAssignment | null> {
   const a = await loadAny(sessionId);
@@ -61,6 +64,10 @@ async function loadMotion(sessionId: string): Promise<MotionAssignment | null> {
   const a = await loadAny(sessionId);
   return a && (a as { kind?: string }).kind === 'motion' ? (a as unknown as MotionAssignment) : null;
 }
+async function loadSound(sessionId: string): Promise<SoundAssignment | null> {
+  const a = await loadAny(sessionId);
+  return a && (a as { kind?: string }).kind === 'sound' ? (a as unknown as SoundAssignment) : null;
+}
 async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
   const a = await loadAny(sessionId);
   if (!a || (a as OpticsAssignment).kind !== 'optics') return null;
@@ -71,7 +78,7 @@ async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
 }
 /** This session's own run of the optics lab: values drawn, everything in its shuffled order. */
 const opticsLesson = (a: OpticsAssignment) => personalize(readLesson(a.lessonId), a.plan);
-const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment | OpticsAssignment | MotionAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
+const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment | OpticsAssignment | MotionAssignment | SoundAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
 
 /** Is this bearer token the one session-auth issued for this session? */
 async function sessionFor(req: express.Request, sessionId: string): Promise<{ studentId: string; lessonId: string } | null> {
@@ -158,7 +165,7 @@ app.get(
       }
       return res.json({ ...redactMetals(lesson), ...(samples ? { samples } : {}) });
     }
-    if (lesson.type === 'biology_digestive_system') {
+    if (isBiologyLesson(lesson)) {
       const sessionId = String(req.query.sessionId ?? '');
       if (sessionId) {
         const who = await sessionFor(req, sessionId);
@@ -170,7 +177,7 @@ app.get(
       return res.json(redactBiology(lesson));
     }
     // the motion sandbox and the magnetism lab share one question engine (variants, locked predictions, explanations)
-    if (lesson.type === 'physics_mechanics_sandbox' || lesson.type === 'physics_electromagnetism') {
+    if (lesson.type === 'physics_mechanics_sandbox' || lesson.type === 'physics_electromagnetism' || lesson.type === 'physics_circuits') {
       const sessionId = String(req.query.sessionId ?? '');
       if (sessionId) {
         const who = await sessionFor(req, sessionId);
@@ -183,6 +190,16 @@ app.get(
         return res.json(redactMotion(lesson, mo));
       }
       return res.json(redactMotion(lesson));
+    }
+    if (lesson.type === 'physics_waves_sound') {
+      const sessionId = String(req.query.sessionId ?? '');
+      let studentId: string | null = null;
+      if (sessionId) {
+        const who = await sessionFor(req, sessionId);
+        if (!who) return res.status(401).json({ error: 'Invalid session' });
+        studentId = who.studentId;
+      }
+      return res.json(await soundLessonFor(soundDeps, lesson, sessionId, studentId));
     }
     if (lesson.type === 'physics_optics') {
       const sessionId = String(req.query.sessionId ?? '');
@@ -463,6 +480,8 @@ app.post(
   }),
 );
 registerMotion(app, { wrap, sessionFor, readLesson, load: loadMotion, save: saveAssignment });
+const soundDeps = { wrap, sessionFor, readLesson, load: loadSound, save: saveAssignment as never };
+registerSound(app, soundDeps);
 registerReasoning(app, { wrap, sessionFor, load: loadAny as never, save: saveAssignment as never });
 
 // ---------------- Human Digestive System ----------------
@@ -493,11 +512,11 @@ app.post(
     const id = String(req.body?.checkpoint ?? '');
     const index = cps.findIndex((c) => c.id === id);
     if (index < 0) return res.status(400).json({ error: 'Unknown checkpoint' });
-    if (a.commits[id]) return res.status(409).json({ error: 'This checkpoint is already answered', reveal: revealFor(cps[index], a.commits[id], lesson.choices) });
+    if (a.commits[id]) return res.status(409).json({ error: 'This checkpoint is already answered', reveal: revealFor(cps[index], a.commits[id], lesson.choices, groupsOf(lesson)) });
     if (index !== Object.keys(a.commits).length) return res.status(409).json({ error: 'Follow the journey in order' });
 
-    const selection = cleanSelection(req.body?.selection, lesson.choices);
-    if (!selection) return res.status(400).json({ error: 'Choose at least one gland, one juice and one nutrient (or "none")' });
+    const selection = cleanSelection(req.body?.selection, lesson.choices, groupsOf(lesson));
+    if (!selection) return res.status(400).json({ error: 'Choose at least one option in every group (or "none")' });
     const explanation = String(req.body?.explanation ?? '').trim().slice(0, MAX_EXPLANATION);
     const minWords = lesson.config.minExplanationWords ?? 8;
     if (wordCount(explanation) < minWords) return res.status(400).json({ error: `Explain it in at least ${minWords} words` });
@@ -516,7 +535,7 @@ app.post(
       thinkMs: Math.max(0, Math.min(3_600_000, Number(req.body?.thinkMs) || 0)),
       speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)),
       committedAt: Date.now(),
-      selectionScore: scoreSelection(cp, selection),
+      selectionScore: scoreSelection(cp, selection, groupsOf(lesson)),
       coverage: kw.coverage,
       matched: kw.matched,
       missed: kw.missed,
@@ -524,7 +543,7 @@ app.post(
     };
     a.commits[id] = commit;
     await saveAssignment(sessionId, a);
-    res.status(201).json({ reveal: revealFor(cp, commit, lesson.choices) });
+    res.status(201).json({ reveal: revealFor(cp, commit, lesson.choices, groupsOf(lesson)) });
   }),
 );
 
@@ -560,7 +579,8 @@ app.post(
     const id = String(req.body?.checkpoint ?? '');
     const b64 = String(req.body?.fileBase64 ?? '');
     const type = String(req.body?.contentType ?? 'audio/webm');
-    if (!a.commits[id]) return res.status(409).json({ error: 'Answer this checkpoint first' });
+    const isFinal = id === 'final' && a.final;
+    if (!a.commits[id] && !isFinal) return res.status(409).json({ error: 'Answer this checkpoint first' });
     if (!/^audio\//.test(type) || b64.length === 0 || b64.length > 5_000_000) return res.status(400).json({ error: 'Invalid audio' });
     const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
     const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
@@ -570,7 +590,9 @@ app.post(
     });
     if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });
     const data = (await store.json()) as { url?: string };
-    a.commits[id].audioUrl = data.url;
+    if (isFinal) {
+      if (a.final?.explain) (a.final.explain as { audioUrl?: string }).audioUrl = data.url;
+    } else a.commits[id].audioUrl = data.url;
     await saveAssignment(sessionId, a);
     res.status(201).json({ stored: true });
   }),
@@ -585,17 +607,27 @@ app.post(
     const { sessionId, a, lesson } = ctx;
     const scenarios: Scenario[] = lesson.transfer.scenarios;
     if (Object.keys(a.commits).length < lesson.checkpoints.length) return res.status(409).json({ error: 'Finish the journey first' });
+    const fe = lesson.finalExplain as { prompt: string; minWords?: number; expectedKeywords: string[]; keywordSynonyms?: Record<string, string[]>; modelAnswer?: string } | undefined;
     if (!a.final) {
       const answers: Record<string, string> = {};
       for (const s of scenarios) answers[s.id] = String(req.body?.answers?.[s.id] ?? '');
       const r = scoreFinal(scenarios, answers);
-      a.final = { answers, results: r.results, correct: r.correct, total: r.total, submittedAt: Date.now() };
+      let explain;
+      if (fe) {
+        const text = String(req.body?.explanation ?? '').trim().slice(0, MAX_EXPLANATION);
+        if (wordCount(text) < (fe.minWords ?? 20)) return res.status(400).json({ error: `Explain the whole pathway in at least ${fe.minWords ?? 20} words` });
+        const kw = keywordResults(text, fe.expectedKeywords, fe.keywordSynonyms);
+        explain = { text, coverage: kw.coverage, matched: kw.matched, missed: kw.missed, inputMode: req.body?.inputMode === 'voice' ? ('voice' as const) : ('typed' as const), speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)) };
+      }
+      a.final = { answers, results: r.results, correct: r.correct, total: r.total, submittedAt: Date.now(), ...(explain ? { explain } : {}) };
       await saveAssignment(sessionId, a);
     }
+    const ex = a.final.explain;
     res.json({
       correct: a.final.correct,
       total: a.final.total,
       results: scenarios.map((s) => ({ id: s.id, correct: a.final!.results.find((r) => r.id === s.id)?.correct ?? false, answer: s.answer, yourAnswer: a.final!.answers[s.id], explanation: s.explanation })),
+      ...(ex && fe ? { explain: { coverage: ex.coverage, keywords: [...ex.matched.map((k) => ({ keyword: k, matched: true })), ...ex.missed.map((k) => ({ keyword: k, matched: false }))], modelAnswer: fe.modelAnswer ?? '' } } : {}),
     });
   }),
 );
@@ -605,6 +637,8 @@ app.get(
   '/internal/assignments/:sessionId',
   wrap(async (req, res) => {
     if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+    const so = await loadSound(req.params.sessionId);
+    if (so) return res.json(soundInternal(so, readLesson(so.lessonId)));
     const mo = await loadMotion(req.params.sessionId);
     if (mo) return res.json(motionInternal(mo, readLesson(mo.lessonId)));
     const op = await loadOptics(req.params.sessionId);
@@ -643,7 +677,7 @@ app.get(
             const k = bio.commits[c.id];
             return k && { id: c.id, n: i + 1, selection: k.selectionScore, coverageFirst: k.coverage, coverageFinal: k.revisions.length ? Math.max(k.coverage, ...k.revisions.map((r) => r.coverage)) : k.coverage, revisions: k.revisions.length, inputMode: k.inputMode, speakMs: k.speakMs, thinkMs: k.thinkMs };
           }).filter(Boolean),
-          final: bio.final && { correct: bio.final.correct, total: bio.final.total },
+          final: bio.final && { correct: bio.final.correct, total: bio.final.total, explainCoverage: bio.final.explain?.coverage ?? null },
         },
       });
     }

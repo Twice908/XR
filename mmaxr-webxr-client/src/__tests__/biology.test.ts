@@ -144,3 +144,40 @@ describe('JourneyExperiment', () => {
     expect(JSON.stringify(events)).not.toMatch(/revealExplanation|expectedKeywords/)
   })
 })
+
+describe('a lesson with its own question groups (respiratory)', () => {
+  const resp: BiologyLessonContract = {
+    ...lesson,
+    lessonId: 'biology-respiratory',
+    type: 'biology_respiratory_system',
+    groups: [{ key: 'organs', question: 'Which parts?' }, { key: 'molecules', question: 'Which molecules?' }],
+    choices: { organs: [{ id: 'lungs', label: 'Lungs' }, { id: 'alveoli', label: 'Alveoli' }, { id: 'blood', label: 'Blood' }], molecules: [{ id: 'oxygen', label: 'Oxygen' }, { id: 'co2', label: 'CO2' }, { id: 'none', label: 'None' }] },
+    finalExplain: { prompt: 'Explain the path of oxygen', minWords: 5 },
+  }
+  const make = () => new JourneyExperiment(resp, () => {}, () => 1000)
+
+  it('asks exactly the lesson\'s groups and needs an answer in each', () => {
+    const exp = make()
+    expect(exp.groups.map((g) => g.key)).toEqual(['organs', 'molecules'])
+    exp.toggle('organs', 'alveoli')
+    exp.setConfidence(2)
+    expect(exp.canLock).toBe(false)
+    exp.toggle('molecules', 'oxygen')
+    expect(exp.canLock).toBe(true)
+  })
+  it('shuffles each group and keeps "none" last', () => {
+    const exp = make()
+    const o = exp.optionsFor('molecules').map((x) => x.id)
+    expect(o[o.length - 1]).toBe('none')
+    expect([...exp.optionsFor('organs')].map((x) => x.id).sort()).toEqual(['alveoli', 'blood', 'lungs'])
+  })
+  it('the final explanation is required before the challenge can be submitted', () => {
+    const exp = make()
+    exp.stage = 'final'
+    exp.scenarioAnswers.s1 = 'a'
+    expect(exp.canSubmitFinal).toBe(false)
+    exp.finalText = 'oxygen goes from the nose to the alveoli'
+    expect(exp.canSubmitFinal).toBe(true)
+    expect(exp.finalPayload()).toMatchObject({ answers: { s1: 'a' }, explanation: 'oxygen goes from the nose to the alveoli', inputMode: 'typed' })
+  })
+})

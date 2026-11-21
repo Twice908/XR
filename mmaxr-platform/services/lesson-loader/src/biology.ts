@@ -9,20 +9,35 @@ export interface Option {
   label: string;
 }
 
+/** The question groups a stop asks. A lesson may define its own in `groups`; the digestive lesson uses these. */
+export interface Group {
+  key: string;
+  question: string;
+}
+export const DEFAULT_GROUPS: Group[] = [
+  { key: 'glands', question: 'Which glands act here?' },
+  { key: 'juices', question: 'Which digestive juices?' },
+  { key: 'components', question: 'Which enzymes or chemicals are in them?' },
+  { key: 'nutrients', question: 'Which nutrients are being worked on?' },
+];
+export const groupsOf = (lesson: { groups?: Group[] }): Group[] => (lesson.groups?.length ? lesson.groups : DEFAULT_GROUPS);
+const cap = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
+
+export interface Choices {
+  [group: string]: Option[];
+}
+
 export interface Checkpoint {
   id: string;
   organName: string;
   prompt: string;
   modelAnchor: { x: number; y: number; z: number };
   detail: string | null;
-  glandsInvolved: string[];
-  juicesInvolved: string[];
-  componentsInvolved: string[];
-  targetNutrient: string;
-  answerGlands: string[];
-  answerJuices: string[];
-  answerComponents: string[];
-  answerNutrients: string[];
+  /** The right answer ids per group (new lessons). Older lessons use answerGlands, answerJuices ... */
+  answers?: Record<string, string[]>;
+  /** A short phrase for what this stop is about, shown with the reveal. */
+  target?: string;
+  targetNutrient?: string;
   revealExplanation: string;
   expectedKeywords: string[];
   keywordSynonyms: Record<string, string[]>;
@@ -37,11 +52,14 @@ export interface Scenario {
   explanation: string;
 }
 
-export interface Selection {
-  glands: string[];
-  juices: string[];
-  components: string[];
-  nutrients: string[];
+export type Selection = Record<string, string[]>;
+
+/** Right answers for one group, from either shape of lesson data. */
+export function answerIds(cp: Checkpoint, key: string): string[] {
+  const direct = cp.answers?.[key];
+  if (direct) return direct;
+  const legacy = cp[`answer${cap(key)}`];
+  return Array.isArray(legacy) ? (legacy as string[]) : [];
 }
 
 export interface Revision {
@@ -60,7 +78,7 @@ export interface Commit {
   thinkMs: number;
   speakMs: number;
   committedAt: number;
-  selectionScore: { glands: number; juices: number; components: number; nutrients: number; allCorrect: boolean };
+  selectionScore: SelectionScore;
   coverage: number;
   matched: string[];
   missed: string[];
@@ -68,7 +86,19 @@ export interface Commit {
   audioUrl?: string;
 }
 
+export type SelectionScore = { allCorrect: boolean } & Record<string, number | boolean>;
+
+export interface FinalExplain {
+  text: string;
+  coverage: number;
+  matched: string[];
+  missed: string[];
+  inputMode: 'voice' | 'typed';
+  speakMs: number;
+}
+
 export interface FinalResult {
+  explain?: FinalExplain;
   answers: Record<string, string>;
   results: { id: string; correct: boolean }[];
   correct: number;
@@ -134,26 +164,28 @@ const jaccard = (a: string[], b: string[]) => {
   return inter / new Set([...A, ...B]).size;
 };
 
-export function scoreSelection(cp: Checkpoint, s: Selection) {
-  const glands = jaccard(s.glands, cp.answerGlands);
-  const juices = jaccard(s.juices, cp.answerJuices);
-  const components = jaccard(s.components, cp.answerComponents);
-  const nutrients = jaccard(s.nutrients, cp.answerNutrients);
-  return { glands, juices, components, nutrients, allCorrect: glands === 1 && juices === 1 && components === 1 && nutrients === 1 };
+export function scoreSelection(cp: Checkpoint, s: Selection, groups: Group[] = DEFAULT_GROUPS): SelectionScore {
+  const out: Record<string, number | boolean> = {};
+  let all = true;
+  for (const g of groups) {
+    const score = jaccard(s[g.key] ?? [], answerIds(cp, g.key));
+    out[g.key] = score;
+    if (score !== 1) all = false;
+  }
+  return { ...out, allCorrect: all };
 }
 
-export function cleanSelection(raw: any, choices: { glands: Option[]; juices: Option[]; components: Option[]; nutrients: Option[] }): Selection | null {
-  const pick = (v: unknown, pool: Option[]): string[] | null => {
+export function cleanSelection(raw: any, choices: Choices, groups: Group[] = DEFAULT_GROUPS): Selection | null {
+  const out: Selection = {};
+  for (const g of groups) {
+    const v = raw?.[g.key];
     if (!Array.isArray(v)) return null;
-    const ids = new Set(pool.map((o) => o.id));
-    const out = [...new Set(v.map(String))].filter((x) => ids.has(x));
-    return out.length ? out : null;
-  };
-  const glands = pick(raw?.glands, choices.glands);
-  const juices = pick(raw?.juices, choices.juices);
-  const components = pick(raw?.components, choices.components);
-  const nutrients = pick(raw?.nutrients, choices.nutrients);
-  return glands && juices && components && nutrients ? { glands, juices, components, nutrients } : null;
+    const ids = new Set((choices[g.key] ?? []).map((o) => o.id));
+    const picked = [...new Set(v.map(String))].filter((x) => ids.has(x));
+    if (!picked.length) return null;
+    out[g.key] = picked;
+  }
+  return out;
 }
 
 /* ---------------- what the browser may see / what is revealed ---------------- */
@@ -161,6 +193,8 @@ export function cleanSelection(raw: any, choices: { glands: Option[]; juices: Op
 export function redactBiology(lesson: any): any {
   return {
     ...lesson,
+    groups: groupsOf(lesson),
+    ...(lesson.finalExplain ? { finalExplain: { prompt: lesson.finalExplain.prompt, minWords: lesson.finalExplain.minWords ?? 20 } } : {}),
     checkpoints: lesson.checkpoints.map((c: Checkpoint) => ({
       id: c.id,
       organName: c.organName,
@@ -174,18 +208,14 @@ export function redactBiology(lesson: any): any {
   };
 }
 
-export function revealFor(cp: Checkpoint, commit: Commit, choices: { glands: Option[]; juices: Option[]; components: Option[]; nutrients: Option[] }) {
+export function revealFor(cp: Checkpoint, commit: Commit, choices: Choices, groups: Group[] = DEFAULT_GROUPS) {
   const label = (pool: Option[], id: string) => pool.find((o) => o.id === id)?.label ?? id;
+  const answer: Record<string, unknown> = {};
+  for (const g of groups) answer[g.key] = answerIds(cp, g.key).map((id) => ({ id, label: label(choices[g.key] ?? [], id) }));
   return {
     checkpoint: cp.id,
     explanation: cp.revealExplanation,
-    answer: {
-      glands: cp.answerGlands.map((id) => ({ id, label: label(choices.glands, id) })),
-      juices: cp.answerJuices.map((id) => ({ id, label: label(choices.juices, id) })),
-      components: cp.answerComponents.map((id) => ({ id, label: label(choices.components, id) })),
-      nutrients: cp.answerNutrients.map((id) => ({ id, label: label(choices.nutrients, id) })),
-      targetNutrient: cp.targetNutrient,
-    },
+    answer: { ...answer, targetNutrient: cp.target ?? cp.targetNutrient ?? '' },
     selectionScore: commit.selectionScore,
     keywords: [...commit.matched.map((k) => ({ keyword: k, matched: true })), ...commit.missed.map((k) => ({ keyword: k, matched: false }))],
     coverage: commit.coverage,
@@ -200,5 +230,8 @@ export function scoreFinal(scenarios: Scenario[], answers: Record<string, string
 /** Words that would give an unanswered checkpoint away. Used only by the coach's deterministic guard. */
 export function secretTerms(cp: Checkpoint): string[] {
   const syn = Object.values(cp.keywordSynonyms ?? {}).flat();
-  return [...new Set([...cp.expectedKeywords, ...syn, ...cp.juicesInvolved, ...cp.glandsInvolved, ...(cp.componentsInvolved ?? [])].map((t) => t.replace(/\s*\(.*\)\s*/g, ' ').trim()).filter((t) => t.length >= 3))];
+  const involved = Object.entries(cp)
+    .filter(([k, v]) => k.endsWith('Involved') && Array.isArray(v))
+    .flatMap(([, v]) => v as string[]);
+  return [...new Set([...cp.expectedKeywords, ...syn, ...involved].map((t) => t.replace(/\s*\(.*\)\s*/g, ' ').trim()).filter((t) => t.length >= 3))];
 }

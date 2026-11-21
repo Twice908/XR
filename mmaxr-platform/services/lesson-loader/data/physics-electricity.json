@@ -1,0 +1,3295 @@
+{
+  "lessonId": "physics-electricity",
+  "type": "physics_circuits",
+  "subject": "Physics",
+  "title": "Electricity & Circuits Lab",
+  "summary": "Build circuits on a breadboard: see how current, voltage and resistance fit together, how two bulbs behave in series and in parallel, and why a thin wire makes a good fuse. Predict first, then watch what really happens.",
+  "durationMinutes": 30,
+  "assets": {
+    "breadboard": "http://localhost:3007/assets/models/breadboard.glb",
+    "multimeter": "http://localhost:3007/assets/models/multimeter.glb"
+  },
+  "config": {
+    "enableScenarioSwitcher": true,
+    "minExplanationWords": 6,
+    "minPredictionMs": 0
+  },
+  "scenarios": [
+    {
+      "id": "ohms_law",
+      "tabName": "Ohm's Law",
+      "title": "The Ohm's Law Bench",
+      "setup": "A battery, a resistor and an ammeter on a breadboard. Slide the voltage and change the resistance: a V–I graph plots every reading.",
+      "trials": [
+        {
+          "id": "ohm_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "ohm",
+          "law": {
+            "name": "Ohm's law",
+            "formula": "V = I R"
+          },
+          "prompt": "The resistor is 4 Ω. At 2 V the ammeter reads 0.5 A. You slide the battery up to 4 V and keep the resistor the same. What will the ammeter read?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "double",
+                "label": "About twice as much"
+              },
+              {
+                "id": "half",
+                "label": "About half as much"
+              },
+              {
+                "id": "same",
+                "label": "The same"
+              },
+              {
+                "id": "quad",
+                "label": "About four times as much"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "double"
+          },
+          "outcome": "1 A: twice the 0.5 A. Every reading lands on one straight line through the origin of the V–I graph.",
+          "explanation": "For the same resistor, current is directly proportional to voltage: I = V ÷ R. Change the voltage by a factor and the current changes by the same factor, so the V–I points make a straight line through the origin.",
+          "coachSecrets": [
+            "1 a"
+          ],
+          "params": {
+            "R": 4,
+            "v1": 2,
+            "v2": 4
+          },
+          "variants": [
+            {
+              "prompt": "The resistor is 4 Ω. At 2 V the ammeter reads 0.5 A. You slide the battery up to 4 V and keep the resistor the same. What will the ammeter read?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "quad",
+                    "label": "About four times as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "1 A: twice the 0.5 A. Every reading lands on one straight line through the origin of the V–I graph.",
+              "explanation": "For the same resistor, current is directly proportional to voltage: I = V ÷ R. Change the voltage by a factor and the current changes by the same factor, so the V–I points make a straight line through the origin.",
+              "coachSecrets": [
+                "1 a"
+              ],
+              "params": {
+                "R": 4,
+                "v1": 2,
+                "v2": 4
+              }
+            },
+            {
+              "prompt": "The resistor is 5 Ω. At 3 V the ammeter reads 0.6 A. You slide the battery up to 6 V and keep the resistor the same. What will the ammeter read?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "quad",
+                    "label": "About four times as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "1.2 A: twice the 0.6 A. Every reading lands on one straight line through the origin of the V–I graph.",
+              "explanation": "For the same resistor, current is directly proportional to voltage: I = V ÷ R. Change the voltage by a factor and the current changes by the same factor, so the V–I points make a straight line through the origin.",
+              "coachSecrets": [
+                "1.2 a"
+              ],
+              "params": {
+                "R": 5,
+                "v1": 3,
+                "v2": 6
+              }
+            },
+            {
+              "prompt": "The resistor is 10 Ω. At 4 V the ammeter reads 0.4 A. You slide the battery up to 12 V and keep the resistor the same. What will the ammeter read?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "triple",
+                    "label": "About three times as much"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "third",
+                    "label": "About a third as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "triple"
+              },
+              "outcome": "1.2 A: three times the 0.4 A. Every reading lands on one straight line through the origin of the V–I graph.",
+              "explanation": "For the same resistor, current is directly proportional to voltage: I = V ÷ R. Change the voltage by a factor and the current changes by the same factor, so the V–I points make a straight line through the origin.",
+              "coachSecrets": [
+                "1.2 a"
+              ],
+              "params": {
+                "R": 10,
+                "v1": 4,
+                "v2": 12
+              }
+            },
+            {
+              "prompt": "The resistor is 2 Ω. At 1.5 V the ammeter reads 0.75 A. You slide the battery up to 3 V and keep the resistor the same. What will the ammeter read?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "quad",
+                    "label": "About four times as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "1.5 A: twice the 0.75 A. Every reading lands on one straight line through the origin of the V–I graph.",
+              "explanation": "For the same resistor, current is directly proportional to voltage: I = V ÷ R. Change the voltage by a factor and the current changes by the same factor, so the V–I points make a straight line through the origin.",
+              "coachSecrets": [
+                "1.5 a"
+              ],
+              "params": {
+                "R": 2,
+                "v1": 1.5,
+                "v2": 3.0
+              }
+            },
+            {
+              "prompt": "The resistor is 8 Ω. At 6 V the ammeter reads 0.75 A. You slide the battery down to 3 V and keep the resistor the same. What will the ammeter read?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "quarter",
+                    "label": "About a quarter as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "0.38 A: half the 0.75 A. Every reading lands on one straight line through the origin of the V–I graph.",
+              "explanation": "For the same resistor, current is directly proportional to voltage: I = V ÷ R. Change the voltage by a factor and the current changes by the same factor, so the V–I points make a straight line through the origin.",
+              "coachSecrets": [
+                "0.38 a"
+              ],
+              "params": {
+                "R": 8,
+                "v1": 6,
+                "v2": 3.0
+              }
+            }
+          ]
+        },
+        {
+          "id": "ohm_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "ohm",
+          "law": {
+            "name": "Ohm's law",
+            "formula": "V = I R"
+          },
+          "prompt": "A 5 Ω resistor is connected to a 10 V battery. Predict the ammeter reading.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "current",
+                "label": "Ammeter reading",
+                "unit": "A"
+              }
+            ]
+          },
+          "answer": {
+            "current": 2.0
+          },
+          "tolerance": 0.12,
+          "outcome": "2 A.",
+          "explanation": "I = V ÷ R = 10 ÷ 5 = 2 A.",
+          "coachSecrets": [],
+          "params": {
+            "R": 5,
+            "v1": 5.0,
+            "v2": 10
+          },
+          "variants": [
+            {
+              "prompt": "A 5 Ω resistor is connected to a 10 V battery. Predict the ammeter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 2.0
+              },
+              "tolerance": 0.12,
+              "outcome": "2 A.",
+              "explanation": "I = V ÷ R = 10 ÷ 5 = 2 A.",
+              "coachSecrets": [],
+              "params": {
+                "R": 5,
+                "v1": 5.0,
+                "v2": 10
+              }
+            },
+            {
+              "prompt": "A 20 Ω resistor is connected to a 5 V battery. Predict the ammeter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 0.25
+              },
+              "tolerance": 0.03,
+              "outcome": "0.25 A.",
+              "explanation": "I = V ÷ R = 5 ÷ 20 = 0.25 A.",
+              "coachSecrets": [
+                "0.25"
+              ],
+              "params": {
+                "R": 20,
+                "v1": 2.5,
+                "v2": 5
+              }
+            },
+            {
+              "prompt": "A 10 Ω resistor is connected to a 3 V battery. Predict the ammeter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 0.3
+              },
+              "tolerance": 0.03,
+              "outcome": "0.3 A.",
+              "explanation": "I = V ÷ R = 3 ÷ 10 = 0.3 A.",
+              "coachSecrets": [
+                "0.3"
+              ],
+              "params": {
+                "R": 10,
+                "v1": 1.5,
+                "v2": 3
+              }
+            },
+            {
+              "prompt": "A 4 Ω resistor is connected to a 12 V battery. Predict the ammeter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 3.0
+              },
+              "tolerance": 0.18,
+              "outcome": "3 A.",
+              "explanation": "I = V ÷ R = 12 ÷ 4 = 3 A.",
+              "coachSecrets": [],
+              "params": {
+                "R": 4,
+                "v1": 6.0,
+                "v2": 12
+              }
+            },
+            {
+              "prompt": "A 15 Ω resistor is connected to a 6 V battery. Predict the ammeter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 0.4
+              },
+              "tolerance": 0.03,
+              "outcome": "0.4 A.",
+              "explanation": "I = V ÷ R = 6 ÷ 15 = 0.4 A.",
+              "coachSecrets": [
+                "0.4"
+              ],
+              "params": {
+                "R": 15,
+                "v1": 3.0,
+                "v2": 6
+              }
+            }
+          ]
+        },
+        {
+          "id": "ohm_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "ohm_r",
+          "law": {
+            "name": "Ohm's law",
+            "formula": "V = I R"
+          },
+          "prompt": "The battery is 4 V and the resistor is 4 Ω: the ammeter reads 1 A. You keep the voltage the same and swap in a resistor of 8 Ω. What happens to the current?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "half",
+                "label": "Current halves"
+              },
+              {
+                "id": "double",
+                "label": "Current doubles"
+              },
+              {
+                "id": "same",
+                "label": "Current stays the same"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "half"
+          },
+          "outcome": "The current becomes 0.5 A: more resistance, less current.",
+          "explanation": "I = V ÷ R. With the voltage fixed, current is inversely proportional to resistance: resistance opposes the flow, so raising it lowers the current. Here 4 ÷ 8 = 0.5 A. It is a common slip to think more resistance means more current.",
+          "expectedKeywords": [
+            "resistance",
+            "current",
+            "voltage",
+            "less"
+          ],
+          "keywordSynonyms": {
+            "resistance": [
+              "resistor",
+              "resist",
+              "resists",
+              "opposition",
+              "opposes"
+            ],
+            "current": [
+              "amps",
+              "flow",
+              "flows",
+              "charge"
+            ],
+            "voltage": [
+              "battery",
+              "volts",
+              "push",
+              "pushes"
+            ],
+            "less": [
+              "lower",
+              "smaller",
+              "drops",
+              "decreases",
+              "reduces",
+              "fewer",
+              "falls"
+            ]
+          },
+          "coachSecrets": [
+            "0.5 a"
+          ],
+          "params": {
+            "v": 4,
+            "r1": 4,
+            "r2": 8
+          },
+          "variants": [
+            {
+              "prompt": "The battery is 4 V and the resistor is 4 Ω: the ammeter reads 1 A. You keep the voltage the same and swap in a resistor of 8 Ω. What happens to the current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "Current halves"
+                  },
+                  {
+                    "id": "double",
+                    "label": "Current doubles"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Current stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "The current becomes 0.5 A: more resistance, less current.",
+              "explanation": "I = V ÷ R. With the voltage fixed, current is inversely proportional to resistance: resistance opposes the flow, so raising it lowers the current. Here 4 ÷ 8 = 0.5 A. It is a common slip to think more resistance means more current.",
+              "expectedKeywords": [
+                "resistance",
+                "current",
+                "voltage",
+                "less"
+              ],
+              "keywordSynonyms": {
+                "resistance": [
+                  "resistor",
+                  "resist",
+                  "resists",
+                  "opposition",
+                  "opposes"
+                ],
+                "current": [
+                  "amps",
+                  "flow",
+                  "flows",
+                  "charge"
+                ],
+                "voltage": [
+                  "battery",
+                  "volts",
+                  "push",
+                  "pushes"
+                ],
+                "less": [
+                  "lower",
+                  "smaller",
+                  "drops",
+                  "decreases",
+                  "reduces",
+                  "fewer",
+                  "falls"
+                ]
+              },
+              "coachSecrets": [
+                "0.5 a"
+              ],
+              "params": {
+                "v": 4,
+                "r1": 4,
+                "r2": 8
+              }
+            },
+            {
+              "prompt": "The battery is 10 V and the resistor is 5 Ω: the ammeter reads 2 A. You keep the voltage the same and swap in a resistor of 10 Ω. What happens to the current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "Current halves"
+                  },
+                  {
+                    "id": "double",
+                    "label": "Current doubles"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Current stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "The current becomes 1 A: more resistance, less current.",
+              "explanation": "I = V ÷ R. With the voltage fixed, current is inversely proportional to resistance: resistance opposes the flow, so raising it lowers the current. Here 10 ÷ 10 = 1 A. It is a common slip to think more resistance means more current.",
+              "expectedKeywords": [
+                "resistance",
+                "current",
+                "voltage",
+                "less"
+              ],
+              "keywordSynonyms": {
+                "resistance": [
+                  "resistor",
+                  "resist",
+                  "resists",
+                  "opposition",
+                  "opposes"
+                ],
+                "current": [
+                  "amps",
+                  "flow",
+                  "flows",
+                  "charge"
+                ],
+                "voltage": [
+                  "battery",
+                  "volts",
+                  "push",
+                  "pushes"
+                ],
+                "less": [
+                  "lower",
+                  "smaller",
+                  "drops",
+                  "decreases",
+                  "reduces",
+                  "fewer",
+                  "falls"
+                ]
+              },
+              "coachSecrets": [
+                "1 a"
+              ],
+              "params": {
+                "v": 10,
+                "r1": 5,
+                "r2": 10
+              }
+            },
+            {
+              "prompt": "The battery is 12 V and the resistor is 6 Ω: the ammeter reads 2 A. You keep the voltage the same and swap in a resistor of 18 Ω. What happens to the current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "third",
+                    "label": "Current falls to a third"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Current halves"
+                  },
+                  {
+                    "id": "double",
+                    "label": "Current doubles"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Current stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "third"
+              },
+              "outcome": "The current becomes 0.67 A: more resistance, less current.",
+              "explanation": "I = V ÷ R. With the voltage fixed, current is inversely proportional to resistance: resistance opposes the flow, so raising it lowers the current. Here 12 ÷ 18 = 0.67 A. It is a common slip to think more resistance means more current.",
+              "expectedKeywords": [
+                "resistance",
+                "current",
+                "voltage",
+                "less"
+              ],
+              "keywordSynonyms": {
+                "resistance": [
+                  "resistor",
+                  "resist",
+                  "resists",
+                  "opposition",
+                  "opposes"
+                ],
+                "current": [
+                  "amps",
+                  "flow",
+                  "flows",
+                  "charge"
+                ],
+                "voltage": [
+                  "battery",
+                  "volts",
+                  "push",
+                  "pushes"
+                ],
+                "less": [
+                  "lower",
+                  "smaller",
+                  "drops",
+                  "decreases",
+                  "reduces",
+                  "fewer",
+                  "falls"
+                ]
+              },
+              "coachSecrets": [
+                "0.67 a"
+              ],
+              "params": {
+                "v": 12,
+                "r1": 6,
+                "r2": 18
+              }
+            },
+            {
+              "prompt": "The battery is 8 V and the resistor is 8 Ω: the ammeter reads 1 A. You keep the voltage the same and swap in a resistor of 4 Ω. What happens to the current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "double",
+                    "label": "Current doubles"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Current halves"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Current stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "The current becomes 2 A: less resistance, more current.",
+              "explanation": "I = V ÷ R. With the voltage fixed, current is inversely proportional to resistance: resistance opposes the flow, so lowering it raises the current. Here 8 ÷ 4 = 2 A. It is a common slip to think more resistance means more current.",
+              "expectedKeywords": [
+                "resistance",
+                "current",
+                "voltage",
+                "less"
+              ],
+              "keywordSynonyms": {
+                "resistance": [
+                  "resistor",
+                  "resist",
+                  "resists",
+                  "opposition",
+                  "opposes"
+                ],
+                "current": [
+                  "amps",
+                  "flow",
+                  "flows",
+                  "charge"
+                ],
+                "voltage": [
+                  "battery",
+                  "volts",
+                  "push",
+                  "pushes"
+                ],
+                "less": [
+                  "lower",
+                  "smaller",
+                  "drops",
+                  "decreases",
+                  "reduces",
+                  "fewer",
+                  "falls"
+                ]
+              },
+              "coachSecrets": [
+                "2 a"
+              ],
+              "params": {
+                "v": 8,
+                "r1": 8,
+                "r2": 4.0
+              }
+            },
+            {
+              "prompt": "The battery is 6 V and the resistor is 3 Ω: the ammeter reads 2 A. You keep the voltage the same and swap in a resistor of 12 Ω. What happens to the current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "quarter",
+                    "label": "Current falls to a quarter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Current halves"
+                  },
+                  {
+                    "id": "double",
+                    "label": "Current doubles"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Current stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "quarter"
+              },
+              "outcome": "The current becomes 0.5 A: more resistance, less current.",
+              "explanation": "I = V ÷ R. With the voltage fixed, current is inversely proportional to resistance: resistance opposes the flow, so raising it lowers the current. Here 6 ÷ 12 = 0.5 A. It is a common slip to think more resistance means more current.",
+              "expectedKeywords": [
+                "resistance",
+                "current",
+                "voltage",
+                "less"
+              ],
+              "keywordSynonyms": {
+                "resistance": [
+                  "resistor",
+                  "resist",
+                  "resists",
+                  "opposition",
+                  "opposes"
+                ],
+                "current": [
+                  "amps",
+                  "flow",
+                  "flows",
+                  "charge"
+                ],
+                "voltage": [
+                  "battery",
+                  "volts",
+                  "push",
+                  "pushes"
+                ],
+                "less": [
+                  "lower",
+                  "smaller",
+                  "drops",
+                  "decreases",
+                  "reduces",
+                  "fewer",
+                  "falls"
+                ]
+              },
+              "coachSecrets": [
+                "0.5 a"
+              ],
+              "params": {
+                "v": 6,
+                "r1": 3,
+                "r2": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "ohm_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "ohm_graph",
+          "law": {
+            "name": "Slope of the V–I graph",
+            "formula": "R = V / I"
+          },
+          "prompt": "The V–I graph of a resistor is a straight line through the origin, and it passes through the point I = 0.6 A, V = 6 V. What is the resistance of the resistor?",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "resistance",
+                "label": "Resistance",
+                "unit": "Ω"
+              }
+            ]
+          },
+          "answer": {
+            "resistance": 10
+          },
+          "tolerance": 0.6,
+          "outcome": "10 Ω.",
+          "explanation": "On a V–I graph the slope is V ÷ I, which is the resistance: 6 V ÷ 0.6 A = 10 Ω.",
+          "coachSecrets": [
+            "10 ω"
+          ],
+          "params": {
+            "R": 10,
+            "point": 0.6
+          },
+          "variants": [
+            {
+              "prompt": "The V–I graph of a resistor is a straight line through the origin, and it passes through the point I = 0.6 A, V = 6 V. What is the resistance of the resistor?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "resistance",
+                    "label": "Resistance",
+                    "unit": "Ω"
+                  }
+                ]
+              },
+              "answer": {
+                "resistance": 10
+              },
+              "tolerance": 0.6,
+              "outcome": "10 Ω.",
+              "explanation": "On a V–I graph the slope is V ÷ I, which is the resistance: 6 V ÷ 0.6 A = 10 Ω.",
+              "coachSecrets": [
+                "10 ω"
+              ],
+              "params": {
+                "R": 10,
+                "point": 0.6
+              }
+            },
+            {
+              "prompt": "The V–I graph of a resistor is a straight line through the origin, and it passes through the point I = 1.5 A, V = 6 V. What is the resistance of the resistor?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "resistance",
+                    "label": "Resistance",
+                    "unit": "Ω"
+                  }
+                ]
+              },
+              "answer": {
+                "resistance": 4
+              },
+              "tolerance": 0.3,
+              "outcome": "4 Ω.",
+              "explanation": "On a V–I graph the slope is V ÷ I, which is the resistance: 6 V ÷ 1.5 A = 4 Ω.",
+              "coachSecrets": [
+                "4 ω"
+              ],
+              "params": {
+                "R": 4,
+                "point": 1.5
+              }
+            },
+            {
+              "prompt": "The V–I graph for a resistor is a straight line through the origin. Which quantity does its slope give?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "res",
+                    "label": "The resistance, V ÷ I"
+                  },
+                  {
+                    "id": "pow",
+                    "label": "The power, V × I"
+                  },
+                  {
+                    "id": "charge",
+                    "label": "The charge that flows"
+                  },
+                  {
+                    "id": "cur",
+                    "label": "The current"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "res"
+              },
+              "outcome": "The resistance.",
+              "explanation": "The slope is the change in voltage divided by the change in current. By Ohm's law V ÷ I is the resistance, and for an ohmic resistor it is the same everywhere on the line.",
+              "coachSecrets": [],
+              "params": {
+                "R": 6,
+                "point": 0.5
+              }
+            },
+            {
+              "prompt": "The V–I graph of a resistor is a straight line through the origin, and it passes through the point I = 0.2 A, V = 5 V. What is the resistance of the resistor?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "resistance",
+                    "label": "Resistance",
+                    "unit": "Ω"
+                  }
+                ]
+              },
+              "answer": {
+                "resistance": 25
+              },
+              "tolerance": 1.5,
+              "outcome": "25 Ω.",
+              "explanation": "On a V–I graph the slope is V ÷ I, which is the resistance: 5 V ÷ 0.2 A = 25 Ω.",
+              "coachSecrets": [
+                "25 ω"
+              ],
+              "params": {
+                "R": 25,
+                "point": 0.2
+              }
+            },
+            {
+              "prompt": "The V–I graph of a resistor is a straight line through the origin, and it passes through the point I = 0.75 A, V = 6 V. What is the resistance of the resistor?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "resistance",
+                    "label": "Resistance",
+                    "unit": "Ω"
+                  }
+                ]
+              },
+              "answer": {
+                "resistance": 8
+              },
+              "tolerance": 0.48,
+              "outcome": "8 Ω.",
+              "explanation": "On a V–I graph the slope is V ÷ I, which is the resistance: 6 V ÷ 0.75 A = 8 Ω.",
+              "coachSecrets": [
+                "8 ω"
+              ],
+              "params": {
+                "R": 8,
+                "point": 0.75
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_ohm",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Ohm's law",
+            "formula": "V = I R"
+          },
+          "prompt": "A 12 V car battery pushes 3 A through a lamp. What is the lamp's resistance?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "four",
+                "label": "4 Ω"
+              },
+              {
+                "id": "thirtysix",
+                "label": "36 Ω"
+              },
+              {
+                "id": "quarter",
+                "label": "0.25 Ω"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "four"
+          },
+          "outcome": "4 Ω.",
+          "explanation": "R = V ÷ I = 12 ÷ 3 = 4 Ω.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A 12 V car battery pushes 3 A through a lamp. What is the lamp's resistance?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "four",
+                    "label": "4 Ω"
+                  },
+                  {
+                    "id": "thirtysix",
+                    "label": "36 Ω"
+                  },
+                  {
+                    "id": "quarter",
+                    "label": "0.25 Ω"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "four"
+              },
+              "outcome": "4 Ω.",
+              "explanation": "R = V ÷ I = 12 ÷ 3 = 4 Ω.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A device draws 0.5 A from a 6 V supply. What current does the same device draw from 12 V?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "one",
+                    "label": "1 A"
+                  },
+                  {
+                    "id": "quarter",
+                    "label": "0.25 A"
+                  },
+                  {
+                    "id": "half",
+                    "label": "0.5 A"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "one"
+              },
+              "outcome": "1 A.",
+              "explanation": "Doubling the voltage doubles the current for the same resistance: 0.5 A × 2 = 1 A.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A short thick wire and a long thin wire of the same metal are connected to the same battery in turn. Which carries more current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "short",
+                    "label": "The short thick wire"
+                  },
+                  {
+                    "id": "long",
+                    "label": "The long thin wire"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They carry the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "short"
+              },
+              "outcome": "The short thick wire.",
+              "explanation": "A short thick wire has less resistance, so more current flows for the same voltage.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A circuit carries 2 A. The resistance triples and the battery stays the same. What is the current now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "two_thirds",
+                    "label": "About 0.67 A"
+                  },
+                  {
+                    "id": "six",
+                    "label": "6 A"
+                  },
+                  {
+                    "id": "two",
+                    "label": "2 A"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "two_thirds"
+              },
+              "outcome": "About 0.67 A.",
+              "explanation": "I = V ÷ R, so with three times the resistance the current is a third: 2 ÷ 3 ≈ 0.67 A.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "The current through a resistor is measured at several voltages. Which graph shows that it obeys Ohm's law?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "line",
+                    "label": "A straight line through the origin"
+                  },
+                  {
+                    "id": "curve",
+                    "label": "A curve that bends upward"
+                  },
+                  {
+                    "id": "flat",
+                    "label": "A horizontal line"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "line"
+              },
+              "outcome": "A straight line through the origin.",
+              "explanation": "Ohm's law says V ∝ I at constant temperature: a straight line through the origin on a V–I graph.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "series_parallel",
+      "tabName": "Series vs. Parallel",
+      "title": "The Bulb Bench",
+      "setup": "Two identical bulbs and a battery on a breadboard, with a single bulb alongside for comparison. Wire the two bulbs in series or in parallel, and unscrew one.",
+      "trials": [
+        {
+          "id": "sp_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "bulbs",
+          "law": {
+            "name": "Series and parallel circuits"
+          },
+          "prompt": "Two identical 6 Ω bulbs are wired in series across a 6 V battery. Compared with one bulb alone across the same battery, how bright is each of the two?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "dim",
+                "label": "Each is dimmer"
+              },
+              {
+                "id": "same",
+                "label": "Each is the same"
+              },
+              {
+                "id": "bright",
+                "label": "Each is brighter"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "dim"
+          },
+          "outcome": "Each bulb is dimmer: about a quarter as bright as the single bulb.",
+          "explanation": "In series the two bulbs share the battery's voltage, so each gets half of it. Half the voltage gives half the current, and brightness depends on the power, which falls to a quarter.",
+          "coachSecrets": [],
+          "params": {
+            "V": 6,
+            "R": 6,
+            "remove": 0,
+            "mode": "series"
+          },
+          "variants": [
+            {
+              "prompt": "Two identical 6 Ω bulbs are wired in series across a 6 V battery. Compared with one bulb alone across the same battery, how bright is each of the two?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dim",
+                    "label": "Each is dimmer"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Each is the same"
+                  },
+                  {
+                    "id": "bright",
+                    "label": "Each is brighter"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "dim"
+              },
+              "outcome": "Each bulb is dimmer: about a quarter as bright as the single bulb.",
+              "explanation": "In series the two bulbs share the battery's voltage, so each gets half of it. Half the voltage gives half the current, and brightness depends on the power, which falls to a quarter.",
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "remove": 0,
+                "mode": "series"
+              }
+            },
+            {
+              "prompt": "Two identical 6 Ω bulbs are wired in parallel across a 6 V battery. Compared with one bulb alone across the same battery, how bright is each of the two?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dim",
+                    "label": "Each is dimmer"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Each is the same"
+                  },
+                  {
+                    "id": "bright",
+                    "label": "Each is brighter"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Each bulb is just as bright as the single bulb.",
+              "explanation": "In parallel each bulb is connected straight across the battery, so each gets the full voltage and draws the same current as a single bulb would. The battery simply supplies twice the current.",
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "remove": 0,
+                "mode": "parallel"
+              }
+            },
+            {
+              "prompt": "You have two identical 4 Ω bulbs and a 9 V battery. In which wiring will the bulbs be brighter?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "series",
+                    "label": "In series"
+                  },
+                  {
+                    "id": "parallel",
+                    "label": "In parallel"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same either way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "parallel"
+              },
+              "outcome": "Brighter in parallel: full battery voltage across each bulb, instead of half.",
+              "explanation": "Each bulb gets the full battery voltage in parallel but only half in series, so parallel bulbs carry twice the current of series bulbs and are four times as bright.",
+              "coachSecrets": [],
+              "params": {
+                "V": 9,
+                "R": 4,
+                "remove": 0,
+                "mode": "parallel"
+              }
+            },
+            {
+              "prompt": "A 6 V battery drives 2 A through one 3 Ω bulb. Two identical bulbs are now wired in series with the battery. What current does the battery supply?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "1 A: half. The total resistance has doubled.",
+              "explanation": "In series the resistances add, so two bulbs have twice the resistance of one. For the same battery, I = V ÷ R, so the current is halved.",
+              "coachSecrets": [
+                "1 a"
+              ],
+              "params": {
+                "V": 6,
+                "R": 3,
+                "remove": 0,
+                "mode": "series"
+              }
+            },
+            {
+              "prompt": "A 12 V battery drives 2 A through one 6 Ω bulb. Two identical bulbs are now wired in parallel across the battery. What current does the battery supply?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "4 A: twice as much. Each bulb draws its own current.",
+              "explanation": "Each parallel branch draws its own current straight from the battery, so the battery supplies the sum of the two: twice the current of one bulb.",
+              "coachSecrets": [
+                "4 a"
+              ],
+              "params": {
+                "V": 12,
+                "R": 6,
+                "remove": 0,
+                "mode": "parallel"
+              }
+            }
+          ]
+        },
+        {
+          "id": "sp_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "bulbs_remove",
+          "law": {
+            "name": "Series and parallel circuits"
+          },
+          "prompt": "The two bulbs are in series and both are lit. You unscrew bulb 2. What happens to bulb 1?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "out",
+                "label": "It goes out"
+              },
+              {
+                "id": "same",
+                "label": "It stays lit just as bright"
+              },
+              {
+                "id": "brighter",
+                "label": "It gets brighter"
+              },
+              {
+                "id": "dimmer",
+                "label": "It stays lit but dimmer"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "out"
+          },
+          "outcome": "Bulb 1 goes out too, and the ammeter reads zero.",
+          "explanation": "A series circuit has only one path for the current. Taking out any bulb breaks that path, so the current stops everywhere and both bulbs go out.",
+          "expectedKeywords": [
+            "path",
+            "current",
+            "break",
+            "series",
+            "parallel"
+          ],
+          "keywordSynonyms": {
+            "path": [
+              "paths",
+              "route",
+              "routes",
+              "branch",
+              "branches",
+              "loop"
+            ],
+            "current": [
+              "flow",
+              "flows",
+              "electricity",
+              "charge"
+            ],
+            "break": [
+              "broken",
+              "breaks",
+              "gap",
+              "open",
+              "cut",
+              "stops",
+              "stopped",
+              "remove",
+              "removed",
+              "unscrew",
+              "unscrewed"
+            ],
+            "series": [
+              "one loop",
+              "single loop",
+              "single path",
+              "one path",
+              "same loop"
+            ],
+            "parallel": [
+              "own path",
+              "separate path",
+              "separate paths",
+              "branches",
+              "each bulb"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "V": 6,
+            "R": 6,
+            "mode": "series",
+            "remove": 2
+          },
+          "variants": [
+            {
+              "prompt": "The two bulbs are in series and both are lit. You unscrew bulb 2. What happens to bulb 1?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "out",
+                    "label": "It goes out"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays lit just as bright"
+                  },
+                  {
+                    "id": "brighter",
+                    "label": "It gets brighter"
+                  },
+                  {
+                    "id": "dimmer",
+                    "label": "It stays lit but dimmer"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "out"
+              },
+              "outcome": "Bulb 1 goes out too, and the ammeter reads zero.",
+              "explanation": "A series circuit has only one path for the current. Taking out any bulb breaks that path, so the current stops everywhere and both bulbs go out.",
+              "expectedKeywords": [
+                "path",
+                "current",
+                "break",
+                "series",
+                "parallel"
+              ],
+              "keywordSynonyms": {
+                "path": [
+                  "paths",
+                  "route",
+                  "routes",
+                  "branch",
+                  "branches",
+                  "loop"
+                ],
+                "current": [
+                  "flow",
+                  "flows",
+                  "electricity",
+                  "charge"
+                ],
+                "break": [
+                  "broken",
+                  "breaks",
+                  "gap",
+                  "open",
+                  "cut",
+                  "stops",
+                  "stopped",
+                  "remove",
+                  "removed",
+                  "unscrew",
+                  "unscrewed"
+                ],
+                "series": [
+                  "one loop",
+                  "single loop",
+                  "single path",
+                  "one path",
+                  "same loop"
+                ],
+                "parallel": [
+                  "own path",
+                  "separate path",
+                  "separate paths",
+                  "branches",
+                  "each bulb"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "mode": "series",
+                "remove": 2
+              }
+            },
+            {
+              "prompt": "The two bulbs are in parallel and both are lit. You unscrew bulb 2. What happens to bulb 1?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "out",
+                    "label": "It goes out"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays lit just as bright"
+                  },
+                  {
+                    "id": "brighter",
+                    "label": "It gets brighter"
+                  },
+                  {
+                    "id": "dimmer",
+                    "label": "It stays lit but dimmer"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Bulb 1 stays lit, just as bright as before.",
+              "explanation": "Each parallel branch has its own path from the battery. Removing one bulb opens only its own branch; the other still has the full battery voltage and the same current.",
+              "expectedKeywords": [
+                "path",
+                "current",
+                "break",
+                "series",
+                "parallel"
+              ],
+              "keywordSynonyms": {
+                "path": [
+                  "paths",
+                  "route",
+                  "routes",
+                  "branch",
+                  "branches",
+                  "loop"
+                ],
+                "current": [
+                  "flow",
+                  "flows",
+                  "electricity",
+                  "charge"
+                ],
+                "break": [
+                  "broken",
+                  "breaks",
+                  "gap",
+                  "open",
+                  "cut",
+                  "stops",
+                  "stopped",
+                  "remove",
+                  "removed",
+                  "unscrew",
+                  "unscrewed"
+                ],
+                "series": [
+                  "one loop",
+                  "single loop",
+                  "single path",
+                  "one path",
+                  "same loop"
+                ],
+                "parallel": [
+                  "own path",
+                  "separate path",
+                  "separate paths",
+                  "branches",
+                  "each bulb"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "mode": "parallel",
+                "remove": 2
+              }
+            },
+            {
+              "prompt": "The two bulbs are in series and both are lit. You unscrew bulb 1. What happens to bulb 2?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "out",
+                    "label": "It goes out"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays lit just as bright"
+                  },
+                  {
+                    "id": "brighter",
+                    "label": "It gets brighter"
+                  },
+                  {
+                    "id": "dimmer",
+                    "label": "It stays lit but dimmer"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "out"
+              },
+              "outcome": "Bulb 2 goes out too, and the ammeter reads zero.",
+              "explanation": "A series circuit has only one path for the current. Taking out any bulb breaks that path, so the current stops everywhere and both bulbs go out.",
+              "expectedKeywords": [
+                "path",
+                "current",
+                "break",
+                "series",
+                "parallel"
+              ],
+              "keywordSynonyms": {
+                "path": [
+                  "paths",
+                  "route",
+                  "routes",
+                  "branch",
+                  "branches",
+                  "loop"
+                ],
+                "current": [
+                  "flow",
+                  "flows",
+                  "electricity",
+                  "charge"
+                ],
+                "break": [
+                  "broken",
+                  "breaks",
+                  "gap",
+                  "open",
+                  "cut",
+                  "stops",
+                  "stopped",
+                  "remove",
+                  "removed",
+                  "unscrew",
+                  "unscrewed"
+                ],
+                "series": [
+                  "one loop",
+                  "single loop",
+                  "single path",
+                  "one path",
+                  "same loop"
+                ],
+                "parallel": [
+                  "own path",
+                  "separate path",
+                  "separate paths",
+                  "branches",
+                  "each bulb"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "mode": "series",
+                "remove": 1
+              }
+            },
+            {
+              "prompt": "The two bulbs are in parallel and both are lit. You unscrew bulb 1. What happens to bulb 2?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "out",
+                    "label": "It goes out"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays lit just as bright"
+                  },
+                  {
+                    "id": "brighter",
+                    "label": "It gets brighter"
+                  },
+                  {
+                    "id": "dimmer",
+                    "label": "It stays lit but dimmer"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Bulb 2 stays lit, just as bright as before.",
+              "explanation": "Each parallel branch has its own path from the battery. Removing one bulb opens only its own branch; the other still has the full battery voltage and the same current.",
+              "expectedKeywords": [
+                "path",
+                "current",
+                "break",
+                "series",
+                "parallel"
+              ],
+              "keywordSynonyms": {
+                "path": [
+                  "paths",
+                  "route",
+                  "routes",
+                  "branch",
+                  "branches",
+                  "loop"
+                ],
+                "current": [
+                  "flow",
+                  "flows",
+                  "electricity",
+                  "charge"
+                ],
+                "break": [
+                  "broken",
+                  "breaks",
+                  "gap",
+                  "open",
+                  "cut",
+                  "stops",
+                  "stopped",
+                  "remove",
+                  "removed",
+                  "unscrew",
+                  "unscrewed"
+                ],
+                "series": [
+                  "one loop",
+                  "single loop",
+                  "single path",
+                  "one path",
+                  "same loop"
+                ],
+                "parallel": [
+                  "own path",
+                  "separate path",
+                  "separate paths",
+                  "branches",
+                  "each bulb"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "mode": "parallel",
+                "remove": 1
+              }
+            },
+            {
+              "prompt": "The two bulbs are in parallel and the ammeter in the battery lead reads 2 A. You unscrew bulb 2. What does the ammeter read now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "Zero"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "1 A: half. Only one branch is left drawing current.",
+              "explanation": "Each branch draws its own current. With one branch removed the battery supplies only the remaining branch's current: half the total.",
+              "expectedKeywords": [
+                "path",
+                "current",
+                "break",
+                "series",
+                "parallel"
+              ],
+              "keywordSynonyms": {
+                "path": [
+                  "paths",
+                  "route",
+                  "routes",
+                  "branch",
+                  "branches",
+                  "loop"
+                ],
+                "current": [
+                  "flow",
+                  "flows",
+                  "electricity",
+                  "charge"
+                ],
+                "break": [
+                  "broken",
+                  "breaks",
+                  "gap",
+                  "open",
+                  "cut",
+                  "stops",
+                  "stopped",
+                  "remove",
+                  "removed",
+                  "unscrew",
+                  "unscrewed"
+                ],
+                "series": [
+                  "one loop",
+                  "single loop",
+                  "single path",
+                  "one path",
+                  "same loop"
+                ],
+                "parallel": [
+                  "own path",
+                  "separate path",
+                  "separate paths",
+                  "branches",
+                  "each bulb"
+                ]
+              },
+              "coachSecrets": [
+                "1 a"
+              ],
+              "params": {
+                "V": 6,
+                "R": 6,
+                "mode": "parallel",
+                "remove": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "sp_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "bulbs_meter",
+          "law": {
+            "name": "Series and parallel circuits"
+          },
+          "prompt": "Two identical 4 Ω bulbs are wired in series across a 12 V battery, with an ammeter in the battery lead. Predict its reading.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "current",
+                "label": "Ammeter reading",
+                "unit": "A"
+              }
+            ]
+          },
+          "answer": {
+            "current": 1.5
+          },
+          "tolerance": 0.12,
+          "outcome": "1.5 A.",
+          "explanation": "In series the resistances add: 2 × 4 = 8 Ω, so I = 12 ÷ 8 = 1.5 A.",
+          "coachSecrets": [
+            "1.5"
+          ],
+          "params": {
+            "V": 12,
+            "R": 4,
+            "mode": "series",
+            "remove": 0
+          },
+          "variants": [
+            {
+              "prompt": "Two identical 4 Ω bulbs are wired in series across a 12 V battery, with an ammeter in the battery lead. Predict its reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 1.5
+              },
+              "tolerance": 0.12,
+              "outcome": "1.5 A.",
+              "explanation": "In series the resistances add: 2 × 4 = 8 Ω, so I = 12 ÷ 8 = 1.5 A.",
+              "coachSecrets": [
+                "1.5"
+              ],
+              "params": {
+                "V": 12,
+                "R": 4,
+                "mode": "series",
+                "remove": 0
+              }
+            },
+            {
+              "prompt": "Two identical 3 Ω bulbs are wired in parallel across a 6 V battery, with an ammeter in the battery lead. Predict its reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 4.0
+              },
+              "tolerance": 0.32,
+              "outcome": "4 A.",
+              "explanation": "Each parallel bulb draws 6 ÷ 3 = 2 A and the battery supplies both: 2 × 2 = 4 A.",
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 3,
+                "mode": "parallel",
+                "remove": 0
+              }
+            },
+            {
+              "prompt": "Two identical 6 Ω bulbs are wired in series across a 9 V battery, with an ammeter in the battery lead. Predict its reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 0.75
+              },
+              "tolerance": 0.06,
+              "outcome": "0.75 A.",
+              "explanation": "In series the resistances add: 2 × 6 = 12 Ω, so I = 9 ÷ 12 = 0.75 A.",
+              "coachSecrets": [
+                "0.75"
+              ],
+              "params": {
+                "V": 9,
+                "R": 6,
+                "mode": "series",
+                "remove": 0
+              }
+            },
+            {
+              "prompt": "Two identical 8 Ω bulbs are wired in parallel across a 12 V battery, with an ammeter in the battery lead. Predict its reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 3.0
+              },
+              "tolerance": 0.24,
+              "outcome": "3 A.",
+              "explanation": "Each parallel bulb draws 12 ÷ 8 = 1.5 A and the battery supplies both: 2 × 1.5 = 3 A.",
+              "coachSecrets": [],
+              "params": {
+                "V": 12,
+                "R": 8,
+                "mode": "parallel",
+                "remove": 0
+              }
+            },
+            {
+              "prompt": "Two identical 1.5 Ω bulbs are wired in series across a 6 V battery, with an ammeter in the battery lead. Predict its reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Ammeter reading",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 2.0
+              },
+              "tolerance": 0.16,
+              "outcome": "2 A.",
+              "explanation": "In series the resistances add: 2 × 1.5 = 3 Ω, so I = 6 ÷ 3 = 2 A.",
+              "coachSecrets": [],
+              "params": {
+                "V": 6,
+                "R": 1.5,
+                "mode": "series",
+                "remove": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_sp",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Series and parallel circuits"
+          },
+          "prompt": "Why are the lights in a house wired in parallel rather than in series?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "indep",
+                "label": "Each light works on its own, and each gets the full voltage"
+              },
+              {
+                "id": "dim",
+                "label": "So that they are all dimmer and save energy"
+              },
+              {
+                "id": "one",
+                "label": "Because there is only one wire to the house"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "indep"
+          },
+          "outcome": "Each light works on its own, and each gets the full voltage.",
+          "explanation": "In parallel each lamp has its own path from the supply, so switching one off or a bulb failing does not stop the rest, and each gets the full voltage.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "Why are the lights in a house wired in parallel rather than in series?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "indep",
+                    "label": "Each light works on its own, and each gets the full voltage"
+                  },
+                  {
+                    "id": "dim",
+                    "label": "So that they are all dimmer and save energy"
+                  },
+                  {
+                    "id": "one",
+                    "label": "Because there is only one wire to the house"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "indep"
+              },
+              "outcome": "Each light works on its own, and each gets the full voltage.",
+              "explanation": "In parallel each lamp has its own path from the supply, so switching one off or a bulb failing does not stop the rest, and each gets the full voltage.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A string of old Christmas-tree lights is wired in series. One bulb blows. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "all",
+                    "label": "The whole string goes out"
+                  },
+                  {
+                    "id": "one",
+                    "label": "Only that bulb goes out"
+                  },
+                  {
+                    "id": "dim",
+                    "label": "The rest get dimmer"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "all"
+              },
+              "outcome": "The whole string goes out.",
+              "explanation": "A blown bulb breaks the only path for the current, so every bulb in the series string goes out.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "An ammeter measures the current in a circuit. How must it be connected?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "series",
+                    "label": "In series with the part you are measuring"
+                  },
+                  {
+                    "id": "par",
+                    "label": "In parallel across the part you are measuring"
+                  },
+                  {
+                    "id": "any",
+                    "label": "Either way works"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "series"
+              },
+              "outcome": "In series with the part you are measuring.",
+              "explanation": "The ammeter must carry the same current as the component, so it goes in the same loop: in series. It has a very low resistance so it hardly changes the current.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A voltmeter measures the voltage across a bulb. How must it be connected?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "par",
+                    "label": "In parallel across the bulb"
+                  },
+                  {
+                    "id": "series",
+                    "label": "In series with the bulb"
+                  },
+                  {
+                    "id": "any",
+                    "label": "Either way works"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "par"
+              },
+              "outcome": "In parallel across the bulb.",
+              "explanation": "A voltmeter compares the two ends of a component, so it is connected across it, in parallel. It has a very high resistance so it takes almost no current.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "Two identical resistors are connected in parallel. Compared with one of them, the total resistance is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "Half as much"
+                  },
+                  {
+                    "id": "double",
+                    "label": "Twice as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "Half as much.",
+              "explanation": "Two equal parallel paths let twice the current flow for the same voltage, so the total resistance is half of one.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heating_fuse",
+      "tabName": "Heating Effect & Fuse",
+      "title": "The Fuse Bench",
+      "setup": "A thin fuse wire in series with a resistor and a variable voltage source, with thick copper leads and an ammeter. Raise the voltage slowly and watch the wire.",
+      "trials": [
+        {
+          "id": "fuse_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "fuse_ramp",
+          "law": {
+            "name": "The heating effect of current",
+            "formula": "H = I²Rt"
+          },
+          "prompt": "A thin fuse wire rated for 2 A is in series with a 4.5 Ω resistor. You slowly raise the voltage of the supply. What happens to the fuse wire?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "melt",
+                "label": "It glows red, then melts and breaks the circuit"
+              },
+              {
+                "id": "cold",
+                "label": "It gets colder"
+              },
+              {
+                "id": "same",
+                "label": "It stays just the same"
+              },
+              {
+                "id": "stay",
+                "label": "It glows but never melts, however high the voltage"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "melt"
+          },
+          "outcome": "It glows, then melts at about 10 V when the current reaches 2 A, and the circuit breaks.",
+          "explanation": "A current heats the wire it flows through. The thin fuse wire has the most resistance, so it heats the most. When the current reaches its rating the wire melts and breaks the circuit, which cuts off the current.",
+          "coachSecrets": [
+            "10 v"
+          ],
+          "params": {
+            "irated": 2,
+            "rload": 4.5,
+            "rfuse": 0.5,
+            "thick": false
+          },
+          "variants": [
+            {
+              "prompt": "A thin fuse wire rated for 2 A is in series with a 4.5 Ω resistor. You slowly raise the voltage of the supply. What happens to the fuse wire?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "melt",
+                    "label": "It glows red, then melts and breaks the circuit"
+                  },
+                  {
+                    "id": "cold",
+                    "label": "It gets colder"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays just the same"
+                  },
+                  {
+                    "id": "stay",
+                    "label": "It glows but never melts, however high the voltage"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "melt"
+              },
+              "outcome": "It glows, then melts at about 10 V when the current reaches 2 A, and the circuit breaks.",
+              "explanation": "A current heats the wire it flows through. The thin fuse wire has the most resistance, so it heats the most. When the current reaches its rating the wire melts and breaks the circuit, which cuts off the current.",
+              "coachSecrets": [
+                "10 v"
+              ],
+              "params": {
+                "irated": 2,
+                "rload": 4.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "A thin fuse wire rated for 3 A is in series with a 5.5 Ω resistor and an ammeter. The voltage is raised until the wire melts. What does the ammeter read afterwards?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "zero",
+                    "label": "Zero"
+                  },
+                  {
+                    "id": "max",
+                    "label": "The highest value it reached"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half of the highest value"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "zero"
+              },
+              "outcome": "Zero: the gap in the wire breaks the circuit.",
+              "explanation": "Once the wire has melted there is a gap in the only path, so no current can flow at all. That is how a fuse protects the rest of the circuit.",
+              "coachSecrets": [],
+              "params": {
+                "irated": 3,
+                "rload": 5.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "The current through the fuse wire is doubled, for the same length of time. What happens to the heat produced in the wire?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "four",
+                    "label": "It becomes four times as much"
+                  },
+                  {
+                    "id": "two",
+                    "label": "It becomes twice as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "four"
+              },
+              "outcome": "Four times as much.",
+              "explanation": "The heat produced is H = I²Rt. The current is squared, so twice the current gives four times the heat.",
+              "coachSecrets": [],
+              "params": {
+                "irated": 1,
+                "rload": 9.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "The fuse is rated for 4 A. The voltage is raised until the circuit tries to carry 6 A through it. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "melt",
+                    "label": "The wire melts and the circuit breaks"
+                  },
+                  {
+                    "id": "fine",
+                    "label": "Nothing: it carries any current"
+                  },
+                  {
+                    "id": "brighter",
+                    "label": "The wire gets longer but keeps conducting"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "melt"
+              },
+              "outcome": "The wire melts and the circuit breaks.",
+              "explanation": "A fuse wire is made to melt when the current goes above its rating. At 1.5 times the rating the heating, which goes as I², is more than twice as much, so it melts.",
+              "coachSecrets": [],
+              "params": {
+                "irated": 4,
+                "rload": 2.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "A 5 A fuse wire is in series with a 3.5 Ω resistor. Which part of the circuit warms up most as the current rises?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "fuse",
+                    "label": "The thin fuse wire"
+                  },
+                  {
+                    "id": "lead",
+                    "label": "The thick copper connecting wires"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They all warm up the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "fuse"
+              },
+              "outcome": "The thin fuse wire.",
+              "explanation": "The same current flows through everything in the loop, but heat is I²Rt: the thin fuse wire has far more resistance than the thick leads, so it gets far hotter.",
+              "coachSecrets": [],
+              "params": {
+                "irated": 5,
+                "rload": 3.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "fuse_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "fuse_ramp",
+          "law": {
+            "name": "Ohm's law with the fuse",
+            "formula": "V = I R"
+          },
+          "prompt": "A 2 A fuse wire of resistance 0.5 Ω is in series with a 4.5 Ω resistor. At what supply voltage will the fuse just blow?",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "volts",
+                "label": "Voltage",
+                "unit": "V"
+              }
+            ]
+          },
+          "answer": {
+            "volts": 10.0
+          },
+          "tolerance": 0.6,
+          "outcome": "About 10 V.",
+          "explanation": "The fuse blows when the current reaches 2 A. The total resistance is 4.5 + 0.5 = 5 Ω, so V = I R = 2 × 5 = 10 V.",
+          "coachSecrets": [
+            "10 v"
+          ],
+          "params": {
+            "irated": 2,
+            "rload": 4.5,
+            "rfuse": 0.5,
+            "thick": false
+          },
+          "variants": [
+            {
+              "prompt": "A 2 A fuse wire of resistance 0.5 Ω is in series with a 4.5 Ω resistor. At what supply voltage will the fuse just blow?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "volts",
+                    "label": "Voltage",
+                    "unit": "V"
+                  }
+                ]
+              },
+              "answer": {
+                "volts": 10.0
+              },
+              "tolerance": 0.6,
+              "outcome": "About 10 V.",
+              "explanation": "The fuse blows when the current reaches 2 A. The total resistance is 4.5 + 0.5 = 5 Ω, so V = I R = 2 × 5 = 10 V.",
+              "coachSecrets": [
+                "10 v"
+              ],
+              "params": {
+                "irated": 2,
+                "rload": 4.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "A 3 A fuse wire of resistance 0.5 Ω is in series with a 5.5 Ω resistor. At what supply voltage will the fuse just blow?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "volts",
+                    "label": "Voltage",
+                    "unit": "V"
+                  }
+                ]
+              },
+              "answer": {
+                "volts": 18.0
+              },
+              "tolerance": 1.08,
+              "outcome": "About 18 V.",
+              "explanation": "The fuse blows when the current reaches 3 A. The total resistance is 5.5 + 0.5 = 6 Ω, so V = I R = 3 × 6 = 18 V.",
+              "coachSecrets": [
+                "18 v"
+              ],
+              "params": {
+                "irated": 3,
+                "rload": 5.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "A 1 A fuse wire of resistance 0.5 Ω is in series with a 9.5 Ω resistor. At what supply voltage will the fuse just blow?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "volts",
+                    "label": "Voltage",
+                    "unit": "V"
+                  }
+                ]
+              },
+              "answer": {
+                "volts": 10.0
+              },
+              "tolerance": 0.6,
+              "outcome": "About 10 V.",
+              "explanation": "The fuse blows when the current reaches 1 A. The total resistance is 9.5 + 0.5 = 10 Ω, so V = I R = 1 × 10 = 10 V.",
+              "coachSecrets": [
+                "10 v"
+              ],
+              "params": {
+                "irated": 1,
+                "rload": 9.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "A 5 A fuse wire of resistance 0.5 Ω is in series with a 3.5 Ω resistor. At what supply voltage will the fuse just blow?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "volts",
+                    "label": "Voltage",
+                    "unit": "V"
+                  }
+                ]
+              },
+              "answer": {
+                "volts": 20.0
+              },
+              "tolerance": 1.2,
+              "outcome": "About 20 V.",
+              "explanation": "The fuse blows when the current reaches 5 A. The total resistance is 3.5 + 0.5 = 4 Ω, so V = I R = 5 × 4 = 20 V.",
+              "coachSecrets": [
+                "20 v"
+              ],
+              "params": {
+                "irated": 5,
+                "rload": 3.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            },
+            {
+              "prompt": "A 4 A fuse wire of resistance 0.5 Ω is in series with a 7.5 Ω resistor. At what supply voltage will the fuse just blow?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "volts",
+                    "label": "Voltage",
+                    "unit": "V"
+                  }
+                ]
+              },
+              "answer": {
+                "volts": 32.0
+              },
+              "tolerance": 1.92,
+              "outcome": "About 32 V.",
+              "explanation": "The fuse blows when the current reaches 4 A. The total resistance is 7.5 + 0.5 = 8 Ω, so V = I R = 4 × 8 = 32 V.",
+              "coachSecrets": [
+                "32 v"
+              ],
+              "params": {
+                "irated": 4,
+                "rload": 7.5,
+                "rfuse": 0.5,
+                "thick": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "fuse_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "fuse_ramp",
+          "law": {
+            "name": "The heating effect of current",
+            "formula": "H = I²Rt"
+          },
+          "prompt": "The same current flows through the thin 2 A fuse wire and through the thick copper leads beside it. As the voltage rises, which one melts first?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "fuse",
+                "label": "The thin fuse wire"
+              },
+              {
+                "id": "lead",
+                "label": "The thick copper leads"
+              },
+              {
+                "id": "both",
+                "label": "Both together"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "fuse"
+          },
+          "outcome": "The thin fuse wire melts; the thick leads stay cool.",
+          "explanation": "It is the same current in all of them, yet only the fuse wire melts. Heat is I²Rt: the thin wire has much more resistance than the thick leads, so it turns far more of the electrical energy into heat.",
+          "expectedKeywords": [
+            "thin",
+            "resistance",
+            "heat",
+            "same current"
+          ],
+          "keywordSynonyms": {
+            "thin": [
+              "narrow",
+              "fine",
+              "small",
+              "skinny"
+            ],
+            "resistance": [
+              "resistor",
+              "resists",
+              "resist",
+              "resistant"
+            ],
+            "heat": [
+              "hot",
+              "hotter",
+              "heats",
+              "heating",
+              "warm",
+              "melt",
+              "melts"
+            ],
+            "same current": [
+              "same amount of current",
+              "equal current",
+              "the current is the same",
+              "same amps",
+              "same electricity"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "irated": 2,
+            "rload": 4.5,
+            "rfuse": 0.5,
+            "thick": true
+          },
+          "variants": [
+            {
+              "prompt": "The same current flows through the thin 2 A fuse wire and through the thick copper leads beside it. As the voltage rises, which one melts first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "fuse",
+                    "label": "The thin fuse wire"
+                  },
+                  {
+                    "id": "lead",
+                    "label": "The thick copper leads"
+                  },
+                  {
+                    "id": "both",
+                    "label": "Both together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "fuse"
+              },
+              "outcome": "The thin fuse wire melts; the thick leads stay cool.",
+              "explanation": "It is the same current in all of them, yet only the fuse wire melts. Heat is I²Rt: the thin wire has much more resistance than the thick leads, so it turns far more of the electrical energy into heat.",
+              "expectedKeywords": [
+                "thin",
+                "resistance",
+                "heat",
+                "same current"
+              ],
+              "keywordSynonyms": {
+                "thin": [
+                  "narrow",
+                  "fine",
+                  "small",
+                  "skinny"
+                ],
+                "resistance": [
+                  "resistor",
+                  "resists",
+                  "resist",
+                  "resistant"
+                ],
+                "heat": [
+                  "hot",
+                  "hotter",
+                  "heats",
+                  "heating",
+                  "warm",
+                  "melt",
+                  "melts"
+                ],
+                "same current": [
+                  "same amount of current",
+                  "equal current",
+                  "the current is the same",
+                  "same amps",
+                  "same electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "irated": 2,
+                "rload": 4.5,
+                "rfuse": 0.5,
+                "thick": true
+              }
+            },
+            {
+              "prompt": "Someone replaces the thin 3 A fuse wire with a thick copper wire to stop it blowing. The voltage is raised well past the old limit. What happens to the thick wire?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "cool",
+                    "label": "It stays cool and keeps carrying the current, so the circuit is no longer protected"
+                  },
+                  {
+                    "id": "melt",
+                    "label": "It melts at exactly the same current as the fuse wire"
+                  },
+                  {
+                    "id": "dim",
+                    "label": "The current drops to zero"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "cool"
+              },
+              "outcome": "The thick wire stays cool: nothing breaks the circuit any more.",
+              "explanation": "A thick wire has very little resistance, so the same current heats it far less (H = I²Rt) and it does not melt. Then nothing cuts off a dangerous current, which is why a fuse must never be replaced with a thicker wire.",
+              "expectedKeywords": [
+                "thin",
+                "resistance",
+                "heat",
+                "same current"
+              ],
+              "keywordSynonyms": {
+                "thin": [
+                  "narrow",
+                  "fine",
+                  "small",
+                  "skinny"
+                ],
+                "resistance": [
+                  "resistor",
+                  "resists",
+                  "resist",
+                  "resistant"
+                ],
+                "heat": [
+                  "hot",
+                  "hotter",
+                  "heats",
+                  "heating",
+                  "warm",
+                  "melt",
+                  "melts"
+                ],
+                "same current": [
+                  "same amount of current",
+                  "equal current",
+                  "the current is the same",
+                  "same amps",
+                  "same electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "irated": 3,
+                "rload": 5.5,
+                "rfuse": 0.5,
+                "thick": true,
+                "replaced": true
+              }
+            },
+            {
+              "prompt": "The fuse wire and a thick copper lead carry the same 5 A. The fuse wire's resistance is 50 times the lead's. How does the heat made each second in the fuse wire compare with the lead?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "fifty",
+                    "label": "About 50 times as much"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "twice",
+                    "label": "About twice as much"
+                  },
+                  {
+                    "id": "tiny",
+                    "label": "Far less"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "fifty"
+              },
+              "outcome": "About 50 times as much.",
+              "explanation": "For the same current, H = I²Rt is proportional to the resistance, so a wire with 50 times the resistance makes 50 times the heat each second.",
+              "expectedKeywords": [
+                "thin",
+                "resistance",
+                "heat",
+                "same current"
+              ],
+              "keywordSynonyms": {
+                "thin": [
+                  "narrow",
+                  "fine",
+                  "small",
+                  "skinny"
+                ],
+                "resistance": [
+                  "resistor",
+                  "resists",
+                  "resist",
+                  "resistant"
+                ],
+                "heat": [
+                  "hot",
+                  "hotter",
+                  "heats",
+                  "heating",
+                  "warm",
+                  "melt",
+                  "melts"
+                ],
+                "same current": [
+                  "same amount of current",
+                  "equal current",
+                  "the current is the same",
+                  "same amps",
+                  "same electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "irated": 5,
+                "rload": 3.5,
+                "rfuse": 0.5,
+                "thick": true
+              }
+            },
+            {
+              "prompt": "A heater's element is made of a thin, high-resistance wire, while the cable that brings the current to it is thick copper. Both carry the same current. Which gets glowing hot?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "element",
+                    "label": "The thin element"
+                  },
+                  {
+                    "id": "cable",
+                    "label": "The thick cable"
+                  },
+                  {
+                    "id": "both",
+                    "label": "Both equally"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "element"
+              },
+              "outcome": "The thin element glows hot; the cable stays cool.",
+              "explanation": "Same current, but H = I²Rt: the element has far more resistance, so nearly all the heat is made there and the cable stays cool.",
+              "expectedKeywords": [
+                "thin",
+                "resistance",
+                "heat",
+                "same current"
+              ],
+              "keywordSynonyms": {
+                "thin": [
+                  "narrow",
+                  "fine",
+                  "small",
+                  "skinny"
+                ],
+                "resistance": [
+                  "resistor",
+                  "resists",
+                  "resist",
+                  "resistant"
+                ],
+                "heat": [
+                  "hot",
+                  "hotter",
+                  "heats",
+                  "heating",
+                  "warm",
+                  "melt",
+                  "melts"
+                ],
+                "same current": [
+                  "same amount of current",
+                  "equal current",
+                  "the current is the same",
+                  "same amps",
+                  "same electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "irated": 2,
+                "rload": 4.5,
+                "rfuse": 0.5,
+                "thick": true
+              }
+            },
+            {
+              "prompt": "Two fuse wires carry the same current. Wire A is thin, wire B is thick. As the current rises towards 4 A, which one reaches melting first?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "A",
+                    "label": "Wire A, the thin one"
+                  },
+                  {
+                    "id": "B",
+                    "label": "Wire B, the thick one"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both together"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "A"
+              },
+              "outcome": "Wire A, the thin one.",
+              "explanation": "The thin wire has the higher resistance, so it makes more heat for the same current (H = I²Rt) and reaches its melting point first.",
+              "expectedKeywords": [
+                "thin",
+                "resistance",
+                "heat",
+                "same current"
+              ],
+              "keywordSynonyms": {
+                "thin": [
+                  "narrow",
+                  "fine",
+                  "small",
+                  "skinny"
+                ],
+                "resistance": [
+                  "resistor",
+                  "resists",
+                  "resist",
+                  "resistant"
+                ],
+                "heat": [
+                  "hot",
+                  "hotter",
+                  "heats",
+                  "heating",
+                  "warm",
+                  "melt",
+                  "melts"
+                ],
+                "same current": [
+                  "same amount of current",
+                  "equal current",
+                  "the current is the same",
+                  "same amps",
+                  "same electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "irated": 4,
+                "rload": 2.5,
+                "rfuse": 0.5,
+                "thick": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_fuse",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Heating effect of current",
+            "formula": "H = I²Rt"
+          },
+          "prompt": "A plug has a 13 A fuse. An appliance develops a fault and tries to draw 40 A. What does the fuse do?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "melt",
+                "label": "It melts and breaks the circuit"
+              },
+              {
+                "id": "pass",
+                "label": "It lets the current through"
+              },
+              {
+                "id": "boost",
+                "label": "It makes the current smaller but keeps it flowing"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "melt"
+          },
+          "outcome": "It melts and breaks the circuit.",
+          "explanation": "The fuse wire is designed to melt when the current is above its rating, which stops the flow before the cables overheat.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A plug has a 13 A fuse. An appliance develops a fault and tries to draw 40 A. What does the fuse do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "melt",
+                    "label": "It melts and breaks the circuit"
+                  },
+                  {
+                    "id": "pass",
+                    "label": "It lets the current through"
+                  },
+                  {
+                    "id": "boost",
+                    "label": "It makes the current smaller but keeps it flowing"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "melt"
+              },
+              "outcome": "It melts and breaks the circuit.",
+              "explanation": "The fuse wire is designed to melt when the current is above its rating, which stops the flow before the cables overheat.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A toaster draws 3 A. Which fuse should it have?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "five",
+                    "label": "A 5 A fuse"
+                  },
+                  {
+                    "id": "one",
+                    "label": "A 1 A fuse"
+                  },
+                  {
+                    "id": "thirty",
+                    "label": "A 30 A fuse"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "five"
+              },
+              "outcome": "A 5 A fuse.",
+              "explanation": "The fuse must be just above the normal current, so it lets the toaster work but blows if the current becomes too large. A 1 A fuse would blow at once, a 30 A fuse would not protect it.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "In which wire of an appliance cable is the fuse placed, and how?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "live",
+                    "label": "In the live wire, in series with the appliance"
+                  },
+                  {
+                    "id": "neutral",
+                    "label": "Across the live and neutral wires, in parallel"
+                  },
+                  {
+                    "id": "earth",
+                    "label": "In the earth wire only"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "live"
+              },
+              "outcome": "In the live wire, in series with the appliance.",
+              "explanation": "The fuse must carry the whole current of the appliance so it must be in series, and in the live wire so the appliance is cut off from the live supply when it blows.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "An electric kettle's element gets hot but its cable does not. Why?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "res",
+                    "label": "The element has much more resistance, so the same current makes more heat in it"
+                  },
+                  {
+                    "id": "less",
+                    "label": "Less current flows in the cable"
+                  },
+                  {
+                    "id": "none",
+                    "label": "The cable has no resistance at all"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "res"
+              },
+              "outcome": "The element has much more resistance, so the same current makes more heat in it.",
+              "explanation": "The same current flows through both. H = I²Rt, so the part with the higher resistance makes far more heat.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "The current through a heater doubles. By how much does the heat it makes each second increase?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "four",
+                    "label": "Four times"
+                  },
+                  {
+                    "id": "two",
+                    "label": "Twice"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It does not change"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "four"
+              },
+              "outcome": "Four times.",
+              "explanation": "H = I²Rt: heat grows with the square of the current.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "laws": [
+    {
+      "id": "ohm",
+      "name": "Ohm's law",
+      "formula": "V = I R",
+      "summary": "For a resistor, current is proportional to voltage and inversely proportional to resistance."
+    },
+    {
+      "id": "series_parallel",
+      "name": "Series and parallel",
+      "summary": "Series circuits have one path; parallel circuits give each part its own path."
+    },
+    {
+      "id": "joule",
+      "name": "Heating effect",
+      "formula": "H = I²Rt",
+      "summary": "A current heats the wire it flows through, most where the resistance is highest."
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasVoltageSlider": true,
+    "hasResistanceSlider": true,
+    "hasCircuitToggle": true,
+    "hasAmmeterDisplay": true
+  }
+}

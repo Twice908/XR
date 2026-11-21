@@ -31,7 +31,8 @@ export interface BiologyTruth {
   checkpoints: {
     id: string;
     n: number;
-    selection: { glands: number; juices: number; components?: number; nutrients: number; allCorrect: boolean };
+    /** Score per question group (0 to 1), plus allCorrect. Group names depend on the lesson. */
+    selection: { allCorrect: boolean } & Record<string, number | boolean>;
     coverageFirst: number;
     coverageFinal: number;
     revisions: number;
@@ -39,7 +40,7 @@ export interface BiologyTruth {
     speakMs: number;
     thinkMs: number;
   }[];
-  final: { correct: number; total: number } | null;
+  final: { correct: number; total: number; explainCoverage?: number | null } | null;
 }
 
 export interface MotionTruth {
@@ -68,7 +69,16 @@ export interface ReasoningTruth {
   quality: { evidence: number; causal: number; coverage: number; score: number } | null;
 }
 
+/** Sound & Waves sandbox: per-task results and how each explanation was given, as measured by the lesson service. */
+export interface SoundTruth {
+  tasks: { id: string; tool: 'wave' | 'echo' | 'sonar'; match: boolean; anomaly: boolean; hasCalc: boolean; calcAttempts: number; calcOk: boolean }[];
+  total: number;
+  explanations: { required: number; given: { id: string; inputMode: 'voice' | 'typed'; speakMs: number; dwellMs: number; thinkMs: number; words: number; pasted: number; blurs: number }[] };
+  submitted: boolean;
+}
+
 export interface TruthInfo {
+  sound?: SoundTruth;
   /** What the student said about their own conclusions (indicators and metals labs). */
   reasoning?: ReasoningTruth | null;
   optics?: OpticsTruth;
@@ -110,7 +120,7 @@ export interface StatItem {
 
 export interface Report {
   rubricVersion: string;
-  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'physics_optics' | 'physics_motion' | 'physics_bohr' | 'unknown';
+  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'biology_respiratory_system' | 'physics_optics' | 'physics_waves_sound' | 'physics_motion' | 'physics_bohr' | 'unknown';
   device: Device;
   complete: boolean;
   dimensions: DimensionResult[];

@@ -1,0 +1,1338 @@
+{
+  "lessonId": "biology-respiratory",
+  "type": "biology_respiratory_system",
+  "title": "The Human Respiratory System: A Guided Journey",
+  "subject": "Biology",
+  "summary": "Follow one breath from the nose to the alveoli and into your cells. At each of nine stops, predict which parts, features, processes and molecules are involved, explain it aloud, then see what really happens, including how oxygen and carbon dioxide swap places in the blood.",
+  "durationMinutes": 35,
+  "difficulty": "Beginner",
+  "modelUrl": "http://localhost:3007/assets/models/torso-with-removable-organs.glb",
+  "assets": {
+    "torso": "http://localhost:3007/assets/models/torso-with-removable-organs.glb",
+    "lungs": "http://localhost:3007/assets/models/human-lungs.glb"
+  },
+  "config": {
+    "isGuidedTour": true,
+    "requireAudioExplanation": true,
+    "minExplanationWords": 8,
+    "maxRevisions": 3
+  },
+  "groups": [
+    {
+      "key": "organs",
+      "question": "Which parts of the body are involved?"
+    },
+    {
+      "key": "features",
+      "question": "Which features or structures do the work?"
+    },
+    {
+      "key": "processes",
+      "question": "What is happening here?"
+    },
+    {
+      "key": "molecules",
+      "question": "Which gases, molecules or products?"
+    }
+  ],
+  "choices": {
+    "organs": [
+      {
+        "id": "nose",
+        "label": "Nose & nostrils"
+      },
+      {
+        "id": "nasal_cavity",
+        "label": "Nasal cavity"
+      },
+      {
+        "id": "pharynx",
+        "label": "Pharynx (throat)"
+      },
+      {
+        "id": "larynx",
+        "label": "Larynx (voice box)"
+      },
+      {
+        "id": "trachea",
+        "label": "Trachea (windpipe)"
+      },
+      {
+        "id": "bronchi",
+        "label": "Bronchi"
+      },
+      {
+        "id": "bronchioles",
+        "label": "Bronchioles"
+      },
+      {
+        "id": "lungs",
+        "label": "Lungs"
+      },
+      {
+        "id": "alveoli",
+        "label": "Alveoli (air sacs)"
+      },
+      {
+        "id": "blood",
+        "label": "Blood"
+      },
+      {
+        "id": "diaphragm",
+        "label": "Diaphragm"
+      },
+      {
+        "id": "rib_cage",
+        "label": "Rib cage"
+      },
+      {
+        "id": "body_cells",
+        "label": "Body cells"
+      },
+      {
+        "id": "muscle_cells",
+        "label": "Muscle cells"
+      },
+      {
+        "id": "yeast",
+        "label": "Yeast cells"
+      }
+    ],
+    "features": [
+      {
+        "id": "nasal_hair",
+        "label": "Nasal hairs"
+      },
+      {
+        "id": "mucus",
+        "label": "Mucus"
+      },
+      {
+        "id": "cilia",
+        "label": "Cilia"
+      },
+      {
+        "id": "capillaries",
+        "label": "Blood capillaries"
+      },
+      {
+        "id": "epiglottis",
+        "label": "Epiglottis"
+      },
+      {
+        "id": "vocal_cords",
+        "label": "Vocal cords"
+      },
+      {
+        "id": "cartilage_rings",
+        "label": "C-shaped cartilage rings"
+      },
+      {
+        "id": "smooth_muscle",
+        "label": "Smooth muscle in tube walls"
+      },
+      {
+        "id": "pleura",
+        "label": "Pleural membranes"
+      },
+      {
+        "id": "thin_wall",
+        "label": "Thin, moist walls"
+      },
+      {
+        "id": "surface_area",
+        "label": "Huge surface area"
+      },
+      {
+        "id": "haemoglobin",
+        "label": "Haemoglobin in red blood cells"
+      },
+      {
+        "id": "intercostals",
+        "label": "Intercostal muscles"
+      },
+      {
+        "id": "mitochondria",
+        "label": "Mitochondria"
+      },
+      {
+        "id": "none",
+        "label": "None of these"
+      }
+    ],
+    "processes": [
+      {
+        "id": "warming",
+        "label": "Air is warmed"
+      },
+      {
+        "id": "moistening",
+        "label": "Air is moistened"
+      },
+      {
+        "id": "filtering",
+        "label": "Dust and germs are trapped"
+      },
+      {
+        "id": "passage",
+        "label": "Air passes through a shared route with food"
+      },
+      {
+        "id": "sound",
+        "label": "Sound is produced"
+      },
+      {
+        "id": "open_airway",
+        "label": "The airway is held open"
+      },
+      {
+        "id": "branching",
+        "label": "Air spreads into ever smaller tubes"
+      },
+      {
+        "id": "expand",
+        "label": "Lungs stretch and recoil smoothly"
+      },
+      {
+        "id": "gas_exchange",
+        "label": "Gas exchange by diffusion (external respiration)"
+      },
+      {
+        "id": "inhalation",
+        "label": "Inhalation: chest volume increases"
+      },
+      {
+        "id": "exhalation",
+        "label": "Exhalation: chest volume decreases"
+      },
+      {
+        "id": "cellular",
+        "label": "Internal (cellular) respiration releases energy"
+      },
+      {
+        "id": "aerobic",
+        "label": "Aerobic respiration (with oxygen)"
+      },
+      {
+        "id": "lactic",
+        "label": "Anaerobic respiration with insufficient air: lactic acid forms"
+      },
+      {
+        "id": "fermentation",
+        "label": "Anaerobic respiration with no air: alcohol and carbon dioxide form"
+      }
+    ],
+    "molecules": [
+      {
+        "id": "air",
+        "label": "Air (a mixture of gases)"
+      },
+      {
+        "id": "oxygen",
+        "label": "Oxygen (O₂)"
+      },
+      {
+        "id": "co2",
+        "label": "Carbon dioxide (CO₂)"
+      },
+      {
+        "id": "water",
+        "label": "Water"
+      },
+      {
+        "id": "glucose",
+        "label": "Glucose"
+      },
+      {
+        "id": "atp",
+        "label": "Energy (ATP)"
+      },
+      {
+        "id": "lactic_acid",
+        "label": "Lactic acid"
+      },
+      {
+        "id": "ethanol",
+        "label": "Ethanol (alcohol)"
+      },
+      {
+        "id": "dust",
+        "label": "Dust and germs"
+      },
+      {
+        "id": "none",
+        "label": "None of these"
+      }
+    ]
+  },
+  "checkpoints": [
+    {
+      "id": "nasal_cavity",
+      "organName": "Nose & Nasal Cavity",
+      "cameraPosition": {
+        "x": 0,
+        "y": 1.09,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.795,
+        "z": 0.1
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.795,
+        "z": 0.1
+      },
+      "detail": "nasal",
+      "prompt": "You are at the entrance of the respiratory system. What happens to the air here? Why is it important that the air is warmed and filtered?",
+      "structuresInvolved": [
+        "Nasal hairs",
+        "Mucus",
+        "Cilia",
+        "Capillaries"
+      ],
+      "target": "Warming, moistening and filtering the air",
+      "answers": {
+        "organs": [
+          "nose",
+          "nasal_cavity"
+        ],
+        "features": [
+          "nasal_hair",
+          "mucus",
+          "cilia",
+          "capillaries"
+        ],
+        "processes": [
+          "warming",
+          "moistening",
+          "filtering"
+        ],
+        "molecules": [
+          "air",
+          "dust",
+          "water"
+        ]
+      },
+      "revealExplanation": "Air enters through the nostrils, where nasal hairs trap the biggest dust particles. In the nasal cavity, the lining makes sticky mucus that traps dust, pollen and germs, and cilia (tiny hairs) sweep the mucus back to the throat to be swallowed. A rich supply of blood capillaries warms the air to body temperature and the moist lining adds water vapour, so delicate lung tissue is protected from cold, dry, dirty air.",
+      "expectedKeywords": [
+        "warm",
+        "moisten",
+        "filter",
+        "cilia",
+        "mucus",
+        "hair"
+      ],
+      "keywordSynonyms": {
+        "warm": [
+          "warmed",
+          "warms",
+          "warming",
+          "heat",
+          "heated"
+        ],
+        "moisten": [
+          "moist",
+          "moistened",
+          "moistens",
+          "humidify",
+          "humidifies",
+          "damp",
+          "wet"
+        ],
+        "filter": [
+          "filters",
+          "filtered",
+          "filtering",
+          "trap",
+          "traps",
+          "trapped",
+          "clean",
+          "cleans",
+          "cleaned"
+        ],
+        "cilia": [
+          "cilium",
+          "tiny hairs"
+        ],
+        "mucus": [
+          "mucous",
+          "sticky"
+        ],
+        "hair": [
+          "hairs",
+          "nasal hair",
+          "nasal hairs"
+        ]
+      }
+    },
+    {
+      "id": "pharynx",
+      "organName": "Pharynx (Throat)",
+      "cameraPosition": {
+        "x": 0,
+        "y": 1.0,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.7,
+        "z": 0.01
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.7,
+        "z": 0.01
+      },
+      "detail": null,
+      "prompt": "The air now reaches the throat, a route that food also uses. What is this tube called, and what stops food from going down the windpipe?",
+      "structuresInvolved": [
+        "Pharynx",
+        "Epiglottis"
+      ],
+      "target": "A shared route for air and food",
+      "answers": {
+        "organs": [
+          "pharynx"
+        ],
+        "features": [
+          "epiglottis"
+        ],
+        "processes": [
+          "passage"
+        ],
+        "molecules": [
+          "air"
+        ]
+      },
+      "revealExplanation": "The pharynx (throat) is a shared passage for air and food. Air flows from the nasal cavity through the pharynx down to the larynx. When you swallow, a flap called the epiglottis folds down over the entrance of the larynx so that food slides into the oesophagus instead of the windpipe.",
+      "expectedKeywords": [
+        "pharynx",
+        "throat",
+        "epiglottis",
+        "larynx",
+        "swallow",
+        "food"
+      ],
+      "keywordSynonyms": {
+        "pharynx": [
+          "pharyngeal"
+        ],
+        "throat": [
+          "back of the mouth"
+        ],
+        "epiglottis": [
+          "flap"
+        ],
+        "larynx": [
+          "voice box"
+        ],
+        "swallow": [
+          "swallows",
+          "swallowing",
+          "swallowed"
+        ],
+        "food": [
+          "foods"
+        ]
+      }
+    },
+    {
+      "id": "larynx_trachea",
+      "organName": "Larynx & Trachea",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.9,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.6,
+        "z": 0.025
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.6,
+        "z": 0.025
+      },
+      "detail": "lungs",
+      "prompt": "You have reached the voice box and the windpipe. What happens at the larynx? What is the role of the rings around the trachea?",
+      "structuresInvolved": [
+        "Vocal cords",
+        "Cartilage rings",
+        "Cilia",
+        "Mucus"
+      ],
+      "target": "Sound production and a windpipe that stays open",
+      "answers": {
+        "organs": [
+          "larynx",
+          "trachea"
+        ],
+        "features": [
+          "vocal_cords",
+          "cartilage_rings",
+          "cilia",
+          "mucus"
+        ],
+        "processes": [
+          "sound",
+          "open_airway"
+        ],
+        "molecules": [
+          "air"
+        ]
+      },
+      "revealExplanation": "The larynx (voice box) holds the vocal cords. Air passing between them makes them vibrate, producing sound. Below it, the trachea (windpipe) is held open by C-shaped rings of cartilage, so it does not collapse when air pressure changes during breathing. The open side of each C lets food pass down the oesophagus behind it, and the trachea's lining of mucus and cilia keeps sweeping dust upwards.",
+      "expectedKeywords": [
+        "larynx",
+        "vocal cords",
+        "sound",
+        "trachea",
+        "cartilage",
+        "collapse"
+      ],
+      "keywordSynonyms": {
+        "larynx": [
+          "voice box"
+        ],
+        "vocal cords": [
+          "vocal chords",
+          "vocal folds"
+        ],
+        "sound": [
+          "voice",
+          "speech",
+          "vibrate",
+          "vibrates",
+          "vibration"
+        ],
+        "trachea": [
+          "windpipe"
+        ],
+        "cartilage": [
+          "rings",
+          "c-shaped",
+          "cartilage rings"
+        ],
+        "collapse": [
+          "collapses",
+          "collapsing",
+          "flatten",
+          "stay open",
+          "stays open",
+          "keep open",
+          "keeps open",
+          "prevent collapse"
+        ]
+      }
+    },
+    {
+      "id": "bronchi",
+      "organName": "Bronchi & Bronchioles",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.8,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.5,
+        "z": 0.025
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.5,
+        "z": 0.025
+      },
+      "detail": "lungs",
+      "prompt": "The windpipe now splits in two. What are these two main tubes called, and how do they carry on dividing as they go deeper into the lungs?",
+      "structuresInvolved": [
+        "Bronchi",
+        "Bronchioles",
+        "Smooth muscle"
+      ],
+      "target": "Air spreading to every part of the lungs",
+      "answers": {
+        "organs": [
+          "bronchi",
+          "bronchioles"
+        ],
+        "features": [
+          "cartilage_rings",
+          "smooth_muscle"
+        ],
+        "processes": [
+          "branching"
+        ],
+        "molecules": [
+          "air"
+        ]
+      },
+      "revealExplanation": "The trachea divides into two bronchi, one for each lung. Inside the lungs each bronchus branches again and again into narrower bronchioles, like an upside-down tree, carrying air to every part of the lung. Bronchi are supported by cartilage, but bronchioles have none and instead have smooth muscle that can narrow them, as in an asthma attack. Each bronchiole ends in a cluster of tiny air sacs called alveoli.",
+      "expectedKeywords": [
+        "bronchi",
+        "bronchioles",
+        "branch",
+        "lungs",
+        "alveoli",
+        "tree"
+      ],
+      "keywordSynonyms": {
+        "bronchi": [
+          "bronchus"
+        ],
+        "bronchioles": [
+          "bronchiole"
+        ],
+        "branch": [
+          "branches",
+          "branching",
+          "branched",
+          "divide",
+          "divides",
+          "dividing",
+          "split",
+          "splits",
+          "splitting"
+        ],
+        "lungs": [
+          "lung"
+        ],
+        "alveoli": [
+          "alveolus",
+          "air sacs",
+          "air sac"
+        ],
+        "tree": [
+          "upside down tree",
+          "treelike",
+          "tree-like"
+        ]
+      }
+    },
+    {
+      "id": "lungs",
+      "organName": "Lungs & Pleura",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.74,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.44,
+        "z": 0.02
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.44,
+        "z": 0.02
+      },
+      "detail": "lungs",
+      "prompt": "You are inside the chest. The lungs fill most of it. What are they like, how are they protected, and why do they need so much inside space?",
+      "structuresInvolved": [
+        "Pleura",
+        "Rib cage",
+        "Alveoli"
+      ],
+      "target": "Spongy, protected organs built for a huge surface area",
+      "answers": {
+        "organs": [
+          "lungs",
+          "rib_cage"
+        ],
+        "features": [
+          "pleura",
+          "surface_area"
+        ],
+        "processes": [
+          "expand"
+        ],
+        "molecules": [
+          "oxygen",
+          "co2"
+        ]
+      },
+      "revealExplanation": "The lungs are two soft, spongy, elastic organs protected by the rib cage. The right lung has three lobes and the left has two, leaving room for the heart. Each lung is wrapped in two pleural membranes with a thin film of fluid between them, so the lungs slide smoothly as they expand and recoil. Inside, hundreds of millions of alveoli give a huge surface area, around 70 square metres, for exchanging gases.",
+      "expectedKeywords": [
+        "lungs",
+        "spongy",
+        "lobes",
+        "pleura",
+        "rib cage",
+        "surface area"
+      ],
+      "keywordSynonyms": {
+        "lungs": [
+          "lung"
+        ],
+        "spongy": [
+          "sponge",
+          "sponge-like",
+          "elastic",
+          "soft"
+        ],
+        "lobes": [
+          "lobe",
+          "three lobes",
+          "two lobes"
+        ],
+        "pleura": [
+          "pleural",
+          "membrane",
+          "membranes"
+        ],
+        "rib cage": [
+          "ribs",
+          "rib",
+          "ribcage"
+        ],
+        "surface area": [
+          "large area",
+          "big area",
+          "huge area",
+          "large surface",
+          "big surface"
+        ]
+      }
+    },
+    {
+      "id": "alveoli",
+      "organName": "Alveoli: Gas Exchange",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.72,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.42,
+        "z": 0.02
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.42,
+        "z": 0.02
+      },
+      "detail": "alveolus",
+      "prompt": "You have shrunk to the size of a molecule at the end of a bronchiole. What are these tiny air sacs called? How do oxygen and carbon dioxide cross between the air and the blood, and why are the walls built the way they are?",
+      "structuresInvolved": [
+        "Alveoli",
+        "Capillaries",
+        "Haemoglobin",
+        "Thin walls"
+      ],
+      "target": "External respiration: gas exchange by diffusion",
+      "answers": {
+        "organs": [
+          "alveoli",
+          "blood"
+        ],
+        "features": [
+          "thin_wall",
+          "surface_area",
+          "capillaries",
+          "haemoglobin"
+        ],
+        "processes": [
+          "gas_exchange"
+        ],
+        "molecules": [
+          "oxygen",
+          "co2"
+        ]
+      },
+      "revealExplanation": "This is external respiration: the exchange of gases between the air in the alveoli and the blood. Each alveolus has a wall only one cell thick and is wrapped in a net of capillaries. Oxygen is more concentrated in the alveolus than in the blood, so it diffuses into the blood and is picked up by haemoglobin in red blood cells. Carbon dioxide is more concentrated in the blood, so it diffuses out into the alveolus and is breathed out. Thin, moist walls and a huge surface area make this fast.",
+      "expectedKeywords": [
+        "alveoli",
+        "diffusion",
+        "oxygen",
+        "carbon dioxide",
+        "capillaries",
+        "thin walls"
+      ],
+      "keywordSynonyms": {
+        "alveoli": [
+          "alveolus",
+          "air sacs",
+          "air sac"
+        ],
+        "diffusion": [
+          "diffuse",
+          "diffuses",
+          "diffused",
+          "diffusing",
+          "concentration gradient",
+          "exchange",
+          "exchanged",
+          "exchanges"
+        ],
+        "oxygen": [
+          "o2"
+        ],
+        "carbon dioxide": [
+          "co2"
+        ],
+        "capillaries": [
+          "capillary",
+          "blood vessels",
+          "blood vessel",
+          "blood"
+        ],
+        "thin walls": [
+          "thin wall",
+          "one cell thick",
+          "thin",
+          "thin-walled",
+          "thin walled"
+        ]
+      }
+    },
+    {
+      "id": "diaphragm",
+      "organName": "Diaphragm & Rib Cage",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.63,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.33,
+        "z": 0.02
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.33,
+        "z": 0.02
+      },
+      "detail": null,
+      "prompt": "Breathing is a mechanical process. What happens to the diaphragm and rib cage when you inhale, and how does this draw air into the lungs?",
+      "structuresInvolved": [
+        "Diaphragm",
+        "Intercostal muscles",
+        "Rib cage"
+      ],
+      "target": "Breathing (ventilation) driven by pressure changes",
+      "answers": {
+        "organs": [
+          "diaphragm",
+          "rib_cage"
+        ],
+        "features": [
+          "intercostals"
+        ],
+        "processes": [
+          "inhalation",
+          "exhalation"
+        ],
+        "molecules": [
+          "air"
+        ]
+      },
+      "revealExplanation": "Breathing is a mechanical process, also called external respiration when we include the gas exchange it makes possible. To inhale, the diaphragm contracts and flattens downwards while the intercostal muscles lift the rib cage up and out. The volume of the chest increases, so the pressure inside the lungs drops below the outside pressure and air rushes in. To exhale, the diaphragm and intercostals relax, the diaphragm domes upwards and the ribs drop; the volume falls, the pressure rises and air is pushed out.",
+      "expectedKeywords": [
+        "diaphragm",
+        "contracts",
+        "flattens",
+        "rib cage",
+        "volume",
+        "pressure",
+        "inhale"
+      ],
+      "keywordSynonyms": {
+        "diaphragm": [
+          "diaphragms"
+        ],
+        "contracts": [
+          "contract",
+          "contraction",
+          "contracting",
+          "tightens"
+        ],
+        "flattens": [
+          "flatten",
+          "flattened",
+          "flattening",
+          "moves down",
+          "goes down",
+          "lowers"
+        ],
+        "rib cage": [
+          "ribs",
+          "rib",
+          "ribcage"
+        ],
+        "volume": [
+          "space",
+          "size"
+        ],
+        "pressure": [
+          "low pressure",
+          "lower pressure"
+        ],
+        "inhale": [
+          "inhalation",
+          "inhales",
+          "inhaling",
+          "breathe in",
+          "breathing in"
+        ]
+      }
+    },
+    {
+      "id": "cells",
+      "organName": "Body Cells: Internal Respiration",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.5,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.2,
+        "z": 0.03
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.2,
+        "z": 0.03
+      },
+      "detail": "cell",
+      "prompt": "The blood has delivered oxygen to a body cell. What do we call the process in which cells use oxygen to release energy from food? Where in the cell does it happen, and what are the products?",
+      "structuresInvolved": [
+        "Mitochondria",
+        "Glucose",
+        "Oxygen",
+        "ATP"
+      ],
+      "target": "Internal respiration releasing energy from glucose",
+      "answers": {
+        "organs": [
+          "body_cells"
+        ],
+        "features": [
+          "mitochondria"
+        ],
+        "processes": [
+          "cellular",
+          "aerobic"
+        ],
+        "molecules": [
+          "glucose",
+          "oxygen",
+          "co2",
+          "water",
+          "atp"
+        ]
+      },
+      "revealExplanation": "This is internal (cellular) respiration. Inside the mitochondria of every cell, glucose is broken down using oxygen to release energy: glucose + oxygen gives carbon dioxide + water + energy (ATP). The carbon dioxide travels back in the blood to the lungs to be breathed out, and the energy powers movement, growth and body warmth. Because it uses oxygen, this is aerobic respiration, the most efficient of the three modes.",
+      "expectedKeywords": [
+        "cellular respiration",
+        "mitochondria",
+        "glucose",
+        "oxygen",
+        "carbon dioxide",
+        "water",
+        "energy"
+      ],
+      "keywordSynonyms": {
+        "cellular respiration": [
+          "internal respiration",
+          "cell respiration",
+          "respiration in cells",
+          "aerobic respiration",
+          "aerobic",
+          "respire"
+        ],
+        "mitochondria": [
+          "mitochondrion"
+        ],
+        "glucose": [
+          "sugar",
+          "sugars",
+          "food"
+        ],
+        "oxygen": [
+          "o2"
+        ],
+        "carbon dioxide": [
+          "co2"
+        ],
+        "water": [
+          "h2o"
+        ],
+        "energy": [
+          "atp",
+          "energy release",
+          "released energy"
+        ]
+      }
+    },
+    {
+      "id": "anaerobic",
+      "organName": "Three Modes of Respiration",
+      "cameraPosition": {
+        "x": 0,
+        "y": 0.4,
+        "z": 0.6
+      },
+      "lookAtTarget": {
+        "x": 0,
+        "y": 0.1,
+        "z": 0.03
+      },
+      "modelAnchor": {
+        "x": 0,
+        "y": 0.1,
+        "z": 0.03
+      },
+      "detail": "anaerobic",
+      "prompt": "Sometimes cells cannot get enough oxygen. What happens in your muscles during a hard sprint when oxygen is short? What do yeast cells do when there is no air at all? How much energy is released compared with aerobic respiration?",
+      "structuresInvolved": [
+        "Lactic acid",
+        "Ethanol",
+        "Yeast",
+        "Muscle cells"
+      ],
+      "target": "Anaerobic respiration: lactic acid in muscles, alcohol in yeast",
+      "answers": {
+        "organs": [
+          "muscle_cells",
+          "yeast"
+        ],
+        "features": [
+          "none"
+        ],
+        "processes": [
+          "lactic",
+          "fermentation"
+        ],
+        "molecules": [
+          "glucose",
+          "lactic_acid",
+          "ethanol",
+          "co2"
+        ]
+      },
+      "revealExplanation": "There are three modes of respiration. Aerobic respiration uses plenty of oxygen: glucose is fully broken down into carbon dioxide and water, releasing a lot of energy. Anaerobic respiration with insufficient air happens in your muscles during hard exercise: glucose is only partly broken down into lactic acid and much less energy is released; the lactic acid builds up and makes the muscles ache and feel sour. Anaerobic respiration with no air at all happens in yeast: glucose is fermented into ethanol (alcohol) and carbon dioxide, again releasing little energy. This is how bread dough rises and how alcohol is brewed.",
+      "expectedKeywords": [
+        "aerobic",
+        "anaerobic",
+        "lactic acid",
+        "muscles",
+        "yeast",
+        "alcohol",
+        "less energy"
+      ],
+      "keywordSynonyms": {
+        "aerobic": [
+          "with oxygen",
+          "with air"
+        ],
+        "anaerobic": [
+          "without oxygen",
+          "no oxygen",
+          "without air",
+          "no air",
+          "insufficient oxygen",
+          "insufficient air"
+        ],
+        "lactic acid": [
+          "lactate"
+        ],
+        "muscles": [
+          "muscle"
+        ],
+        "yeast": [
+          "yeasts"
+        ],
+        "alcohol": [
+          "ethanol",
+          "ethyl alcohol",
+          "fermentation",
+          "ferment",
+          "ferments",
+          "fermented"
+        ],
+        "less energy": [
+          "little energy",
+          "small amount of energy",
+          "less atp",
+          "low energy",
+          "lower energy",
+          "smaller amount of energy"
+        ]
+      }
+    }
+  ],
+  "transfer": {
+    "scenarios": [
+      {
+        "id": "smoker_cilia",
+        "question": "A smoker's cilia are damaged by smoke. What is the most direct result?",
+        "options": [
+          {
+            "id": "mucus",
+            "label": "Mucus carrying dust and germs is not swept out, so it collects in the airways"
+          },
+          {
+            "id": "wall",
+            "label": "The alveolar walls become thicker at once"
+          },
+          {
+            "id": "dia",
+            "label": "The diaphragm cannot contract"
+          },
+          {
+            "id": "blood",
+            "label": "Oxygen can no longer dissolve in blood"
+          }
+        ],
+        "answer": "mucus",
+        "explanation": "Cilia sweep mucus and trapped particles up and out of the airways. When smoke paralyses them, the dirty mucus stays, causing 'smoker's cough' and infections."
+      },
+      {
+        "id": "asthma",
+        "question": "During an asthma attack the bronchioles narrow. What happens?",
+        "options": [
+          {
+            "id": "less",
+            "label": "Less air reaches the alveoli, so breathing becomes difficult"
+          },
+          {
+            "id": "vc",
+            "label": "The vocal cords stop vibrating"
+          },
+          {
+            "id": "rings",
+            "label": "The cartilage rings in the trachea collapse"
+          },
+          {
+            "id": "diaph",
+            "label": "The diaphragm moves upwards when you inhale"
+          }
+        ],
+        "answer": "less",
+        "explanation": "Narrow bronchioles let less air through, so less oxygen reaches the alveoli and the person struggles to breathe in and out."
+      },
+      {
+        "id": "diaphragm_stuck",
+        "question": "The diaphragm cannot contract. What is directly affected?",
+        "options": [
+          {
+            "id": "chest",
+            "label": "The chest cannot enlarge enough to draw air in"
+          },
+          {
+            "id": "cilia",
+            "label": "Cilia stop moving in the nose"
+          },
+          {
+            "id": "haem",
+            "label": "Haemoglobin stops carrying oxygen"
+          },
+          {
+            "id": "yeast",
+            "label": "Cells switch to fermentation with ethanol"
+          }
+        ],
+        "answer": "chest",
+        "explanation": "Contraction of the diaphragm increases chest volume and lowers the pressure inside the lungs. Without it, far less air is drawn in."
+      },
+      {
+        "id": "emphysema",
+        "question": "A disease breaks down the walls of the alveoli, leaving fewer, bigger air sacs. What is reduced?",
+        "options": [
+          {
+            "id": "sa",
+            "label": "The surface area for gas exchange"
+          },
+          {
+            "id": "rings",
+            "label": "The number of cartilage rings"
+          },
+          {
+            "id": "nostril",
+            "label": "The size of the nostrils"
+          },
+          {
+            "id": "pleura",
+            "label": "The fluid between the pleura"
+          }
+        ],
+        "answer": "sa",
+        "explanation": "Fewer, larger air sacs mean far less surface area for oxygen and carbon dioxide to diffuse across."
+      },
+      {
+        "id": "sprint",
+        "question": "A sprinter's muscles run short of oxygen. What builds up in the muscles?",
+        "options": [
+          {
+            "id": "lactic",
+            "label": "Lactic acid"
+          },
+          {
+            "id": "ethanol",
+            "label": "Ethanol (alcohol)"
+          },
+          {
+            "id": "o2",
+            "label": "Extra oxygen"
+          },
+          {
+            "id": "starch",
+            "label": "Starch"
+          }
+        ],
+        "answer": "lactic",
+        "explanation": "With insufficient oxygen, muscle cells respire anaerobically, partly breaking down glucose into lactic acid and releasing much less energy."
+      },
+      {
+        "id": "dough",
+        "question": "Bread dough has no air inside, yet it rises when yeast is added. Why?",
+        "options": [
+          {
+            "id": "co2",
+            "label": "Yeast respire anaerobically and release carbon dioxide gas"
+          },
+          {
+            "id": "lactic",
+            "label": "Yeast produce lactic acid, which swells the dough"
+          },
+          {
+            "id": "o2",
+            "label": "Yeast use oxygen to make water"
+          },
+          {
+            "id": "absorb",
+            "label": "Yeast absorb carbon dioxide from the dough"
+          }
+        ],
+        "answer": "co2",
+        "explanation": "With no air, yeast ferment glucose into ethanol and carbon dioxide. The gas bubbles make the dough rise."
+      },
+      {
+        "id": "pair",
+        "question": "Which statement is correct?",
+        "options": [
+          {
+            "id": "ext",
+            "label": "External respiration is breathing and gas exchange in the lungs; internal respiration is the release of energy in cells"
+          },
+          {
+            "id": "rev",
+            "label": "External respiration happens in the cells; internal respiration is breathing"
+          },
+          {
+            "id": "same",
+            "label": "Both words mean only breathing in and out"
+          },
+          {
+            "id": "none",
+            "label": "Respiration means the same as breathing and nothing else"
+          }
+        ],
+        "answer": "ext",
+        "explanation": "Breathing and gas exchange in the lungs are external respiration. Using oxygen to release energy from glucose inside cells is internal (cellular) respiration."
+      },
+      {
+        "id": "energy",
+        "question": "Which mode of respiration releases the most energy from each molecule of glucose?",
+        "options": [
+          {
+            "id": "aerobic",
+            "label": "Aerobic respiration (with oxygen)"
+          },
+          {
+            "id": "lactic",
+            "label": "Anaerobic respiration in muscles"
+          },
+          {
+            "id": "yeast",
+            "label": "Anaerobic respiration in yeast"
+          },
+          {
+            "id": "same",
+            "label": "They all release exactly the same"
+          }
+        ],
+        "answer": "aerobic",
+        "explanation": "Aerobic respiration breaks glucose down completely into carbon dioxide and water, releasing far more energy than either anaerobic mode."
+      }
+    ]
+  },
+  "finalExplain": {
+    "prompt": "You are back at the nose. In your own words, explain the whole journey of an oxygen molecule from the nose to the alveoli and on to a body cell, and how the diaphragm drives breathing.",
+    "minWords": 25,
+    "expectedKeywords": [
+      "nasal cavity",
+      "pharynx",
+      "larynx",
+      "trachea",
+      "bronchi",
+      "alveoli",
+      "blood",
+      "diaphragm",
+      "pressure",
+      "cells"
+    ],
+    "keywordSynonyms": {
+      "nasal cavity": [
+        "nose",
+        "nostril",
+        "nostrils"
+      ],
+      "pharynx": [
+        "throat"
+      ],
+      "larynx": [
+        "voice box"
+      ],
+      "trachea": [
+        "windpipe"
+      ],
+      "bronchi": [
+        "bronchus",
+        "bronchioles",
+        "bronchiole"
+      ],
+      "alveoli": [
+        "alveolus",
+        "air sacs",
+        "air sac"
+      ],
+      "blood": [
+        "capillaries",
+        "capillary",
+        "red blood cells",
+        "haemoglobin"
+      ],
+      "diaphragm": [
+        "rib cage",
+        "ribs",
+        "intercostal"
+      ],
+      "pressure": [
+        "volume"
+      ],
+      "cells": [
+        "cell",
+        "mitochondria",
+        "cellular respiration"
+      ]
+    },
+    "modelAnswer": "Oxygen enters through the nose, where hairs, mucus and cilia filter the air and the nasal cavity warms and moistens it. It passes through the pharynx and the larynx into the trachea, which is held open by cartilage rings, then down a bronchus and along narrower bronchioles to an alveolus. There it diffuses across the one-cell-thick wall into the blood and is carried by haemoglobin to the body cells, where it is used in the mitochondria to release energy from glucose (internal respiration), while carbon dioxide travels back the other way. All of this is driven by the diaphragm: when it contracts and flattens and the ribs lift, the chest volume rises and the pressure drops, so air flows in."
+  },
+  "uiSchema": {
+    "hasAudioRecordButton": true,
+    "show3DHighlightOnReveal": true
+  },
+  "revealLabels": [
+    "features",
+    "molecules"
+  ],
+  "revealTimerLabel": "Watch what happens inside the body"
+}

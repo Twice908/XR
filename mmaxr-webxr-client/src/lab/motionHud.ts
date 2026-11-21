@@ -29,7 +29,7 @@ const CONFIDENCE: { value: Confidence; label: string; hint: string }[] = [
   { value: 3, label: 'Certain', hint: 'I know this one' },
 ]
 
-const ICON: Record<string, string> = { kinematics_track: '🏎️', dynamics_bay: '📦', gravitation_drop: '🪶', magnets_fields: '🧲', electromagnetism: '⚡', force_induction: '🌀' }
+const ICON: Record<string, string> = { kinematics_track: '🏎️', dynamics_bay: '📦', gravitation_drop: '🪶', magnets_fields: '🧲', electromagnetism: '⚡', force_induction: '🌀', ohms_law: '🔌', series_parallel: '💡', heating_fuse: '🔥' }
 
 export class MotionHud {
   readonly root: HTMLElement

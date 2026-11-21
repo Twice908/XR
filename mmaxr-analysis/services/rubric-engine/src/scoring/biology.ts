@@ -51,13 +51,16 @@ function causalCoherence(truth: TruthInfo | null): DimensionResult {
   const stops = truth?.biology?.checkpoints ?? [];
   if (!stops.length) return { ...base, score: null, basis: 'No stops answered yet.', evidence: [], measures: {} };
   const cov = avg(stops.map((s) => s.coverageFirst));
-  const sel = avg(stops.map((s) => (s.selection.glands + s.selection.juices + (s.selection.components ?? s.selection.juices) + s.selection.nutrients) / 4));
+  const sel = avg(stops.map((s) => {
+    const parts = Object.entries(s.selection).filter(([, v]) => typeof v === 'number') as [string, number][];
+    return parts.length ? avg(parts.map(([, v]) => v)) : 0;
+  }));
   const blend = 0.6 * cov + 0.4 * sel;
   const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
   return {
     ...base,
     score,
-    basis: `First explanations covered ${Math.round(cov * 100)}% of the key ideas and the predicted glands, juices, enzymes and nutrients were ${Math.round(sel * 100)}% right, across ${stops.length} stop${stops.length > 1 ? 's' : ''}.`,
+    basis: `First explanations covered ${Math.round(cov * 100)}% of the key ideas and the answers to the question groups were ${Math.round(sel * 100)}% right, across ${stops.length} stop${stops.length > 1 ? 's' : ''}.`,
     evidence: [],
     measures: { stops: stops.length, keyIdeas: r2(cov), selections: r2(sel), blend: r2(blend) },
   };
@@ -67,8 +70,13 @@ function transfer(truth: TruthInfo | null): DimensionResult {
   const base = { key: 'transfer' as const, label: LABELS.transfer, max: 3 as const };
   const fin = truth?.biology?.final;
   if (!fin) return { ...base, score: null, basis: 'The "what if?" challenge has not been submitted.', evidence: [], measures: {} };
-  const score = fin.total ? Math.round((fin.correct / fin.total) * 3) : 0;
-  return { ...base, score, basis: `Applied the journey to new situations: ${fin.correct} of ${fin.total} “what if?” questions right.`, evidence: [], measures: { correct: fin.correct, total: fin.total } };
+  const mcq = fin.total ? fin.correct / fin.total : 0;
+  // When the lesson closes with an explain-back, it counts for half.
+  const hasExplain = typeof fin.explainCoverage === 'number';
+  const blend = hasExplain ? 0.5 * mcq + 0.5 * (fin.explainCoverage as number) : mcq;
+  const score = Math.round(blend * 3);
+  const extra = hasExplain ? ` and covered ${Math.round((fin.explainCoverage as number) * 100)}% of the key ideas when explaining the whole pathway` : '';
+  return { ...base, score, basis: `Applied the journey to new situations: ${fin.correct} of ${fin.total} “what if?” questions right${extra}.`, evidence: [], measures: { correct: fin.correct, total: fin.total, ...(hasExplain ? { explainCoverage: r2(fin.explainCoverage as number) } : {}) } };
 }
 
 function stats(events: EventRow[], truth: TruthInfo | null, sensor: SensorData | null, device: Device): { kind: Device; items: StatItem[] } {
@@ -93,7 +101,7 @@ function stats(events: EventRow[], truth: TruthInfo | null, sensor: SensorData |
   return { kind: device, items: [...common, { label: 'Camera movement', value: m(head), hint: 'How far they orbited the model' }, { label: 'Pointer travel', value: m(hand), hint: 'Mouse / touch path' }] };
 }
 
-export function scoreBiology(events: EventRow[], sensor: SensorData | null, device: Device, truth: TruthInfo | null = null): Report {
+export function scoreBiology(events: EventRow[], sensor: SensorData | null, device: Device, truth: TruthInfo | null = null, lessonType: 'biology_digestive_system' | 'biology_respiratory_system' = 'biology_digestive_system'): Report {
   const { pairs, unpredicted } = pairActions(events);
   const dims: DimensionResult[] = [
     predictionDiscipline(events, pairs, unpredicted),
@@ -109,7 +117,7 @@ export function scoreBiology(events: EventRow[], sensor: SensorData | null, devi
   const stops = truth?.biology?.checkpoints ?? [];
   return {
     rubricVersion: `${RUBRIC_VERSION}-biology`,
-    lessonType: 'biology_digestive_system',
+    lessonType,
     device,
     complete: truth?.biology?.final != null,
     dimensions: dims,

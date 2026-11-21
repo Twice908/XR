@@ -80,7 +80,9 @@ export function describeEvent(e: TraceEvent): string {
       return 'Started the “what if?” challenge'
     case 'predict_selection': {
       const n = (k: string) => (Array.isArray(d[k]) ? (d[k] as unknown[]).length : 0)
-      return `Stop ${str(d.sample)}: predicted ${n('glands')} gland${n('glands') === 1 ? '' : 's'}, ${n('juices')} juice${n('juices') === 1 ? '' : 's'}, ${n('components')} enzyme${n('components') === 1 ? '' : 's'}/chemical${n('components') === 1 ? '' : 's'}, ${n('nutrients')} nutrient${n('nutrients') === 1 ? '' : 's'} (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
+      const groups = Array.isArray(d.groups) ? (d.groups as string[]) : ['glands', 'juices', 'components', 'nutrients']
+      const total = groups.reduce((a, k) => a + n(k), 0)
+      return `Stop ${str(d.sample)}: predicted ${total} option${total === 1 ? '' : 's'} across ${groups.length} question groups (${['', 'a guess', 'fairly sure', 'certain'][Number(d.confidence) || 0] ?? ''}, ${Math.round(Number(d.decisionMs) / 100) / 10}s to decide)`
     }
     case 'commit_explanation':
       return `Stop ${str(d.sample)}: explained ${d.inputMode === 'voice' ? 'aloud' : 'in writing'} (${str(d.words)} words)`
@@ -120,11 +122,14 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id.startsWith('physics-electricity')) return 'Electricity & Circuits'
   if (id.startsWith('physics-magnetism')) return 'Magnetism & Electromagnetism'
   if (id === 'physics-motion' || id.startsWith('physics-motion')) return 'Motion, Forces & Gravitation'
+  if (id.startsWith('biology-respiratory')) return 'Human Respiratory System'
   if (id.startsWith('biology')) return 'Human Digestive System'
   if (id.startsWith('metals')) return 'Metals & Non-Metals'
   if (id.startsWith('chemistry')) return 'Acids, Bases & Indicators'
+  if (id.startsWith('physics-sound')) return 'Sound & Waves'
   if (id.startsWith('physics-light')) return 'Light: Reflection & Spherical Mirrors'
   if (id.startsWith('physics')) return 'Bohr Model Spectral Lab'
   return id

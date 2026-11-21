@@ -4,6 +4,7 @@ import { scoreBiology } from './biology';
 import { scoreMotion } from './motion';
 import { scorePhysics } from './physics';
 import { scoreOptics } from './optics';
+import { scoreSound } from './sound';
 import type { Device, EventRow, Report, SensorData, TruthInfo } from './types';
 
 export * from './types';
@@ -21,7 +22,9 @@ export function detectLesson(events: EventRow[]): Report['lessonType'] {
   const entered = events.find((e) => e.object_data?.action === 'enter_lab');
   const target = String(entered?.object_data?.target ?? '');
   if (target.startsWith('physics-light') || events.some((e) => e.object_data?.action === 'predict_image')) return 'physics_optics';
-  if (target.startsWith('physics-motion') || target.startsWith('physics-magnetism') || events.some((e) => e.object_data?.action === 'predict_trial')) return 'physics_motion';
+  if (target.startsWith('physics-sound') || events.some((e) => e.object_data?.action === 'predict_sound')) return 'physics_waves_sound';
+  if (target.startsWith('physics-motion') || target.startsWith('physics-magnetism') || target.startsWith('physics-electricity') || events.some((e) => e.object_data?.action === 'predict_trial')) return 'physics_motion';
+  if (target.startsWith('biology-respiratory')) return 'biology_respiratory_system';
   if (target.startsWith('biology') || events.some((e) => e.object_data?.action === 'predict_selection')) return 'biology_digestive_system';
   if (target.startsWith('metals') || events.some((e) => e.object_data?.action === 'predict_outcome')) return 'chemistry_metals';
   if (target.startsWith('chemistry') || events.some((e) => e.object_data?.action === 'predict_color')) return 'chemistry_indicators';
@@ -34,9 +37,10 @@ export function analyze(events: EventRow[], sensor: SensorData | null, truth: Tr
   const device = detectDevice(ordered, sensor);
   const lesson = detectLesson(ordered);
   if (lesson === 'physics_optics') return scoreOptics(ordered, sensor, device, truth);
+  if (lesson === 'physics_waves_sound') return scoreSound(ordered, sensor, device, truth);
   if (lesson === 'physics_bohr') return scorePhysics(ordered, sensor, device);
   if (lesson === 'physics_motion') return scoreMotion(ordered, sensor, device, truth);
-  if (lesson === 'biology_digestive_system') return scoreBiology(ordered, sensor, device, truth);
+  if (lesson === 'biology_digestive_system' || lesson === 'biology_respiratory_system') return scoreBiology(ordered, sensor, device, truth, lesson);
   if (lesson === 'chemistry_metals') return scoreMetals(ordered, sensor, device, truth);
   return scoreChemistry(ordered, sensor, device, truth);
 }

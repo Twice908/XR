@@ -39,8 +39,8 @@ export function reviseStop(session: LabSessionRef, checkpoint: string, explanati
   return post<{ coverage: number; keywords: { keyword: string; matched: boolean }[]; revisions: number; maxRevisions: number }>(session, 'revise', { checkpoint, explanation })
 }
 
-export function submitChallenge(session: LabSessionRef, answers: Record<string, string>): Promise<BiologyFinalResult> {
-  return post<BiologyFinalResult>(session, 'final', { answers })
+export function submitChallenge(session: LabSessionRef, body: { answers: Record<string, string>; explanation?: string; inputMode?: 'voice' | 'typed'; speakMs?: number }): Promise<BiologyFinalResult> {
+  return post<BiologyFinalResult>(session, 'final', body)
 }
 
 /** Best effort: the explanation is already scored; the recording is kept for the instructor. */

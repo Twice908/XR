@@ -1,5 +1,5 @@
 import { XapiVerb } from '@mmaxr/schema'
-import type { BiologyLessonContract } from '@mmaxr/schema'
+import type { BiologyLessonContract, BiologyOption } from '@mmaxr/schema'
 import { go } from '../router'
 import { CoachClient, loadMode } from '../services/aiCoach'
 import type { LabSession } from '../services/session'
@@ -9,6 +9,8 @@ import { telemetry } from '../services/telemetry'
 import { BiologyHud, type BiologyHudHandlers } from '../lab/biologyHud'
 import { buildBiologySnapshot, say } from '../lab/biologyCoach'
 import { BiologyScene } from '../lab/biologyScene'
+import { RespiratoryScene } from '../lab/respiratoryScene'
+import type { JourneyScene } from '../lab/journeyScene'
 import { CoachPanel } from '../lab/coachPanel'
 import { JourneyExperiment, StateError } from '../state/biology'
 import { toast } from '../ui/components'
@@ -26,7 +28,8 @@ interface Ctx {
 export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
   const exp = new JourneyExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
-  const scene = new BiologyScene(canvas, lesson, { onProgress: (d, t) => (status.querySelector('p')!.textContent = `Preparing your lab… ${d}/${t}`) })
+  const sceneEvents = { onProgress: (d: number, t: number) => (status.querySelector('p')!.textContent = `Preparing your lab… ${d}/${t}`) }
+  const scene: JourneyScene = lesson.type === 'biology_respiratory_system' ? new RespiratoryScene(canvas, lesson, sceneEvents) : new BiologyScene(canvas, lesson, sceneEvents)
   let hud: BiologyHud | null = null
   let coach: CoachClient | null = null
   let idleTimer: number | null = null
@@ -67,7 +70,9 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
         if (audio) void uploadAudio(session, body.checkpoint, audio).catch(() => {})
         const wrong = !reveal.selectionScore.allCorrect || reveal.coverage < 0.5
         if (wrong) coach?.event('prediction_mismatch', say.mismatch(exp.stop.cp.organName), buildBiologySnapshot(exp))
-        const labels = [...reveal.answer.juices, ...reveal.answer.components].filter((j) => j.id !== 'none').map((j) => j.label)
+        // The names floated over the animation come from the groups the lesson lists (digestive: juices and enzymes).
+        const labelOf = (k: string) => ((reveal.answer[k] as BiologyOption[] | undefined) ?? []).filter((j) => j.id !== 'none').map((j) => j.label)
+        const labels = (lesson.revealLabels ?? ['juices', 'components']).flatMap(labelOf)
         // Hold a second, clear the lower panel, then let the enzyme action play on its own with a mini timer.
         hud!.setBusy('Answer received. Watch what happens inside…')
         await new Promise((r) => setTimeout(r, 1000))
@@ -76,10 +81,11 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
         exp.recordReveal(reveal)
         const total = 5000
         const t0 = performance.now()
-        const tick = window.setInterval(() => hud!.setTimer(total - (performance.now() - t0)), 100)
-        hud!.setTimer(total)
+        const timerLabel = lesson.revealTimerLabel
+        const tick = window.setInterval(() => hud!.setTimer(total - (performance.now() - t0), timerLabel), 100)
+        hud!.setTimer(total, timerLabel)
         try {
-          await scene.playReveal(body.checkpoint, labels.length ? labels : reveal.answer.nutrients.map((n) => n.label), total)
+          await scene.playReveal(body.checkpoint, labels.length ? labels : labelOf(exp.groups[exp.groups.length - 1].key), total)
         } finally {
           window.clearInterval(tick)
           hud!.setWatching(false)
@@ -112,6 +118,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
       if (exp.isLastStop) {
         guard(() => exp.next())
         hud!.update()
+        void scene.enterFinal?.()
         coach?.event('ready_to_submit', say.ready, buildBiologySnapshot(exp))
         return
       }
@@ -126,12 +133,13 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
       exp.scenarioAnswers[id] = option
       hud!.update()
     },
-    onSubmitFinal: async () => {
+    onSubmitFinal: async (audio) => {
       if (working || !exp.canSubmitFinal) return
       working = true
       hud!.setBusy('Checking your answers…')
       try {
-        const result = await submitChallenge(session, exp.scenarioAnswers)
+        const result = await submitChallenge(session, exp.finalPayload())
+        if (audio) void uploadAudio(session, 'final', audio).catch(() => {})
         exp.finish(result)
         hud!.setBusy(null)
         coach?.reveal(buildBiologySnapshot(exp))
@@ -205,6 +213,6 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
   status.remove()
   hud.update()
   void scene.arrive(0)
-  ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers }
+  ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers, session }
   return cleanup
 }

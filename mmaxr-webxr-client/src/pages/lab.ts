@@ -15,6 +15,7 @@ import { Hud, type HudHandlers } from '../lab/hud'
 import { startMetalsLab } from './metalsLab'
 import { startBiologyLab } from './biologyLab'
 import { startOpticsLab } from './opticsLab'
+import { startSoundLab } from './soundLab'
 import { askReasoning } from '../lab/reasoningDialog'
 import { sendReasoning } from '../services/reasoningApi'
 import { wordsIn } from '../lab/voiceBox'
@@ -54,16 +55,22 @@ export function labPage(lessonId: string): Page {
         metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
         return
       }
-      if (raw.type === 'physics_mechanics_sandbox' || raw.type === 'physics_electromagnetism') {
+      if (raw.type === 'physics_mechanics_sandbox' || raw.type === 'physics_electromagnetism' || raw.type === 'physics_circuits') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startMotionLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
         return
       }
-      if (raw.type === 'biology_digestive_system') {
+      if (raw.type === 'biology_digestive_system' || raw.type === 'biology_respiratory_system') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startBiologyLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        return
+      }
+      if (raw.type === 'physics_waves_sound') {
+        telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
+        telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
+        metalsCleanup = await startSoundLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
         return
       }
       if (raw.type === 'physics_optics') {

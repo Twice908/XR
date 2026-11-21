@@ -399,3 +399,29 @@ describe('reasoning counts towards causal coherence', () => {
     expect(none.basis).not.toContain('reasoning');
   });
 });
+
+describe('respiratory-system journey scoring', () => {
+  const stop = (n: number) => ({ id: `s${n}`, n, selection: { organs: 1, features: 1, processes: 1, molecules: 1, allCorrect: true }, coverageFirst: 1, coverageFinal: 1, revisions: 0, inputMode: 'voice' as const, speakMs: 20000, thinkMs: 9000 });
+  const run = (fin: { correct: number; total: number; explainCoverage?: number | null } | null) => {
+    id = 0; t = 1_000_000;
+    const evs: EventRow[] = [ev('investigated', 'enter_lab', { target: 'biology-respiratory' })];
+    for (let i = 1; i <= 3; i++) {
+      const data = { sample: i, tool: 'explain' };
+      evs.push(ev('predicted', 'predict_selection', { target: `checkpoint:s${i}`, value: 'x', data: { ...data, decisionMs: 9000, confidence: 3 } }, 9000));
+      evs.push(ev('acted', 'commit_explanation', { target: `checkpoint:s${i}`, value: 'explain', data }, 20000));
+      evs.push(ev('observed', 'reveal_shown', { target: `checkpoint:s${i}`, value: 'correct', data: { ...data, match: true } }, 10));
+    }
+    return analyze(evs, null, { tubes: [], submission: null, biology: { checkpoints: [1, 2, 3].map(stop), final: fin } });
+  };
+
+  it('is detected as the respiratory lesson and scores question groups it has never heard of', () => {
+    const r = run({ correct: 8, total: 8, explainCoverage: 1 });
+    expect(r.lessonType).toBe('biology_respiratory_system');
+    expect(score(r, 'causalCoherence')).toBe(3);
+  });
+  it('counts the closing explanation as half of transfer', () => {
+    expect(score(run({ correct: 8, total: 8, explainCoverage: 0 }), 'transfer')).toBe(2); // 0.5 * 3 = 1.5, rounded
+    expect(score(run({ correct: 8, total: 8, explainCoverage: 1 }), 'transfer')).toBe(3);
+    expect(score(run({ correct: 4, total: 8 }), 'transfer')).toBe(2); // digestive-style: no explanation
+  });
+});

@@ -1,17 +1,13 @@
 import { XapiVerb } from '@mmaxr/schema'
-import type { BiologyCheckpoint, BiologyFinalResult, BiologyLessonContract, BiologyReveal, TelemetryEvent } from '@mmaxr/schema'
+import type { BiologyCheckpoint, BiologyFinalResult, BiologyGroup, BiologyLessonContract, BiologyReveal, TelemetryEvent } from '@mmaxr/schema'
 
 export type Stage = 'predict' | 'explain' | 'revealed' | 'final' | 'done'
 export type Confidence = 1 | 2 | 3
-export type Group = 'glands' | 'juices' | 'components' | 'nutrients'
+/** A question group key. Each lesson names its own (digestive: glands, juices ...; respiratory: organs, features ...). */
+export type Group = string
 export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
 
-export interface Selection {
-  glands: string[]
-  juices: string[]
-  components: string[]
-  nutrients: string[]
-}
+export type Selection = Record<string, string[]>
 
 export interface Stop {
   cp: BiologyCheckpoint
@@ -26,6 +22,15 @@ export interface Stop {
   /** Best keyword coverage so far, including revisions. */
   coverage: number
 }
+
+/** Digestive lessons predate `groups`; this is what they ask. */
+export const DEFAULT_GROUPS: BiologyGroup[] = [
+  { key: 'glands', question: 'Which glands act here?' },
+  { key: 'juices', question: 'Which digestive juices?' },
+  { key: 'components', question: 'Which enzymes or chemicals are in them?' },
+  { key: 'nutrients', question: 'Which nutrients are being worked on?' },
+]
+export const groupsOf = (lesson: { groups?: BiologyGroup[] }): BiologyGroup[] => (lesson.groups?.length ? lesson.groups : DEFAULT_GROUPS)
 
 export class StateError extends Error {}
 
@@ -66,6 +71,10 @@ export class JourneyExperiment {
   readonly stops: Stop[]
   scenarioAnswers: Record<string, string> = {}
   finalResult: BiologyFinalResult | null = null
+  /** The closing explain-back, when the lesson has one. */
+  finalText = ''
+  finalMode: 'voice' | 'typed' = 'typed'
+  finalSpeakMs = 0
   private arrivedAt: number
   private predictedAt = 0
   /** Fresh for every run, so the option order differs between attempts and between stops. */
@@ -76,7 +85,7 @@ export class JourneyExperiment {
     private readonly emit: Emit,
     private readonly now: () => number = Date.now,
   ) {
-    this.stops = lesson.checkpoints.map((cp) => ({ cp, selection: { glands: [], juices: [], components: [], nutrients: [] }, confidence: null, explanation: '', inputMode: 'typed', speakMs: 0, thinkMs: 0, reveal: null, revisions: 0, coverage: 0 }))
+    this.stops = lesson.checkpoints.map((cp) => ({ cp, selection: Object.fromEntries(groupsOf(lesson).map((g) => [g.key, [] as string[]])), confidence: null, explanation: '', inputMode: 'typed', speakMs: 0, thinkMs: 0, reveal: null, revisions: 0, coverage: 0 }))
     this.arrivedAt = this.now()
     this.emit(XapiVerb.INVESTIGATED, { action: 'arrive_checkpoint', target: this.stop.cp.id, value: 1 })
   }
@@ -90,6 +99,10 @@ export class JourneyExperiment {
   scenarioOptions(scenarioId: string) {
     const sc = this.lesson.transfer.scenarios.find((x) => x.id === scenarioId)
     return sc ? shuffleOptions(sc.options, `${this.seed}|${scenarioId}`, () => false) : []
+  }
+
+  get groups(): BiologyGroup[] {
+    return groupsOf(this.lesson)
   }
 
   get stop(): Stop {
@@ -126,11 +139,11 @@ export class JourneyExperiment {
 
   get canLock(): boolean {
     const s = this.stop
-    return this.stage === 'predict' && s.selection.glands.length > 0 && s.selection.juices.length > 0 && s.selection.components.length > 0 && s.selection.nutrients.length > 0 && s.confidence !== null
+    return this.stage === 'predict' && this.groups.every((g) => s.selection[g.key].length > 0) && s.confidence !== null
   }
 
   lockPrediction(): void {
-    if (!this.canLock) throw new StateError('Choose a gland, a juice, an enzyme or chemical and a nutrient, then say how sure you are.')
+    if (!this.canLock) throw new StateError('Choose at least one option in every group, then say how sure you are.')
     const s = this.stop
     this.predictedAt = this.now()
     s.thinkMs = this.predictedAt - this.arrivedAt
@@ -138,8 +151,8 @@ export class JourneyExperiment {
     this.emit(XapiVerb.PREDICTED, {
       action: 'predict_selection',
       target: `checkpoint:${s.cp.id}`,
-      value: [...s.selection.glands, ...s.selection.juices, ...s.selection.components, ...s.selection.nutrients].join(','),
-      data: { sample: this.n, tool: 'explain', checkpoint: s.cp.id, confidence: s.confidence, decisionMs: s.thinkMs, glands: s.selection.glands, juices: s.selection.juices, components: s.selection.components, nutrients: s.selection.nutrients },
+      value: this.groups.flatMap((g) => s.selection[g.key]).join(','),
+      data: { sample: this.n, tool: 'explain', checkpoint: s.cp.id, confidence: s.confidence, decisionMs: s.thinkMs, groups: this.groups.map((g) => g.key), ...s.selection },
     })
   }
 
@@ -201,14 +214,19 @@ export class JourneyExperiment {
 
   // ---- final challenge ----
   get canSubmitFinal(): boolean {
-    return this.stage === 'final' && this.lesson.transfer.scenarios.every((s) => this.scenarioAnswers[s.id])
+    const fe = this.lesson.finalExplain
+    return this.stage === 'final' && this.lesson.transfer.scenarios.every((s) => this.scenarioAnswers[s.id]) && (!fe || wordCount(this.finalText) >= fe.minWords)
+  }
+
+  finalPayload() {
+    return { answers: this.scenarioAnswers, explanation: this.finalText.trim(), inputMode: this.finalMode, speakMs: this.finalSpeakMs }
   }
 
   finish(result: BiologyFinalResult): void {
     if (this.stage === 'done') return
     this.finalResult = result
     this.stage = 'done'
-    this.emit(XapiVerb.EXPLAINED, { action: 'submit_final', data: { answered: Object.keys(this.scenarioAnswers).length } })
+    this.emit(XapiVerb.EXPLAINED, { action: 'submit_final', data: { answered: Object.keys(this.scenarioAnswers).length, ...(this.lesson.finalExplain ? { words: wordCount(this.finalText), inputMode: this.finalMode, coverage: result.explain?.coverage ?? null } : {}) } })
     this.emit(XapiVerb.EXPLAINED, { action: 'submit_analysis', data: { checkpoints: this.stops.length, revisions: this.stops.reduce((a, s) => a + s.revisions, 0) } })
   }
 
@@ -222,6 +240,7 @@ export class JourneyExperiment {
       revisions: stops.reduce((a, s) => a + s.revisions, 0),
       challengeCorrect: this.finalResult?.correct ?? 0,
       challengeTotal: this.finalResult?.total ?? this.lesson.transfer.scenarios.length,
+      finalCoverage: this.finalResult?.explain?.coverage ?? null,
     }
   }
 }

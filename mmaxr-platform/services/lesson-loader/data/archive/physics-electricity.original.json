@@ -1,0 +1,103 @@
+{
+  "lessonId": "physics-electricity",
+  "type": "physics_circuits",
+  "title": "Electricity & Circuits Lab",
+  "modelUrl": "http://localhost:3007/assets/models/electronics_lab_bench.glb",
+  "config": {
+    "enableScenarioSwitcher": true,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logLatency": true,
+      "logComponentValues": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "ohms_law",
+      "tabName": "Ohm's Law",
+      "setup": "A battery, a variable resistor, and an ammeter connected in a simple loop.",
+      "tasks": [
+        {
+          "id": "ohm_1",
+          "prompt": "Double the voltage from 2V to 4V. Predict what happens to the current.",
+          "predictionOptions": [
+            "Current will double",
+            "Current will halve",
+            "Current will stay the same"
+          ],
+          "expectedOutcome": "Current doubles. According to Ohm's Law (V = IR), current is directly proportional to voltage when resistance is constant.",
+          "isAnomaly": false
+        },
+        {
+          "id": "ohm_2_anomaly",
+          "prompt": "Keep the voltage at 4V. Double the resistance. Predict what happens to the current.",
+          "predictionOptions": [
+            "Current will double",
+            "Current will halve",
+            "Current will stay the same"
+          ],
+          "expectedOutcome": "Current halves. Current is inversely proportional to resistance.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Many students intuitively think 'more resistance means more current'. Ohm's Law shows the opposite: I = V/R. Higher resistance means lower current for the same voltage."
+        }
+      ]
+    },
+    {
+      "id": "series_parallel",
+      "tabName": "Series vs. Parallel",
+      "setup": "Two identical bulbs, a battery, and a switch. A toggle to wire them in series or parallel.",
+      "tasks": [
+        {
+          "id": "circuit_1",
+          "prompt": "Wire the bulbs in SERIES. Predict their brightness compared to a single bulb.",
+          "predictionOptions": [
+            "Both will be equally bright",
+            "Both will be dimmer than a single bulb",
+            "Both will be brighter than a single bulb"
+          ],
+          "expectedOutcome": "Both will be dimmer. In series, the voltage is shared between the bulbs, so each gets less voltage.",
+          "isAnomaly": false
+        },
+        {
+          "id": "circuit_2_anomaly",
+          "prompt": "In the SERIES circuit, unscrew one bulb. Predict what happens to the other bulb.",
+          "predictionOptions": [
+            "The other bulb stays lit",
+            "The other bulb goes out",
+            "The other bulb gets brighter"
+          ],
+          "expectedOutcome": "The other bulb goes out. In a series circuit, there is only one path for current. Breaking the circuit anywhere stops the flow everywhere.",
+          "isAnomaly": true,
+          "anomalyExplanation": "In a parallel circuit, removing one bulb does not affect the other because each has its own path to the battery. This is a critical difference."
+        }
+      ]
+    },
+    {
+      "id": "heating_fuse",
+      "tabName": "Heating Effect",
+      "setup": "A thin fuse wire in a circuit with a variable voltage source.",
+      "tasks": [
+        {
+          "id": "fuse_1",
+          "prompt": "Slowly increase the voltage. Predict what will happen to the fuse wire.",
+          "predictionOptions": [
+            "It will get colder",
+            "It will glow and melt",
+            "It will stay the same"
+          ],
+          "expectedOutcome": "It will glow and melt. The heating effect of current (H = I²Rt) causes the wire to heat up. If the current is too high, the wire melts, breaking the circuit.",
+          "isAnomaly": false
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasVoltageSlider": true,
+    "hasResistanceSlider": true,
+    "hasCircuitToggle": true,
+    "hasAmmeterDisplay": true,
+    "hasVoltmeterDisplay": true
+  }
+}

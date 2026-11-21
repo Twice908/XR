@@ -55,7 +55,7 @@ export interface SensorDataRow {
 }
 // 6. chemistry lesson contract
 
-export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract | OpticsLessonContract | MotionLessonContract;
+export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract | OpticsLessonContract | SoundLessonContract | MotionLessonContract;
 
 export interface PhysicsLessonContract {
   lessonId: string;
@@ -126,7 +126,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism";
+  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_waves_sound";
   title: string;
   subject: string | null;
   summary: string | null;
@@ -215,6 +215,11 @@ export interface MetalsRevealSample {
 
 
 // 11. Human Digestive System: guided journey
+export interface BiologyGroup {
+  key: string;
+  question: string;
+}
+
 export interface BiologyOption {
   id: string;
   label: string;
@@ -230,7 +235,8 @@ export interface BiologyCheckpoint {
   /** Where the organ sits on the teaching torso model. */
   modelAnchor: { x: number; y: number; z: number };
   /** Close-up model shown beside the torso at this stop. */
-  detail: "tooth" | "stomach" | "liver" | "salivary" | "pancreas" | null;
+  /** Which close-up model is shown beside the body at this stop (digestive: tooth, stomach, liver, salivary, pancreas; respiratory: nasal, larynx, alveolus, diaphragm, cell, anaerobic). */
+  detail: string | null;
 }
 
 export interface BiologyScenario {
@@ -241,17 +247,25 @@ export interface BiologyScenario {
 
 export interface BiologyLessonContract {
   lessonId: string;
-  type: "biology_digestive_system";
+  type: "biology_digestive_system" | "biology_respiratory_system";
   title: string;
   modelUrl: string;
   subject?: string;
   summary?: string;
   durationMinutes?: number;
   difficulty?: string;
-  assets: { digestiveSystem: string; stomach: string; liver: string; tooth: string };
+  assets: Record<string, string>;
+  /** The question groups each stop asks, in order. Older lessons omit this and use glands, juices, components, nutrients. */
+  groups?: BiologyGroup[];
+  /** A closing explain-back (the respiratory lesson asks for the whole oxygen pathway). The expected keywords stay on the server. */
+  finalExplain?: { prompt: string; minWords: number };
+  /** Which answer groups name the things floated over the reveal animation (default: juices, components). */
+  revealLabels?: string[];
+  /** Wording for the countdown while the reveal animation plays (default: "Watch the enzymes at work"). */
+  revealTimerLabel?: string;
   /** Salivary glands and pancreas have no downloaded model: the client builds them procedurally. */
   config: { isGuidedTour: boolean; requireAudioExplanation: boolean; minExplanationWords: number; maxRevisions: number };
-  choices: { glands: BiologyOption[]; juices: BiologyOption[]; components: BiologyOption[]; nutrients: BiologyOption[] };
+  choices: Record<string, BiologyOption[]>;
   checkpoints: BiologyCheckpoint[];
   transfer: { scenarios: BiologyScenario[] };
 }
@@ -259,8 +273,8 @@ export interface BiologyLessonContract {
 export interface BiologyReveal {
   checkpoint: string;
   explanation: string;
-  answer: { glands: BiologyOption[]; juices: BiologyOption[]; components: BiologyOption[]; nutrients: BiologyOption[]; targetNutrient: string };
-  selectionScore: { glands: number; juices: number; components: number; nutrients: number; allCorrect: boolean };
+  answer: Record<string, BiologyOption[] | string>;
+  selectionScore: { allCorrect: boolean } & Record<string, number | boolean>;
   keywords: { keyword: string; matched: boolean }[];
   coverage: number;
 }
@@ -269,6 +283,8 @@ export interface BiologyFinalResult {
   correct: number;
   total: number;
   results: { id: string; correct: boolean; answer: string; yourAnswer: string; explanation: string }[];
+  /** How well the closing explanation covered the key ideas, with a model answer to compare with. */
+  explain?: { coverage: number; keywords: { keyword: string; matched: boolean }[]; modelAnswer: string };
 }
 
 
@@ -439,7 +455,7 @@ export interface MotionScenario {
 }
 export interface MotionLessonContract {
   lessonId: string;
-  type: 'physics_mechanics_sandbox' | 'physics_electromagnetism';
+  type: 'physics_mechanics_sandbox' | 'physics_electromagnetism' | 'physics_circuits';
   /** Not used: the sandbox is built from the individual models in `assets`. */
   modelUrl?: string;
   subject: string;
@@ -466,4 +482,100 @@ export interface MotionExplanationResult {
   keywords: { keyword: string; matched: boolean }[];
   coverage: number;
   explanation: string;
+}
+
+
+// 13. Sound & Waves sandbox (three tabs)
+export type SoundTool = "wave" | "echo" | "sonar";
+
+export interface SoundOption {
+  id: string;
+  label: string;
+}
+
+export interface SoundTask {
+  id: string;
+  /** With this session's numbers filled in. */
+  prompt: string;
+  /** In this session's order. */
+  predictionOptions: SoundOption[];
+  /** Drawn for this session: only what places or sets the experiment. Never the answer. */
+  params: Record<string, number | string>;
+  /** Server-side only. */
+  answer?: string;
+  expectedOutcome?: string;
+  explanation?: string;
+  isAnomaly?: boolean;
+  anomalyExplanation?: string;
+  anchors?: string[][];
+  variants?: Record<string, number | string>[];
+}
+
+export interface SoundScenario {
+  id: string;
+  tabName: string;
+  setup: string;
+  tool: SoundTool;
+  tasks: SoundTask[];
+}
+
+export interface SoundLessonContract {
+  lessonId: string;
+  type: "physics_waves_sound";
+  title: string;
+  modelUrl: string;
+  subject?: string;
+  summary?: string;
+  durationMinutes?: number;
+  difficulty?: string;
+  assets: { tuningFork: string; oscilloscope: string; volumeIcon: string };
+  config: { enableScenarioSwitcher: boolean; minExplanationWords: number; maxExplanationWords?: number; requireAudioExplanation: boolean; minExplainDwellMs?: number };
+  scenarios: SoundScenario[];
+  uiSchema: { hasTabs: boolean; hasPredictionModal: boolean; hasFrequencySlider: boolean; hasAmplitudeSlider: boolean; hasStopwatch: boolean; hasSonarPulseButton: boolean };
+  /** Server-side only. */
+  uses?: { topic: string; examples: string[]; why: string }[];
+}
+
+/** What the student did to the experiment, checked by the lesson service before it answers. */
+export interface SoundAct {
+  freq?: number;
+  amp?: number;
+  clappedField?: boolean;
+  clappedRoom?: boolean;
+  /** Stopwatch reading in seconds. */
+  measuredT?: number;
+  pulse?: boolean;
+  scannedAudible?: boolean;
+  scannedUltra?: boolean;
+}
+
+/** Disclosed once the prediction is committed and the experiment run. Never carries the explanation or the answer to a calculation. */
+export interface SoundTrialResult {
+  id: string;
+  match: boolean;
+  anomaly?: boolean;
+  /** Readings to show on the instruments. */
+  data: Record<string, number | string>;
+}
+
+export interface SoundCalcResult {
+  ok: boolean;
+  attempts: number;
+  /** Set when accepted: the value to show. */
+  value?: number;
+}
+
+export interface SoundExplainResult {
+  ok: true;
+  words: number;
+  /** Disclosed only now that the student has explained the run themselves. */
+  reveal: { explanation: string; anomalyExplanation?: string; facts: Record<string, number | string> };
+}
+
+export interface SoundReveal {
+  tasks: { id: string; prompt: string; yourPrediction: string; right: boolean; answerLabel: string; explanation: string; facts: Record<string, number | string> }[];
+  correct: number;
+  total: number;
+  calcAttempts: number;
+  uses: { topic: string; examples: string[]; why: string }[];
 }
