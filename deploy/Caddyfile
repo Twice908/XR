@@ -1,0 +1,11 @@
+# One hostname, path-prefixed per service. Set API_HOST in .env (e.g. api.example.com, or <ip>.sslip.io for a free name).
+{$API_HOST} {
+	handle_path /session-auth/* { reverse_proxy session-auth:3004 }
+	handle_path /xapi-emitter/* { reverse_proxy xapi-emitter:3001 }
+	handle_path /object-store/* { reverse_proxy object-store:3006 }
+	handle_path /sensor-stream/* { reverse_proxy sensor-stream:3005 }
+	handle_path /lesson-loader/* { reverse_proxy lesson-loader:3007 }
+	handle_path /user-auth/* { reverse_proxy user-auth:3008 }
+	handle_path /rubric-engine/* { reverse_proxy rubric-engine:3002 }
+	handle_path /coach* { reverse_proxy ai-coach:3003 }
+}

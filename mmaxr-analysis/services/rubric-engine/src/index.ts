@@ -37,7 +37,7 @@ pool
   .catch((err) => console.error('device column check failed:', err));
 
 const s3Client = new S3Client({
-  region: 'us-east-1',
+  region: process.env.S3_REGION || 'us-east-1',
   endpoint: process.env.S3_ENDPOINT || 'http://localhost:9000',
   forcePathStyle: true,
   credentials: {

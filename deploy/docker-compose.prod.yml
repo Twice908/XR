@@ -1,0 +1,52 @@
+# Production stack for ONE free VM (Oracle Cloud Always Free ARM, or any Linux box).
+# Postgres + S3 come from Supabase, Redis is local, Caddy terminates HTTPS.
+#   cp deploy/.env.production.example deploy/.env && edit  ->  docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d --build
+x-common: &common
+  restart: unless-stopped
+  env_file: .env
+  depends_on: [redis]
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server","--appendonly","yes","--maxmemory","128mb","--maxmemory-policy","allkeys-lru"]
+    volumes: [redis-data:/data]
+  session-auth:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/session-auth } }
+    environment: { PORT: "3004" }
+  xapi-emitter:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/xapi-emitter } }
+    environment: { PORT: "3001" }
+  object-store:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/object-store } }
+    environment: { PORT: "3006" }
+  sensor-stream:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/sensor-stream } }
+    environment: { PORT: "3005" }
+  lesson-loader:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/lesson-loader } }
+    environment: { PORT: "3007" }
+  user-auth:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/user-auth } }
+    environment: { PORT: "3008" }
+  rubric-engine:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-analysis/services/rubric-engine } }
+    environment: { PORT: "3002" }
+  ai-coach:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-ai/services/ai-coach } }
+    environment: { PORT: "3003" }
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80","443:443"]
+    env_file: .env
+    volumes: [./Caddyfile:/etc/caddy/Caddyfile:ro, caddy-data:/data]
+volumes: { redis-data: {}, caddy-data: {} }
