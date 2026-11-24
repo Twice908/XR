@@ -1,6 +1,6 @@
 'use client'
 
-import { use } from 'react'
+import { usePathname } from 'next/navigation'
 import { Badge } from '@astryxdesign/core/Badge'
 import { Banner } from '@astryxdesign/core/Banner'
 import { Card } from '@astryxdesign/core/Card'
@@ -17,8 +17,9 @@ import { ScoreRing } from '@/components/ScoreRing'
 import { useSessionData, useStudents } from '@/hooks/useSessionData'
 import { VERB_VARIANT, describeEvent, formatClock, formatDateTime, lessonLabel } from '@/lib/trace'
 
-export default function SessionPage({ params }: { params: Promise<{ sessionId: string }> }) {
-  const { sessionId } = use(params)
+export default function SessionPage() {
+  // Static export: the id is read from the URL (a rewrite serves one shell for every id).
+  const sessionId = usePathname().split('/').filter(Boolean).pop() ?? ''
   const id = decodeURIComponent(sessionId)
   const { data, error, isLoading } = useSessionData(id)
   const students = useStudents()
