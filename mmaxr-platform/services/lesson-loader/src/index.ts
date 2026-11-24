@@ -35,11 +35,32 @@ const dataDir = path.join(__dirname, '../data');
 const isBiologyLesson = (l: { type?: string }) => l.type === 'biology_digestive_system' || l.type === 'biology_respiratory_system';
 const LESSON_ID_RE = /^[a-z0-9-]+$/;
 
+/**
+ * Contracts hardcode http://localhost:3007/assets/<path>. In production the models live on a CDN:
+ * ASSET_BASE_URL replaces that prefix; ASSET_OVERRIDES ("file.glb=https://full/url,...") re-points single files
+ * (e.g. models over a CDN's per-file size limit).
+ */
+const ASSET_BASE_URL = (process.env.ASSET_BASE_URL || '').replace(/\/+$/, '');
+const ASSET_OVERRIDES = new Map(
+  (process.env.ASSET_OVERRIDES || '').split(',').map((p) => p.trim()).filter(Boolean).map((p) => {
+    const i = p.indexOf('=');
+    return [p.slice(0, i), p.slice(i + 1)] as [string, string];
+  }),
+);
+function rewriteAssetUrls(raw: string): string {
+  if (!ASSET_BASE_URL && ASSET_OVERRIDES.size === 0) return raw;
+  let out = ASSET_BASE_URL ? raw.split('http://localhost:3007/assets').join(ASSET_BASE_URL) : raw;
+  for (const [file, url] of ASSET_OVERRIDES) {
+    out = out.replace(new RegExp(`https?://[^"\\s]*/models/${file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'g'), url);
+  }
+  return out;
+}
+
 function readLesson(lessonId: string): any | null {
   if (!LESSON_ID_RE.test(lessonId)) return null;
   const file = path.join(dataDir, `${lessonId}.json`);
   if (!fs.existsSync(file)) return null;
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
+  return JSON.parse(rewriteAssetUrls(fs.readFileSync(file, 'utf8')));
 }
 
 async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indicators' }) | MetalsAssignment | BiologyAssignment | OpticsAssignment | null> {
