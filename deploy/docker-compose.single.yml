@@ -1,0 +1,11 @@
+# Whole backend (8 services + Redis + gateway) as ONE container, ~175 MB RAM idle.
+# Runs on your spare laptop, or any host that accepts a Docker image (e.g. Back4app Containers).
+#   cp deploy/.env.production.example deploy/.env  (fill DATABASE_URL, S3_*, secrets)
+#   docker compose -f deploy/docker-compose.single.yml up -d --build
+services:
+  mmaxr:
+    build: { context: .., dockerfile: deploy/Dockerfile.single }
+    restart: unless-stopped
+    env_file: .env
+    environment: { PORT: "8080" }
+    ports: ["127.0.0.1:8080:8080"]

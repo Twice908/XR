@@ -1,5 +1,16 @@
 # MMAXR free-tier deployment
 
+## UPDATE — no credit card, no Render/Railway/Oracle
+Oracle needs a card for identity verification; Render and Railway trials are used up. Current plan:
+
+1. **Backend = ONE container on your spare laptop** (`deploy/Dockerfile.single`, `docker-compose.single.yml`): all 8 services + Redis + a path gateway on port 8080. Measured locally: builds, all 8 services boot, `/health` and per-service routes answer, ~175 MB RAM idle (services are esbuild-bundled).
+2. **Public HTTPS URL for it: Tailscale Funnel** (free, no card, stable `https://<machine>.<tailnet>.ts.net`, supports WebSockets) — `tailscale funnel 8080`. Alternative: Cloudflare Tunnel (named tunnels need a domain you own; quick `trycloudflare` URLs change every restart, testing only). *Not tested here — verify on your laptop.*
+3. **Postgres + file storage: Supabase** (no card). **Frontends: Cloudflare Pages + Vercel Hobby** (no card). **Models: Cloudflare R2** (check whether it asks for a card on signup; otherwise Supabase Storage public bucket).
+4. **Card-free cloud backup:** Back4app Containers (free, no card per its pricing page; 600 server-hours/month and small RAM — use the same single image). Koyeb's card policy is contradictory in sources; unverified.
+5. The **LRS** later goes on the same laptop (it is the same machine, so `LRS_URL=http://host.docker.internal:8080`).
+
+Trade-off: the laptop must stay on and online, and the public URL is only as reliable as its connection. Sections below describing Oracle/Render are superseded.
+
 Verified in this repo: the Docker image builds and `user-auth` boots and answers `/health`; the compose file validates.
 Free-tier numbers are from vendor pages / blogs checked Nov 2026 — **re-check the pricing pages before relying on them**.
 

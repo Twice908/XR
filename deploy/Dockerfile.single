@@ -1,0 +1,12 @@
+# ALL backend services in ONE container (for card-free hosts that give one free web service, e.g. Render).
+FROM node:22-slim
+RUN apt-get update && apt-get install -y --no-install-recommends redis-server caddy ca-certificates && rm -rf /var/lib/apt/lists/* && corepack enable
+WORKDIR /app
+COPY . .
+RUN pnpm install --frozen-lockfile
+# Precompile each service to one JS file: far lower RAM than running through tsx.
+RUN for d in mmaxr-platform/services/session-auth mmaxr-platform/services/xapi-emitter mmaxr-platform/services/object-store mmaxr-platform/services/sensor-stream mmaxr-platform/services/lesson-loader mmaxr-platform/services/user-auth mmaxr-analysis/services/rubric-engine mmaxr-ai/services/ai-coach; do \
+      (cd $d && npx --yes esbuild@0.25.4 src/index.ts --bundle --platform=node --format=cjs --target=node22 --outfile=dist/index.cjs --log-level=error) || exit 1; done
+ENV NODE_ENV=production REDIS_URL=redis://127.0.0.1:6379 \
+    OBJECT_STORE_URL=http://127.0.0.1:3006 SESSION_AUTH_URL=http://127.0.0.1:3004 LESSON_LOADER_URL=http://127.0.0.1:3007
+CMD ["bash", "deploy/start-all.sh"]

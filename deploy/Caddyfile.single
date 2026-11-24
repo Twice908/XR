@@ -1,0 +1,33 @@
+{
+	auto_https off
+	admin off
+}
+:{$PORT} {
+	handle /health {
+		respond "ok" 200
+	}
+	handle_path /session-auth/* {
+		reverse_proxy 127.0.0.1:3004
+	}
+	handle_path /xapi-emitter/* {
+		reverse_proxy 127.0.0.1:3001
+	}
+	handle_path /object-store/* {
+		reverse_proxy 127.0.0.1:3006
+	}
+	handle_path /sensor-stream/* {
+		reverse_proxy 127.0.0.1:3005
+	}
+	handle_path /lesson-loader/* {
+		reverse_proxy 127.0.0.1:3007
+	}
+	handle_path /user-auth/* {
+		reverse_proxy 127.0.0.1:3008
+	}
+	handle_path /rubric-engine/* {
+		reverse_proxy 127.0.0.1:3002
+	}
+	handle_path /coach* {
+		reverse_proxy 127.0.0.1:3003
+	}
+}
