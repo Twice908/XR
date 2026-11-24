@@ -1,2 +1,2 @@
-/sessions/*  /sessions/_.html  200
-/students/*  /students/_.html  200
+/sessions/*  /_shell/sessions  200
+/students/*  /_shell/students  200
