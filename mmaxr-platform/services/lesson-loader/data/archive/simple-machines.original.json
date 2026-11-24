@@ -1,0 +1,144 @@
+{
+  "lessonId": "simple-machines",
+  "type": "physics_simple_machines",
+  "title": "Simple Machines Lab",
+  "modelUrl": "http://localhost:3007/assets/models/simple_machines_bench.glb",
+  "config": {
+    "enableScenarioSwitcher": true,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logLatency": true,
+      "logForceValues": true,
+      "logDistanceValues": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "levers",
+      "tabName": "Levers",
+      "setup": "A lever, a movable fulcrum, and a load. The student can change the fulcrum position.",
+      "tasks": [
+        {
+          "id": "lever_1",
+          "prompt": "Move the fulcrum closer to the load. Predict what will happen to the effort required to lift the load.",
+          "predictionOptions": [
+            "Effort will increase",
+            "Effort will decrease",
+            "Effort will stay the same"
+          ],
+          "expectedOutcome": "Effort decreases. A longer effort arm gives a greater mechanical advantage.",
+          "isAnomaly": false
+        },
+        {
+          "id": "lever_2_anomaly",
+          "prompt": "Compare a wheelbarrow (Class 2 lever) and a pair of tweezers (Class 1 lever). Predict which requires less effort to lift a load.",
+          "predictionOptions": [
+            "The wheelbarrow requires less effort",
+            "The tweezers require less effort",
+            "They require the same effort"
+          ],
+          "expectedOutcome": "The wheelbarrow requires less effort.",
+          "isAnomaly": true,
+          "anomalyExplanation": "In a Class 2 lever (wheelbarrow), the load is between the fulcrum and the effort, giving a larger effort arm and a mechanical advantage greater than 1. Tweezers (Class 1) have the fulcrum in the middle, often with a mechanical advantage less than 1."
+        }
+      ]
+    },
+    {
+      "id": "pulleys",
+      "tabName": "Pulleys",
+      "setup": "A fixed pulley, a movable pulley, and a block-and-tackle system.",
+      "tasks": [
+        {
+          "id": "pulley_1",
+          "prompt": "Compare a single fixed pulley and a single movable pulley. Predict which one reduces the effort needed to lift a load.",
+          "predictionOptions": [
+            "The fixed pulley reduces effort",
+            "The movable pulley reduces effort",
+            "Neither reduces effort"
+          ],
+          "expectedOutcome": "The movable pulley reduces effort by half.",
+          "isAnomaly": false
+        },
+        {
+          "id": "pulley_2_anomaly",
+          "prompt": "Add more pulleys to create a block-and-tackle system. Predict what happens to the effort needed.",
+          "predictionOptions": [
+            "Effort decreases further",
+            "Effort increases",
+            "Effort stays the same"
+          ],
+          "expectedOutcome": "Effort decreases further, but the rope must be pulled a greater distance.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Each additional movable pulley halves the effort, but the trade-off is that you must pull twice as much rope. This is the fundamental trade-off of all simple machines: you gain force at the expense of distance."
+        }
+      ]
+    },
+    {
+      "id": "wheel_axle",
+      "tabName": "Wheel & Axle",
+      "setup": "A wheel and axle system attached to a well with a bucket of water.",
+      "tasks": [
+        {
+          "id": "wheel_1",
+          "prompt": "Turn the axle (the handle) with a small force. Predict what happens to the wheel.",
+          "predictionOptions": [
+            "The wheel turns with a larger force",
+            "The wheel turns with a smaller force",
+            "The wheel does not turn"
+          ],
+          "expectedOutcome": "The wheel turns with a larger force, lifting the bucket.",
+          "isAnomaly": false
+        },
+        {
+          "id": "wheel_2_anomaly",
+          "prompt": "Compare a thin handle and a thick handle. Predict which one makes it easier to turn the axle.",
+          "predictionOptions": [
+            "The thin handle is easier",
+            "The thick handle is easier",
+            "Both are equally easy"
+          ],
+          "expectedOutcome": "The thick handle is easier.",
+          "isAnomaly": true,
+          "anomalyExplanation": "A thicker handle acts as a larger wheel. The larger the radius of the wheel compared to the axle, the greater the mechanical advantage, so less force is needed to turn it."
+        }
+      ]
+    },
+    {
+      "id": "inclined_plane",
+      "tabName": "Inclined Plane",
+      "setup": "A heavy crate, a truck bed, and a ramp of adjustable length.",
+      "tasks": [
+        {
+          "id": "incline_1",
+          "prompt": "Lift the crate straight up versus pushing it up a long ramp. Predict which requires less effort.",
+          "predictionOptions": [
+            "Lifting straight up requires less effort",
+            "Pushing up the ramp requires less effort",
+            "Both require the same effort"
+          ],
+          "expectedOutcome": "Pushing up the ramp requires less effort.",
+          "isAnomaly": false
+        },
+        {
+          "id": "incline_2_anomaly",
+          "prompt": "Make the ramp longer and less steep. Predict what happens to the effort needed to push the crate.",
+          "predictionOptions": [
+            "Effort decreases further",
+            "Effort increases",
+            "Effort stays the same"
+          ],
+          "expectedOutcome": "Effort decreases further, but the crate must be pushed a longer distance.",
+          "isAnomaly": true,
+          "anomalyExplanation": "A longer, gentler ramp reduces the force needed, but you must push the crate over a greater distance. This is the same trade-off seen in all simple machines."
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasForceMeter": true,
+    "hasFulcrumSlider": true,
+    "hasRampLengthSlider": true
+  }
+}

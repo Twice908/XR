@@ -1,0 +1,5076 @@
+{
+  "lessonId": "simple-machines",
+  "type": "physics_simple_machines",
+  "subject": "Physics",
+  "title": "Simple Machines Lab",
+  "summary": "Levers, pulleys, a wheel and axle and an inclined plane: change the fulcrum, the ropes, the wheel or the ramp, read the force meter, and find out what you gain and what you pay for it. Predict first, then watch what really happens.",
+  "durationMinutes": 50,
+  "assets": {
+    "crowbar": "http://localhost:3007/assets/models/crowbar-lever.glb",
+    "cycleWheel": "http://localhost:3007/assets/models/cycle-wheel.glb",
+    "pulley": "http://localhost:3007/assets/models/pulley.glb",
+    "ramp": "http://localhost:3007/assets/models/ramp-inclined-plane.glb",
+    "wheel": "http://localhost:3007/assets/models/wheel-big.glb",
+    "crate": "http://localhost:3007/assets/models/modular-crate.glb",
+    "wheelbarrow": "http://localhost:3007/assets/models/wheelbarrow_construction_cart.glb",
+    "tweezers": "http://localhost:3007/assets/models/realistic_tweezers.glb"
+  },
+  "config": {
+    "enableScenarioSwitcher": true,
+    "minExplanationWords": 6,
+    "minPredictionMs": 0
+  },
+  "scenarios": [
+    {
+      "id": "levers",
+      "tabName": "Levers",
+      "title": "The Lever Bench",
+      "setup": "A bar, a movable fulcrum and a load, with a force meter on the effort end. Slide the fulcrum and read the force. Real levers (a crowbar, a wheelbarrow, tweezers and more) are then set up on the bench one at a time.",
+      "trials": [
+        {
+          "id": "lev_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "lever",
+          "law": {
+            "name": "Law of the lever",
+            "formula": "effort × effort arm = load × load arm"
+          },
+          "prompt": "A 2 m bar lifts a 200 N load at one end, with you pushing down on the other end. The fulcrum is 1 m from the load and the force meter reads 200 N. You slide the fulcrum closer to the load, to 0.5 m. How much effort is needed now?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "less",
+                "label": "Less effort"
+              },
+              {
+                "id": "more",
+                "label": "More effort"
+              },
+              {
+                "id": "same",
+                "label": "The same effort"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "less"
+          },
+          "outcome": "66.7 N: less than the 200 N.",
+          "explanation": "Effort × effort arm = load × load arm. Moving the fulcrum towards the load makes the load arm shorter and the effort arm longer, so the effort needed falls: 200 × 0.5 ÷ 1.5 = 66.7 N.",
+          "coachSecrets": [
+            "66.7 n"
+          ],
+          "params": {
+            "W": 200,
+            "L": 2,
+            "d1": 1.0,
+            "d2": 0.5
+          },
+          "variants": [
+            {
+              "prompt": "A 2 m bar lifts a 200 N load at one end, with you pushing down on the other end. The fulcrum is 1 m from the load and the force meter reads 200 N. You slide the fulcrum closer to the load, to 0.5 m. How much effort is needed now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "66.7 N: less than the 200 N.",
+              "explanation": "Effort × effort arm = load × load arm. Moving the fulcrum towards the load makes the load arm shorter and the effort arm longer, so the effort needed falls: 200 × 0.5 ÷ 1.5 = 66.7 N.",
+              "coachSecrets": [
+                "66.7 n"
+              ],
+              "params": {
+                "W": 200,
+                "L": 2,
+                "d1": 1.0,
+                "d2": 0.5
+              }
+            },
+            {
+              "prompt": "A 3 m bar lifts a 300 N load at one end, with you pushing down on the other end. The fulcrum is 1.2 m from the load and the force meter reads 200 N. You slide the fulcrum closer to the load, to 0.6 m. How much effort is needed now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "75 N: less than the 200 N.",
+              "explanation": "Effort × effort arm = load × load arm. Moving the fulcrum towards the load makes the load arm shorter and the effort arm longer, so the effort needed falls: 300 × 0.6 ÷ 2.4 = 75 N.",
+              "coachSecrets": [
+                "75 n"
+              ],
+              "params": {
+                "W": 300,
+                "L": 3,
+                "d1": 1.2,
+                "d2": 0.6
+              }
+            },
+            {
+              "prompt": "A 2.4 m bar lifts a 150 N load at one end, with you pushing down on the other end. The fulcrum is 0.4 m from the load and the force meter reads 30 N. You slide the fulcrum further from the load, to 0.8 m. How much effort is needed now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "more"
+              },
+              "outcome": "75 N: more than the 30 N.",
+              "explanation": "Effort × effort arm = load × load arm. Moving the fulcrum away from the load makes the load arm longer and the effort arm shorter, so the effort needed rises: 150 × 0.8 ÷ 1.6 = 75 N.",
+              "coachSecrets": [
+                "75 n"
+              ],
+              "params": {
+                "W": 150,
+                "L": 2.4,
+                "d1": 0.4,
+                "d2": 0.8
+              }
+            },
+            {
+              "prompt": "A 2 m bar lifts a 400 N load at one end, with you pushing down on the other end. The fulcrum is 0.8 m from the load and the force meter reads 266.7 N. You slide the fulcrum closer to the load, to 0.4 m. How much effort is needed now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "100 N: less than the 266.7 N.",
+              "explanation": "Effort × effort arm = load × load arm. Moving the fulcrum towards the load makes the load arm shorter and the effort arm longer, so the effort needed falls: 400 × 0.4 ÷ 1.6 = 100 N.",
+              "coachSecrets": [
+                "100 n"
+              ],
+              "params": {
+                "W": 400,
+                "L": 2,
+                "d1": 0.8,
+                "d2": 0.4
+              }
+            },
+            {
+              "prompt": "A 3 m bar lifts a 240 N load at one end, with you pushing down on the other end. The fulcrum is 1.5 m from the load and the force meter reads 240 N. You slide the fulcrum closer to the load, to 0.5 m. How much effort is needed now?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "48 N: less than the 240 N.",
+              "explanation": "Effort × effort arm = load × load arm. Moving the fulcrum towards the load makes the load arm shorter and the effort arm longer, so the effort needed falls: 240 × 0.5 ÷ 2.5 = 48 N.",
+              "coachSecrets": [
+                "48 n"
+              ],
+              "params": {
+                "W": 240,
+                "L": 3,
+                "d1": 1.5,
+                "d2": 0.5
+              }
+            }
+          ]
+        },
+        {
+          "id": "lev_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "lever",
+          "law": {
+            "name": "Law of the lever",
+            "formula": "effort × effort arm = load × load arm"
+          },
+          "prompt": "A 2 m bar lifts a 300 N load at one end. The fulcrum is 0.4 m from the load and you push down on the far end. Predict the force meter reading.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "effort",
+                "label": "Effort",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "effort": 75.0
+          },
+          "tolerance": 4.5,
+          "outcome": "75 N.",
+          "explanation": "Effort arm = 2 − 0.4 = 1.6 m. Effort = load × load arm ÷ effort arm = 300 × 0.4 ÷ 1.6 = 75 N.",
+          "coachSecrets": [
+            "75 n"
+          ],
+          "params": {
+            "W": 300,
+            "L": 2,
+            "d1": 0.4,
+            "d2": 0.4
+          },
+          "variants": [
+            {
+              "prompt": "A 2 m bar lifts a 300 N load at one end. The fulcrum is 0.4 m from the load and you push down on the far end. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 75.0
+              },
+              "tolerance": 4.5,
+              "outcome": "75 N.",
+              "explanation": "Effort arm = 2 − 0.4 = 1.6 m. Effort = load × load arm ÷ effort arm = 300 × 0.4 ÷ 1.6 = 75 N.",
+              "coachSecrets": [
+                "75 n"
+              ],
+              "params": {
+                "W": 300,
+                "L": 2,
+                "d1": 0.4,
+                "d2": 0.4
+              }
+            },
+            {
+              "prompt": "A 3 m bar lifts a 200 N load at one end. The fulcrum is 0.6 m from the load and you push down on the far end. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 50.0
+              },
+              "tolerance": 3.0,
+              "outcome": "50 N.",
+              "explanation": "Effort arm = 3 − 0.6 = 2.4 m. Effort = load × load arm ÷ effort arm = 200 × 0.6 ÷ 2.4 = 50 N.",
+              "coachSecrets": [
+                "50 n"
+              ],
+              "params": {
+                "W": 200,
+                "L": 3,
+                "d1": 0.6,
+                "d2": 0.6
+              }
+            },
+            {
+              "prompt": "A 2.5 m bar lifts a 500 N load at one end. The fulcrum is 1 m from the load and you push down on the far end. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 333.33
+              },
+              "tolerance": 20.0,
+              "outcome": "333.3 N.",
+              "explanation": "Effort arm = 2.5 − 1 = 1.5 m. Effort = load × load arm ÷ effort arm = 500 × 1 ÷ 1.5 = 333.3 N.",
+              "coachSecrets": [
+                "333.3 n"
+              ],
+              "params": {
+                "W": 500,
+                "L": 2.5,
+                "d1": 1.0,
+                "d2": 1.0
+              }
+            },
+            {
+              "prompt": "A 2 m bar lifts a 120 N load at one end. The fulcrum is 1.2 m from the load and you push down on the far end. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 180.0
+              },
+              "tolerance": 10.8,
+              "outcome": "180 N.",
+              "explanation": "Effort arm = 2 − 1.2 = 0.8 m. Effort = load × load arm ÷ effort arm = 120 × 1.2 ÷ 0.8 = 180 N.",
+              "coachSecrets": [
+                "180 n"
+              ],
+              "params": {
+                "W": 120,
+                "L": 2,
+                "d1": 1.2,
+                "d2": 1.2
+              }
+            },
+            {
+              "prompt": "A 3 m bar lifts a 360 N load at one end. The fulcrum is 0.5 m from the load and you push down on the far end. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 72.0
+              },
+              "tolerance": 4.3,
+              "outcome": "72 N.",
+              "explanation": "Effort arm = 3 − 0.5 = 2.5 m. Effort = load × load arm ÷ effort arm = 360 × 0.5 ÷ 2.5 = 72 N.",
+              "coachSecrets": [
+                "72 n"
+              ],
+              "params": {
+                "W": 360,
+                "L": 3,
+                "d1": 0.5,
+                "d2": 0.5
+              }
+            }
+          ]
+        },
+        {
+          "id": "lev_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "lever_pair",
+          "law": {
+            "name": "Law of the lever",
+            "formula": "effort × effort arm = load × load arm"
+          },
+          "prompt": "The same 300 N load is lifted with a wheelbarrow (a class 2 lever) and with a pair of tweezers (a class 3 lever). Which needs less effort?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "a",
+                "label": "The wheelbarrow"
+              },
+              {
+                "id": "b",
+                "label": "The pair of tweezers"
+              },
+              {
+                "id": "same",
+                "label": "They need the same effort"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "a"
+          },
+          "outcome": "The wheelbarrow: about 107 N, against 514 N.",
+          "explanation": "The effort depends on the effort arm and the load arm, not on how big the tool looks. The wheelbarrow needs 300 × 0.5 ÷ 1.4 = 107 N and the pair of tweezers needs 300 × 0.12 ÷ 0.07 = 514 N. A lever with the load between the fulcrum and the effort (class 2) has an effort arm longer than its load arm; one with the effort between the fulcrum and the load (class 3) has a shorter effort arm, so it needs more force.",
+          "expectedKeywords": [
+            "effort arm",
+            "load arm",
+            "fulcrum",
+            "class"
+          ],
+          "keywordSynonyms": {
+            "effort arm": [
+              "effort distance",
+              "distance from the fulcrum to the effort",
+              "longer arm",
+              "arm"
+            ],
+            "load arm": [
+              "load distance",
+              "distance to the load",
+              "shorter arm"
+            ],
+            "fulcrum": [
+              "pivot",
+              "hinge"
+            ],
+            "class": [
+              "type",
+              "kind",
+              "class 2",
+              "class 3",
+              "second class",
+              "third class"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "W": 300,
+            "aName": "wheelbarrow",
+            "aCls": 2,
+            "aLoad": 0.5,
+            "aEffort": 1.4,
+            "bName": "pair of tweezers",
+            "bCls": 3,
+            "bLoad": 0.12,
+            "bEffort": 0.07
+          },
+          "variants": [
+            {
+              "prompt": "The same 300 N load is lifted with a wheelbarrow (a class 2 lever) and with a pair of tweezers (a class 3 lever). Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "The wheelbarrow"
+                  },
+                  {
+                    "id": "b",
+                    "label": "The pair of tweezers"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "a"
+              },
+              "outcome": "The wheelbarrow: about 107 N, against 514 N.",
+              "explanation": "The effort depends on the effort arm and the load arm, not on how big the tool looks. The wheelbarrow needs 300 × 0.5 ÷ 1.4 = 107 N and the pair of tweezers needs 300 × 0.12 ÷ 0.07 = 514 N. A lever with the load between the fulcrum and the effort (class 2) has an effort arm longer than its load arm; one with the effort between the fulcrum and the load (class 3) has a shorter effort arm, so it needs more force.",
+              "expectedKeywords": [
+                "effort arm",
+                "load arm",
+                "fulcrum",
+                "class"
+              ],
+              "keywordSynonyms": {
+                "effort arm": [
+                  "effort distance",
+                  "distance from the fulcrum to the effort",
+                  "longer arm",
+                  "arm"
+                ],
+                "load arm": [
+                  "load distance",
+                  "distance to the load",
+                  "shorter arm"
+                ],
+                "fulcrum": [
+                  "pivot",
+                  "hinge"
+                ],
+                "class": [
+                  "type",
+                  "kind",
+                  "class 2",
+                  "class 3",
+                  "second class",
+                  "third class"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 300,
+                "aName": "wheelbarrow",
+                "aCls": 2,
+                "aLoad": 0.5,
+                "aEffort": 1.4,
+                "bName": "pair of tweezers",
+                "bCls": 3,
+                "bLoad": 0.12,
+                "bEffort": 0.07
+              }
+            },
+            {
+              "prompt": "The same 40 N load is lifted with a pair of tongs (a class 3 lever) and with a nutcracker (a class 2 lever). Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "The pair of tongs"
+                  },
+                  {
+                    "id": "b",
+                    "label": "The nutcracker"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "The nutcracker: about 11 N, against 83 N.",
+              "explanation": "The effort depends on the effort arm and the load arm, not on how big the tool looks. The pair of tongs needs 40 × 0.25 ÷ 0.12 = 83 N and the nutcracker needs 40 × 0.04 ÷ 0.14 = 11 N. A lever with the load between the fulcrum and the effort (class 2) has an effort arm longer than its load arm; one with the effort between the fulcrum and the load (class 3) has a shorter effort arm, so it needs more force.",
+              "expectedKeywords": [
+                "effort arm",
+                "load arm",
+                "fulcrum",
+                "class"
+              ],
+              "keywordSynonyms": {
+                "effort arm": [
+                  "effort distance",
+                  "distance from the fulcrum to the effort",
+                  "longer arm",
+                  "arm"
+                ],
+                "load arm": [
+                  "load distance",
+                  "distance to the load",
+                  "shorter arm"
+                ],
+                "fulcrum": [
+                  "pivot",
+                  "hinge"
+                ],
+                "class": [
+                  "type",
+                  "kind",
+                  "class 2",
+                  "class 3",
+                  "second class",
+                  "third class"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 40,
+                "aName": "pair of tongs",
+                "aCls": 3,
+                "aLoad": 0.25,
+                "aEffort": 0.12,
+                "bName": "nutcracker",
+                "bCls": 2,
+                "bLoad": 0.04,
+                "bEffort": 0.14
+              }
+            },
+            {
+              "prompt": "The same 20 N load is lifted with a fishing rod (a class 3 lever) and with a bottle opener (a class 2 lever). Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "The fishing rod"
+                  },
+                  {
+                    "id": "b",
+                    "label": "The bottle opener"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "The bottle opener: about 4 N, against 72 N.",
+              "explanation": "The effort depends on the effort arm and the load arm, not on how big the tool looks. The fishing rod needs 20 × 1.8 ÷ 0.5 = 72 N and the bottle opener needs 20 × 0.02 ÷ 0.1 = 4 N. A lever with the load between the fulcrum and the effort (class 2) has an effort arm longer than its load arm; one with the effort between the fulcrum and the load (class 3) has a shorter effort arm, so it needs more force.",
+              "expectedKeywords": [
+                "effort arm",
+                "load arm",
+                "fulcrum",
+                "class"
+              ],
+              "keywordSynonyms": {
+                "effort arm": [
+                  "effort distance",
+                  "distance from the fulcrum to the effort",
+                  "longer arm",
+                  "arm"
+                ],
+                "load arm": [
+                  "load distance",
+                  "distance to the load",
+                  "shorter arm"
+                ],
+                "fulcrum": [
+                  "pivot",
+                  "hinge"
+                ],
+                "class": [
+                  "type",
+                  "kind",
+                  "class 2",
+                  "class 3",
+                  "second class",
+                  "third class"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 20,
+                "aName": "fishing rod",
+                "aCls": 3,
+                "aLoad": 1.8,
+                "aEffort": 0.5,
+                "bName": "bottle opener",
+                "bCls": 2,
+                "bLoad": 0.02,
+                "bEffort": 0.1
+              }
+            },
+            {
+              "prompt": "The same 250 N load is lifted with a crowbar (a class 1 lever) and with a pair of tongs (a class 3 lever). Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "The crowbar"
+                  },
+                  {
+                    "id": "b",
+                    "label": "The pair of tongs"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "a"
+              },
+              "outcome": "The crowbar: about 28 N, against 550 N.",
+              "explanation": "The effort depends on the effort arm and the load arm, not on how big the tool looks. The crowbar needs 250 × 0.1 ÷ 0.9 = 28 N and the pair of tongs needs 250 × 0.22 ÷ 0.1 = 550 N. A lever with the load between the fulcrum and the effort (class 2) has an effort arm longer than its load arm; one with the effort between the fulcrum and the load (class 3) has a shorter effort arm, so it needs more force.",
+              "expectedKeywords": [
+                "effort arm",
+                "load arm",
+                "fulcrum",
+                "class"
+              ],
+              "keywordSynonyms": {
+                "effort arm": [
+                  "effort distance",
+                  "distance from the fulcrum to the effort",
+                  "longer arm",
+                  "arm"
+                ],
+                "load arm": [
+                  "load distance",
+                  "distance to the load",
+                  "shorter arm"
+                ],
+                "fulcrum": [
+                  "pivot",
+                  "hinge"
+                ],
+                "class": [
+                  "type",
+                  "kind",
+                  "class 2",
+                  "class 3",
+                  "second class",
+                  "third class"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 250,
+                "aName": "crowbar",
+                "aCls": 1,
+                "aLoad": 0.1,
+                "aEffort": 0.9,
+                "bName": "pair of tongs",
+                "bCls": 3,
+                "bLoad": 0.22,
+                "bEffort": 0.1
+              }
+            },
+            {
+              "prompt": "The same 200 N load is lifted with a pair of tweezers (a class 3 lever) and with a wheelbarrow (a class 2 lever). Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "label": "The pair of tweezers"
+                  },
+                  {
+                    "id": "b",
+                    "label": "The wheelbarrow"
+                  },
+                  {
+                    "id": "same",
+                    "label": "They need the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "b"
+              },
+              "outcome": "The wheelbarrow: about 92 N, against 333 N.",
+              "explanation": "The effort depends on the effort arm and the load arm, not on how big the tool looks. The pair of tweezers needs 200 × 0.1 ÷ 0.06 = 333 N and the wheelbarrow needs 200 × 0.6 ÷ 1.3 = 92 N. A lever with the load between the fulcrum and the effort (class 2) has an effort arm longer than its load arm; one with the effort between the fulcrum and the load (class 3) has a shorter effort arm, so it needs more force.",
+              "expectedKeywords": [
+                "effort arm",
+                "load arm",
+                "fulcrum",
+                "class"
+              ],
+              "keywordSynonyms": {
+                "effort arm": [
+                  "effort distance",
+                  "distance from the fulcrum to the effort",
+                  "longer arm",
+                  "arm"
+                ],
+                "load arm": [
+                  "load distance",
+                  "distance to the load",
+                  "shorter arm"
+                ],
+                "fulcrum": [
+                  "pivot",
+                  "hinge"
+                ],
+                "class": [
+                  "type",
+                  "kind",
+                  "class 2",
+                  "class 3",
+                  "second class",
+                  "third class"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "aName": "pair of tweezers",
+                "aCls": 3,
+                "aLoad": 0.1,
+                "aEffort": 0.06,
+                "bName": "wheelbarrow",
+                "bCls": 2,
+                "bLoad": 0.6,
+                "bEffort": 1.3
+              }
+            }
+          ]
+        },
+        {
+          "id": "lev_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "lever_types",
+          "law": {
+            "name": "Law of the lever",
+            "formula": "effort × effort arm = load × load arm"
+          },
+          "prompt": "A crowbar rests on a stone with its short end under a crate. You push down on the far end of the crowbar. The stone is between the crate and your hand. Which class of lever is this?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "c1",
+                "label": "Class 1"
+              },
+              {
+                "id": "c2",
+                "label": "Class 2"
+              },
+              {
+                "id": "c3",
+                "label": "Class 3"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "c1"
+          },
+          "outcome": "Class 1: the fulcrum is in the middle.",
+          "explanation": "A class 1 lever has the fulcrum between the load and the effort, like a seesaw or a crowbar: the effort can be smaller or larger than the load, depending on which arm is longer.",
+          "coachSecrets": [],
+          "params": {
+            "W": 200,
+            "focus": 1,
+            "name": "crowbar",
+            "la": 0.25,
+            "ea": 1.0
+          },
+          "variants": [
+            {
+              "prompt": "A crowbar rests on a stone with its short end under a crate. You push down on the far end of the crowbar. The stone is between the crate and your hand. Which class of lever is this?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "c1",
+                    "label": "Class 1"
+                  },
+                  {
+                    "id": "c2",
+                    "label": "Class 2"
+                  },
+                  {
+                    "id": "c3",
+                    "label": "Class 3"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c1"
+              },
+              "outcome": "Class 1: the fulcrum is in the middle.",
+              "explanation": "A class 1 lever has the fulcrum between the load and the effort, like a seesaw or a crowbar: the effort can be smaller or larger than the load, depending on which arm is longer.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "focus": 1,
+                "name": "crowbar",
+                "la": 0.25,
+                "ea": 1.0
+              }
+            },
+            {
+              "prompt": "In a wheelbarrow the axle of the wheel is at one end, the load sits in the bucket in the middle, and you lift the handles at the other end. Which class of lever is it?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "c1",
+                    "label": "Class 1"
+                  },
+                  {
+                    "id": "c2",
+                    "label": "Class 2"
+                  },
+                  {
+                    "id": "c3",
+                    "label": "Class 3"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c2"
+              },
+              "outcome": "Class 2: the load is in the middle.",
+              "explanation": "A class 2 lever has the load between the fulcrum and the effort, like a wheelbarrow or a nutcracker: the effort arm is always longer than the load arm, so the effort is always smaller than the load.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "focus": 2,
+                "name": "wheelbarrow",
+                "la": 0.5,
+                "ea": 1.4
+              }
+            },
+            {
+              "prompt": "Tweezers are hinged at one end. You squeeze them in the middle and the tips grip the object at the other end. Which class of lever are they?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "c1",
+                    "label": "Class 1"
+                  },
+                  {
+                    "id": "c2",
+                    "label": "Class 2"
+                  },
+                  {
+                    "id": "c3",
+                    "label": "Class 3"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c3"
+              },
+              "outcome": "Class 3: the effort is in the middle.",
+              "explanation": "A class 3 lever has the effort between the fulcrum and the load, like tweezers or a fishing rod: the effort arm is shorter than the load arm, so the effort is larger than the load, but the load moves further and faster.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "focus": 3,
+                "name": "tweezers",
+                "la": 0.12,
+                "ea": 0.07
+              }
+            },
+            {
+              "prompt": "A fishing rod is held at its base, and the other hand lifts the rod part-way along, while the fish pulls on the tip. Which class of lever is it?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "c1",
+                    "label": "Class 1"
+                  },
+                  {
+                    "id": "c2",
+                    "label": "Class 2"
+                  },
+                  {
+                    "id": "c3",
+                    "label": "Class 3"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c3"
+              },
+              "outcome": "Class 3: the effort is in the middle.",
+              "explanation": "A class 3 lever has the effort between the fulcrum and the load, like tweezers or a fishing rod: the effort arm is shorter than the load arm, so the effort is larger than the load, but the load moves further and faster.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "focus": 3,
+                "name": "fishing rod",
+                "la": 0.12,
+                "ea": 0.07
+              }
+            },
+            {
+              "prompt": "A claw hammer pulls out a nail: the head of the hammer rests on the wood, the nail is held in the claw close to the head, and you pull on the far end of the handle. The head is between the nail and your hand. Which class of lever is it?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "c1",
+                    "label": "Class 1"
+                  },
+                  {
+                    "id": "c2",
+                    "label": "Class 2"
+                  },
+                  {
+                    "id": "c3",
+                    "label": "Class 3"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c1"
+              },
+              "outcome": "Class 1: the fulcrum is in the middle.",
+              "explanation": "A class 1 lever has the fulcrum between the load and the effort, like a seesaw or a crowbar: the effort can be smaller or larger than the load, depending on which arm is longer.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "focus": 1,
+                "name": "claw hammer",
+                "la": 0.25,
+                "ea": 1.0
+              }
+            }
+          ]
+        },
+        {
+          "id": "lev_5",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "lever_types",
+          "law": {
+            "name": "Law of the lever",
+            "formula": "effort × effort arm = load × load arm"
+          },
+          "prompt": "A fishing rod is a class 3 lever: your hand is between the fulcrum and the load. The load of 20 N is 180 cm from the fulcrum and you apply the effort 50 cm from the fulcrum. Predict the effort.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "effort",
+                "label": "Effort",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "effort": 72.0
+          },
+          "tolerance": 4.3,
+          "outcome": "72 N.",
+          "explanation": "Effort × effort arm = load × load arm, so effort = 20 × 180 ÷ 50 = 72 N. With the effort arm shorter than the load arm, the effort is bigger than the load.",
+          "coachSecrets": [
+            "72 n"
+          ],
+          "params": {
+            "W": 20,
+            "focus": 3,
+            "name": "fishing rod",
+            "la": 1.8,
+            "ea": 0.5
+          },
+          "variants": [
+            {
+              "prompt": "A fishing rod is a class 3 lever: your hand is between the fulcrum and the load. The load of 20 N is 180 cm from the fulcrum and you apply the effort 50 cm from the fulcrum. Predict the effort.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 72.0
+              },
+              "tolerance": 4.3,
+              "outcome": "72 N.",
+              "explanation": "Effort × effort arm = load × load arm, so effort = 20 × 180 ÷ 50 = 72 N. With the effort arm shorter than the load arm, the effort is bigger than the load.",
+              "coachSecrets": [
+                "72 n"
+              ],
+              "params": {
+                "W": 20,
+                "focus": 3,
+                "name": "fishing rod",
+                "la": 1.8,
+                "ea": 0.5
+              }
+            },
+            {
+              "prompt": "A wheelbarrow is a class 2 lever: the load is between the fulcrum and your hand. The load of 350 N is 50 cm from the fulcrum and you apply the effort 140 cm from the fulcrum. Predict the effort.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 125.0
+              },
+              "tolerance": 7.5,
+              "outcome": "125 N.",
+              "explanation": "Effort × effort arm = load × load arm, so effort = 350 × 50 ÷ 140 = 125 N. With the effort arm longer than the load arm, the effort is smaller than the load.",
+              "coachSecrets": [
+                "125 n"
+              ],
+              "params": {
+                "W": 350,
+                "focus": 2,
+                "name": "wheelbarrow",
+                "la": 0.5,
+                "ea": 1.4
+              }
+            },
+            {
+              "prompt": "A crowbar is a class 1 lever: the fulcrum is between the load and your hand. The load of 500 N is 20 cm from the fulcrum and you apply the effort 100 cm from the fulcrum. Predict the effort.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 100.0
+              },
+              "tolerance": 6.0,
+              "outcome": "100 N.",
+              "explanation": "Effort × effort arm = load × load arm, so effort = 500 × 20 ÷ 100 = 100 N. With the effort arm longer than the load arm, the effort is smaller than the load.",
+              "coachSecrets": [
+                "100 n"
+              ],
+              "params": {
+                "W": 500,
+                "focus": 1,
+                "name": "crowbar",
+                "la": 0.2,
+                "ea": 1.0
+              }
+            },
+            {
+              "prompt": "A pair of tongs is a class 3 lever: your hand is between the fulcrum and the load. The load of 6 N is 24 cm from the fulcrum and you apply the effort 10 cm from the fulcrum. Predict the effort.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 14.4
+              },
+              "tolerance": 1,
+              "outcome": "14.4 N.",
+              "explanation": "Effort × effort arm = load × load arm, so effort = 6 × 24 ÷ 10 = 14.4 N. With the effort arm shorter than the load arm, the effort is bigger than the load.",
+              "coachSecrets": [
+                "14.4 n"
+              ],
+              "params": {
+                "W": 6,
+                "focus": 3,
+                "name": "pair of tongs",
+                "la": 0.24,
+                "ea": 0.1
+              }
+            },
+            {
+              "prompt": "A nutcracker is a class 2 lever: the load is between the fulcrum and your hand. The load of 120 N is 4 cm from the fulcrum and you apply the effort 16 cm from the fulcrum. Predict the effort.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 30.0
+              },
+              "tolerance": 1.8,
+              "outcome": "30 N.",
+              "explanation": "Effort × effort arm = load × load arm, so effort = 120 × 4 ÷ 16 = 30 N. With the effort arm longer than the load arm, the effort is smaller than the load.",
+              "coachSecrets": [
+                "30 n"
+              ],
+              "params": {
+                "W": 120,
+                "focus": 2,
+                "name": "nutcracker",
+                "la": 0.04,
+                "ea": 0.16
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_lev",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Law of the lever",
+            "formula": "effort × effort arm = load × load arm"
+          },
+          "prompt": "Where is the fulcrum of a seesaw?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "mid",
+                "label": "In the middle, between the two people"
+              },
+              {
+                "id": "end",
+                "label": "At one end"
+              },
+              {
+                "id": "top",
+                "label": "Above the plank"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "mid"
+          },
+          "outcome": "In the middle.",
+          "explanation": "A seesaw is a class 1 lever: the fulcrum is between the effort and the load.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "Where is the fulcrum of a seesaw?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "mid",
+                    "label": "In the middle, between the two people"
+                  },
+                  {
+                    "id": "end",
+                    "label": "At one end"
+                  },
+                  {
+                    "id": "top",
+                    "label": "Above the plank"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "mid"
+              },
+              "outcome": "In the middle.",
+              "explanation": "A seesaw is a class 1 lever: the fulcrum is between the effort and the load.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A wheelbarrow's wheel acts as the fulcrum. Where is the load?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "between",
+                    "label": "Between the wheel and the handles"
+                  },
+                  {
+                    "id": "handles",
+                    "label": "At the handles"
+                  },
+                  {
+                    "id": "beyond",
+                    "label": "Beyond the wheel"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "between"
+              },
+              "outcome": "Between the wheel and the handles.",
+              "explanation": "The load is between the fulcrum (wheel) and the effort (handles): a class 2 lever.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "Which kind of lever always has a mechanical advantage less than 1?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "c3",
+                    "label": "Class 3: the effort is between the fulcrum and the load"
+                  },
+                  {
+                    "id": "c2",
+                    "label": "Class 2: the load is between the fulcrum and the effort"
+                  },
+                  {
+                    "id": "c1",
+                    "label": "Class 1: the fulcrum is in the middle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "c3"
+              },
+              "outcome": "Class 3.",
+              "explanation": "In a class 3 lever the effort arm is shorter than the load arm, so you push harder than the load but gain speed and range of movement.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A nail is pulled out with the claw of a hammer. Which change makes it easier?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "longer",
+                    "label": "A hammer with a longer handle"
+                  },
+                  {
+                    "id": "shorter",
+                    "label": "A hammer with a shorter handle"
+                  },
+                  {
+                    "id": "heavier",
+                    "label": "A hammer with a heavier head, same handle"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "longer"
+              },
+              "outcome": "A hammer with a longer handle.",
+              "explanation": "A longer handle lengthens the effort arm, so less force is needed for the same load arm.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "The effort arm of a lever is three times its load arm. How does the effort compare with the load?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "third",
+                    "label": "A third of the load"
+                  },
+                  {
+                    "id": "three",
+                    "label": "Three times the load"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "third"
+              },
+              "outcome": "A third of the load.",
+              "explanation": "Effort = load × load arm ÷ effort arm = load ÷ 3.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pulleys",
+      "tabName": "Pulleys",
+      "title": "The Pulley Bench",
+      "setup": "One pulley fixed at the top of a frame, with a rope passing over it: the load hangs on one end and you pull the other end through a force meter. A ruler beside the frame measures how far the load rises and how much rope you pull. The last questions ask about movable pulleys and the block and tackle.",
+      "trials": [
+        {
+          "id": "pul_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "pulley",
+          "law": {
+            "name": "The fixed pulley",
+            "formula": "effort = load; rope pulled = height lifted"
+          },
+          "prompt": "A 200 N load hangs on one end of the rope over the fixed pulley. You pull the other end down to lift it. Compared with the load's weight, what will the force meter read?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "same",
+                "label": "The same as the load"
+              },
+              {
+                "id": "half",
+                "label": "About half the load"
+              },
+              {
+                "id": "double",
+                "label": "About twice the load"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "same"
+          },
+          "outcome": "About 200 N: the same as the load.",
+          "explanation": "The rope carries the same tension all the way along, and only one rope section holds the load up. So the pull you give equals the weight of the load: a single fixed pulley gives no saving in force.",
+          "coachSecrets": [],
+          "params": {
+            "W": 200,
+            "h": 1.0,
+            "compare": false
+          },
+          "variants": [
+            {
+              "prompt": "A 200 N load hangs on one end of the rope over the fixed pulley. You pull the other end down to lift it. Compared with the load's weight, what will the force meter read?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "The same as the load"
+                  },
+                  {
+                    "id": "half",
+                    "label": "About half the load"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice the load"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "About 200 N: the same as the load.",
+              "explanation": "The rope carries the same tension all the way along, and only one rope section holds the load up. So the pull you give equals the weight of the load: a single fixed pulley gives no saving in force.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "h": 1.0,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "You pull the free end of the rope DOWN by 1.2 m. What does the 150 N load do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "up",
+                    "label": "It rises"
+                  },
+                  {
+                    "id": "down",
+                    "label": "It moves down too"
+                  },
+                  {
+                    "id": "still",
+                    "label": "It stays where it is"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "up"
+              },
+              "outcome": "It rises by 1.2 m.",
+              "explanation": "The rope runs over the wheel, so pulling one side down pulls the other side up. A fixed pulley changes the direction of your force: you pull down and the load goes up.",
+              "coachSecrets": [],
+              "params": {
+                "W": 150,
+                "h": 1.2,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "With the fixed pulley you pull 1.5 m of rope through your hands. How far does the 240 N load rise?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "1.5 m"
+                  },
+                  {
+                    "id": "half",
+                    "label": "0.75 m"
+                  },
+                  {
+                    "id": "double",
+                    "label": "3 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "1.5 m: exactly as far as you pull.",
+              "explanation": "There is one rope section holding the load, so every metre you pull lifts the load one metre. No force is saved, so no distance is lost.",
+              "coachSecrets": [],
+              "params": {
+                "W": 240,
+                "h": 1.5,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "A single fixed pulley does not reduce the force needed. Why do builders still use one to raise loads?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dir",
+                    "label": "You can pull down instead of lifting up, and use your own weight"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves the effort"
+                  },
+                  {
+                    "id": "energy",
+                    "label": "It adds energy to the load"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "dir"
+              },
+              "outcome": "It lets you pull down, which is easier and lets you use your body weight.",
+              "explanation": "The force is the same, but its direction is changed. Pulling down is more comfortable than lifting, you can stand on the ground away from the load, and you can lean your weight into the rope.",
+              "coachSecrets": [],
+              "params": {
+                "W": 180,
+                "h": 1.0,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "The 120 N load is lifted 2 m by pulling the rope over the fixed pulley. Compared with lifting it by hand, how much work did you do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "The same work"
+                  },
+                  {
+                    "id": "less",
+                    "label": "Less work"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More work"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "The same: 240 J either way.",
+              "explanation": "Work = force × distance. With an ideal fixed pulley the force and the distance are both the same as lifting by hand, so the work is the same.",
+              "coachSecrets": [],
+              "params": {
+                "W": 120,
+                "h": 2.0,
+                "compare": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "pul_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "pulley",
+          "law": {
+            "name": "The fixed pulley",
+            "formula": "effort = load; rope pulled = height lifted"
+          },
+          "prompt": "A 300 N load hangs from the rope over the fixed pulley. Predict the force meter reading as you pull it up steadily.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "effort",
+                "label": "Effort",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "effort": 300
+          },
+          "tolerance": 12.0,
+          "outcome": "300 N.",
+          "explanation": "One rope section holds the load, so the effort equals the load.",
+          "coachSecrets": [],
+          "params": {
+            "W": 300,
+            "h": 1,
+            "compare": false
+          },
+          "variants": [
+            {
+              "prompt": "A 300 N load hangs from the rope over the fixed pulley. Predict the force meter reading as you pull it up steadily.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 300
+              },
+              "tolerance": 12.0,
+              "outcome": "300 N.",
+              "explanation": "One rope section holds the load, so the effort equals the load.",
+              "coachSecrets": [],
+              "params": {
+                "W": 300,
+                "h": 1,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "You want to raise a 200 N load by 1.8 m with the fixed pulley. How much rope must you pull?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 1.8
+              },
+              "tolerance": 0.1,
+              "outcome": "1.8 m.",
+              "explanation": "With one supporting rope, the rope pulled equals the height lifted.",
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "h": 1.8,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "A 160 N load hangs from the rope over the fixed pulley. Predict the force meter reading as you pull it up steadily.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 160
+              },
+              "tolerance": 6.4,
+              "outcome": "160 N.",
+              "explanation": "One rope section holds the load, so the effort equals the load.",
+              "coachSecrets": [],
+              "params": {
+                "W": 160,
+                "h": 1,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "You want to raise a 250 N load by 2.4 m with the fixed pulley. How much rope must you pull?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 2.4
+              },
+              "tolerance": 0.1,
+              "outcome": "2.4 m.",
+              "explanation": "With one supporting rope, the rope pulled equals the height lifted.",
+              "coachSecrets": [],
+              "params": {
+                "W": 250,
+                "h": 2.4,
+                "compare": false
+              }
+            },
+            {
+              "prompt": "A 420 N load hangs from the rope over the fixed pulley. Predict the force meter reading as you pull it up steadily.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 420
+              },
+              "tolerance": 16.8,
+              "outcome": "420 N.",
+              "explanation": "One rope section holds the load, so the effort equals the load.",
+              "coachSecrets": [],
+              "params": {
+                "W": 420,
+                "h": 1,
+                "compare": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "pul_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "pulley",
+          "law": {
+            "name": "The fixed pulley",
+            "formula": "effort = load; rope pulled = height lifted"
+          },
+          "prompt": "First you lift the 200 N load straight up by hand, then you lift it the same height by pulling down on the rope over the fixed pulley. Which needs less force?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "pulley",
+                "label": "The pulley"
+              },
+              {
+                "id": "hand",
+                "label": "Lifting by hand"
+              },
+              {
+                "id": "same",
+                "label": "Both need the same force"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "same"
+          },
+          "outcome": "Both need about 200 N: the fixed pulley saves no force at all.",
+          "explanation": "Many people expect any pulley to make lifting easier. A single fixed pulley does not: one rope section holds the load, so you still pull with the full weight. What it changes is the direction of the force, so you can pull down and use your own weight.",
+          "expectedKeywords": [
+            "same",
+            "direction",
+            "force",
+            "weight"
+          ],
+          "keywordSynonyms": {
+            "same": [
+              "equal",
+              "no less",
+              "no saving",
+              "not less",
+              "as much"
+            ],
+            "direction": [
+              "down",
+              "downward",
+              "way",
+              "turn",
+              "changes"
+            ],
+            "force": [
+              "effort",
+              "pull",
+              "push",
+              "strength"
+            ],
+            "weight": [
+              "load",
+              "body",
+              "heavy",
+              "lean"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "W": 200,
+            "h": 1,
+            "compare": true
+          },
+          "variants": [
+            {
+              "prompt": "First you lift the 200 N load straight up by hand, then you lift it the same height by pulling down on the rope over the fixed pulley. Which needs less force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "pulley",
+                    "label": "The pulley"
+                  },
+                  {
+                    "id": "hand",
+                    "label": "Lifting by hand"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both need about 200 N: the fixed pulley saves no force at all.",
+              "explanation": "Many people expect any pulley to make lifting easier. A single fixed pulley does not: one rope section holds the load, so you still pull with the full weight. What it changes is the direction of the force, so you can pull down and use your own weight.",
+              "expectedKeywords": [
+                "same",
+                "direction",
+                "force",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "same": [
+                  "equal",
+                  "no less",
+                  "no saving",
+                  "not less",
+                  "as much"
+                ],
+                "direction": [
+                  "down",
+                  "downward",
+                  "way",
+                  "turn",
+                  "changes"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "push",
+                  "strength"
+                ],
+                "weight": [
+                  "load",
+                  "body",
+                  "heavy",
+                  "lean"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 200,
+                "h": 1,
+                "compare": true
+              }
+            },
+            {
+              "prompt": "First you lift the 300 N load straight up by hand, then you lift it the same height by pulling down on the rope over the fixed pulley. Which needs less force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "pulley",
+                    "label": "The pulley"
+                  },
+                  {
+                    "id": "hand",
+                    "label": "Lifting by hand"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both need about 300 N: the fixed pulley saves no force at all.",
+              "explanation": "Many people expect any pulley to make lifting easier. A single fixed pulley does not: one rope section holds the load, so you still pull with the full weight. What it changes is the direction of the force, so you can pull down and use your own weight.",
+              "expectedKeywords": [
+                "same",
+                "direction",
+                "force",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "same": [
+                  "equal",
+                  "no less",
+                  "no saving",
+                  "not less",
+                  "as much"
+                ],
+                "direction": [
+                  "down",
+                  "downward",
+                  "way",
+                  "turn",
+                  "changes"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "push",
+                  "strength"
+                ],
+                "weight": [
+                  "load",
+                  "body",
+                  "heavy",
+                  "lean"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 300,
+                "h": 1.2,
+                "compare": true
+              }
+            },
+            {
+              "prompt": "First you lift the 150 N load straight up by hand, then you lift it the same height by pulling down on the rope over the fixed pulley. Which needs less force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "pulley",
+                    "label": "The pulley"
+                  },
+                  {
+                    "id": "hand",
+                    "label": "Lifting by hand"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both need about 150 N: the fixed pulley saves no force at all.",
+              "explanation": "Many people expect any pulley to make lifting easier. A single fixed pulley does not: one rope section holds the load, so you still pull with the full weight. What it changes is the direction of the force, so you can pull down and use your own weight.",
+              "expectedKeywords": [
+                "same",
+                "direction",
+                "force",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "same": [
+                  "equal",
+                  "no less",
+                  "no saving",
+                  "not less",
+                  "as much"
+                ],
+                "direction": [
+                  "down",
+                  "downward",
+                  "way",
+                  "turn",
+                  "changes"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "push",
+                  "strength"
+                ],
+                "weight": [
+                  "load",
+                  "body",
+                  "heavy",
+                  "lean"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 150,
+                "h": 1,
+                "compare": true
+              }
+            },
+            {
+              "prompt": "First you lift the 250 N load straight up by hand, then you lift it the same height by pulling down on the rope over the fixed pulley. Which needs less force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "pulley",
+                    "label": "The pulley"
+                  },
+                  {
+                    "id": "hand",
+                    "label": "Lifting by hand"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both need about 250 N: the fixed pulley saves no force at all.",
+              "explanation": "Many people expect any pulley to make lifting easier. A single fixed pulley does not: one rope section holds the load, so you still pull with the full weight. What it changes is the direction of the force, so you can pull down and use your own weight.",
+              "expectedKeywords": [
+                "same",
+                "direction",
+                "force",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "same": [
+                  "equal",
+                  "no less",
+                  "no saving",
+                  "not less",
+                  "as much"
+                ],
+                "direction": [
+                  "down",
+                  "downward",
+                  "way",
+                  "turn",
+                  "changes"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "push",
+                  "strength"
+                ],
+                "weight": [
+                  "load",
+                  "body",
+                  "heavy",
+                  "lean"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 250,
+                "h": 1.5,
+                "compare": true
+              }
+            },
+            {
+              "prompt": "First you lift the 180 N load straight up by hand, then you lift it the same height by pulling down on the rope over the fixed pulley. Which needs less force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "pulley",
+                    "label": "The pulley"
+                  },
+                  {
+                    "id": "hand",
+                    "label": "Lifting by hand"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both need the same force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "Both need about 180 N: the fixed pulley saves no force at all.",
+              "explanation": "Many people expect any pulley to make lifting easier. A single fixed pulley does not: one rope section holds the load, so you still pull with the full weight. What it changes is the direction of the force, so you can pull down and use your own weight.",
+              "expectedKeywords": [
+                "same",
+                "direction",
+                "force",
+                "weight"
+              ],
+              "keywordSynonyms": {
+                "same": [
+                  "equal",
+                  "no less",
+                  "no saving",
+                  "not less",
+                  "as much"
+                ],
+                "direction": [
+                  "down",
+                  "downward",
+                  "way",
+                  "turn",
+                  "changes"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "push",
+                  "strength"
+                ],
+                "weight": [
+                  "load",
+                  "body",
+                  "heavy",
+                  "lean"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "W": 180,
+                "h": 1,
+                "compare": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "pul_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Movable pulleys",
+            "formula": "effort = load ÷ number of supporting ropes"
+          },
+          "prompt": "Now imagine a different set-up: the pulley hangs on the load itself (a movable pulley), with one end of the rope tied to the ceiling and you pulling the other end up. For a 200 N load, what is the effort?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "half",
+                "label": "About 100 N"
+              },
+              {
+                "id": "same",
+                "label": "About 200 N"
+              },
+              {
+                "id": "double",
+                "label": "About 400 N"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "half"
+          },
+          "outcome": "About 100 N: half the load.",
+          "explanation": "With a movable pulley, two rope sections hold the load up and share it equally, so each carries half and your pull is half the load.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "Now imagine a different set-up: the pulley hangs on the load itself (a movable pulley), with one end of the rope tied to the ceiling and you pulling the other end up. For a 200 N load, what is the effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About 100 N"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About 200 N"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About 400 N"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "About 100 N: half the load.",
+              "explanation": "With a movable pulley, two rope sections hold the load up and share it equally, so each carries half and your pull is half the load.",
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "With a movable pulley, how much rope must you pull to raise a 160 N load by 1 m?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "two",
+                    "label": "2 m"
+                  },
+                  {
+                    "id": "one",
+                    "label": "1 m"
+                  },
+                  {
+                    "id": "half",
+                    "label": "0.5 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "two"
+              },
+              "outcome": "2 m: twice the height, because each of the two supporting ropes must shorten by 1 m.",
+              "explanation": "Halving the force doubles the distance: effort × distance stays the same.",
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "Now imagine a different set-up: the pulley hangs on the load itself (a movable pulley), with one end of the rope tied to the ceiling and you pulling the other end up. For a 240 N load, what is the effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About 120 N"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About 240 N"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About 480 N"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "About 120 N: half the load.",
+              "explanation": "With a movable pulley, two rope sections hold the load up and share it equally, so each carries half and your pull is half the load.",
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "With a movable pulley, how much rope must you pull to raise a 300 N load by 1 m?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "two",
+                    "label": "2 m"
+                  },
+                  {
+                    "id": "one",
+                    "label": "1 m"
+                  },
+                  {
+                    "id": "half",
+                    "label": "0.5 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "two"
+              },
+              "outcome": "2 m: twice the height, because each of the two supporting ropes must shorten by 1 m.",
+              "explanation": "Halving the force doubles the distance: effort × distance stays the same.",
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "Now imagine a different set-up: the pulley hangs on the load itself (a movable pulley), with one end of the rope tied to the ceiling and you pulling the other end up. For a 120 N load, what is the effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About 60 N"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About 120 N"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About 240 N"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "About 60 N: half the load.",
+              "explanation": "With a movable pulley, two rope sections hold the load up and share it equally, so each carries half and your pull is half the load.",
+              "coachSecrets": [],
+              "params": {}
+            }
+          ]
+        },
+        {
+          "id": "pul_5",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": null,
+          "law": {
+            "name": "Work is conserved",
+            "formula": "effort × distance = load × distance"
+          },
+          "prompt": "A block and tackle holds a 320 N load on 4 rope sections. Compared with a single movable pulley (2 sections), what happens to the effort?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "less",
+                "label": "It needs even less effort"
+              },
+              {
+                "id": "more",
+                "label": "It needs more effort"
+              },
+              {
+                "id": "same",
+                "label": "It needs the same effort"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "less"
+          },
+          "outcome": "80 N: less than the 160 N of one movable pulley.",
+          "explanation": "With 4 supporting ropes the effort is 320 ÷ 4 = 80 N. But raising the load by 1 m means pulling 4 × 1 = 4 m of rope: the force is gained at the cost of distance.",
+          "expectedKeywords": [
+            "effort",
+            "rope",
+            "distance",
+            "force"
+          ],
+          "keywordSynonyms": {
+            "effort": [
+              "pull",
+              "pulling",
+              "less force"
+            ],
+            "rope": [
+              "string",
+              "line",
+              "cord"
+            ],
+            "distance": [
+              "further",
+              "farther",
+              "longer",
+              "more rope",
+              "length"
+            ],
+            "force": [
+              "effort",
+              "pull",
+              "strength"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A block and tackle holds a 320 N load on 4 rope sections. Compared with a single movable pulley (2 sections), what happens to the effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It needs even less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It needs more effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It needs the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "80 N: less than the 160 N of one movable pulley.",
+              "explanation": "With 4 supporting ropes the effort is 320 ÷ 4 = 80 N. But raising the load by 1 m means pulling 4 × 1 = 4 m of rope: the force is gained at the cost of distance.",
+              "expectedKeywords": [
+                "effort",
+                "rope",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "effort": [
+                  "pull",
+                  "pulling",
+                  "less force"
+                ],
+                "rope": [
+                  "string",
+                  "line",
+                  "cord"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "longer",
+                  "more rope",
+                  "length"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "strength"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "A block and tackle with 3 rope sections lifts a load 1 m. How much rope must you pull compared with the height the load rises?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "n_times",
+                    "label": "3 times as much rope"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same length of rope"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as much rope"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "n_times"
+              },
+              "outcome": "3 m of rope for a 1 m lift.",
+              "explanation": "Every one of the 3 supporting ropes must shorten by 1 m, so you pull 3 m. Effort falls to 80 N, but the distance rises 3 times: effort × distance stays the same.",
+              "expectedKeywords": [
+                "effort",
+                "rope",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "effort": [
+                  "pull",
+                  "pulling",
+                  "less force"
+                ],
+                "rope": [
+                  "string",
+                  "line",
+                  "cord"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "longer",
+                  "more rope",
+                  "length"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "strength"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "A block and tackle with 4 rope sections lifts a load 1.5 m. How much rope must you pull compared with the height the load rises?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "n_times",
+                    "label": "4 times as much rope"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same length of rope"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as much rope"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "n_times"
+              },
+              "outcome": "6 m of rope for a 1.5 m lift.",
+              "explanation": "Every one of the 4 supporting ropes must shorten by 1.5 m, so you pull 6 m. Effort falls to 50 N, but the distance rises 4 times: effort × distance stays the same.",
+              "expectedKeywords": [
+                "effort",
+                "rope",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "effort": [
+                  "pull",
+                  "pulling",
+                  "less force"
+                ],
+                "rope": [
+                  "string",
+                  "line",
+                  "cord"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "longer",
+                  "more rope",
+                  "length"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "strength"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "A block and tackle holds a 300 N load on 5 rope sections. Compared with a single movable pulley (2 sections), what happens to the effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It needs even less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It needs more effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It needs the same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "60 N: less than the 150 N of one movable pulley.",
+              "explanation": "With 5 supporting ropes the effort is 300 ÷ 5 = 60 N. But raising the load by 1 m means pulling 5 × 1 = 5 m of rope: the force is gained at the cost of distance.",
+              "expectedKeywords": [
+                "effort",
+                "rope",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "effort": [
+                  "pull",
+                  "pulling",
+                  "less force"
+                ],
+                "rope": [
+                  "string",
+                  "line",
+                  "cord"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "longer",
+                  "more rope",
+                  "length"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "strength"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {}
+            },
+            {
+              "prompt": "A block and tackle with 6 rope sections lifts a load 1 m. How much rope must you pull compared with the height the load rises?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "n_times",
+                    "label": "6 times as much rope"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same length of rope"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half as much rope"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "n_times"
+              },
+              "outcome": "6 m of rope for a 1 m lift.",
+              "explanation": "Every one of the 6 supporting ropes must shorten by 1 m, so you pull 6 m. Effort falls to 60 N, but the distance rises 6 times: effort × distance stays the same.",
+              "expectedKeywords": [
+                "effort",
+                "rope",
+                "distance",
+                "force"
+              ],
+              "keywordSynonyms": {
+                "effort": [
+                  "pull",
+                  "pulling",
+                  "less force"
+                ],
+                "rope": [
+                  "string",
+                  "line",
+                  "cord"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "longer",
+                  "more rope",
+                  "length"
+                ],
+                "force": [
+                  "effort",
+                  "pull",
+                  "strength"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {}
+            }
+          ]
+        },
+        {
+          "id": "tr_pul",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Pulleys",
+            "formula": "effort = load ÷ n; rope pulled = n × height"
+          },
+          "prompt": "A crane's hook block uses many pulleys. What is the benefit?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "force",
+                "label": "A small pull can lift a large load"
+              },
+              {
+                "id": "speed",
+                "label": "The load rises faster than the rope is pulled"
+              },
+              {
+                "id": "energy",
+                "label": "It creates extra energy"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "force"
+          },
+          "outcome": "A small pull can lift a large load.",
+          "explanation": "More supporting ropes divide the load, so the effort is smaller (but the rope must be pulled further).",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A crane's hook block uses many pulleys. What is the benefit?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "force",
+                    "label": "A small pull can lift a large load"
+                  },
+                  {
+                    "id": "speed",
+                    "label": "The load rises faster than the rope is pulled"
+                  },
+                  {
+                    "id": "energy",
+                    "label": "It creates extra energy"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "force"
+              },
+              "outcome": "A small pull can lift a large load.",
+              "explanation": "More supporting ropes divide the load, so the effort is smaller (but the rope must be pulled further).",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A flag is raised with a fixed pulley at the top of the pole. Why use a pulley at all?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dir",
+                    "label": "You can pull down to raise it"
+                  },
+                  {
+                    "id": "light",
+                    "label": "It makes the flag lighter"
+                  },
+                  {
+                    "id": "half",
+                    "label": "It halves the pull"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "dir"
+              },
+              "outcome": "You can pull down to raise it.",
+              "explanation": "A fixed pulley changes the direction of the force.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "You pull 6 m of rope to lift a load 2 m. How many rope sections support the load (ideal pulleys)?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "three",
+                    "label": "3"
+                  },
+                  {
+                    "id": "six",
+                    "label": "6"
+                  },
+                  {
+                    "id": "two",
+                    "label": "2"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "three"
+              },
+              "outcome": "3.",
+              "explanation": "Rope pulled = n × height, so n = 6 ÷ 2 = 3.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "An ideal pulley system lets 50 N lift a 200 N load. How far must you pull the rope to raise the load 1 m?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "four",
+                    "label": "4 m"
+                  },
+                  {
+                    "id": "one",
+                    "label": "1 m"
+                  },
+                  {
+                    "id": "half",
+                    "label": "0.5 m"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "four"
+              },
+              "outcome": "4 m.",
+              "explanation": "Work in equals work out: 50 N × distance = 200 N × 1 m, so distance = 4 m.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A well bucket is raised with a single fixed pulley. Compared with lifting it by hand on a rope, the pull is…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "same",
+                    "label": "The same"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half"
+                  },
+                  {
+                    "id": "quarter",
+                    "label": "A quarter"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "same"
+              },
+              "outcome": "The same.",
+              "explanation": "A single fixed pulley only changes the direction of the force.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wheel_axle",
+      "tabName": "Wheel & Axle",
+      "title": "The Wheel and Axle Bench",
+      "setup": "A well with a wheel and axle and a bucket of water, with a force meter on the wheel's rim, and a pair of screwdrivers with thin and thick handles.",
+      "trials": [
+        {
+          "id": "whl_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "wheel",
+          "law": {
+            "name": "Wheel and axle",
+            "formula": "effort = load × axle radius ÷ wheel radius"
+          },
+          "prompt": "A bucket of water weighs 120 N. It hangs on a rope wound round an axle of radius 5 cm. You turn a wheel of radius 20 cm fixed to the axle. Compared with lifting the bucket straight up by hand, how much force do you need at the rim of the wheel?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "less",
+                "label": "Less effort"
+              },
+              {
+                "id": "more",
+                "label": "More effort"
+              },
+              {
+                "id": "same",
+                "label": "The same effort"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "less"
+          },
+          "outcome": "30 N: less than the 120 N.",
+          "explanation": "Effort × wheel radius = load × axle radius, so effort = 120 × 5 ÷ 20 = 30 N. A wheel bigger than the axle multiplies your force, but the rim has to move 4 times as far as the rope.",
+          "coachSecrets": [
+            "30 n"
+          ],
+          "params": {
+            "W": 120,
+            "r": 0.05,
+            "R": 0.2,
+            "h": 1.0
+          },
+          "variants": [
+            {
+              "prompt": "A bucket of water weighs 120 N. It hangs on a rope wound round an axle of radius 5 cm. You turn a wheel of radius 20 cm fixed to the axle. Compared with lifting the bucket straight up by hand, how much force do you need at the rim of the wheel?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "30 N: less than the 120 N.",
+              "explanation": "Effort × wheel radius = load × axle radius, so effort = 120 × 5 ÷ 20 = 30 N. A wheel bigger than the axle multiplies your force, but the rim has to move 4 times as far as the rope.",
+              "coachSecrets": [
+                "30 n"
+              ],
+              "params": {
+                "W": 120,
+                "r": 0.05,
+                "R": 0.2,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "A bucket of water weighs 200 N. It hangs on a rope wound round an axle of radius 6 cm. You turn a wheel of radius 30 cm fixed to the axle. Compared with lifting the bucket straight up by hand, how much force do you need at the rim of the wheel?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "40 N: less than the 200 N.",
+              "explanation": "Effort × wheel radius = load × axle radius, so effort = 200 × 6 ÷ 30 = 40 N. A wheel bigger than the axle multiplies your force, but the rim has to move 5 times as far as the rope.",
+              "coachSecrets": [
+                "40 n"
+              ],
+              "params": {
+                "W": 200,
+                "r": 0.06,
+                "R": 0.3,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "A bucket of water weighs 90 N. It hangs on a rope wound round an axle of radius 4 cm. You turn a wheel of radius 12 cm fixed to the axle. Compared with lifting the bucket straight up by hand, how much force do you need at the rim of the wheel?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "30 N: less than the 90 N.",
+              "explanation": "Effort × wheel radius = load × axle radius, so effort = 90 × 4 ÷ 12 = 30 N. A wheel bigger than the axle multiplies your force, but the rim has to move 3 times as far as the rope.",
+              "coachSecrets": [
+                "30 n"
+              ],
+              "params": {
+                "W": 90,
+                "r": 0.04,
+                "R": 0.12,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "A bucket of water weighs 150 N. It hangs on a rope wound round an axle of radius 5 cm. You turn a wheel of radius 25 cm fixed to the axle. Compared with lifting the bucket straight up by hand, how much force do you need at the rim of the wheel?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "30 N: less than the 150 N.",
+              "explanation": "Effort × wheel radius = load × axle radius, so effort = 150 × 5 ÷ 25 = 30 N. A wheel bigger than the axle multiplies your force, but the rim has to move 5 times as far as the rope.",
+              "coachSecrets": [
+                "30 n"
+              ],
+              "params": {
+                "W": 150,
+                "r": 0.05,
+                "R": 0.25,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "A bucket of water weighs 160 N. It hangs on a rope wound round an axle of radius 8 cm. You turn a wheel of radius 4 cm fixed to the axle. Compared with lifting the bucket straight up by hand, how much force do you need at the rim of the wheel?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less effort"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More effort"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same effort"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "more"
+              },
+              "outcome": "320 N: more than the 160 N.",
+              "explanation": "Effort × wheel radius = load × axle radius, so effort = 160 × 8 ÷ 4 = 320 N. A wheel bigger than the axle multiplies your force, but the rim has to move 0.5 times as far as the rope.",
+              "coachSecrets": [
+                "320 n"
+              ],
+              "params": {
+                "W": 160,
+                "r": 0.08,
+                "R": 0.04,
+                "h": 1.0
+              }
+            }
+          ]
+        },
+        {
+          "id": "whl_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "wheel",
+          "law": {
+            "name": "Wheel and axle",
+            "formula": "effort = load × axle radius ÷ wheel radius"
+          },
+          "prompt": "The bucket weighs 200 N and the axle has a radius of 5 cm. You turn a wheel of radius 25 cm. Predict the force meter reading at the rim.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "effort",
+                "label": "Effort",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "effort": 40.0
+          },
+          "tolerance": 2.8,
+          "outcome": "40 N.",
+          "explanation": "Effort = load × axle radius ÷ wheel radius = 200 × 5 ÷ 25 = 40 N.",
+          "coachSecrets": [
+            "40 n"
+          ],
+          "params": {
+            "W": 200,
+            "r": 0.05,
+            "R": 0.25,
+            "h": 1.0
+          },
+          "variants": [
+            {
+              "prompt": "The bucket weighs 200 N and the axle has a radius of 5 cm. You turn a wheel of radius 25 cm. Predict the force meter reading at the rim.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 40.0
+              },
+              "tolerance": 2.8,
+              "outcome": "40 N.",
+              "explanation": "Effort = load × axle radius ÷ wheel radius = 200 × 5 ÷ 25 = 40 N.",
+              "coachSecrets": [
+                "40 n"
+              ],
+              "params": {
+                "W": 200,
+                "r": 0.05,
+                "R": 0.25,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "The bucket weighs 150 N and the axle has a radius of 6 cm. You turn a wheel of radius 30 cm. Predict the force meter reading at the rim.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 30.0
+              },
+              "tolerance": 2.1,
+              "outcome": "30 N.",
+              "explanation": "Effort = load × axle radius ÷ wheel radius = 150 × 6 ÷ 30 = 30 N.",
+              "coachSecrets": [
+                "30 n"
+              ],
+              "params": {
+                "W": 150,
+                "r": 0.06,
+                "R": 0.3,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "The bucket weighs 240 N and the axle has a radius of 4 cm. You turn a wheel of radius 20 cm. Predict the force meter reading at the rim.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 48.0
+              },
+              "tolerance": 3.4,
+              "outcome": "48 N.",
+              "explanation": "Effort = load × axle radius ÷ wheel radius = 240 × 4 ÷ 20 = 48 N.",
+              "coachSecrets": [
+                "48 n"
+              ],
+              "params": {
+                "W": 240,
+                "r": 0.04,
+                "R": 0.2,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "The bucket weighs 180 N and the axle has a radius of 5 cm. You turn a wheel of radius 15 cm. Predict the force meter reading at the rim.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 60.0
+              },
+              "tolerance": 4.2,
+              "outcome": "60 N.",
+              "explanation": "Effort = load × axle radius ÷ wheel radius = 180 × 5 ÷ 15 = 60 N.",
+              "coachSecrets": [
+                "60 n"
+              ],
+              "params": {
+                "W": 180,
+                "r": 0.05,
+                "R": 0.15,
+                "h": 1.0
+              }
+            },
+            {
+              "prompt": "The bucket weighs 120 N and the axle has a radius of 6 cm. You turn a wheel of radius 24 cm. Predict the force meter reading at the rim.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 30.0
+              },
+              "tolerance": 2.1,
+              "outcome": "30 N.",
+              "explanation": "Effort = load × axle radius ÷ wheel radius = 120 × 6 ÷ 24 = 30 N.",
+              "coachSecrets": [
+                "30 n"
+              ],
+              "params": {
+                "W": 120,
+                "r": 0.06,
+                "R": 0.24,
+                "h": 1.0
+              }
+            }
+          ]
+        },
+        {
+          "id": "whl_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "screwdriver",
+          "law": {
+            "name": "Wheel and axle",
+            "formula": "effort = load × axle radius ÷ wheel radius"
+          },
+          "prompt": "A screw needs the same twisting effect from a screwdriver whose shaft has a radius of 4 mm. One handle has a radius of 10 mm (thin), the other 20 mm (thick). Which is easier to turn?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "thin",
+                "label": "The thin handle"
+              },
+              {
+                "id": "thick",
+                "label": "The thick handle"
+              },
+              {
+                "id": "same",
+                "label": "Both are equally easy"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "thick"
+          },
+          "outcome": "The thick handle: about 12 N of grip force, against 24 N for the thin one.",
+          "explanation": "The handle is the wheel and the shaft is the axle. Force at the grip = load × shaft radius ÷ handle radius, so a bigger handle radius means a smaller force: 60 × 4 ÷ 20 = 12 N for the thick handle, against 24 N for the thin one.",
+          "expectedKeywords": [
+            "radius",
+            "force",
+            "turn",
+            "larger"
+          ],
+          "keywordSynonyms": {
+            "radius": [
+              "size",
+              "diameter",
+              "distance from the center",
+              "distance from the centre",
+              "wheel",
+              "bigger handle",
+              "lever arm"
+            ],
+            "force": [
+              "effort",
+              "push",
+              "strength",
+              "pull",
+              "torque"
+            ],
+            "turn": [
+              "turning",
+              "rotate",
+              "rotates",
+              "twist",
+              "twisting"
+            ],
+            "larger": [
+              "bigger",
+              "thicker",
+              "longer",
+              "greater",
+              "more"
+            ]
+          },
+          "coachSecrets": [
+            "12 n"
+          ],
+          "params": {
+            "W": 60,
+            "r": 0.004,
+            "R1": 0.01,
+            "R2": 0.02
+          },
+          "variants": [
+            {
+              "prompt": "A screw needs the same twisting effect from a screwdriver whose shaft has a radius of 4 mm. One handle has a radius of 10 mm (thin), the other 20 mm (thick). Which is easier to turn?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "thin",
+                    "label": "The thin handle"
+                  },
+                  {
+                    "id": "thick",
+                    "label": "The thick handle"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both are equally easy"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "thick"
+              },
+              "outcome": "The thick handle: about 12 N of grip force, against 24 N for the thin one.",
+              "explanation": "The handle is the wheel and the shaft is the axle. Force at the grip = load × shaft radius ÷ handle radius, so a bigger handle radius means a smaller force: 60 × 4 ÷ 20 = 12 N for the thick handle, against 24 N for the thin one.",
+              "expectedKeywords": [
+                "radius",
+                "force",
+                "turn",
+                "larger"
+              ],
+              "keywordSynonyms": {
+                "radius": [
+                  "size",
+                  "diameter",
+                  "distance from the center",
+                  "distance from the centre",
+                  "wheel",
+                  "bigger handle",
+                  "lever arm"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength",
+                  "pull",
+                  "torque"
+                ],
+                "turn": [
+                  "turning",
+                  "rotate",
+                  "rotates",
+                  "twist",
+                  "twisting"
+                ],
+                "larger": [
+                  "bigger",
+                  "thicker",
+                  "longer",
+                  "greater",
+                  "more"
+                ]
+              },
+              "coachSecrets": [
+                "12 n"
+              ],
+              "params": {
+                "W": 60,
+                "r": 0.004,
+                "R1": 0.01,
+                "R2": 0.02
+              }
+            },
+            {
+              "prompt": "A screw needs the same twisting effect from a screwdriver whose shaft has a radius of 3 mm. One handle has a radius of 8 mm (thin), the other 16 mm (thick). Which is easier to turn?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "thin",
+                    "label": "The thin handle"
+                  },
+                  {
+                    "id": "thick",
+                    "label": "The thick handle"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both are equally easy"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "thick"
+              },
+              "outcome": "The thick handle: about 9.4 N of grip force, against 18.8 N for the thin one.",
+              "explanation": "The handle is the wheel and the shaft is the axle. Force at the grip = load × shaft radius ÷ handle radius, so a bigger handle radius means a smaller force: 50 × 3 ÷ 16 = 9.4 N for the thick handle, against 18.8 N for the thin one.",
+              "expectedKeywords": [
+                "radius",
+                "force",
+                "turn",
+                "larger"
+              ],
+              "keywordSynonyms": {
+                "radius": [
+                  "size",
+                  "diameter",
+                  "distance from the center",
+                  "distance from the centre",
+                  "wheel",
+                  "bigger handle",
+                  "lever arm"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength",
+                  "pull",
+                  "torque"
+                ],
+                "turn": [
+                  "turning",
+                  "rotate",
+                  "rotates",
+                  "twist",
+                  "twisting"
+                ],
+                "larger": [
+                  "bigger",
+                  "thicker",
+                  "longer",
+                  "greater",
+                  "more"
+                ]
+              },
+              "coachSecrets": [
+                "9.4 n"
+              ],
+              "params": {
+                "W": 50,
+                "r": 0.003,
+                "R1": 0.008,
+                "R2": 0.016
+              }
+            },
+            {
+              "prompt": "A screw needs the same twisting effect from a screwdriver whose shaft has a radius of 5 mm. One handle has a radius of 12 mm (thin), the other 24 mm (thick). Which is easier to turn?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "thin",
+                    "label": "The thin handle"
+                  },
+                  {
+                    "id": "thick",
+                    "label": "The thick handle"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both are equally easy"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "thick"
+              },
+              "outcome": "The thick handle: about 16.7 N of grip force, against 33.3 N for the thin one.",
+              "explanation": "The handle is the wheel and the shaft is the axle. Force at the grip = load × shaft radius ÷ handle radius, so a bigger handle radius means a smaller force: 80 × 5 ÷ 24 = 16.7 N for the thick handle, against 33.3 N for the thin one.",
+              "expectedKeywords": [
+                "radius",
+                "force",
+                "turn",
+                "larger"
+              ],
+              "keywordSynonyms": {
+                "radius": [
+                  "size",
+                  "diameter",
+                  "distance from the center",
+                  "distance from the centre",
+                  "wheel",
+                  "bigger handle",
+                  "lever arm"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength",
+                  "pull",
+                  "torque"
+                ],
+                "turn": [
+                  "turning",
+                  "rotate",
+                  "rotates",
+                  "twist",
+                  "twisting"
+                ],
+                "larger": [
+                  "bigger",
+                  "thicker",
+                  "longer",
+                  "greater",
+                  "more"
+                ]
+              },
+              "coachSecrets": [
+                "16.7 n"
+              ],
+              "params": {
+                "W": 80,
+                "r": 0.005,
+                "R1": 0.012,
+                "R2": 0.024
+              }
+            },
+            {
+              "prompt": "A screw needs the same twisting effect from a screwdriver whose shaft has a radius of 4 mm. One handle has a radius of 9 mm (thin), the other 27 mm (thick). Which is easier to turn?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "thin",
+                    "label": "The thin handle"
+                  },
+                  {
+                    "id": "thick",
+                    "label": "The thick handle"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both are equally easy"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "thick"
+              },
+              "outcome": "The thick handle: about 6.7 N of grip force, against 20 N for the thin one.",
+              "explanation": "The handle is the wheel and the shaft is the axle. Force at the grip = load × shaft radius ÷ handle radius, so a bigger handle radius means a smaller force: 45 × 4 ÷ 27 = 6.7 N for the thick handle, against 20 N for the thin one.",
+              "expectedKeywords": [
+                "radius",
+                "force",
+                "turn",
+                "larger"
+              ],
+              "keywordSynonyms": {
+                "radius": [
+                  "size",
+                  "diameter",
+                  "distance from the center",
+                  "distance from the centre",
+                  "wheel",
+                  "bigger handle",
+                  "lever arm"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength",
+                  "pull",
+                  "torque"
+                ],
+                "turn": [
+                  "turning",
+                  "rotate",
+                  "rotates",
+                  "twist",
+                  "twisting"
+                ],
+                "larger": [
+                  "bigger",
+                  "thicker",
+                  "longer",
+                  "greater",
+                  "more"
+                ]
+              },
+              "coachSecrets": [
+                "6.7 n"
+              ],
+              "params": {
+                "W": 45,
+                "r": 0.004,
+                "R1": 0.009,
+                "R2": 0.027
+              }
+            },
+            {
+              "prompt": "A screw needs the same twisting effect from a screwdriver whose shaft has a radius of 3 mm. One handle has a radius of 10 mm (thin), the other 25 mm (thick). Which is easier to turn?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "thin",
+                    "label": "The thin handle"
+                  },
+                  {
+                    "id": "thick",
+                    "label": "The thick handle"
+                  },
+                  {
+                    "id": "same",
+                    "label": "Both are equally easy"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "thick"
+              },
+              "outcome": "The thick handle: about 8.4 N of grip force, against 21 N for the thin one.",
+              "explanation": "The handle is the wheel and the shaft is the axle. Force at the grip = load × shaft radius ÷ handle radius, so a bigger handle radius means a smaller force: 70 × 3 ÷ 25 = 8.4 N for the thick handle, against 21 N for the thin one.",
+              "expectedKeywords": [
+                "radius",
+                "force",
+                "turn",
+                "larger"
+              ],
+              "keywordSynonyms": {
+                "radius": [
+                  "size",
+                  "diameter",
+                  "distance from the center",
+                  "distance from the centre",
+                  "wheel",
+                  "bigger handle",
+                  "lever arm"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength",
+                  "pull",
+                  "torque"
+                ],
+                "turn": [
+                  "turning",
+                  "rotate",
+                  "rotates",
+                  "twist",
+                  "twisting"
+                ],
+                "larger": [
+                  "bigger",
+                  "thicker",
+                  "longer",
+                  "greater",
+                  "more"
+                ]
+              },
+              "coachSecrets": [
+                "8.4 n"
+              ],
+              "params": {
+                "W": 70,
+                "r": 0.003,
+                "R1": 0.01,
+                "R2": 0.025
+              }
+            }
+          ]
+        },
+        {
+          "id": "whl_4",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "wheel",
+          "law": {
+            "name": "Work is conserved",
+            "formula": "effort × distance = load × distance"
+          },
+          "prompt": "The axle has a radius of 5 cm and the wheel 25 cm. You pull a rope wound round the rim of the wheel to raise the 200 N bucket by 1 m. How much rope must you pull off the wheel?",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "rope",
+                "label": "Rope pulled",
+                "unit": "m"
+              }
+            ]
+          },
+          "answer": {
+            "rope": 5.0
+          },
+          "tolerance": 0.3,
+          "outcome": "5 m.",
+          "explanation": "Each turn winds 0.31 m onto the axle but unwinds 1.57 m from the wheel, 5 times as much. So lifting 1 m takes 1 × 5 = 5 m of rope: the force is 5 times smaller, the distance 5 times bigger.",
+          "coachSecrets": [
+            "5 m"
+          ],
+          "params": {
+            "W": 200,
+            "r": 0.05,
+            "R": 0.25,
+            "h": 1
+          },
+          "variants": [
+            {
+              "prompt": "The axle has a radius of 5 cm and the wheel 25 cm. You pull a rope wound round the rim of the wheel to raise the 200 N bucket by 1 m. How much rope must you pull off the wheel?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 5.0
+              },
+              "tolerance": 0.3,
+              "outcome": "5 m.",
+              "explanation": "Each turn winds 0.31 m onto the axle but unwinds 1.57 m from the wheel, 5 times as much. So lifting 1 m takes 1 × 5 = 5 m of rope: the force is 5 times smaller, the distance 5 times bigger.",
+              "coachSecrets": [
+                "5 m"
+              ],
+              "params": {
+                "W": 200,
+                "r": 0.05,
+                "R": 0.25,
+                "h": 1
+              }
+            },
+            {
+              "prompt": "The axle has a radius of 6 cm and the wheel 30 cm. You pull a rope wound round the rim of the wheel to raise the 150 N bucket by 0.8 m. How much rope must you pull off the wheel?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 4.0
+              },
+              "tolerance": 0.24,
+              "outcome": "4 m.",
+              "explanation": "Each turn winds 0.38 m onto the axle but unwinds 1.88 m from the wheel, 5 times as much. So lifting 0.8 m takes 0.8 × 5 = 4 m of rope: the force is 5 times smaller, the distance 5 times bigger.",
+              "coachSecrets": [
+                "4 m"
+              ],
+              "params": {
+                "W": 150,
+                "r": 0.06,
+                "R": 0.3,
+                "h": 0.8
+              }
+            },
+            {
+              "prompt": "The axle has a radius of 4 cm and the wheel 20 cm. You pull a rope wound round the rim of the wheel to raise the 120 N bucket by 1 m. How much rope must you pull off the wheel?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 5.0
+              },
+              "tolerance": 0.3,
+              "outcome": "5 m.",
+              "explanation": "Each turn winds 0.25 m onto the axle but unwinds 1.26 m from the wheel, 5 times as much. So lifting 1 m takes 1 × 5 = 5 m of rope: the force is 5 times smaller, the distance 5 times bigger.",
+              "coachSecrets": [
+                "5 m"
+              ],
+              "params": {
+                "W": 120,
+                "r": 0.04,
+                "R": 0.2,
+                "h": 1
+              }
+            },
+            {
+              "prompt": "The axle has a radius of 5 cm and the wheel 15 cm. You pull a rope wound round the rim of the wheel to raise the 240 N bucket by 1.2 m. How much rope must you pull off the wheel?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 3.6
+              },
+              "tolerance": 0.22,
+              "outcome": "3.6 m.",
+              "explanation": "Each turn winds 0.31 m onto the axle but unwinds 0.94 m from the wheel, 3 times as much. So lifting 1.2 m takes 1.2 × 3 = 3.6 m of rope: the force is 3 times smaller, the distance 3 times bigger.",
+              "coachSecrets": [
+                "3.6 m"
+              ],
+              "params": {
+                "W": 240,
+                "r": 0.05,
+                "R": 0.15,
+                "h": 1.2
+              }
+            },
+            {
+              "prompt": "The axle has a radius of 6 cm and the wheel 24 cm. You pull a rope wound round the rim of the wheel to raise the 180 N bucket by 1 m. How much rope must you pull off the wheel?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "rope",
+                    "label": "Rope pulled",
+                    "unit": "m"
+                  }
+                ]
+              },
+              "answer": {
+                "rope": 4.0
+              },
+              "tolerance": 0.24,
+              "outcome": "4 m.",
+              "explanation": "Each turn winds 0.38 m onto the axle but unwinds 1.51 m from the wheel, 4 times as much. So lifting 1 m takes 1 × 4 = 4 m of rope: the force is 4 times smaller, the distance 4 times bigger.",
+              "coachSecrets": [
+                "4 m"
+              ],
+              "params": {
+                "W": 180,
+                "r": 0.06,
+                "R": 0.24,
+                "h": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_whl",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Wheel and axle",
+            "formula": "effort = load × axle radius ÷ wheel radius"
+          },
+          "prompt": "You turn the handle of a door knob (a wheel and axle). Why is a big knob easier than a small one?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "big",
+                "label": "A bigger radius gives a longer lever arm, so less force is needed"
+              },
+              {
+                "id": "small",
+                "label": "A smaller knob is lighter"
+              },
+              {
+                "id": "same",
+                "label": "It makes no difference"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "big"
+          },
+          "outcome": "A bigger radius gives a longer lever arm.",
+          "explanation": "A bigger wheel multiplies your force more, because force × radius is what turns the axle.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "You turn the handle of a door knob (a wheel and axle). Why is a big knob easier than a small one?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "big",
+                    "label": "A bigger radius gives a longer lever arm, so less force is needed"
+                  },
+                  {
+                    "id": "small",
+                    "label": "A smaller knob is lighter"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It makes no difference"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "big"
+              },
+              "outcome": "A bigger radius gives a longer lever arm.",
+              "explanation": "A bigger wheel multiplies your force more, because force × radius is what turns the axle.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A water well has a crank handle of radius 30 cm and an axle of radius 5 cm. By what factor does it multiply your force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "six",
+                    "label": "6"
+                  },
+                  {
+                    "id": "thirty",
+                    "label": "30"
+                  },
+                  {
+                    "id": "one",
+                    "label": "1"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "six"
+              },
+              "outcome": "6.",
+              "explanation": "Mechanical advantage = wheel radius ÷ axle radius = 30 ÷ 5 = 6.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A bicycle's pedal crank is a wheel and axle. The pedal turns in a big circle while the sprocket turns in a small one. What is gained and what is lost?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "force",
+                    "label": "Force is multiplied, but the pedal moves further"
+                  },
+                  {
+                    "id": "both",
+                    "label": "Both force and distance are gained"
+                  },
+                  {
+                    "id": "none",
+                    "label": "Nothing is gained or lost"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "force"
+              },
+              "outcome": "Force is multiplied, but the pedal moves further.",
+              "explanation": "A bigger radius multiplies force but needs more movement.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "Why must you turn the handle of a well many times to raise the bucket a short way?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "dist",
+                    "label": "The wheel rim moves much further than the rope winds up"
+                  },
+                  {
+                    "id": "weak",
+                    "label": "The rope is weak"
+                  },
+                  {
+                    "id": "heavy",
+                    "label": "The bucket gets heavier"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "dist"
+              },
+              "outcome": "The wheel rim moves much further than the rope winds up.",
+              "explanation": "What you gain in force you pay for in distance: the rim travels R ÷ r times as far as the rope.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A steering wheel is bigger than the steering column. What does that do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "Less force is needed to turn it"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More force is needed to turn it"
+                  },
+                  {
+                    "id": "none",
+                    "label": "It changes nothing"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "Less force is needed to turn it.",
+              "explanation": "A wheel bigger than its axle multiplies the driver's force.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inclined_plane",
+      "tabName": "Inclined Plane",
+      "title": "The Ramp Bench",
+      "setup": "A heavy crate, a truck bed and a ramp whose length can change, with a force meter on the crate and a ruler for the distance it moves. The ramp is smooth.",
+      "trials": [
+        {
+          "id": "inc_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "ramp",
+          "law": {
+            "name": "Inclined plane",
+            "formula": "effort = load × height ÷ ramp length"
+          },
+          "prompt": "A 600 N crate must reach a truck bed 1.2 m high. You can lift it straight up, or push it up a smooth ramp 4.8 m long. Which needs less effort?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "lift",
+                "label": "Lifting it straight up"
+              },
+              {
+                "id": "ramp",
+                "label": "Pushing it up the ramp"
+              },
+              {
+                "id": "same",
+                "label": "The same either way"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "ramp"
+          },
+          "outcome": "The ramp: 150 N, against 600 N for lifting.",
+          "explanation": "Lifting straight up takes a force of 600 N over 1.2 m. The ramp needs only W × h ÷ length = 600 × 1.2 ÷ 4.8 = 150 N, but over 4.8 m. The same work is done with a smaller force over a longer distance.",
+          "coachSecrets": [
+            "150 n"
+          ],
+          "params": {
+            "W": 600,
+            "h": 1.2,
+            "len1": 4.8,
+            "len2": 4.8
+          },
+          "variants": [
+            {
+              "prompt": "A 600 N crate must reach a truck bed 1.2 m high. You can lift it straight up, or push it up a smooth ramp 4.8 m long. Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lift",
+                    "label": "Lifting it straight up"
+                  },
+                  {
+                    "id": "ramp",
+                    "label": "Pushing it up the ramp"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same either way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ramp"
+              },
+              "outcome": "The ramp: 150 N, against 600 N for lifting.",
+              "explanation": "Lifting straight up takes a force of 600 N over 1.2 m. The ramp needs only W × h ÷ length = 600 × 1.2 ÷ 4.8 = 150 N, but over 4.8 m. The same work is done with a smaller force over a longer distance.",
+              "coachSecrets": [
+                "150 n"
+              ],
+              "params": {
+                "W": 600,
+                "h": 1.2,
+                "len1": 4.8,
+                "len2": 4.8
+              }
+            },
+            {
+              "prompt": "A 800 N crate must reach a truck bed 1 m high. You can lift it straight up, or push it up a smooth ramp 5 m long. Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lift",
+                    "label": "Lifting it straight up"
+                  },
+                  {
+                    "id": "ramp",
+                    "label": "Pushing it up the ramp"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same either way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ramp"
+              },
+              "outcome": "The ramp: 160 N, against 800 N for lifting.",
+              "explanation": "Lifting straight up takes a force of 800 N over 1 m. The ramp needs only W × h ÷ length = 800 × 1 ÷ 5 = 160 N, but over 5 m. The same work is done with a smaller force over a longer distance.",
+              "coachSecrets": [
+                "160 n"
+              ],
+              "params": {
+                "W": 800,
+                "h": 1.0,
+                "len1": 5,
+                "len2": 5
+              }
+            },
+            {
+              "prompt": "A 500 N crate must reach a truck bed 1.5 m high. You can lift it straight up, or push it up a smooth ramp 6 m long. Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lift",
+                    "label": "Lifting it straight up"
+                  },
+                  {
+                    "id": "ramp",
+                    "label": "Pushing it up the ramp"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same either way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ramp"
+              },
+              "outcome": "The ramp: 125 N, against 500 N for lifting.",
+              "explanation": "Lifting straight up takes a force of 500 N over 1.5 m. The ramp needs only W × h ÷ length = 500 × 1.5 ÷ 6 = 125 N, but over 6 m. The same work is done with a smaller force over a longer distance.",
+              "coachSecrets": [
+                "125 n"
+              ],
+              "params": {
+                "W": 500,
+                "h": 1.5,
+                "len1": 6,
+                "len2": 6
+              }
+            },
+            {
+              "prompt": "A 900 N crate must reach a truck bed 1.2 m high. You can lift it straight up, or push it up a smooth ramp 3.6 m long. Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lift",
+                    "label": "Lifting it straight up"
+                  },
+                  {
+                    "id": "ramp",
+                    "label": "Pushing it up the ramp"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same either way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ramp"
+              },
+              "outcome": "The ramp: 300 N, against 900 N for lifting.",
+              "explanation": "Lifting straight up takes a force of 900 N over 1.2 m. The ramp needs only W × h ÷ length = 900 × 1.2 ÷ 3.6 = 300 N, but over 3.6 m. The same work is done with a smaller force over a longer distance.",
+              "coachSecrets": [
+                "300 n"
+              ],
+              "params": {
+                "W": 900,
+                "h": 1.2,
+                "len1": 3.6,
+                "len2": 3.6
+              }
+            },
+            {
+              "prompt": "A 700 N crate must reach a truck bed 0.8 m high. You can lift it straight up, or push it up a smooth ramp 4 m long. Which needs less effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lift",
+                    "label": "Lifting it straight up"
+                  },
+                  {
+                    "id": "ramp",
+                    "label": "Pushing it up the ramp"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same either way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "ramp"
+              },
+              "outcome": "The ramp: 140 N, against 700 N for lifting.",
+              "explanation": "Lifting straight up takes a force of 700 N over 0.8 m. The ramp needs only W × h ÷ length = 700 × 0.8 ÷ 4 = 140 N, but over 4 m. The same work is done with a smaller force over a longer distance.",
+              "coachSecrets": [
+                "140 n"
+              ],
+              "params": {
+                "W": 700,
+                "h": 0.8,
+                "len1": 4,
+                "len2": 4
+              }
+            }
+          ]
+        },
+        {
+          "id": "inc_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "ramp",
+          "law": {
+            "name": "Inclined plane",
+            "formula": "effort = load × height ÷ ramp length"
+          },
+          "prompt": "The crate weighs 800 N and the truck bed is 1.2 m high. You push the crate up a smooth ramp 4 m long. Predict the force meter reading.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "effort",
+                "label": "Effort",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "effort": 240.0
+          },
+          "tolerance": 16.8,
+          "outcome": "240 N.",
+          "explanation": "Effort = weight × height ÷ length = 800 × 1.2 ÷ 4 = 240 N.",
+          "coachSecrets": [
+            "240 n"
+          ],
+          "params": {
+            "W": 800,
+            "h": 1.2,
+            "len1": 4,
+            "len2": 4
+          },
+          "variants": [
+            {
+              "prompt": "The crate weighs 800 N and the truck bed is 1.2 m high. You push the crate up a smooth ramp 4 m long. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 240.0
+              },
+              "tolerance": 16.8,
+              "outcome": "240 N.",
+              "explanation": "Effort = weight × height ÷ length = 800 × 1.2 ÷ 4 = 240 N.",
+              "coachSecrets": [
+                "240 n"
+              ],
+              "params": {
+                "W": 800,
+                "h": 1.2,
+                "len1": 4,
+                "len2": 4
+              }
+            },
+            {
+              "prompt": "The crate weighs 600 N and the truck bed is 1 m high. You push the crate up a smooth ramp 5 m long. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 120.0
+              },
+              "tolerance": 8.4,
+              "outcome": "120 N.",
+              "explanation": "Effort = weight × height ÷ length = 600 × 1 ÷ 5 = 120 N.",
+              "coachSecrets": [
+                "120 n"
+              ],
+              "params": {
+                "W": 600,
+                "h": 1.0,
+                "len1": 5,
+                "len2": 5
+              }
+            },
+            {
+              "prompt": "The crate weighs 1000 N and the truck bed is 1.5 m high. You push the crate up a smooth ramp 6 m long. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 250.0
+              },
+              "tolerance": 17.5,
+              "outcome": "250 N.",
+              "explanation": "Effort = weight × height ÷ length = 1000 × 1.5 ÷ 6 = 250 N.",
+              "coachSecrets": [
+                "250 n"
+              ],
+              "params": {
+                "W": 1000,
+                "h": 1.5,
+                "len1": 6,
+                "len2": 6
+              }
+            },
+            {
+              "prompt": "The crate weighs 500 N and the truck bed is 0.8 m high. You push the crate up a smooth ramp 2 m long. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 200.0
+              },
+              "tolerance": 14.0,
+              "outcome": "200 N.",
+              "explanation": "Effort = weight × height ÷ length = 500 × 0.8 ÷ 2 = 200 N.",
+              "coachSecrets": [
+                "200 n"
+              ],
+              "params": {
+                "W": 500,
+                "h": 0.8,
+                "len1": 2,
+                "len2": 2
+              }
+            },
+            {
+              "prompt": "The crate weighs 900 N and the truck bed is 1.2 m high. You push the crate up a smooth ramp 3 m long. Predict the force meter reading.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "effort",
+                    "label": "Effort",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "effort": 360.0
+              },
+              "tolerance": 25.2,
+              "outcome": "360 N.",
+              "explanation": "Effort = weight × height ÷ length = 900 × 1.2 ÷ 3 = 360 N.",
+              "coachSecrets": [
+                "360 n"
+              ],
+              "params": {
+                "W": 900,
+                "h": 1.2,
+                "len1": 3,
+                "len2": 3
+              }
+            }
+          ]
+        },
+        {
+          "id": "inc_3",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "ramp",
+          "law": {
+            "name": "Work is conserved",
+            "formula": "effort × distance = load × distance"
+          },
+          "prompt": "You push a 800 N crate up a 3 m ramp to a 1.2 m high truck bed (effort 320 N). You swap it for a longer, gentler ramp, 6 m long. What happens to the effort needed?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "less",
+                "label": "It decreases further"
+              },
+              {
+                "id": "more",
+                "label": "It increases"
+              },
+              {
+                "id": "same",
+                "label": "It stays the same"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "less"
+          },
+          "outcome": "160 N: less than 320 N, but the crate is pushed 6 m instead of 3 m.",
+          "explanation": "Effort = weight × height ÷ length, so a longer ramp needs a smaller force: 800 × 1.2 ÷ 6 = 160 N. But the crate must be pushed further. Effort × distance (about 960 J) stays the same: the trade-off in every simple machine.",
+          "expectedKeywords": [
+            "longer",
+            "distance",
+            "force",
+            "trade"
+          ],
+          "keywordSynonyms": {
+            "longer": [
+              "long",
+              "length",
+              "gentler",
+              "less steep",
+              "shallower",
+              "gradual"
+            ],
+            "distance": [
+              "further",
+              "farther",
+              "far",
+              "push further"
+            ],
+            "force": [
+              "effort",
+              "push",
+              "strength"
+            ],
+            "trade": [
+              "trade-off",
+              "tradeoff",
+              "exchange",
+              "swap",
+              "price",
+              "cost",
+              "work"
+            ]
+          },
+          "coachSecrets": [
+            "160 n"
+          ],
+          "params": {
+            "W": 800,
+            "h": 1.2,
+            "len1": 3,
+            "len2": 6
+          },
+          "variants": [
+            {
+              "prompt": "You push a 800 N crate up a 3 m ramp to a 1.2 m high truck bed (effort 320 N). You swap it for a longer, gentler ramp, 6 m long. What happens to the effort needed?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It decreases further"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "160 N: less than 320 N, but the crate is pushed 6 m instead of 3 m.",
+              "explanation": "Effort = weight × height ÷ length, so a longer ramp needs a smaller force: 800 × 1.2 ÷ 6 = 160 N. But the crate must be pushed further. Effort × distance (about 960 J) stays the same: the trade-off in every simple machine.",
+              "expectedKeywords": [
+                "longer",
+                "distance",
+                "force",
+                "trade"
+              ],
+              "keywordSynonyms": {
+                "longer": [
+                  "long",
+                  "length",
+                  "gentler",
+                  "less steep",
+                  "shallower",
+                  "gradual"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "far",
+                  "push further"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength"
+                ],
+                "trade": [
+                  "trade-off",
+                  "tradeoff",
+                  "exchange",
+                  "swap",
+                  "price",
+                  "cost",
+                  "work"
+                ]
+              },
+              "coachSecrets": [
+                "160 n"
+              ],
+              "params": {
+                "W": 800,
+                "h": 1.2,
+                "len1": 3,
+                "len2": 6
+              }
+            },
+            {
+              "prompt": "You push a 600 N crate up a 2.5 m ramp to a 1 m high truck bed (effort 240 N). You swap it for a longer, gentler ramp, 5 m long. What happens to the effort needed?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It decreases further"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "120 N: less than 240 N, but the crate is pushed 5 m instead of 2.5 m.",
+              "explanation": "Effort = weight × height ÷ length, so a longer ramp needs a smaller force: 600 × 1 ÷ 5 = 120 N. But the crate must be pushed further. Effort × distance (about 600 J) stays the same: the trade-off in every simple machine.",
+              "expectedKeywords": [
+                "longer",
+                "distance",
+                "force",
+                "trade"
+              ],
+              "keywordSynonyms": {
+                "longer": [
+                  "long",
+                  "length",
+                  "gentler",
+                  "less steep",
+                  "shallower",
+                  "gradual"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "far",
+                  "push further"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength"
+                ],
+                "trade": [
+                  "trade-off",
+                  "tradeoff",
+                  "exchange",
+                  "swap",
+                  "price",
+                  "cost",
+                  "work"
+                ]
+              },
+              "coachSecrets": [
+                "120 n"
+              ],
+              "params": {
+                "W": 600,
+                "h": 1.0,
+                "len1": 2.5,
+                "len2": 5
+              }
+            },
+            {
+              "prompt": "You push a 900 N crate up a 4 m ramp to a 1.5 m high truck bed (effort 337.5 N). You swap it for a longer, gentler ramp, 8 m long. What happens to the effort needed?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It decreases further"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "168.8 N: less than 337.5 N, but the crate is pushed 8 m instead of 4 m.",
+              "explanation": "Effort = weight × height ÷ length, so a longer ramp needs a smaller force: 900 × 1.5 ÷ 8 = 168.8 N. But the crate must be pushed further. Effort × distance (about 1350 J) stays the same: the trade-off in every simple machine.",
+              "expectedKeywords": [
+                "longer",
+                "distance",
+                "force",
+                "trade"
+              ],
+              "keywordSynonyms": {
+                "longer": [
+                  "long",
+                  "length",
+                  "gentler",
+                  "less steep",
+                  "shallower",
+                  "gradual"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "far",
+                  "push further"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength"
+                ],
+                "trade": [
+                  "trade-off",
+                  "tradeoff",
+                  "exchange",
+                  "swap",
+                  "price",
+                  "cost",
+                  "work"
+                ]
+              },
+              "coachSecrets": [
+                "168.8 n"
+              ],
+              "params": {
+                "W": 900,
+                "h": 1.5,
+                "len1": 4,
+                "len2": 8
+              }
+            },
+            {
+              "prompt": "You push a 500 N crate up a 3 m ramp to a 1.2 m high truck bed (effort 200 N). You swap it for a longer, gentler ramp, 4.5 m long. What happens to the effort needed?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It decreases further"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "133.3 N: less than 200 N, but the crate is pushed 4.5 m instead of 3 m.",
+              "explanation": "Effort = weight × height ÷ length, so a longer ramp needs a smaller force: 500 × 1.2 ÷ 4.5 = 133.3 N. But the crate must be pushed further. Effort × distance (about 600 J) stays the same: the trade-off in every simple machine.",
+              "expectedKeywords": [
+                "longer",
+                "distance",
+                "force",
+                "trade"
+              ],
+              "keywordSynonyms": {
+                "longer": [
+                  "long",
+                  "length",
+                  "gentler",
+                  "less steep",
+                  "shallower",
+                  "gradual"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "far",
+                  "push further"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength"
+                ],
+                "trade": [
+                  "trade-off",
+                  "tradeoff",
+                  "exchange",
+                  "swap",
+                  "price",
+                  "cost",
+                  "work"
+                ]
+              },
+              "coachSecrets": [
+                "133.3 n"
+              ],
+              "params": {
+                "W": 500,
+                "h": 1.2,
+                "len1": 3,
+                "len2": 4.5
+              }
+            },
+            {
+              "prompt": "You push a 700 N crate up a 2 m ramp to a 1 m high truck bed (effort 350 N). You swap it for a longer, gentler ramp, 5 m long. What happens to the effort needed?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "It decreases further"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It increases"
+                  },
+                  {
+                    "id": "same",
+                    "label": "It stays the same"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "140 N: less than 350 N, but the crate is pushed 5 m instead of 2 m.",
+              "explanation": "Effort = weight × height ÷ length, so a longer ramp needs a smaller force: 700 × 1 ÷ 5 = 140 N. But the crate must be pushed further. Effort × distance (about 700 J) stays the same: the trade-off in every simple machine.",
+              "expectedKeywords": [
+                "longer",
+                "distance",
+                "force",
+                "trade"
+              ],
+              "keywordSynonyms": {
+                "longer": [
+                  "long",
+                  "length",
+                  "gentler",
+                  "less steep",
+                  "shallower",
+                  "gradual"
+                ],
+                "distance": [
+                  "further",
+                  "farther",
+                  "far",
+                  "push further"
+                ],
+                "force": [
+                  "effort",
+                  "push",
+                  "strength"
+                ],
+                "trade": [
+                  "trade-off",
+                  "tradeoff",
+                  "exchange",
+                  "swap",
+                  "price",
+                  "cost",
+                  "work"
+                ]
+              },
+              "coachSecrets": [
+                "140 n"
+              ],
+              "params": {
+                "W": 700,
+                "h": 1.0,
+                "len1": 2,
+                "len2": 5
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_inc",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Work is conserved",
+            "formula": "effort × distance = load × distance"
+          },
+          "prompt": "A ramp that is twice as long (same height) needs…",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "half",
+                "label": "Half the force, over twice the distance"
+              },
+              {
+                "id": "same",
+                "label": "The same force"
+              },
+              {
+                "id": "double",
+                "label": "Twice the force"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "half"
+          },
+          "outcome": "Half the force, over twice the distance.",
+          "explanation": "Effort × distance is constant for an ideal ramp.",
+          "coachSecrets": [],
+          "params": {},
+          "variants": [
+            {
+              "prompt": "A ramp that is twice as long (same height) needs…",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "Half the force, over twice the distance"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same force"
+                  },
+                  {
+                    "id": "double",
+                    "label": "Twice the force"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "Half the force, over twice the distance.",
+              "explanation": "Effort × distance is constant for an ideal ramp.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A screw is a ramp wrapped round a rod. Why is a screw with closely spaced threads easier to turn in?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "gentle",
+                    "label": "The thread is a longer, gentler ramp"
+                  },
+                  {
+                    "id": "steep",
+                    "label": "The thread is a steeper ramp"
+                  },
+                  {
+                    "id": "none",
+                    "label": "The thread spacing makes no difference"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "gentle"
+              },
+              "outcome": "The thread is a longer, gentler ramp.",
+              "explanation": "Closer threads mean a longer path for each rise, so less force is needed but more turns.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A road up a mountain zigzags instead of going straight up. Why?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "less",
+                    "label": "A longer path means a smaller force is needed"
+                  },
+                  {
+                    "id": "more",
+                    "label": "It makes the climb harder on purpose"
+                  },
+                  {
+                    "id": "none",
+                    "label": "It saves no effort at all"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "less"
+              },
+              "outcome": "A longer path means a smaller force is needed.",
+              "explanation": "The zigzag lengthens the slope, which reduces the force needed.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "A smooth ramp 5 m long lifts a 500 N crate by 1 m. What is the effort?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "hundred",
+                    "label": "100 N"
+                  },
+                  {
+                    "id": "five",
+                    "label": "5 N"
+                  },
+                  {
+                    "id": "fivehundred",
+                    "label": "500 N"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "hundred"
+              },
+              "outcome": "100 N.",
+              "explanation": "Effort = 500 × 1 ÷ 5 = 100 N.",
+              "coachSecrets": []
+            },
+            {
+              "prompt": "Does an ideal ramp reduce the work needed to get the crate onto the truck?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "no",
+                    "label": "No: it only reduces the force, over a longer distance"
+                  },
+                  {
+                    "id": "yes",
+                    "label": "Yes, it reduces the work needed"
+                  },
+                  {
+                    "id": "more",
+                    "label": "No: it increases the work"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no"
+              },
+              "outcome": "No: it only reduces the force.",
+              "explanation": "Work = force × distance, and an ideal machine leaves it unchanged.",
+              "coachSecrets": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "laws": [
+    {
+      "id": "lever",
+      "name": "Law of the lever",
+      "formula": "effort × effort arm = load × load arm",
+      "summary": "The longer the effort arm compared with the load arm, the less the effort."
+    },
+    {
+      "id": "pulley",
+      "name": "Pulleys",
+      "summary": "More supporting ropes means less effort and more rope pulled."
+    },
+    {
+      "id": "wheel",
+      "name": "Wheel and axle",
+      "summary": "A wheel bigger than its axle multiplies your force."
+    },
+    {
+      "id": "incline",
+      "name": "Inclined plane",
+      "summary": "A longer ramp needs less force over a longer distance."
+    },
+    {
+      "id": "work",
+      "name": "Work is conserved",
+      "formula": "effort × distance = load × distance",
+      "summary": "A simple machine trades force for distance; it does not make work."
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasForceMeter": true,
+    "hasFulcrumSlider": true,
+    "hasRampLengthSlider": true
+  }
+}

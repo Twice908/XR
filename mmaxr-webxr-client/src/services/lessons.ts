@@ -14,7 +14,7 @@ export async function fetchLesson(lessonId: string, session: { sessionId: string
   })
   if (!res.ok) throw new Error(`Lesson ${lessonId} failed to load (${res.status})`)
   const lesson = (await res.json()) as LessonContract
-  if (lesson.type !== 'physics_mechanics_sandbox' && lesson.type !== 'physics_electromagnetism' && lesson.type !== 'physics_circuits' && lesson.type !== 'science_matter_properties' && !lesson.modelUrl) throw new Error('Lesson contract is missing modelUrl')
+  if (lesson.type !== 'physics_mechanics_sandbox' && lesson.type !== 'physics_electromagnetism' && lesson.type !== 'physics_circuits' && lesson.type !== 'physics_simple_machines' && lesson.type !== 'physics_fundamentals_sandbox' && lesson.type !== 'science_matter_properties' && !lesson.modelUrl) throw new Error('Lesson contract is missing modelUrl')
   return lesson
 }
 

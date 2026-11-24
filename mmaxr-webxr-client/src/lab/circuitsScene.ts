@@ -31,7 +31,7 @@ interface Job {
 }
 
 /** Text that can be changed, drawn on a small panel. */
-class Readout extends THREE.Mesh {
+export class Readout extends THREE.Mesh {
   private readonly ctx: CanvasRenderingContext2D
   private readonly tex: THREE.CanvasTexture
   constructor(

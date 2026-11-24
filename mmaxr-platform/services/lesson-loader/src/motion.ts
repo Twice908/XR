@@ -21,6 +21,8 @@ export interface MotionTrial {
   coachSecrets?: string[];
   /** The law this question is about. Held back until the result has been watched, so it cannot hint at the answer. */
   law?: { name: string; formula?: string };
+  /** A card that explains the idea before its first question: definition, formula, unit, examples. Public. */
+  concept?: { title: string; idea: string; formula?: string; unit?: string; kind?: string; examples: string[] };
   /** Simulation settings for the default values (mass, force, distance…). Public: they only drive the animation. */
   params?: Record<string, unknown>;
   /** Alternative sets of values for this question. One is drawn for each session, so repeat attempts differ. */
@@ -110,7 +112,7 @@ export function redactMotion(lesson: any, a?: Pick<MotionAssignment, 'variants' 
       setup: s.setup,
       trials: s.trials.map((base) => {
         const t = trialOf(base, a);
-        return { id: t.id, kind: t.kind, anomaly: t.anomaly, action: t.action, prompt: t.prompt, input: inOrder(t.input, a?.orders?.[t.id]), params: t.params ?? {}, needsExplanation: t.anomaly && (t.expectedKeywords?.length ?? 0) > 0 };
+        return { id: t.id, kind: t.kind, anomaly: t.anomaly, action: t.action, prompt: t.prompt, input: inOrder(t.input, a?.orders?.[t.id]), params: t.params ?? {}, ...(base.concept ? { concept: base.concept } : {}), needsExplanation: t.anomaly && (t.expectedKeywords?.length ?? 0) > 0 };
       }),
     })),
   };

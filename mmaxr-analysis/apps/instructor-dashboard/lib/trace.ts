@@ -122,6 +122,8 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id.startsWith('simple-machines')) return 'Simple Machines'
+  if (id.startsWith('physics-fundamentals')) return 'Fundamental Physics'
   if (id.startsWith('physics-electricity')) return 'Electricity & Circuits'
   if (id.startsWith('matter-')) return 'Matter & Its Properties'
   if (id.startsWith('physics-magnetism')) return 'Magnetism & Electromagnetism'

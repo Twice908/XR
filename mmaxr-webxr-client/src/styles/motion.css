@@ -192,3 +192,45 @@
     display: none;
   }
 }
+
+/* ---- concept cards (fundamentals lab) ---- */
+.mo-concept {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-container);
+  background: linear-gradient(135deg, rgb(79 140 255 / 0.16), rgb(168 85 247 / 0.1));
+  border: 1px solid rgb(79 140 255 / 0.35);
+}
+.mo-concept-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mo-concept-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+.mo-concept-idea {
+  margin: 0;
+  line-height: 1.55;
+}
+.mo-concept-formula {
+  font-size: var(--font-size-md, 15px);
+  background: rgb(255 209 102 / 0.14);
+  border-color: rgb(255 209 102 / 0.45);
+}
+.mo-concept-list {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 4px;
+  columns: 1;
+}
+@media (min-width: 900px) {
+  .mo-concept-list {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+  }
+}

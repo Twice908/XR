@@ -29,7 +29,7 @@ const CONFIDENCE: { value: Confidence; label: string; hint: string }[] = [
   { value: 3, label: 'Certain', hint: 'I know this one' },
 ]
 
-const ICON: Record<string, string> = { kinematics_track: '🏎️', dynamics_bay: '📦', gravitation_drop: '🪶', magnets_fields: '🧲', electromagnetism: '⚡', force_induction: '🌀', ohms_law: '🔌', series_parallel: '💡', heating_fuse: '🔥', states_changes: '🧊', properties_changes: '🔥', density_measurement: '⚖️' }
+const ICON: Record<string, string> = { kinematics_track: '🏎️', dynamics_bay: '📦', gravitation_drop: '🪶', magnets_fields: '🧲', electromagnetism: '⚡', force_induction: '🌀', ohms_law: '🔌', series_parallel: '💡', heating_fuse: '🔥', levers: '⚖️', pulleys: '🪢', wheel_axle: '🎡', inclined_plane: '📐', kinematics_vectors: '🏎️', dynamics_impulse: '🥚', work_energy: '⚡', fundamental_quantities: '📏', states_changes: '🧊', properties_changes: '🔥', density_measurement: '⚖️' }
 
 export class MotionHud {
   readonly root: HTMLElement
@@ -49,6 +49,8 @@ export class MotionHud {
   private explainBtn: HTMLButtonElement | null = null
   private lockBtn: HTMLButtonElement | null = null
   private summary = false
+  /** Concept cards already read, by question id: the card shows once before its question and can be reopened. */
+  private conceptsRead = new Set<string>()
 
   constructor(
     private readonly exp: MotionExperiment,
@@ -163,6 +165,7 @@ export class MotionHud {
     const e = this.exp
     if (this.summary && e.allDone) return this.renderModuleEnd()
     const t = e.current
+    if (t.stage === 'open' && t.trial.concept && !this.conceptsRead.has(t.trial.id)) return this.renderConcept(t)
     switch (t.stage) {
       case 'open': return this.renderOpen(t)
       case 'locked': return this.renderLocked(t)
@@ -179,9 +182,35 @@ export class MotionHud {
     return h(
       'div',
       { class: 'stack', style: 'gap:4px' },
-      h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, s.title), h('div', { class: 'row', style: 'gap:6px' }, t.trial.kind === 'transfer' ? badge('What if?', 'warning') : null, badge(`Question ${pos} of ${list.length}`, 'info'))),
+      h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, s.title), h('div', { class: 'row', style: 'gap:6px' }, t.trial.concept && this.conceptsRead.has(t.trial.id) ? button(`📘 ${t.trial.concept.title}`, { variant: 'ghost', size: 'sm', onClick: () => { this.conceptsRead.delete(t.trial.id); this.update() } }) : null, t.trial.kind === 'transfer' ? badge('What if?', 'warning') : null, badge(`Question ${pos} of ${list.length}`, 'info'))),
       pos === 1 && t.stage === 'open' ? h('p', { class: 't-support' }, s.setup) : null,
     )
+  }
+
+  /* ---- concept card ---- */
+  private renderConcept(t: TrialState): (Node | null)[] {
+    const c = t.trial.concept!
+    const s = this.exp.scenario
+    const all = this.exp.scenarios.flatMap((x) => this.exp.of(x.id)).filter((x) => x.trial.concept)
+    const n = all.indexOf(t) + 1
+    return [
+      h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, s.title), badge(`Concept ${n} of ${all.length}`, 'info')),
+      h(
+        'div',
+        { class: 'mo-concept' },
+        h('div', { class: 'mo-concept-head' }, h('span', { class: 'mo-concept-icon', 'aria-hidden': 'true' }, '📘'), h('h3', { class: 't-title' }, c.title)),
+        h('p', { class: 'mo-concept-idea' }, c.idea),
+        h(
+          'div',
+          { class: 'chips' },
+          c.formula ? h('span', { class: 'chip chip-static t-mono mo-concept-formula' }, c.formula) : null,
+          c.unit ? h('span', { class: 'chip chip-static' }, `Unit: ${c.unit}`) : null,
+          c.kind ? h('span', { class: 'chip chip-static' }, c.kind) : null,
+        ),
+        h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'Examples'), h('ul', { class: 'mo-concept-list' }, ...c.examples.map((x) => h('li', {}, x)))),
+      ),
+      h('div', { class: 'dialog-actions' }, button('Got it: show me the question →', { variant: 'primary', onClick: () => { this.conceptsRead.add(t.trial.id); this.update() } })),
+    ]
   }
 
   /* ---- predict ---- */

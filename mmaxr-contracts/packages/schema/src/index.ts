@@ -126,7 +126,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_waves_sound" | "science_matter_properties";
+  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_simple_machines" | "physics_fundamentals_sandbox" | "physics_waves_sound" | "science_matter_properties";
   title: string;
   subject: string | null;
   summary: string | null;
@@ -443,6 +443,8 @@ export interface MotionTrial {
   input: MotionInput;
   /** This session's values for the animation (masses, forces, distances…). They only drive the picture. */
   params: Record<string, unknown>;
+  /** A card that explains the idea before its first question (fundamentals lab). */
+  concept?: { title: string; idea: string; formula?: string; unit?: string; kind?: string; examples: string[] };
   /** True when the student must explain the surprise before the explanation is shown. */
   needsExplanation: boolean;
 }
@@ -455,7 +457,7 @@ export interface MotionScenario {
 }
 export interface MotionLessonContract {
   lessonId: string;
-  type: 'physics_mechanics_sandbox' | 'physics_electromagnetism' | 'physics_circuits' | 'science_matter_properties';
+  type: 'physics_mechanics_sandbox' | 'physics_electromagnetism' | 'physics_circuits' | 'physics_simple_machines' | 'physics_fundamentals_sandbox' | 'science_matter_properties';
   /** Not used: the sandbox is built from the individual models in `assets`. */
   modelUrl?: string;
   subject: string;
