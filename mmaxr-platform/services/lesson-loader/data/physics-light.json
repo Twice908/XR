@@ -1,0 +1,646 @@
+{
+  "lessonId": "physics-light",
+  "type": "physics_optics",
+  "title": "Light: Reflection & Spherical Mirrors",
+  "subject": "Physics",
+  "summary": "Fire a laser at smooth and crumpled surfaces, test the three laws of reflection, learn the four ray rules, then predict the image a concave and a convex mirror makes for every position of a candle.",
+  "durationMinutes": 30,
+  "difficulty": "Intermediate",
+  "modelUrl": "http://localhost:3007/assets/models/concave-convex-mirror-stand.glb",
+  "assets": {
+    "laser": "http://localhost:3007/assets/models/laser-pointer-ray.glb",
+    "planeMirror": "http://localhost:3007/assets/models/plane-mirror.glb",
+    "mirrorStand": "http://localhost:3007/assets/models/concave-convex-mirror-stand.glb"
+  },
+  "config": {
+    "hasLaserPointer": true,
+    "hasMovableObject": true,
+    "focalLengthM": 0.25,
+    "maxExplanationWords": 80,
+    "minExplanationWords": 8,
+    "requireAudioExplanation": true,
+    "minExplainDwellMs": 8000
+  },
+  "planeMirror": {
+    "predictionOptions": [
+      {
+        "id": "a",
+        "label": "Yes: the rays stay parallel"
+      },
+      {
+        "id": "b",
+        "label": "No: the rays scatter in all directions"
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "smooth",
+        "name": "Smooth plane mirror",
+        "predictionPrompt": "Will the parallel rays stay parallel after reflection?",
+        "result": "a",
+        "explanation": "The smooth surface causes regular reflection: every ray meets it at the same angle, so the rays stay parallel and form a clear image."
+      },
+      {
+        "id": "rough",
+        "name": "Crumpled aluminium foil",
+        "predictionPrompt": "Will the parallel rays stay parallel after reflection?",
+        "result": "b",
+        "explanation": "The crumpled surface is a thousand tiny mirrors facing every which way. Each ray still obeys the law of reflection, but the normals differ, so the rays scatter: irregular (diffuse) reflection."
+      }
+    ]
+  },
+  "rayRules": {
+    "outcomes": [
+      {
+        "id": "a",
+        "label": "It reflects through the focus F"
+      },
+      {
+        "id": "b",
+        "label": "It reflects parallel to the principal axis"
+      },
+      {
+        "id": "c",
+        "label": "It reflects straight back along its own path"
+      },
+      {
+        "id": "d",
+        "label": "It reflects at the same angle on the other side of the axis"
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule1",
+        "description": "A ray parallel to the principal axis reflects through the focus F.",
+        "incident": "A ray travelling parallel to the principal axis, {n} cm {where} it.",
+        "reflected": "a",
+        "explanation": "Rule 1: a ray parallel to the principal axis reflects through F.",
+        "variants": [
+          {
+            "n": 5
+          },
+          {
+            "n": 6
+          },
+          {
+            "n": 7
+          },
+          {
+            "n": 8
+          },
+          {
+            "n": 9
+          },
+          {
+            "n": 10
+          },
+          {
+            "n": 11
+          },
+          {
+            "n": 12
+          }
+        ],
+        "anchors": [
+          [
+            "{n}"
+          ]
+        ]
+      },
+      {
+        "id": "rule2",
+        "description": "A ray passing through F reflects parallel to the principal axis.",
+        "incident": "A ray aimed through the focus F that strikes the mirror {n} cm {where} the axis.",
+        "reflected": "b",
+        "explanation": "Rule 2: it is rule 1 run backwards: a ray through F reflects parallel to the axis.",
+        "variants": [
+          {
+            "n": 6
+          },
+          {
+            "n": 7
+          },
+          {
+            "n": 8
+          },
+          {
+            "n": 9
+          },
+          {
+            "n": 10
+          },
+          {
+            "n": 12
+          },
+          {
+            "n": 14
+          },
+          {
+            "n": 16
+          }
+        ],
+        "anchors": [
+          [
+            "{n}"
+          ]
+        ]
+      },
+      {
+        "id": "rule3",
+        "description": "A ray passing through the centre of curvature C reflects back on itself.",
+        "incident": "A ray aimed through the centre of curvature C, {n}° {where} the axis.",
+        "reflected": "c",
+        "explanation": "Rule 3: a ray through C meets the mirror along a radius, i.e. at 90°, so it returns along the same path.",
+        "variants": [
+          {
+            "n": 8
+          },
+          {
+            "n": 9
+          },
+          {
+            "n": 10
+          },
+          {
+            "n": 11
+          },
+          {
+            "n": 12
+          },
+          {
+            "n": 13
+          },
+          {
+            "n": 14
+          },
+          {
+            "n": 15
+          }
+        ],
+        "anchors": [
+          [
+            "{n}"
+          ]
+        ]
+      },
+      {
+        "id": "rule4",
+        "description": "A ray hitting the pole P reflects at the same angle on the other side of the axis.",
+        "incident": "A ray aimed at the pole P, {n}° {where} the axis.",
+        "reflected": "d",
+        "explanation": "Rule 4: at the pole the axis is the normal, so the angle of reflection equals the angle of incidence.",
+        "variants": [
+          {
+            "n": 6
+          },
+          {
+            "n": 7
+          },
+          {
+            "n": 8
+          },
+          {
+            "n": 9
+          },
+          {
+            "n": 10
+          },
+          {
+            "n": 11
+          },
+          {
+            "n": 12
+          },
+          {
+            "n": 13
+          }
+        ],
+        "anchors": [
+          [
+            "{n}"
+          ]
+        ]
+      }
+    ]
+  },
+  "imageFields": {
+    "position": [
+      {
+        "id": "at_infinity",
+        "label": "At infinity"
+      },
+      {
+        "id": "beyond_c",
+        "label": "Beyond C"
+      },
+      {
+        "id": "at_c",
+        "label": "At C"
+      },
+      {
+        "id": "between_f_c",
+        "label": "Between F and C"
+      },
+      {
+        "id": "at_f",
+        "label": "At F"
+      },
+      {
+        "id": "behind_mirror",
+        "label": "Behind the mirror"
+      },
+      {
+        "id": "at_f_behind",
+        "label": "At F, behind the mirror"
+      },
+      {
+        "id": "between_p_f_behind",
+        "label": "Between P and F, behind the mirror"
+      }
+    ],
+    "size": [
+      {
+        "id": "highly_diminished",
+        "label": "Highly diminished"
+      },
+      {
+        "id": "diminished",
+        "label": "Diminished"
+      },
+      {
+        "id": "same_size",
+        "label": "Same size"
+      },
+      {
+        "id": "enlarged",
+        "label": "Enlarged"
+      },
+      {
+        "id": "highly_enlarged",
+        "label": "Highly enlarged"
+      }
+    ],
+    "nature": [
+      {
+        "id": "real",
+        "label": "Real"
+      },
+      {
+        "id": "virtual",
+        "label": "Virtual"
+      }
+    ],
+    "orientation": [
+      {
+        "id": "inverted",
+        "label": "Inverted"
+      },
+      {
+        "id": "erect",
+        "label": "Erect"
+      }
+    ]
+  },
+  "sphericalMirrors": [
+    {
+      "mirrorType": "concave",
+      "cases": [
+        {
+          "id": "concave_infinity",
+          "objectPosition": "At infinity",
+          "uOverF": null,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "at_f",
+            "size": "highly_diminished",
+            "nature": "real",
+            "orientation": "inverted"
+          },
+          "isAnomaly": false
+        },
+        {
+          "id": "concave_beyond_c",
+          "objectPosition": "Beyond C",
+          "uOverF": 3.2,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "between_f_c",
+            "size": "diminished",
+            "nature": "real",
+            "orientation": "inverted"
+          },
+          "isAnomaly": false
+        },
+        {
+          "id": "concave_at_c",
+          "objectPosition": "At C",
+          "uOverF": 2,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "at_c",
+            "size": "same_size",
+            "nature": "real",
+            "orientation": "inverted"
+          },
+          "isAnomaly": false
+        },
+        {
+          "id": "concave_between_c_f",
+          "objectPosition": "Between C and F",
+          "uOverF": 1.5,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "beyond_c",
+            "size": "enlarged",
+            "nature": "real",
+            "orientation": "inverted"
+          },
+          "isAnomaly": false
+        },
+        {
+          "id": "concave_at_f",
+          "objectPosition": "At F",
+          "uOverF": 1,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "at_infinity",
+            "size": "highly_enlarged",
+            "nature": "real",
+            "orientation": "inverted"
+          },
+          "isAnomaly": true,
+          "anomalyExplanation": "When the candle is exactly at the focus F, the reflected rays leave parallel. They never meet, so the image forms at infinity and cannot be caught on a screen. This is the turning point between a real and a virtual image."
+        },
+        {
+          "id": "concave_between_f_p",
+          "objectPosition": "Between F and P",
+          "uOverF": 0.55,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "behind_mirror",
+            "size": "enlarged",
+            "nature": "virtual",
+            "orientation": "erect"
+          },
+          "isAnomaly": false
+        }
+      ]
+    },
+    {
+      "mirrorType": "convex",
+      "cases": [
+        {
+          "id": "convex_infinity",
+          "objectPosition": "At infinity",
+          "uOverF": null,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "at_f_behind",
+            "size": "highly_diminished",
+            "nature": "virtual",
+            "orientation": "erect"
+          },
+          "isAnomaly": false
+        },
+        {
+          "id": "convex_between_p_infinity",
+          "objectPosition": "Between P and infinity",
+          "uOverF": 3.2,
+          "predictionPrompt": "Predict the image: position, size, nature and orientation.",
+          "expectedImage": {
+            "position": "between_p_f_behind",
+            "size": "diminished",
+            "nature": "virtual",
+            "orientation": "erect"
+          },
+          "isAnomaly": false
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasPredictionDropdowns": true,
+    "predictionFields": [
+      "Position",
+      "Size",
+      "Nature (Real/Virtual)",
+      "Orientation (Erect/Inverted)"
+    ],
+    "hasRayTracingToggle": true
+  },
+  "uses": [
+    {
+      "mirror": "concave",
+      "examples": [
+        "Car headlights and torches",
+        "Dentist's and shaving mirrors",
+        "Solar cookers and telescopes"
+      ],
+      "why": "A concave mirror can make a parallel beam from a source at F, or focus a parallel beam to a point. Held close (inside F) it gives an enlarged, erect, virtual image, which is why dentists and shavers use it."
+    },
+    {
+      "mirror": "convex",
+      "examples": [
+        "Rear-view mirrors on vehicles",
+        "Shop and corridor security mirrors",
+        "Street-light reflectors"
+      ],
+      "why": "A convex mirror always gives a virtual, erect, diminished image, so it shows a much wider field of view than a plane mirror of the same size."
+    }
+  ],
+  "lawsOfReflection": {
+    "laws": [
+      {
+        "id": "law_angle",
+        "topic": "Angle of reflection",
+        "variants": [
+          {
+            "i": 26,
+            "e": 0
+          },
+          {
+            "i": 30,
+            "e": 0
+          },
+          {
+            "i": 34,
+            "e": 0
+          },
+          {
+            "i": 38,
+            "e": 0
+          },
+          {
+            "i": 42,
+            "e": 0
+          },
+          {
+            "i": 46,
+            "e": 0
+          },
+          {
+            "i": 50,
+            "e": 0
+          },
+          {
+            "i": 58,
+            "e": 0
+          }
+        ],
+        "incident": "The laser meets the plane mirror at an angle of incidence of {i}°, measured from the normal, arriving from the {side}.",
+        "predictionPrompt": "What will the angle of reflection be?",
+        "options": [
+          {
+            "id": "a",
+            "label": "{c}° (measured from the mirror surface)"
+          },
+          {
+            "id": "b",
+            "label": "{i}°"
+          },
+          {
+            "id": "c",
+            "label": "{p}°"
+          },
+          {
+            "id": "d",
+            "label": "{m}°"
+          }
+        ],
+        "answer": "b",
+        "statement": "First law: the angle of incidence is equal to the angle of reflection (∠i = ∠r).",
+        "explanation": "First law: the angle of incidence equals the angle of reflection (∠i = ∠r). Both are measured from the normal, so {i}° in means {i}° out.",
+        "anchors": [
+          [
+            "{i}"
+          ]
+        ]
+      },
+      {
+        "id": "law_plane",
+        "topic": "Plane of the rays",
+        "variants": [
+          {
+            "i": 30,
+            "e": 16
+          },
+          {
+            "i": 34,
+            "e": 20
+          },
+          {
+            "i": 36,
+            "e": 24
+          },
+          {
+            "i": 40,
+            "e": 18
+          },
+          {
+            "i": 44,
+            "e": 22
+          },
+          {
+            "i": 48,
+            "e": 26
+          },
+          {
+            "i": 32,
+            "e": 28
+          },
+          {
+            "i": 52,
+            "e": 20
+          }
+        ],
+        "incident": "This time the laser comes in from above, slanting downward onto the mirror at {i}° to the normal, from the {side}.",
+        "predictionPrompt": "Where will the reflected ray travel?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Out of that plane, twisting sideways"
+          },
+          {
+            "id": "b",
+            "label": "Flat against the mirror surface"
+          },
+          {
+            "id": "c",
+            "label": "In the same plane as the incident ray and the normal"
+          }
+        ],
+        "answer": "c",
+        "statement": "Second law: the incident ray, the normal at the point of incidence and the reflected ray all lie in the same plane.",
+        "explanation": "Second law: the incident ray, the normal and the reflected ray all lie in one plane. The glowing sheet is that plane: the reflected ray never leaves it.",
+        "anchors": [
+          [
+            "{i}"
+          ]
+        ]
+      },
+      {
+        "id": "law_sides",
+        "topic": "Sides of the normal",
+        "variants": [
+          {
+            "i": 28,
+            "e": 0
+          },
+          {
+            "i": 32,
+            "e": 0
+          },
+          {
+            "i": 36,
+            "e": 0
+          },
+          {
+            "i": 40,
+            "e": 0
+          },
+          {
+            "i": 44,
+            "e": 0
+          },
+          {
+            "i": 48,
+            "e": 0
+          },
+          {
+            "i": 54,
+            "e": 0
+          },
+          {
+            "i": 60,
+            "e": 0
+          }
+        ],
+        "incident": "The laser arrives from the {side} of the normal, at {i}° to it.",
+        "predictionPrompt": "On which side of the normal will the reflected ray leave?",
+        "options": [
+          {
+            "id": "a",
+            "label": "On the same side as the incident ray"
+          },
+          {
+            "id": "b",
+            "label": "On the opposite side of the normal"
+          },
+          {
+            "id": "c",
+            "label": "Straight along the normal"
+          }
+        ],
+        "answer": "b",
+        "statement": "Third law: the incident ray and the reflected ray lie on opposite sides of the normal.",
+        "explanation": "Third law: the incident and reflected rays are on opposite sides of the normal. The ray crosses over, as if it bounced off the mirror.",
+        "anchors": [
+          [
+            "{i}",
+            "{side}"
+          ]
+        ]
+      }
+    ]
+  }
+}

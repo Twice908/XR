@@ -1,0 +1,111 @@
+{
+  "lessonId": "matter-properties",
+  "type": "science_matter_properties",
+  "title": "Matter & Its Properties Lab",
+  "modelUrl": "http://localhost:3007/assets/models/science_lab_bench.glb",
+  "config": {
+    "enableScenarioSwitcher": true,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logMeasurementValues": true,
+      "logLatency": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "states_changes",
+      "tabName": "States & Changes",
+      "setup": "A beaker of ice on a hot plate with a digital thermometer and a digital scale.",
+      "tasks": [
+        {
+          "id": "state_1",
+          "prompt": "Heat the ice until it completely melts. Predict what will happen to the total mass of the beaker.",
+          "predictionOptions": [
+            "Mass will decrease",
+            "Mass will increase",
+            "Mass will stay the same"
+          ],
+          "expectedOutcome": "Mass stays the same. The law of conservation of mass states that matter is neither created nor destroyed during a physical change.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Students often confuse phase changes with 'losing' or 'gaining' matter. Evaporation or melting only changes the state, not the total amount of substance."
+        },
+        {
+          "id": "state_2",
+          "prompt": "Boil the water until it turns to steam. Predict what will happen to the volume of the substance.",
+          "predictionOptions": [
+            "Volume will decrease",
+            "Volume will increase",
+            "Volume will stay the same"
+          ],
+          "expectedOutcome": "Volume increases dramatically. Gas particles are much farther apart than liquid particles.",
+          "isAnomaly": false
+        }
+      ]
+    },
+    {
+      "id": "properties_changes",
+      "tabName": "Physical vs. Chemical",
+      "setup": "Two unknown substances (e.g., salt and sugar) with a hammer, a magnet, a circuit, and a burner.",
+      "tasks": [
+        {
+          "id": "prop_1",
+          "prompt": "Test Substance A by burning it in the Bunsen burner. Predict whether this is a physical or chemical change.",
+          "predictionOptions": [
+            "Physical change",
+            "Chemical change"
+          ],
+          "expectedOutcome": "Chemical change. Burning produces a new substance (ash, gas) and is irreversible.",
+          "isAnomaly": false
+        },
+        {
+          "id": "prop_2_anomaly",
+          "prompt": "Dissolve Substance B in water. Then evaporate the water. Predict whether the original substance will be recovered.",
+          "predictionOptions": [
+            "Yes, the original substance will return",
+            "No, it has been chemically changed and cannot be recovered"
+          ],
+          "expectedOutcome": "Yes, the original substance returns. Dissolving is a physical change, even though it looks like the substance has disappeared.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Dissolving is often mistaken for a chemical reaction because the solid disappears. Evaporation proves that the molecules of the substance are still present and unchanged."
+        }
+      ]
+    },
+    {
+      "id": "density_measurement",
+      "tabName": "Density & Measurement",
+      "setup": "A digital scale, three measuring cylinders with equal volumes of honey, water, and oil, and a large transparent container.",
+      "tasks": [
+        {
+          "id": "density_1",
+          "prompt": "Weigh equal volumes of honey, water, and oil. Predict which liquid has the highest density.",
+          "predictionOptions": [
+            "Honey",
+            "Water",
+            "Oil"
+          ],
+          "expectedOutcome": "Honey is the most dense, followed by water, then oil.",
+          "isAnomaly": false
+        },
+        {
+          "id": "density_2_anomaly",
+          "prompt": "Pour all three liquids into the same container. Predict the order they will settle in, from bottom to top.",
+          "predictionOptions": [
+            "Honey (bottom), Water (middle), Oil (top)",
+            "Water (bottom), Honey (middle), Oil (top)",
+            "Oil (bottom), Water (middle), Honey (top)"
+          ],
+          "expectedOutcome": "Honey sinks to the bottom because it is the most dense. Oil floats on top because it is the least dense. Water sits in the middle.",
+          "isAnomaly": true,
+          "anomalyExplanation": "This visual proof connects the abstract calculation of density (mass/volume) to a directly observable physical behavior. Students can see that density determines buoyancy."
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasTemperatureSlider": true,
+    "hasDigitalScaleDisplay": true,
+    "hasMeasuringCylinderReadout": true
+  }
+}

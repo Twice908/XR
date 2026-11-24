@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "lesson-loader", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/lesson-loader", "dev"], "port": 3007 },
+    { "name": "session-auth", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/session-auth", "dev"], "port": 3004 },
+    { "name": "user-auth", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/user-auth", "dev"], "port": 3008 },
+    { "name": "xapi-emitter", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/xapi-emitter", "dev"], "port": 3001 },
+    { "name": "webxr-client", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-webxr-client", "dev"], "port": 5173 }
+  ]
+}

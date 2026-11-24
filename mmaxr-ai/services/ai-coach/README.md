@@ -53,4 +53,19 @@ assessment client.
   session?
 - What voice data may the provider retain, and how is retention configured?
 
-## Status: NOT IMPLEMENTED
+## Status (text channel, voice-ready)
+
+Implemented for the chemistry indicators lab:
+
+- Provider layer: Anthropic, OpenAI and Gemini behind one interface (`src/providers`).
+  Pick with `AI_COACH_PROVIDER` or switch live with `POST /admin/provider` (instructor token).
+  There is no automatic fallback between providers; if the active one is unavailable the coach
+  falls back to deterministic Socratic prompts and flags the message as `degraded`.
+- Keys come from `ai-coach/.env` (see `.env.example`): `CLAUDE_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`.
+- Modes `proactive | on_request | off`; unprompted nudges are rate limited.
+- The model is only told what the student can already see. Hidden answers go to the deterministic
+  guard (`packages/guardrails`) and to the prompt only after the student submits.
+- WebSocket messages are JSON (`src/protocol.ts`); the same messages can carry transcribed speech and be
+  spoken back, which is the intended next step. Realtime audio is not implemented.
+- Sessions are verified against `session-auth` before the socket is accepted.
+

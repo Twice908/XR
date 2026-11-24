@@ -1,0 +1,459 @@
+{
+  "lessonId": "physics-sound",
+  "type": "physics_waves_sound",
+  "title": "Sound & Waves Lab",
+  "subject": "Physics",
+  "summary": "A sandbox with three benches: a ripple tank wired to an oscilloscope, an open field and an echoing room, and a ship's sonar with an ultrasound scanner. Predict, play with the controls, measure, and explain what you saw.",
+  "durationMinutes": 30,
+  "difficulty": "Intermediate",
+  "modelUrl": "http://localhost:3007/assets/models/oscilloscope.glb",
+  "assets": {
+    "tuningFork": "http://localhost:3007/assets/models/tuning-fork.glb",
+    "oscilloscope": "http://localhost:3007/assets/models/oscilloscope.glb",
+    "volumeIcon": "http://localhost:3007/assets/models/dezyne_3d-volume-242.glb"
+  },
+  "config": {
+    "enableScenarioSwitcher": true,
+    "minExplanationWords": 8,
+    "maxExplanationWords": 80,
+    "requireAudioExplanation": true,
+    "minExplainDwellMs": 8000,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logLatency": true,
+      "logIndicatorSelection": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "wave_properties",
+      "tabName": "Wave Properties",
+      "setup": "A ripple tank connected to an oscilloscope. Sliders for frequency and amplitude.",
+      "tool": "wave",
+      "tasks": [
+        {
+          "id": "wave_1",
+          "prompt": "The wave generator is running at {f1} Hz. Raise the frequency to {f2} Hz and watch the tank and the oscilloscope. Predict what will happen to the wavelength in the ripple tank.",
+          "predictionOptions": [
+            {
+              "id": "a",
+              "label": "Wavelength will increase"
+            },
+            {
+              "id": "b",
+              "label": "Wavelength will decrease"
+            },
+            {
+              "id": "c",
+              "label": "Wavelength will stay the same"
+            }
+          ],
+          "answer": "b",
+          "variants": [
+            {
+              "f1": 3,
+              "f2": 9,
+              "v": 0.18
+            },
+            {
+              "f1": 4,
+              "f2": 10,
+              "v": 0.2
+            },
+            {
+              "f1": 3,
+              "f2": 8,
+              "v": 0.22
+            },
+            {
+              "f1": 5,
+              "f2": 12,
+              "v": 0.24
+            },
+            {
+              "f1": 4,
+              "f2": 9,
+              "v": 0.26
+            },
+            {
+              "f1": 5,
+              "f2": 10,
+              "v": 0.28
+            },
+            {
+              "f1": 3,
+              "f2": 10,
+              "v": 0.3
+            },
+            {
+              "f1": 4,
+              "f2": 12,
+              "v": 0.32
+            }
+          ],
+          "expectedOutcome": "The wavelength decreases. The wave speed (v = f × λ) stays constant in the same medium, so a higher frequency means a shorter wavelength.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Frequency and wavelength are inversely proportional when the wave speed is constant (v = fλ). Higher frequency does not make the wave faster: it makes the waves closer together.",
+          "anchors": [
+            [
+              "{f2}"
+            ]
+          ]
+        },
+        {
+          "id": "wave_2",
+          "prompt": "The generator is set to an amplitude of {a1} mm. Raise it to {a2} mm. Predict what will happen to the loudness of the sound, if this were a sound wave.",
+          "predictionOptions": [
+            {
+              "id": "a",
+              "label": "Loudness will increase"
+            },
+            {
+              "id": "b",
+              "label": "Loudness will decrease"
+            },
+            {
+              "id": "c",
+              "label": "Loudness will not change"
+            }
+          ],
+          "answer": "a",
+          "variants": [
+            {
+              "a1": 2,
+              "a2": 5
+            },
+            {
+              "a1": 2,
+              "a2": 6
+            },
+            {
+              "a1": 3,
+              "a2": 6
+            },
+            {
+              "a1": 3,
+              "a2": 8
+            },
+            {
+              "a1": 4,
+              "a2": 8
+            },
+            {
+              "a1": 4,
+              "a2": 10
+            },
+            {
+              "a1": 2,
+              "a2": 8
+            },
+            {
+              "a1": 3,
+              "a2": 9
+            }
+          ],
+          "expectedOutcome": "Loudness increases. Amplitude determines the intensity (loudness) of a sound wave.",
+          "anchors": [
+            [
+              "{a2}"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflection_echo",
+      "tabName": "Reflection, Echo & Reverberation",
+      "setup": "An open field and a small empty room. A clap button and a stopwatch tool.",
+      "tool": "echo",
+      "tasks": [
+        {
+          "id": "echo_1",
+          "prompt": "Clap your hands in the open field, then in the small room, whose sound dies away over about {rt} s. Predict the difference in what you will hear.",
+          "predictionOptions": [
+            {
+              "id": "a",
+              "label": "A single clap in both"
+            },
+            {
+              "id": "b",
+              "label": "A single clap in the field, and a prolonged sound in the room"
+            },
+            {
+              "id": "c",
+              "label": "A prolonged sound in both"
+            }
+          ],
+          "answer": "b",
+          "variants": [
+            {
+              "rt": 0.6
+            },
+            {
+              "rt": 0.7
+            },
+            {
+              "rt": 0.8
+            },
+            {
+              "rt": 0.9
+            },
+            {
+              "rt": 1.0
+            },
+            {
+              "rt": 1.1
+            },
+            {
+              "rt": 1.2
+            },
+            {
+              "rt": 1.4
+            }
+          ],
+          "expectedOutcome": "A single clap in the field, and a prolonged, overlapping sound (reverberation) in the room due to multiple rapid reflections.",
+          "anchors": [
+            [
+              "{rt}"
+            ]
+          ]
+        },
+        {
+          "id": "echo_2",
+          "prompt": "You shout towards a distant cliff and hear an echo {t} s later. The speed of sound in air today is {v} m/s. Predict the distance to the cliff, then measure the delay yourself with the stopwatch.",
+          "predictionOptions": [
+            {
+              "id": "a",
+              "label": "{d2} m"
+            },
+            {
+              "id": "b",
+              "label": "{d} m"
+            },
+            {
+              "id": "c",
+              "label": "{dh} m"
+            }
+          ],
+          "answer": "b",
+          "variants": [
+            {
+              "t": 2.0,
+              "v": 343
+            },
+            {
+              "t": 1.6,
+              "v": 340
+            },
+            {
+              "t": 1.8,
+              "v": 338
+            },
+            {
+              "t": 1.2,
+              "v": 345
+            },
+            {
+              "t": 1.4,
+              "v": 331
+            },
+            {
+              "t": 1.0,
+              "v": 334
+            },
+            {
+              "t": 2.2,
+              "v": 340
+            },
+            {
+              "t": 0.8,
+              "v": 343
+            }
+          ],
+          "expectedOutcome": "The sound travels to the cliff and back, so the cliff is half the total distance away: distance = (speed × time) / 2.",
+          "explanation": "Distance = (speed × time) / 2. With {v} m/s and {t} s the sound covers {tot} m there and back, so the cliff is {d} m away.",
+          "anchors": [
+            [
+              "{t}",
+              "{d}"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sonar_ultrasound",
+      "tabName": "Sonar & Ultrasound",
+      "setup": "A ship's sonar console with a pulse button and a timer. A cross-section of the ocean. An ultrasound scanner.",
+      "tool": "sonar",
+      "tasks": [
+        {
+          "id": "sonar_1",
+          "prompt": "Send a sonar pulse towards {target}. The echo returns after {t} s, and the speed of sound in seawater is {v} m/s. Predict the depth, then send the pulse, read the timer and calculate the depth from your own reading.",
+          "predictionOptions": [
+            {
+              "id": "a",
+              "label": "{h2} m"
+            },
+            {
+              "id": "b",
+              "label": "{h} m"
+            },
+            {
+              "id": "c",
+              "label": "{hh} m"
+            }
+          ],
+          "answer": "b",
+          "variants": [
+            {
+              "t": 0.4,
+              "v": 1480,
+              "target": "the ocean floor"
+            },
+            {
+              "t": 0.5,
+              "v": 1500,
+              "target": "a sunken wreck"
+            },
+            {
+              "t": 0.6,
+              "v": 1500,
+              "target": "the ocean floor"
+            },
+            {
+              "t": 0.7,
+              "v": 1520,
+              "target": "a sunken wreck"
+            },
+            {
+              "t": 0.8,
+              "v": 1500,
+              "target": "the ocean floor"
+            },
+            {
+              "t": 0.9,
+              "v": 1480,
+              "target": "the ocean floor"
+            },
+            {
+              "t": 1.0,
+              "v": 1520,
+              "target": "a sunken wreck"
+            },
+            {
+              "t": 1.2,
+              "v": 1500,
+              "target": "the ocean floor"
+            }
+          ],
+          "expectedOutcome": "The pulse travels down and back, so the depth is half the distance covered: depth = (speed × time) / 2.",
+          "explanation": "Depth = (speed × time) / 2 = ({v} × {t}) / 2 = {h} m. The pulse travels to the target and back, so only half the distance is the depth.",
+          "anchors": [
+            [
+              "{t}",
+              "{h}"
+            ]
+          ]
+        },
+        {
+          "id": "ultrasound_1",
+          "prompt": "An ultrasound scanner sweeps over a cyst {s} mm across. Compare the scan made with ordinary audible sound and with ultrasound. Predict why audible sound cannot be used for this.",
+          "predictionOptions": [
+            {
+              "id": "a",
+              "label": "Normal sound is too quiet"
+            },
+            {
+              "id": "b",
+              "label": "Normal sound has too long a wavelength to resolve small details"
+            },
+            {
+              "id": "c",
+              "label": "Normal sound is not safe for humans"
+            }
+          ],
+          "answer": "b",
+          "variants": [
+            {
+              "s": 3,
+              "fa": 1
+            },
+            {
+              "s": 4,
+              "fa": 2
+            },
+            {
+              "s": 5,
+              "fa": 1
+            },
+            {
+              "s": 6,
+              "fa": 2
+            },
+            {
+              "s": 3,
+              "fa": 2
+            },
+            {
+              "s": 4,
+              "fa": 1
+            },
+            {
+              "s": 5,
+              "fa": 2
+            },
+            {
+              "s": 6,
+              "fa": 1
+            }
+          ],
+          "expectedOutcome": "Normal sound has too long a wavelength to resolve small details. Ultrasound has a much shorter wavelength, so it reflects off small structures such as organs and tissue.",
+          "explanation": "Resolution is limited by wavelength. Higher frequency (ultrasound) means a shorter wavelength, which resolves smaller details.",
+          "anchors": [
+            [
+              "{s}"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasFrequencySlider": true,
+    "hasAmplitudeSlider": true,
+    "hasStopwatch": true,
+    "hasSonarPulseButton": true
+  },
+  "uses": [
+    {
+      "topic": "Echo and reverberation",
+      "examples": [
+        "Bats, dolphins and sonar all use echoes",
+        "Auditoriums use soft panels to control reverberation",
+        "Echo-ranging to measure the depth of wells"
+      ],
+      "why": "An echo is a reflection heard as a separate sound, which needs at least about 17 m to the reflector. In a small room the reflections overlap, which we hear as reverberation."
+    },
+    {
+      "topic": "Sonar",
+      "examples": [
+        "Ships measure the depth of the sea",
+        "Fishing boats locate shoals",
+        "Submarines and survey vessels map the sea floor"
+      ],
+      "why": "Sonar sends a pulse and times its echo: distance = (speed × time) / 2, because the pulse goes there and back."
+    },
+    {
+      "topic": "Ultrasound",
+      "examples": [
+        "Scans of the unborn baby and internal organs",
+        "Cleaning delicate parts",
+        "Finding cracks in metal"
+      ],
+      "why": "Ultrasound's short wavelength lets it reflect from small structures, giving a sharp image where audible sound would blur everything."
+    }
+  ]
+}

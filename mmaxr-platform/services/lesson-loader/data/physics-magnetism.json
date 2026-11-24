@@ -1,0 +1,3350 @@
+{
+  "lessonId": "physics-magnetism",
+  "type": "physics_electromagnetism",
+  "subject": "Physics",
+  "title": "Magnetism & Electromagnetism Lab",
+  "summary": "Trace magnetic field lines through bar and horseshoe magnets, build an electromagnet, and see how currents, fields and motion push and power each other. Predict first, then watch what really happens.",
+  "durationMinutes": 35,
+  "assets": {
+    "compass": "http://localhost:3007/assets/models/compass.glb",
+    "horseshoe": "http://localhost:3007/assets/models/horseshoe-magnet.glb",
+    "teslaCoil": "http://localhost:3007/assets/models/tesla-coil.glb"
+  },
+  "config": {
+    "enableScenarioSwitcher": true,
+    "minExplanationWords": 6,
+    "minPredictionMs": 0
+  },
+  "scenarios": [
+    {
+      "id": "magnets_fields",
+      "tabName": "Magnets & Fields",
+      "title": "The Field Table",
+      "setup": "A bar magnet and a horseshoe magnet on a table, with a compass you can place anywhere. Field lines are drawn through the magnet so you can see where they go.",
+      "trials": [
+        {
+          "id": "mag_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "compass_probe",
+          "law": {
+            "name": "Magnetic field direction"
+          },
+          "prompt": "The compass is on the line through the bar magnet, just beyond its North end. Predict which way the compass needle's North end points.",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "away",
+                "label": "Away from the magnet, along its axis"
+              },
+              {
+                "id": "toward",
+                "label": "Towards the magnet, along its axis"
+              },
+              {
+                "id": "par_s",
+                "label": "Parallel to the magnet, towards its South end"
+              },
+              {
+                "id": "par_n",
+                "label": "Parallel to the magnet, towards its North end"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "away"
+          },
+          "outcome": "It points straight away from the magnet.",
+          "explanation": "Outside a magnet the field runs from the North pole round to the South pole. Just beyond the North end it points away from the magnet, and a compass needle's North end follows the field.",
+          "coachSecrets": [],
+          "params": {
+            "magnet": "bar",
+            "x": 4.5,
+            "z": 0
+          },
+          "variants": [
+            {
+              "prompt": "The compass is on the line through the bar magnet, just beyond its North end. Predict which way the compass needle's North end points.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "away",
+                    "label": "Away from the magnet, along its axis"
+                  },
+                  {
+                    "id": "toward",
+                    "label": "Towards the magnet, along its axis"
+                  },
+                  {
+                    "id": "par_s",
+                    "label": "Parallel to the magnet, towards its South end"
+                  },
+                  {
+                    "id": "par_n",
+                    "label": "Parallel to the magnet, towards its North end"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "away"
+              },
+              "outcome": "It points straight away from the magnet.",
+              "explanation": "Outside a magnet the field runs from the North pole round to the South pole. Just beyond the North end it points away from the magnet, and a compass needle's North end follows the field.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "x": 4.5,
+                "z": 0
+              }
+            },
+            {
+              "prompt": "The compass is beside the middle of the bar magnet. Predict which way the compass needle's North end points.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "par_s",
+                    "label": "Parallel to the magnet, towards its South end"
+                  },
+                  {
+                    "id": "par_n",
+                    "label": "Parallel to the magnet, towards its North end"
+                  },
+                  {
+                    "id": "away",
+                    "label": "Away from the magnet, at right angles to it"
+                  },
+                  {
+                    "id": "toward",
+                    "label": "Towards the magnet, at right angles to it"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "par_s"
+              },
+              "outcome": "It points along the magnet, towards the South end.",
+              "explanation": "Outside the magnet the field lines run from the North pole to the South pole. Beside the middle they run parallel to the magnet, pointing towards its South end, and the needle's North end follows them.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "x": 0,
+                "z": 1.6
+              }
+            },
+            {
+              "prompt": "The compass is on the line through the bar magnet, just beyond its South end. Predict which way the compass needle's North end points.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "toward",
+                    "label": "Towards the magnet, along its axis"
+                  },
+                  {
+                    "id": "away",
+                    "label": "Away from the magnet, along its axis"
+                  },
+                  {
+                    "id": "par_s",
+                    "label": "Parallel to the magnet, towards its South end"
+                  },
+                  {
+                    "id": "par_n",
+                    "label": "Parallel to the magnet, towards its North end"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "toward"
+              },
+              "outcome": "It points straight towards the magnet.",
+              "explanation": "Field lines enter the magnet at its South pole. Just beyond the South end the field points back towards the magnet, and the needle's North end follows it.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "x": -4.5,
+                "z": 0
+              }
+            },
+            {
+              "prompt": "The compass is just to the side of the bar magnet's North end. Predict which way the compass needle's North end points.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "away_n",
+                    "label": "Pointing away from the North pole"
+                  },
+                  {
+                    "id": "toward_n",
+                    "label": "Pointing towards the North pole"
+                  },
+                  {
+                    "id": "par_s",
+                    "label": "Parallel to the magnet, towards its South end"
+                  },
+                  {
+                    "id": "par_n",
+                    "label": "Parallel to the magnet, towards its North end"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "away_n"
+              },
+              "outcome": "It points away from the North pole, curving round towards the South.",
+              "explanation": "Field lines leave the North pole in all directions and then curve round to the South pole. Close to the North end the field points away from the pole, and the needle's North end follows it.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "x": 2.6,
+                "z": 1.3
+              }
+            },
+            {
+              "prompt": "The compass is in the gap between the two ends of a horseshoe magnet. Predict which way the compass needle's North end points.",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "across",
+                    "label": "Straight across the gap, from the North pole to the South pole"
+                  },
+                  {
+                    "id": "along",
+                    "label": "Along the gap, towards the bend"
+                  },
+                  {
+                    "id": "out",
+                    "label": "Out of the gap, away from both poles"
+                  },
+                  {
+                    "id": "none",
+                    "label": "It does not point anywhere in particular"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "across"
+              },
+              "outcome": "It points straight across the gap, from North to South.",
+              "explanation": "A horseshoe magnet brings its two poles close together, so between them the field lines run straight across the gap from the North pole to the South pole. That makes the field strong and uniform there.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "horseshoe",
+                "x": 0,
+                "z": 1.4
+              }
+            }
+          ]
+        },
+        {
+          "id": "mag_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "field_lines",
+          "law": {
+            "name": "Field lines never cross"
+          },
+          "prompt": "Can you find a point near the bar magnet where two of its field lines cross each other?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "yes_poles",
+                "label": "Yes: they cross near the poles, where they are closest together"
+              },
+              {
+                "id": "yes_middle",
+                "label": "Yes: they cross beside the middle of the magnet"
+              },
+              {
+                "id": "no",
+                "label": "No: field lines never cross"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "no"
+          },
+          "outcome": "No crossing anywhere. The scene found 0 crossings.",
+          "explanation": "If two field lines crossed, a compass at that point would have to point in two directions at once, which is impossible. The field has exactly one direction at every point, so field lines never cross.",
+          "expectedKeywords": [
+            "field line",
+            "cross",
+            "direction",
+            "one"
+          ],
+          "keywordSynonyms": {
+            "field line": [
+              "field lines",
+              "lines of force",
+              "magnetic line",
+              "lines"
+            ],
+            "cross": [
+              "crossing",
+              "intersect",
+              "intersects",
+              "meet",
+              "touch"
+            ],
+            "direction": [
+              "way",
+              "point",
+              "points",
+              "pointing"
+            ],
+            "one": [
+              "single",
+              "only one",
+              "just one",
+              "a single direction"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "magnet": "bar"
+          },
+          "variants": [
+            {
+              "prompt": "Can you find a point near the bar magnet where two of its field lines cross each other?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_poles",
+                    "label": "Yes: they cross near the poles, where they are closest together"
+                  },
+                  {
+                    "id": "yes_middle",
+                    "label": "Yes: they cross beside the middle of the magnet"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: field lines never cross"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no"
+              },
+              "outcome": "No crossing anywhere. The scene found 0 crossings.",
+              "explanation": "If two field lines crossed, a compass at that point would have to point in two directions at once, which is impossible. The field has exactly one direction at every point, so field lines never cross.",
+              "expectedKeywords": [
+                "field line",
+                "cross",
+                "direction",
+                "one"
+              ],
+              "keywordSynonyms": {
+                "field line": [
+                  "field lines",
+                  "lines of force",
+                  "magnetic line",
+                  "lines"
+                ],
+                "cross": [
+                  "crossing",
+                  "intersect",
+                  "intersects",
+                  "meet",
+                  "touch"
+                ],
+                "direction": [
+                  "way",
+                  "point",
+                  "points",
+                  "pointing"
+                ],
+                "one": [
+                  "single",
+                  "only one",
+                  "just one",
+                  "a single direction"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar"
+              }
+            },
+            {
+              "prompt": "Can you find a point in or near the horseshoe magnet's gap where two field lines cross each other?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes_gap",
+                    "label": "Yes: they cross in the middle of the gap"
+                  },
+                  {
+                    "id": "yes_bend",
+                    "label": "Yes: they cross near the bend"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: field lines never cross"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no"
+              },
+              "outcome": "No crossing anywhere. The scene found 0 crossings.",
+              "explanation": "The field has one direction at each point, so a compass in the gap points one way only. Lines in the gap run side by side across it; they never cross.",
+              "expectedKeywords": [
+                "field line",
+                "cross",
+                "direction",
+                "one"
+              ],
+              "keywordSynonyms": {
+                "field line": [
+                  "field lines",
+                  "lines of force",
+                  "magnetic line",
+                  "lines"
+                ],
+                "cross": [
+                  "crossing",
+                  "intersect",
+                  "intersects",
+                  "meet",
+                  "touch"
+                ],
+                "direction": [
+                  "way",
+                  "point",
+                  "points",
+                  "pointing"
+                ],
+                "one": [
+                  "single",
+                  "only one",
+                  "just one",
+                  "a single direction"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "magnet": "horseshoe"
+              }
+            },
+            {
+              "prompt": "Two bar magnets are pushed together with their North poles facing each other. Do any field lines cross in the space between them?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "yes",
+                    "label": "Yes: lines from the two North poles cross in the gap"
+                  },
+                  {
+                    "id": "no",
+                    "label": "No: the lines bend away from each other and never cross"
+                  },
+                  {
+                    "id": "join",
+                    "label": "The lines join up into single lines across the gap"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "no"
+              },
+              "outcome": "No crossing. The lines from the two North poles bend aside and run apart.",
+              "explanation": "Like poles repel, and their field lines push apart. Between them the field cancels at one point and the lines curve away on both sides. Because the field has one direction at each point, lines never cross.",
+              "expectedKeywords": [
+                "field line",
+                "cross",
+                "direction",
+                "one"
+              ],
+              "keywordSynonyms": {
+                "field line": [
+                  "field lines",
+                  "lines of force",
+                  "magnetic line",
+                  "lines"
+                ],
+                "cross": [
+                  "crossing",
+                  "intersect",
+                  "intersects",
+                  "meet",
+                  "touch"
+                ],
+                "direction": [
+                  "way",
+                  "point",
+                  "points",
+                  "pointing"
+                ],
+                "one": [
+                  "single",
+                  "only one",
+                  "just one",
+                  "a single direction"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "magnet": "two_nn"
+              }
+            },
+            {
+              "prompt": "Outside a bar magnet, which way do the field lines run?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "n_to_s",
+                    "label": "From the North pole round to the South pole"
+                  },
+                  {
+                    "id": "s_to_n",
+                    "label": "From the South pole round to the North pole"
+                  },
+                  {
+                    "id": "circle",
+                    "label": "In closed circles around the middle of the magnet, never touching the poles"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "n_to_s"
+              },
+              "outcome": "They run from the North pole, round the outside, and into the South pole.",
+              "explanation": "By convention a field line shows the direction a compass needle's North end would point. Outside the magnet that is away from the North pole and towards the South pole; the lines carry on through the inside from South to North to form closed loops.",
+              "expectedKeywords": [
+                "north",
+                "south",
+                "pole",
+                "outside"
+              ],
+              "keywordSynonyms": {
+                "north": [
+                  "n pole",
+                  "north pole"
+                ],
+                "south": [
+                  "s pole",
+                  "south pole"
+                ],
+                "pole": [
+                  "poles",
+                  "end",
+                  "ends"
+                ],
+                "outside": [
+                  "out of",
+                  "leave",
+                  "leaves",
+                  "emerge",
+                  "emerges",
+                  "away from"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar"
+              }
+            },
+            {
+              "prompt": "Where the field lines of a bar magnet are packed most closely together, what is the field like?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "strong",
+                    "label": "The field is strongest there"
+                  },
+                  {
+                    "id": "weak",
+                    "label": "The field is weakest there"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The field is the same strength everywhere"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "strong"
+              },
+              "outcome": "The lines bunch up at the poles, where the field is strongest.",
+              "explanation": "Field lines are drawn closer together where the field is stronger. They crowd together at the poles and spread out far away, so the field is strongest at the poles.",
+              "expectedKeywords": [
+                "field line",
+                "closer",
+                "stronger",
+                "poles"
+              ],
+              "keywordSynonyms": {
+                "field line": [
+                  "field lines",
+                  "lines"
+                ],
+                "closer": [
+                  "together",
+                  "close",
+                  "crowded",
+                  "packed",
+                  "bunched",
+                  "dense",
+                  "denser"
+                ],
+                "stronger": [
+                  "strong",
+                  "strongest",
+                  "bigger",
+                  "more",
+                  "greater"
+                ],
+                "poles": [
+                  "pole",
+                  "ends",
+                  "end"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar"
+              }
+            }
+          ]
+        },
+        {
+          "id": "mag_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "field_strength",
+          "law": {
+            "name": "Field strength"
+          },
+          "prompt": "Point A is just beyond the North end of the bar magnet. Point B is beside the middle of the bar magnet. Where is the magnetic field stronger?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "A",
+                "label": "At A"
+              },
+              {
+                "id": "B",
+                "label": "At B"
+              },
+              {
+                "id": "same",
+                "label": "The same at both"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "A"
+          },
+          "outcome": "Stronger at A: about 5.9 times stronger there. The field lines are closer together at A.",
+          "explanation": "The field is strongest where the field lines are closest together, which is near the poles. It weakens quickly with distance, so the nearer point is stronger.",
+          "coachSecrets": [],
+          "params": {
+            "magnet": "bar",
+            "ax": 2.6,
+            "az": 0,
+            "bx": 0,
+            "bz": 1.6
+          },
+          "variants": [
+            {
+              "prompt": "Point A is just beyond the North end of the bar magnet. Point B is beside the middle of the bar magnet. Where is the magnetic field stronger?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "A",
+                    "label": "At A"
+                  },
+                  {
+                    "id": "B",
+                    "label": "At B"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same at both"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "A"
+              },
+              "outcome": "Stronger at A: about 5.9 times stronger there. The field lines are closer together at A.",
+              "explanation": "The field is strongest where the field lines are closest together, which is near the poles. It weakens quickly with distance, so the nearer point is stronger.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "ax": 2.6,
+                "az": 0,
+                "bx": 0,
+                "bz": 1.6
+              }
+            },
+            {
+              "prompt": "Point A is close to the South end of the bar magnet. Point B is far beyond the South end of the bar magnet. Where is the magnetic field stronger?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "A",
+                    "label": "At A"
+                  },
+                  {
+                    "id": "B",
+                    "label": "At B"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same at both"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "A"
+              },
+              "outcome": "Stronger at A: about 17.6 times stronger there. The field lines are closer together at A.",
+              "explanation": "The field is strongest where the field lines are closest together, which is near the poles. It weakens quickly with distance, so the nearer point is stronger.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "ax": -2.8,
+                "az": 0,
+                "bx": -5.5,
+                "bz": 0
+              }
+            },
+            {
+              "prompt": "Point A is close beside the middle of the bar magnet. Point B is further out beside the middle. Where is the magnetic field stronger?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "A",
+                    "label": "At A"
+                  },
+                  {
+                    "id": "B",
+                    "label": "At B"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same at both"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "A"
+              },
+              "outcome": "Stronger at A: about 6.5 times stronger there. The field lines are closer together at A.",
+              "explanation": "The field is strongest where the field lines are closest together, which is near the poles. It weakens quickly with distance, so the nearer point is stronger.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "ax": 0,
+                "az": 1.0,
+                "bx": 0,
+                "bz": 3.4
+              }
+            },
+            {
+              "prompt": "Point A is in the middle of the horseshoe magnet's gap. Point B is well beyond the gap, in front of the horseshoe magnet. Where is the magnetic field stronger?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "A",
+                    "label": "At A"
+                  },
+                  {
+                    "id": "B",
+                    "label": "At B"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same at both"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "A"
+              },
+              "outcome": "Stronger at A: about 18.4 times stronger there. The field lines are closer together at A.",
+              "explanation": "The field is strongest where the field lines are closest together, which is near the poles. It weakens quickly with distance, so the nearer point is stronger.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "horseshoe",
+                "ax": 0,
+                "az": 1.4,
+                "bx": 0,
+                "bz": 3.6
+              }
+            },
+            {
+              "prompt": "Point A is close to the North end of the bar magnet, on its axis. Point B is beside the middle of the bar magnet, a little way out. Where is the magnetic field stronger?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "A",
+                    "label": "At A"
+                  },
+                  {
+                    "id": "B",
+                    "label": "At B"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same at both"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "A"
+              },
+              "outcome": "Stronger at A: about 17.4 times stronger there. The field lines are closer together at A.",
+              "explanation": "The field is strongest where the field lines are closest together, which is near the poles. It weakens quickly with distance, so the nearer point is stronger.",
+              "coachSecrets": [],
+              "params": {
+                "magnet": "bar",
+                "ax": 2.4,
+                "az": 0,
+                "bx": 0,
+                "bz": 2.2
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_mag",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Magnets"
+          },
+          "prompt": "You cut a bar magnet in half. What do you get?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "two",
+                "label": "Two smaller magnets, each with its own North and South pole"
+              },
+              {
+                "id": "one_n",
+                "label": "One piece that is only North and one only South"
+              },
+              {
+                "id": "none",
+                "label": "Two pieces that are no longer magnets"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "two"
+          },
+          "outcome": "Two smaller magnets, each with a North and a South pole.",
+          "explanation": "Poles always come in pairs. Cutting a magnet gives two complete magnets, each with a North and a South pole.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "You cut a bar magnet in half. What do you get?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "two",
+                    "label": "Two smaller magnets, each with its own North and South pole"
+                  },
+                  {
+                    "id": "one_n",
+                    "label": "One piece that is only North and one only South"
+                  },
+                  {
+                    "id": "none",
+                    "label": "Two pieces that are no longer magnets"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "two"
+              },
+              "outcome": "Two smaller magnets, each with a North and a South pole.",
+              "explanation": "Poles always come in pairs. Cutting a magnet gives two complete magnets, each with a North and a South pole."
+            },
+            {
+              "prompt": "A compass needle's North end points towards the Earth's geographic North. So what kind of magnetic pole is there?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "south",
+                    "label": "A magnetic South pole"
+                  },
+                  {
+                    "id": "north",
+                    "label": "A magnetic North pole"
+                  },
+                  {
+                    "id": "neither",
+                    "label": "Neither: the Earth has no magnetic poles"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "south"
+              },
+              "outcome": "A magnetic South pole.",
+              "explanation": "Opposite poles attract. The needle's North end is pulled to geographic North, so there must be a magnetic South pole there."
+            },
+            {
+              "prompt": "You sprinkle iron filings around a bar magnet. Where do they bunch up most?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "poles",
+                    "label": "Near the poles"
+                  },
+                  {
+                    "id": "middle",
+                    "label": "Beside the middle"
+                  },
+                  {
+                    "id": "even",
+                    "label": "They spread out evenly"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "poles"
+              },
+              "outcome": "Near the poles.",
+              "explanation": "The field is strongest near the poles, and each filing becomes a tiny magnet, so more of them cling there."
+            },
+            {
+              "prompt": "The North pole of one magnet is brought close to the North pole of another. What happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "repel",
+                    "label": "They repel"
+                  },
+                  {
+                    "id": "attract",
+                    "label": "They attract"
+                  },
+                  {
+                    "id": "nothing",
+                    "label": "Nothing happens"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "repel"
+              },
+              "outcome": "They repel.",
+              "explanation": "Like poles repel and unlike poles attract."
+            },
+            {
+              "prompt": "Which of these is attracted to a magnet?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "nail",
+                    "label": "An iron nail"
+                  },
+                  {
+                    "id": "coin",
+                    "label": "A copper coin"
+                  },
+                  {
+                    "id": "pencil",
+                    "label": "A wooden pencil"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "nail"
+              },
+              "outcome": "An iron nail.",
+              "explanation": "Iron, nickel and cobalt are magnetic materials. Copper and wood are not attracted."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "electromagnetism",
+      "tabName": "Electromagnetism",
+      "title": "The Electromagnetism Bench",
+      "setup": "A battery, a switch, a straight wire, a compass, an iron nail with copper wire to wind round it, and a box of paper clips.",
+      "trials": [
+        {
+          "id": "em_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "oersted",
+          "law": {
+            "name": "Oersted's discovery"
+          },
+          "prompt": "A straight wire runs North–South just above a compass, with the needle pointing North under it. You switch on 3 A with the current flowing towards the North. What does the needle do?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "west",
+                "label": "The needle's North end swings towards the West"
+              },
+              {
+                "id": "east",
+                "label": "The needle's North end swings towards the East"
+              },
+              {
+                "id": "stay",
+                "label": "The needle does not move"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "west"
+          },
+          "outcome": "The needle deflects: its North end swings towards the West (about 27°).",
+          "explanation": "A current makes a magnetic field that circles the wire. Under a wire carrying current to the North the field points West, so the needle turns towards the West. This was Oersted's discovery: electric currents make magnetic fields.",
+          "coachSecrets": [],
+          "params": {
+            "current": 1,
+            "amps": 3,
+            "placement": "under",
+            "wire": "ns",
+            "distance": 3
+          },
+          "variants": [
+            {
+              "prompt": "A straight wire runs North–South just above a compass, with the needle pointing North under it. You switch on 3 A with the current flowing towards the North. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "west",
+                    "label": "The needle's North end swings towards the West"
+                  },
+                  {
+                    "id": "east",
+                    "label": "The needle's North end swings towards the East"
+                  },
+                  {
+                    "id": "stay",
+                    "label": "The needle does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "west"
+              },
+              "outcome": "The needle deflects: its North end swings towards the West (about 27°).",
+              "explanation": "A current makes a magnetic field that circles the wire. Under a wire carrying current to the North the field points West, so the needle turns towards the West. This was Oersted's discovery: electric currents make magnetic fields.",
+              "coachSecrets": [],
+              "params": {
+                "current": 1,
+                "amps": 3,
+                "placement": "under",
+                "wire": "ns",
+                "distance": 3
+              }
+            },
+            {
+              "prompt": "The same wire and compass. You reverse the battery so 3 A now flows towards the South. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "west",
+                    "label": "The needle's North end swings towards the West"
+                  },
+                  {
+                    "id": "east",
+                    "label": "The needle's North end swings towards the East"
+                  },
+                  {
+                    "id": "stay",
+                    "label": "The needle does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "east"
+              },
+              "outcome": "The needle deflects the other way: its North end swings towards the East.",
+              "explanation": "Reversing the current reverses the direction of the field circling the wire, so the needle swings the other way.",
+              "coachSecrets": [],
+              "params": {
+                "current": -1,
+                "amps": 3,
+                "placement": "under",
+                "wire": "ns",
+                "distance": 3
+              }
+            },
+            {
+              "prompt": "Now the wire runs North–South underneath the compass instead of above it, with 3 A flowing towards the North. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "west",
+                    "label": "The needle's North end swings towards the West"
+                  },
+                  {
+                    "id": "east",
+                    "label": "The needle's North end swings towards the East"
+                  },
+                  {
+                    "id": "stay",
+                    "label": "The needle does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "east"
+              },
+              "outcome": "The needle deflects towards the East, the opposite way to when the wire was above it.",
+              "explanation": "The field circles the wire. Above the wire it points the opposite way to below it, so putting the compass on the other side of the wire reverses the deflection.",
+              "coachSecrets": [],
+              "params": {
+                "current": 1,
+                "amps": 3,
+                "placement": "over",
+                "wire": "ns",
+                "distance": 3
+              }
+            },
+            {
+              "prompt": "The wire is turned to run East–West above the compass, so it crosses the needle at right angles, and 3 A is switched on. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "west",
+                    "label": "The needle's North end swings towards the West"
+                  },
+                  {
+                    "id": "east",
+                    "label": "The needle's North end swings towards the East"
+                  },
+                  {
+                    "id": "stay",
+                    "label": "The needle does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "stay"
+              },
+              "outcome": "The needle does not move.",
+              "explanation": "Under an East–West wire the field runs North–South, along the needle, so it has nothing to turn it. The deflection happens when the wire runs along the needle, North–South.",
+              "coachSecrets": [],
+              "params": {
+                "current": 1,
+                "amps": 3,
+                "placement": "under",
+                "wire": "ew",
+                "distance": 3
+              }
+            },
+            {
+              "prompt": "A 3 A current in the wire 3 cm above the compass deflects the needle by 27°. You raise the current to 6 A, keeping the wire at 3 cm. By roughly what angle does the needle now deflect?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "angle",
+                    "label": "Deflection angle",
+                    "unit": "degrees"
+                  }
+                ]
+              },
+              "answer": {
+                "angle": 45
+              },
+              "outcome": "About 45°: twice the current gives twice the field.",
+              "explanation": "The wire's field is proportional to the current, so doubling the current doubles the sideways field. The needle turns until the wire's field and the Earth's field balance: tan θ doubles, from 0.5 to 1, so θ = 45°.",
+              "coachSecrets": [],
+              "params": {
+                "current": 1,
+                "amps": 6,
+                "placement": "under",
+                "wire": "ns",
+                "distance": 3
+              },
+              "tolerance": 4
+            }
+          ]
+        },
+        {
+          "id": "em_2",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "electromagnet",
+          "law": {
+            "name": "Electromagnet"
+          },
+          "prompt": "You wind the copper wire 20 times round the iron nail and switch on 1.5 A. The nail picks up 9 paper clips. Now you switch the current off. How many clips stay on the nail?",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "held",
+                "label": "Clips still held",
+                "unit": "clips"
+              }
+            ]
+          },
+          "answer": {
+            "held": 0
+          },
+          "tolerance": 0.4,
+          "outcome": "None: all the clips fall off at once.",
+          "explanation": "An electromagnet is only magnetic while a current flows. When the current stops, the field disappears and the soft iron nail loses its magnetism straight away. A permanent magnet would keep its clips.",
+          "expectedKeywords": [
+            "current",
+            "magnetic",
+            "switch off",
+            "electromagnet"
+          ],
+          "keywordSynonyms": {
+            "current": [
+              "electricity",
+              "flows",
+              "flowing",
+              "charge"
+            ],
+            "magnetic": [
+              "magnet",
+              "magnetism",
+              "field",
+              "magnetised"
+            ],
+            "switch off": [
+              "off",
+              "stops",
+              "stopped",
+              "no current",
+              "disconnect",
+              "disconnected"
+            ],
+            "electromagnet": [
+              "coil",
+              "solenoid",
+              "nail",
+              "temporary"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "turns": 20,
+            "current": 1.5,
+            "core": "iron",
+            "mode": "off"
+          },
+          "variants": [
+            {
+              "prompt": "You wind the copper wire 20 times round the iron nail and switch on 1.5 A. The nail picks up 9 paper clips. Now you switch the current off. How many clips stay on the nail?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "held",
+                    "label": "Clips still held",
+                    "unit": "clips"
+                  }
+                ]
+              },
+              "answer": {
+                "held": 0
+              },
+              "tolerance": 0.4,
+              "outcome": "None: all the clips fall off at once.",
+              "explanation": "An electromagnet is only magnetic while a current flows. When the current stops, the field disappears and the soft iron nail loses its magnetism straight away. A permanent magnet would keep its clips.",
+              "expectedKeywords": [
+                "current",
+                "magnetic",
+                "switch off",
+                "electromagnet"
+              ],
+              "keywordSynonyms": {
+                "current": [
+                  "electricity",
+                  "flows",
+                  "flowing",
+                  "charge"
+                ],
+                "magnetic": [
+                  "magnet",
+                  "magnetism",
+                  "field",
+                  "magnetised"
+                ],
+                "switch off": [
+                  "off",
+                  "stops",
+                  "stopped",
+                  "no current",
+                  "disconnect",
+                  "disconnected"
+                ],
+                "electromagnet": [
+                  "coil",
+                  "solenoid",
+                  "nail",
+                  "temporary"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "turns": 20,
+                "current": 1.5,
+                "core": "iron",
+                "mode": "off"
+              }
+            },
+            {
+              "prompt": "You wind the copper wire 40 times round the iron nail and switch on 1 A. (With 10 turns and 1 A the nail picks up 3 clips.) How many paper clips do you predict it picks up?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "held",
+                    "label": "Clips picked up",
+                    "unit": "clips"
+                  }
+                ]
+              },
+              "answer": {
+                "held": 12
+              },
+              "tolerance": 2,
+              "outcome": "About 12 clips. They drop off the moment you switch off.",
+              "explanation": "The strength of the electromagnet grows with both the number of turns and the current. 40 turns and 1 A is 4 times the reference, so about 4 × 3 = 12 clips. Switch the current off and the magnetism vanishes, so all the clips fall.",
+              "expectedKeywords": [
+                "turns",
+                "current",
+                "stronger",
+                "magnetic"
+              ],
+              "keywordSynonyms": {
+                "turns": [
+                  "coils",
+                  "loops",
+                  "windings",
+                  "wraps"
+                ],
+                "current": [
+                  "amps",
+                  "electricity"
+                ],
+                "stronger": [
+                  "strong",
+                  "more",
+                  "bigger",
+                  "greater",
+                  "increase",
+                  "increases"
+                ],
+                "magnetic": [
+                  "magnet",
+                  "field",
+                  "magnetism"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "turns": 40,
+                "current": 1.0,
+                "core": "iron",
+                "mode": "on"
+              }
+            },
+            {
+              "prompt": "You wind the copper wire 25 times round the iron nail and switch on 2 A. The nail picks up 15 paper clips. Now you switch the current off. How many clips stay on the nail?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "held",
+                    "label": "Clips still held",
+                    "unit": "clips"
+                  }
+                ]
+              },
+              "answer": {
+                "held": 0
+              },
+              "tolerance": 0.4,
+              "outcome": "None: all the clips fall off at once.",
+              "explanation": "An electromagnet is only magnetic while a current flows. When the current stops, the field disappears and the soft iron nail loses its magnetism straight away. A permanent magnet would keep its clips.",
+              "expectedKeywords": [
+                "current",
+                "magnetic",
+                "switch off",
+                "electromagnet"
+              ],
+              "keywordSynonyms": {
+                "current": [
+                  "electricity",
+                  "flows",
+                  "flowing",
+                  "charge"
+                ],
+                "magnetic": [
+                  "magnet",
+                  "magnetism",
+                  "field",
+                  "magnetised"
+                ],
+                "switch off": [
+                  "off",
+                  "stops",
+                  "stopped",
+                  "no current",
+                  "disconnect",
+                  "disconnected"
+                ],
+                "electromagnet": [
+                  "coil",
+                  "solenoid",
+                  "nail",
+                  "temporary"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "turns": 25,
+                "current": 2.0,
+                "core": "iron",
+                "mode": "off"
+              }
+            },
+            {
+              "prompt": "You wind the copper wire 35 times round the iron nail and switch on 2 A. (With 10 turns and 1 A the nail picks up 3 clips.) How many paper clips do you predict it picks up?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "held",
+                    "label": "Clips picked up",
+                    "unit": "clips"
+                  }
+                ]
+              },
+              "answer": {
+                "held": 21
+              },
+              "tolerance": 3,
+              "outcome": "About 21 clips. They drop off the moment you switch off.",
+              "explanation": "The strength of the electromagnet grows with both the number of turns and the current. 35 turns and 2 A is 7 times the reference, so about 7 × 3 = 21 clips. Switch the current off and the magnetism vanishes, so all the clips fall.",
+              "expectedKeywords": [
+                "turns",
+                "current",
+                "stronger",
+                "magnetic"
+              ],
+              "keywordSynonyms": {
+                "turns": [
+                  "coils",
+                  "loops",
+                  "windings",
+                  "wraps"
+                ],
+                "current": [
+                  "amps",
+                  "electricity"
+                ],
+                "stronger": [
+                  "strong",
+                  "more",
+                  "bigger",
+                  "greater",
+                  "increase",
+                  "increases"
+                ],
+                "magnetic": [
+                  "magnet",
+                  "field",
+                  "magnetism"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "turns": 35,
+                "current": 2.0,
+                "core": "iron",
+                "mode": "on"
+              }
+            },
+            {
+              "prompt": "You wind the copper wire 15 times round the iron nail and switch on 1 A. The nail picks up 4 paper clips. Now you switch the current off. How many clips stay on the nail?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "held",
+                    "label": "Clips still held",
+                    "unit": "clips"
+                  }
+                ]
+              },
+              "answer": {
+                "held": 0
+              },
+              "tolerance": 0.4,
+              "outcome": "None: all the clips fall off at once.",
+              "explanation": "An electromagnet is only magnetic while a current flows. When the current stops, the field disappears and the soft iron nail loses its magnetism straight away. A permanent magnet would keep its clips.",
+              "expectedKeywords": [
+                "current",
+                "magnetic",
+                "switch off",
+                "electromagnet"
+              ],
+              "keywordSynonyms": {
+                "current": [
+                  "electricity",
+                  "flows",
+                  "flowing",
+                  "charge"
+                ],
+                "magnetic": [
+                  "magnet",
+                  "magnetism",
+                  "field",
+                  "magnetised"
+                ],
+                "switch off": [
+                  "off",
+                  "stops",
+                  "stopped",
+                  "no current",
+                  "disconnect",
+                  "disconnected"
+                ],
+                "electromagnet": [
+                  "coil",
+                  "solenoid",
+                  "nail",
+                  "temporary"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "turns": 15,
+                "current": 1.0,
+                "core": "iron",
+                "mode": "off"
+              }
+            }
+          ]
+        },
+        {
+          "id": "em_3",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "electromagnet",
+          "law": {
+            "name": "Electromagnet"
+          },
+          "prompt": "A compass sits next to the tip of the electromagnet. You swap the battery's connections so the current flows the other way round the coil. What happens to the compass?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "flips",
+                "label": "The needle swings round: the end that pointed at the tip now points away"
+              },
+              {
+                "id": "same",
+                "label": "The needle stays as it was"
+              },
+              {
+                "id": "zero",
+                "label": "The needle spins freely"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "flips"
+          },
+          "outcome": "The needle swings round through 180°.",
+          "explanation": "Reversing the current reverses the electromagnet's poles: the tip that was a North pole becomes a South pole, so the compass needle turns right round.",
+          "coachSecrets": [],
+          "params": {
+            "turns": 20,
+            "current": 1.5,
+            "core": "iron",
+            "mode": "polarity"
+          },
+          "variants": [
+            {
+              "prompt": "A compass sits next to the tip of the electromagnet. You swap the battery's connections so the current flows the other way round the coil. What happens to the compass?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "flips",
+                    "label": "The needle swings round: the end that pointed at the tip now points away"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The needle stays as it was"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "The needle spins freely"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "flips"
+              },
+              "outcome": "The needle swings round through 180°.",
+              "explanation": "Reversing the current reverses the electromagnet's poles: the tip that was a North pole becomes a South pole, so the compass needle turns right round.",
+              "coachSecrets": [],
+              "params": {
+                "turns": 20,
+                "current": 1.5,
+                "core": "iron",
+                "mode": "polarity"
+              }
+            },
+            {
+              "prompt": "With 20 turns and 1.5 A the electromagnet picks up 9 clips. You double the number of turns to 40, keeping the same current. About how many clips does it pick up?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as many"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as many"
+                  },
+                  {
+                    "id": "quad",
+                    "label": "About four times as many"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "About twice as many: 18.",
+              "explanation": "More turns make a stronger field: the strength grows in proportion to the number of turns.",
+              "coachSecrets": [],
+              "params": {
+                "turns": 40,
+                "current": 1.5,
+                "core": "iron",
+                "mode": "on"
+              }
+            },
+            {
+              "prompt": "With 20 turns and 1.5 A the electromagnet picks up 9 clips. You double the current to 3 A, keeping 20 turns. About how many clips does it pick up?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as many"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as many"
+                  },
+                  {
+                    "id": "quad",
+                    "label": "About four times as many"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "double"
+              },
+              "outcome": "About twice as many: 18.",
+              "explanation": "The strength grows in proportion to the current, so doubling the current doubles the pull.",
+              "coachSecrets": [],
+              "params": {
+                "turns": 20,
+                "current": 3,
+                "core": "iron",
+                "mode": "on"
+              }
+            },
+            {
+              "prompt": "You pull the iron nail out of the coil and switch on 1.5 A, 20 turns. Compared with the coil with the iron nail inside, how many clips does it pick up?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "far_fewer",
+                    "label": "Far fewer"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The same number"
+                  },
+                  {
+                    "id": "more",
+                    "label": "More"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "far_fewer"
+              },
+              "outcome": "Far fewer: almost none.",
+              "explanation": "A soft iron core is magnetised by the coil's field and multiplies it many times over. With only air inside, the field is far weaker.",
+              "coachSecrets": [],
+              "params": {
+                "turns": 20,
+                "current": 1.5,
+                "core": "air",
+                "mode": "on"
+              }
+            },
+            {
+              "prompt": "With 20 turns and 1.5 A the electromagnet picks up 9 clips. You halve the current to 0.75 A. About how many clips does it pick up?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "half",
+                    "label": "About half as many"
+                  },
+                  {
+                    "id": "same",
+                    "label": "About the same"
+                  },
+                  {
+                    "id": "double",
+                    "label": "About twice as many"
+                  },
+                  {
+                    "id": "none",
+                    "label": "None at all"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "half"
+              },
+              "outcome": "About half as many: 4.",
+              "explanation": "The strength is proportional to the current, so half the current gives about half the pull.",
+              "coachSecrets": [],
+              "params": {
+                "turns": 20,
+                "current": 0.75,
+                "core": "iron",
+                "mode": "on"
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_em",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Electromagnetism"
+          },
+          "prompt": "Why do scrapyards use electromagnets, rather than permanent magnets, on their cranes?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "off",
+                "label": "The magnetism can be switched off to drop the load"
+              },
+              {
+                "id": "strong",
+                "label": "They are always stronger than any permanent magnet"
+              },
+              {
+                "id": "cheap",
+                "label": "They need no electricity"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "off"
+          },
+          "outcome": "The magnetism can be switched off to drop the load.",
+          "explanation": "An electromagnet is only magnetic while current flows, so the crane can pick up scrap and let it go whenever it wants.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "Why do scrapyards use electromagnets, rather than permanent magnets, on their cranes?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "off",
+                    "label": "The magnetism can be switched off to drop the load"
+                  },
+                  {
+                    "id": "strong",
+                    "label": "They are always stronger than any permanent magnet"
+                  },
+                  {
+                    "id": "cheap",
+                    "label": "They need no electricity"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "off"
+              },
+              "outcome": "The magnetism can be switched off to drop the load.",
+              "explanation": "An electromagnet is only magnetic while current flows, so the crane can pick up scrap and let it go whenever it wants."
+            },
+            {
+              "prompt": "A doorbell has a coil of wire with an iron core. When you press the button, the coil pulls a metal hammer to the bell. What makes the pull?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "coil",
+                    "label": "The magnetic field made by the current in the coil"
+                  },
+                  {
+                    "id": "iron",
+                    "label": "The iron core is a permanent magnet"
+                  },
+                  {
+                    "id": "hammer",
+                    "label": "The hammer is a permanent magnet"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "coil"
+              },
+              "outcome": "The magnetic field made by the current in the coil.",
+              "explanation": "Pressing the button sends a current round the coil, which turns the iron core into an electromagnet that pulls the hammer."
+            },
+            {
+              "prompt": "Why is the core of an electromagnet made of soft iron rather than steel?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "lose",
+                    "label": "Soft iron loses its magnetism when the current stops, so it can be switched off"
+                  },
+                  {
+                    "id": "steel",
+                    "label": "Steel is too heavy to lift anything"
+                  },
+                  {
+                    "id": "both",
+                    "label": "They behave in exactly the same way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "lose"
+              },
+              "outcome": "Soft iron loses its magnetism when the current stops.",
+              "explanation": "Soft iron is easily magnetised and demagnetised. Steel keeps its magnetism, so the electromagnet could not be switched off properly."
+            },
+            {
+              "prompt": "A straight wire carries a current. Which of these is true of its magnetic field?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "circles",
+                    "label": "It forms circles around the wire"
+                  },
+                  {
+                    "id": "along",
+                    "label": "It runs along the wire in the direction of the current"
+                  },
+                  {
+                    "id": "none",
+                    "label": "There is no field around a straight wire"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "circles"
+              },
+              "outcome": "It forms circles around the wire.",
+              "explanation": "The field lines are circles around the wire, in a direction given by the right-hand grip rule."
+            },
+            {
+              "prompt": "In Oersted's experiment, what shows that a current makes a magnetic field?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "needle",
+                    "label": "A compass needle near the wire deflects when the current flows"
+                  },
+                  {
+                    "id": "hot",
+                    "label": "The wire gets hot"
+                  },
+                  {
+                    "id": "light",
+                    "label": "The wire glows"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "needle"
+              },
+              "outcome": "A compass needle near the wire deflects when the current flows.",
+              "explanation": "Oersted saw a compass needle turn when a current flowed nearby. Only a magnetic field can turn a compass needle."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "force_induction",
+      "tabName": "Force & Induction",
+      "title": "Motors and Generators",
+      "setup": "A current-carrying rod between two magnet poles, and a separate coil of wire joined to a galvanometer with a bar magnet to move through it.",
+      "trials": [
+        {
+          "id": "force_1",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "fleming",
+          "law": {
+            "name": "Fleming's left-hand rule",
+            "formula": "F = B I L"
+          },
+          "prompt": "A rod carries a current up the screen. The magnetic field between the poles points to the right. Use Fleming's left-hand rule. In which direction does the rod move?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "up",
+                "label": "Up the screen"
+              },
+              {
+                "id": "down",
+                "label": "Down the screen"
+              },
+              {
+                "id": "left",
+                "label": "To the left"
+              },
+              {
+                "id": "right",
+                "label": "To the right"
+              },
+              {
+                "id": "in",
+                "label": "Into the screen (away from you)"
+              },
+              {
+                "id": "out",
+                "label": "Out of the screen (towards you)"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "in"
+          },
+          "outcome": "The rod moves into the screen (away from you).",
+          "explanation": "Fleming's left-hand rule: point your first finger along the field and your second finger along the current, at right angles. Your thumb then points the way the force pushes the rod. The force is always at right angles to both the current and the field.",
+          "coachSecrets": [],
+          "params": {
+            "current": [
+              0,
+              1,
+              0
+            ],
+            "field": [
+              1,
+              0,
+              0
+            ],
+            "B": 0.5,
+            "I": 4,
+            "L": 0.3
+          },
+          "variants": [
+            {
+              "prompt": "A rod carries a current up the screen. The magnetic field between the poles points to the right. Use Fleming's left-hand rule. In which direction does the rod move?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "up",
+                    "label": "Up the screen"
+                  },
+                  {
+                    "id": "down",
+                    "label": "Down the screen"
+                  },
+                  {
+                    "id": "left",
+                    "label": "To the left"
+                  },
+                  {
+                    "id": "right",
+                    "label": "To the right"
+                  },
+                  {
+                    "id": "in",
+                    "label": "Into the screen (away from you)"
+                  },
+                  {
+                    "id": "out",
+                    "label": "Out of the screen (towards you)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "in"
+              },
+              "outcome": "The rod moves into the screen (away from you).",
+              "explanation": "Fleming's left-hand rule: point your first finger along the field and your second finger along the current, at right angles. Your thumb then points the way the force pushes the rod. The force is always at right angles to both the current and the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  1,
+                  0
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.5,
+                "I": 4,
+                "L": 0.3
+              }
+            },
+            {
+              "prompt": "A rod carries a current to the right. The magnetic field between the poles points up the screen. Use Fleming's left-hand rule. In which direction does the rod move?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "up",
+                    "label": "Up the screen"
+                  },
+                  {
+                    "id": "down",
+                    "label": "Down the screen"
+                  },
+                  {
+                    "id": "left",
+                    "label": "To the left"
+                  },
+                  {
+                    "id": "right",
+                    "label": "To the right"
+                  },
+                  {
+                    "id": "in",
+                    "label": "Into the screen (away from you)"
+                  },
+                  {
+                    "id": "out",
+                    "label": "Out of the screen (towards you)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "out"
+              },
+              "outcome": "The rod moves out of the screen (towards you).",
+              "explanation": "Fleming's left-hand rule: point your first finger along the field and your second finger along the current, at right angles. Your thumb then points the way the force pushes the rod. The force is always at right angles to both the current and the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  1,
+                  0,
+                  0
+                ],
+                "field": [
+                  0,
+                  1,
+                  0
+                ],
+                "B": 0.5,
+                "I": 4,
+                "L": 0.3
+              }
+            },
+            {
+              "prompt": "A rod carries a current out of the screen. The magnetic field between the poles points to the right. Use Fleming's left-hand rule. In which direction does the rod move?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "up",
+                    "label": "Up the screen"
+                  },
+                  {
+                    "id": "down",
+                    "label": "Down the screen"
+                  },
+                  {
+                    "id": "left",
+                    "label": "To the left"
+                  },
+                  {
+                    "id": "right",
+                    "label": "To the right"
+                  },
+                  {
+                    "id": "in",
+                    "label": "Into the screen (away from you)"
+                  },
+                  {
+                    "id": "out",
+                    "label": "Out of the screen (towards you)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "up"
+              },
+              "outcome": "The rod moves up the screen.",
+              "explanation": "Fleming's left-hand rule: point your first finger along the field and your second finger along the current, at right angles. Your thumb then points the way the force pushes the rod. The force is always at right angles to both the current and the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  0,
+                  1
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.5,
+                "I": 4,
+                "L": 0.3
+              }
+            },
+            {
+              "prompt": "A rod carries a current down the screen. The magnetic field between the poles points into the screen. Use Fleming's left-hand rule. In which direction does the rod move?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "up",
+                    "label": "Up the screen"
+                  },
+                  {
+                    "id": "down",
+                    "label": "Down the screen"
+                  },
+                  {
+                    "id": "left",
+                    "label": "To the left"
+                  },
+                  {
+                    "id": "right",
+                    "label": "To the right"
+                  },
+                  {
+                    "id": "in",
+                    "label": "Into the screen (away from you)"
+                  },
+                  {
+                    "id": "out",
+                    "label": "Out of the screen (towards you)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right"
+              },
+              "outcome": "The rod moves to the right.",
+              "explanation": "Fleming's left-hand rule: point your first finger along the field and your second finger along the current, at right angles. Your thumb then points the way the force pushes the rod. The force is always at right angles to both the current and the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  -1,
+                  0
+                ],
+                "field": [
+                  0,
+                  0,
+                  -1
+                ],
+                "B": 0.5,
+                "I": 4,
+                "L": 0.3
+              }
+            },
+            {
+              "prompt": "A rod carries a current to the left. The magnetic field between the poles points out of the screen. Use Fleming's left-hand rule. In which direction does the rod move?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "up",
+                    "label": "Up the screen"
+                  },
+                  {
+                    "id": "down",
+                    "label": "Down the screen"
+                  },
+                  {
+                    "id": "left",
+                    "label": "To the left"
+                  },
+                  {
+                    "id": "right",
+                    "label": "To the right"
+                  },
+                  {
+                    "id": "in",
+                    "label": "Into the screen (away from you)"
+                  },
+                  {
+                    "id": "out",
+                    "label": "Out of the screen (towards you)"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "up"
+              },
+              "outcome": "The rod moves up the screen.",
+              "explanation": "Fleming's left-hand rule: point your first finger along the field and your second finger along the current, at right angles. Your thumb then points the way the force pushes the rod. The force is always at right angles to both the current and the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  -1,
+                  0,
+                  0
+                ],
+                "field": [
+                  0,
+                  0,
+                  1
+                ],
+                "B": 0.5,
+                "I": 4,
+                "L": 0.3
+              }
+            }
+          ]
+        },
+        {
+          "id": "force_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "fleming",
+          "law": {
+            "name": "Force on a current",
+            "formula": "F = B I L"
+          },
+          "prompt": "The rod is 0.3 m long and carries 4 A at right angles to a field of 0.5 T. Predict the force on it.",
+          "input": {
+            "type": "numeric",
+            "fields": [
+              {
+                "id": "force",
+                "label": "Force",
+                "unit": "N"
+              }
+            ]
+          },
+          "answer": {
+            "force": 0.6
+          },
+          "tolerance": 0.06,
+          "outcome": "0.6 N.",
+          "explanation": "F = B I L = 0.5 T × 4 A × 0.3 m = 0.6 N. The force grows with the field, the current and the length of rod in the field.",
+          "coachSecrets": [],
+          "params": {
+            "current": [
+              0,
+              1,
+              0
+            ],
+            "field": [
+              1,
+              0,
+              0
+            ],
+            "B": 0.5,
+            "I": 4,
+            "L": 0.3
+          },
+          "variants": [
+            {
+              "prompt": "The rod is 0.3 m long and carries 4 A at right angles to a field of 0.5 T. Predict the force on it.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 0.6
+              },
+              "tolerance": 0.06,
+              "outcome": "0.6 N.",
+              "explanation": "F = B I L = 0.5 T × 4 A × 0.3 m = 0.6 N. The force grows with the field, the current and the length of rod in the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  1,
+                  0
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.5,
+                "I": 4,
+                "L": 0.3
+              }
+            },
+            {
+              "prompt": "The rod is 0.5 m long and carries 5 A at right angles to a field of 0.2 T. Predict the force on it.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 0.5
+              },
+              "tolerance": 0.05,
+              "outcome": "0.5 N.",
+              "explanation": "F = B I L = 0.2 T × 5 A × 0.5 m = 0.5 N. The force grows with the field, the current and the length of rod in the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  1,
+                  0
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.2,
+                "I": 5,
+                "L": 0.5
+              }
+            },
+            {
+              "prompt": "The rod is 0.4 m long and carries 2.5 A at right angles to a field of 0.8 T. Predict the force on it.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 0.8
+              },
+              "tolerance": 0.08,
+              "outcome": "0.8 N.",
+              "explanation": "F = B I L = 0.8 T × 2.5 A × 0.4 m = 0.8 N. The force grows with the field, the current and the length of rod in the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  1,
+                  0
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.8,
+                "I": 2.5,
+                "L": 0.4
+              }
+            },
+            {
+              "prompt": "The same rod, 0.5 m long, is pushed with a force of 0.9 N in a field of 0.6 T. What current does it carry?",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "current",
+                    "label": "Current",
+                    "unit": "A"
+                  }
+                ]
+              },
+              "answer": {
+                "current": 3.0
+              },
+              "tolerance": 0.24,
+              "outcome": "3 A.",
+              "explanation": "F = B I L, so I = F ÷ (B L) = 0.9 ÷ (0.6 × 0.5) = 3 A.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  1,
+                  0
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.6,
+                "I": 3.0,
+                "L": 0.5
+              }
+            },
+            {
+              "prompt": "The rod is 0.25 m long and carries 6 A at right angles to a field of 0.4 T. Predict the force on it.",
+              "input": {
+                "type": "numeric",
+                "fields": [
+                  {
+                    "id": "force",
+                    "label": "Force",
+                    "unit": "N"
+                  }
+                ]
+              },
+              "answer": {
+                "force": 0.6
+              },
+              "tolerance": 0.06,
+              "outcome": "0.6 N.",
+              "explanation": "F = B I L = 0.4 T × 6 A × 0.25 m = 0.6 N. The force grows with the field, the current and the length of rod in the field.",
+              "coachSecrets": [],
+              "params": {
+                "current": [
+                  0,
+                  1,
+                  0
+                ],
+                "field": [
+                  1,
+                  0,
+                  0
+                ],
+                "B": 0.4,
+                "I": 6,
+                "L": 0.25
+              }
+            }
+          ]
+        },
+        {
+          "id": "ind_1",
+          "kind": "prediction",
+          "anomaly": true,
+          "action": "induction",
+          "law": {
+            "name": "Electromagnetic induction",
+            "formula": "emf = −N ΔΦ/Δt"
+          },
+          "prompt": "You push the North pole of a bar magnet quickly into a coil joined to a galvanometer. What does the needle do?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "deflect",
+                "label": "The needle deflects"
+              },
+              {
+                "id": "zero",
+                "label": "The needle stays at zero"
+              },
+              {
+                "id": "other",
+                "label": "The needle deflects the other way"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "deflect"
+          },
+          "outcome": "The needle swings to the right while the magnet moves, then returns to zero.",
+          "explanation": "Moving the magnet changes the magnetic field through the coil, which induces a current. A current is induced only while the magnetic field through the coil is changing. When the magnet moves, the field through the coil changes, so a voltage and current are induced. When nothing moves, the field is steady and nothing is induced.",
+          "expectedKeywords": [
+            "changing",
+            "magnetic field",
+            "coil",
+            "current"
+          ],
+          "keywordSynonyms": {
+            "changing": [
+              "change",
+              "changes",
+              "moving",
+              "motion",
+              "movement",
+              "moves",
+              "move",
+              "varying"
+            ],
+            "magnetic field": [
+              "field",
+              "flux",
+              "magnet",
+              "magnetic"
+            ],
+            "coil": [
+              "wire",
+              "loop",
+              "loops",
+              "turns"
+            ],
+            "current": [
+              "voltage",
+              "emf",
+              "induced",
+              "electricity"
+            ]
+          },
+          "coachSecrets": [],
+          "params": {
+            "motion": "in",
+            "speed": 1,
+            "pole": "N",
+            "turns": 40
+          },
+          "variants": [
+            {
+              "prompt": "You push the North pole of a bar magnet quickly into a coil joined to a galvanometer. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "deflect",
+                    "label": "The needle deflects"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "The needle stays at zero"
+                  },
+                  {
+                    "id": "other",
+                    "label": "The needle deflects the other way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "deflect"
+              },
+              "outcome": "The needle swings to the right while the magnet moves, then returns to zero.",
+              "explanation": "Moving the magnet changes the magnetic field through the coil, which induces a current. A current is induced only while the magnetic field through the coil is changing. When the magnet moves, the field through the coil changes, so a voltage and current are induced. When nothing moves, the field is steady and nothing is induced.",
+              "expectedKeywords": [
+                "changing",
+                "magnetic field",
+                "coil",
+                "current"
+              ],
+              "keywordSynonyms": {
+                "changing": [
+                  "change",
+                  "changes",
+                  "moving",
+                  "motion",
+                  "movement",
+                  "moves",
+                  "move",
+                  "varying"
+                ],
+                "magnetic field": [
+                  "field",
+                  "flux",
+                  "magnet",
+                  "magnetic"
+                ],
+                "coil": [
+                  "wire",
+                  "loop",
+                  "loops",
+                  "turns"
+                ],
+                "current": [
+                  "voltage",
+                  "emf",
+                  "induced",
+                  "electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "motion": "in",
+                "speed": 1,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "You push the bar magnet into the coil and then hold it still inside the coil. While it is held still, what does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "deflect",
+                    "label": "The needle deflects"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "The needle stays at zero"
+                  },
+                  {
+                    "id": "other",
+                    "label": "The needle deflects the other way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "zero"
+              },
+              "outcome": "The needle swings while the magnet moves, then goes back to zero and stays there.",
+              "explanation": "Holding the magnet still inside the coil does not change the field through it. A current is induced only while the magnetic field through the coil is changing. When the magnet moves, the field through the coil changes, so a voltage and current are induced. When nothing moves, the field is steady and nothing is induced.",
+              "expectedKeywords": [
+                "changing",
+                "magnetic field",
+                "coil",
+                "current"
+              ],
+              "keywordSynonyms": {
+                "changing": [
+                  "change",
+                  "changes",
+                  "moving",
+                  "motion",
+                  "movement",
+                  "moves",
+                  "move",
+                  "varying"
+                ],
+                "magnetic field": [
+                  "field",
+                  "flux",
+                  "magnet",
+                  "magnetic"
+                ],
+                "coil": [
+                  "wire",
+                  "loop",
+                  "loops",
+                  "turns"
+                ],
+                "current": [
+                  "voltage",
+                  "emf",
+                  "induced",
+                  "electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "motion": "still",
+                "speed": 1,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "You pull the magnet back out of the coil quickly. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "deflect",
+                    "label": "The needle deflects"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "The needle stays at zero"
+                  },
+                  {
+                    "id": "other",
+                    "label": "The needle deflects the other way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "other"
+              },
+              "outcome": "The needle swings the other way (to the left) while the magnet moves out.",
+              "explanation": "Pulling the magnet out reverses the change in the field through the coil, so the induced current flows the other way. A current is induced only while the magnetic field through the coil is changing. When the magnet moves, the field through the coil changes, so a voltage and current are induced. When nothing moves, the field is steady and nothing is induced.",
+              "expectedKeywords": [
+                "changing",
+                "magnetic field",
+                "coil",
+                "current"
+              ],
+              "keywordSynonyms": {
+                "changing": [
+                  "change",
+                  "changes",
+                  "moving",
+                  "motion",
+                  "movement",
+                  "moves",
+                  "move",
+                  "varying"
+                ],
+                "magnetic field": [
+                  "field",
+                  "flux",
+                  "magnet",
+                  "magnetic"
+                ],
+                "coil": [
+                  "wire",
+                  "loop",
+                  "loops",
+                  "turns"
+                ],
+                "current": [
+                  "voltage",
+                  "emf",
+                  "induced",
+                  "electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "motion": "out",
+                "speed": 1,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "The magnet is held still and you move the coil quickly over it instead. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "deflect",
+                    "label": "The needle deflects"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "The needle stays at zero"
+                  },
+                  {
+                    "id": "other",
+                    "label": "The needle deflects the other way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "deflect"
+              },
+              "outcome": "The needle deflects, just as if the magnet had moved.",
+              "explanation": "What matters is the relative motion between the magnet and the coil: the field through the coil is changing either way. A current is induced only while the magnetic field through the coil is changing. When the magnet moves, the field through the coil changes, so a voltage and current are induced. When nothing moves, the field is steady and nothing is induced.",
+              "expectedKeywords": [
+                "changing",
+                "magnetic field",
+                "coil",
+                "current"
+              ],
+              "keywordSynonyms": {
+                "changing": [
+                  "change",
+                  "changes",
+                  "moving",
+                  "motion",
+                  "movement",
+                  "moves",
+                  "move",
+                  "varying"
+                ],
+                "magnetic field": [
+                  "field",
+                  "flux",
+                  "magnet",
+                  "magnetic"
+                ],
+                "coil": [
+                  "wire",
+                  "loop",
+                  "loops",
+                  "turns"
+                ],
+                "current": [
+                  "voltage",
+                  "emf",
+                  "induced",
+                  "electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "motion": "coil_moves",
+                "speed": 1,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "You push the South pole of the magnet quickly into the coil, in just the way you pushed the North pole in before. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "deflect",
+                    "label": "The needle deflects"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "The needle stays at zero"
+                  },
+                  {
+                    "id": "other",
+                    "label": "The needle deflects the other way"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "other"
+              },
+              "outcome": "The needle swings the other way (to the left).",
+              "explanation": "Reversing the magnet reverses the direction of the field change, so the induced current flows the other way. A current is induced only while the magnetic field through the coil is changing. When the magnet moves, the field through the coil changes, so a voltage and current are induced. When nothing moves, the field is steady and nothing is induced.",
+              "expectedKeywords": [
+                "changing",
+                "magnetic field",
+                "coil",
+                "current"
+              ],
+              "keywordSynonyms": {
+                "changing": [
+                  "change",
+                  "changes",
+                  "moving",
+                  "motion",
+                  "movement",
+                  "moves",
+                  "move",
+                  "varying"
+                ],
+                "magnetic field": [
+                  "field",
+                  "flux",
+                  "magnet",
+                  "magnetic"
+                ],
+                "coil": [
+                  "wire",
+                  "loop",
+                  "loops",
+                  "turns"
+                ],
+                "current": [
+                  "voltage",
+                  "emf",
+                  "induced",
+                  "electricity"
+                ]
+              },
+              "coachSecrets": [],
+              "params": {
+                "motion": "in",
+                "speed": 1,
+                "pole": "S",
+                "turns": 40
+              }
+            }
+          ]
+        },
+        {
+          "id": "ind_2",
+          "kind": "prediction",
+          "anomaly": false,
+          "action": "induction",
+          "law": {
+            "name": "Electromagnetic induction",
+            "formula": "emf = −N ΔΦ/Δt"
+          },
+          "prompt": "Pushing the North pole into the coil at a steady speed swings the needle to the right. Now you push the magnet in twice as fast. What does the needle do?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "right_more",
+                "label": "It swings to the right, by more"
+              },
+              {
+                "id": "right_less",
+                "label": "It swings to the right, by less"
+              },
+              {
+                "id": "right",
+                "label": "It swings to the right, by the same amount"
+              },
+              {
+                "id": "left",
+                "label": "It swings to the left"
+              },
+              {
+                "id": "zero",
+                "label": "It does not move"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "right_more"
+          },
+          "outcome": "It swings to the right, about twice as far.",
+          "explanation": "A faster motion changes the field through the coil faster, and the induced voltage is proportional to the rate of change.",
+          "coachSecrets": [],
+          "params": {
+            "motion": "in",
+            "speed": 2,
+            "pole": "N",
+            "turns": 40
+          },
+          "variants": [
+            {
+              "prompt": "Pushing the North pole into the coil at a steady speed swings the needle to the right. Now you push the magnet in twice as fast. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right_more",
+                    "label": "It swings to the right, by more"
+                  },
+                  {
+                    "id": "right_less",
+                    "label": "It swings to the right, by less"
+                  },
+                  {
+                    "id": "right",
+                    "label": "It swings to the right, by the same amount"
+                  },
+                  {
+                    "id": "left",
+                    "label": "It swings to the left"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "It does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right_more"
+              },
+              "outcome": "It swings to the right, about twice as far.",
+              "explanation": "A faster motion changes the field through the coil faster, and the induced voltage is proportional to the rate of change.",
+              "coachSecrets": [],
+              "params": {
+                "motion": "in",
+                "speed": 2,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "Pushing the North pole into the coil at a steady speed swings the needle to the right. Now you push it in at half the speed. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right_more",
+                    "label": "It swings to the right, by more"
+                  },
+                  {
+                    "id": "right_less",
+                    "label": "It swings to the right, by less"
+                  },
+                  {
+                    "id": "right",
+                    "label": "It swings to the right, by the same amount"
+                  },
+                  {
+                    "id": "left",
+                    "label": "It swings to the left"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "It does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right_less"
+              },
+              "outcome": "It swings to the right, only about half as far.",
+              "explanation": "A slower motion changes the field more slowly, so the induced voltage is smaller.",
+              "coachSecrets": [],
+              "params": {
+                "motion": "in",
+                "speed": 0.5,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "Pushing the North pole into the 40-turn coil swings the needle to the right. You swap to a coil with 80 turns and push in just as fast. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right_more",
+                    "label": "It swings to the right, by more"
+                  },
+                  {
+                    "id": "right_less",
+                    "label": "It swings to the right, by less"
+                  },
+                  {
+                    "id": "right",
+                    "label": "It swings to the right, by the same amount"
+                  },
+                  {
+                    "id": "left",
+                    "label": "It swings to the left"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "It does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "right_more"
+              },
+              "outcome": "It swings to the right, about twice as far.",
+              "explanation": "Each turn of the coil has a voltage induced in it, and they add up: twice the turns gives twice the voltage.",
+              "coachSecrets": [],
+              "params": {
+                "motion": "in",
+                "speed": 1,
+                "pole": "N",
+                "turns": 80
+              }
+            },
+            {
+              "prompt": "Pushing the North pole into the coil swings the needle to the right. Now you pull the same pole out again at the same speed. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right_more",
+                    "label": "It swings to the right, by more"
+                  },
+                  {
+                    "id": "right_less",
+                    "label": "It swings to the right, by less"
+                  },
+                  {
+                    "id": "right",
+                    "label": "It swings to the right, by the same amount"
+                  },
+                  {
+                    "id": "left",
+                    "label": "It swings to the left"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "It does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "left"
+              },
+              "outcome": "It swings to the left, by the same amount.",
+              "explanation": "The field through the coil now decreases at the same rate, so the induced current reverses.",
+              "coachSecrets": [],
+              "params": {
+                "motion": "out",
+                "speed": 1,
+                "pole": "N",
+                "turns": 40
+              }
+            },
+            {
+              "prompt": "Pushing the North pole into the coil swings the needle to the right. Now you hold the magnet motionless inside the coil. What does the needle do?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "right_more",
+                    "label": "It swings to the right, by more"
+                  },
+                  {
+                    "id": "right_less",
+                    "label": "It swings to the right, by less"
+                  },
+                  {
+                    "id": "right",
+                    "label": "It swings to the right, by the same amount"
+                  },
+                  {
+                    "id": "left",
+                    "label": "It swings to the left"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "It does not move"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "zero"
+              },
+              "outcome": "It returns to zero and stays there.",
+              "explanation": "There is no change in the field, so no voltage is induced, however strong the magnet is.",
+              "coachSecrets": [],
+              "params": {
+                "motion": "still",
+                "speed": 1,
+                "pole": "N",
+                "turns": 40
+              }
+            }
+          ]
+        },
+        {
+          "id": "tr_force",
+          "kind": "transfer",
+          "anomaly": false,
+          "action": null,
+          "law": {
+            "name": "Motors and generators"
+          },
+          "prompt": "An electric motor works because a current-carrying wire in a magnetic field feels a force. What happens if you reverse the current?",
+          "input": {
+            "type": "choice",
+            "options": [
+              {
+                "id": "rev",
+                "label": "The force on the wire reverses"
+              },
+              {
+                "id": "same",
+                "label": "The force stays the same"
+              },
+              {
+                "id": "zero",
+                "label": "There is no force any more"
+              }
+            ]
+          },
+          "answer": {
+            "choice": "rev"
+          },
+          "outcome": "The force on the wire reverses.",
+          "explanation": "The force is at right angles to the current and the field. Reversing either one reverses the force; that is how a motor's commutator keeps it turning.",
+          "params": {},
+          "variants": [
+            {
+              "prompt": "An electric motor works because a current-carrying wire in a magnetic field feels a force. What happens if you reverse the current?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "rev",
+                    "label": "The force on the wire reverses"
+                  },
+                  {
+                    "id": "same",
+                    "label": "The force stays the same"
+                  },
+                  {
+                    "id": "zero",
+                    "label": "There is no force any more"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "rev"
+              },
+              "outcome": "The force on the wire reverses.",
+              "explanation": "The force is at right angles to the current and the field. Reversing either one reverses the force; that is how a motor's commutator keeps it turning."
+            },
+            {
+              "prompt": "A bicycle dynamo has a magnet that spins next to a coil. Why does it light the lamp only while the wheel is turning?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "change",
+                    "label": "The field through the coil is only changing while the magnet moves"
+                  },
+                  {
+                    "id": "hot",
+                    "label": "The magnet gets hot and powers the lamp"
+                  },
+                  {
+                    "id": "batt",
+                    "label": "There is a hidden battery"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "change"
+              },
+              "outcome": "The field through the coil is only changing while the magnet moves.",
+              "explanation": "Electromagnetic induction needs a changing field. Stop the wheel and the field is steady, so the lamp goes out."
+            },
+            {
+              "prompt": "A power station generator turns a coil in a magnetic field. What is being converted?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "kin",
+                    "label": "Movement energy into electrical energy"
+                  },
+                  {
+                    "id": "el",
+                    "label": "Electrical energy into movement energy"
+                  },
+                  {
+                    "id": "heat",
+                    "label": "Heat into light"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "kin"
+              },
+              "outcome": "Movement energy into electrical energy.",
+              "explanation": "A generator uses induction: turning the coil changes the field through it and induces a current. A motor does the reverse."
+            },
+            {
+              "prompt": "A loudspeaker has a coil in the field of a magnet. When the amplifier sends a changing current through the coil, what happens?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "move",
+                    "label": "The coil moves back and forth, pushing the cone and making sound"
+                  },
+                  {
+                    "id": "still",
+                    "label": "Nothing, because the field is steady"
+                  },
+                  {
+                    "id": "heat",
+                    "label": "The magnet melts"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "move"
+              },
+              "outcome": "The coil moves back and forth, pushing the cone and making sound.",
+              "explanation": "A current-carrying coil in a magnetic field feels a force. A changing current gives a changing force, which moves the cone."
+            },
+            {
+              "prompt": "The left-hand rule gives the force on a current in a field. If current and field point the same way, along the wire, what is the force?",
+              "input": {
+                "type": "choice",
+                "options": [
+                  {
+                    "id": "zero",
+                    "label": "Zero"
+                  },
+                  {
+                    "id": "max",
+                    "label": "The biggest it can be"
+                  },
+                  {
+                    "id": "half",
+                    "label": "Half the biggest"
+                  }
+                ]
+              },
+              "answer": {
+                "choice": "zero"
+              },
+              "outcome": "Zero.",
+              "explanation": "The force is B I L sin θ. When the current runs along the field, θ = 0 and there is no force."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "laws": [
+    {
+      "id": "field",
+      "name": "Magnetic field lines",
+      "summary": "Lines run from North to South outside a magnet and never cross."
+    },
+    {
+      "id": "oersted",
+      "name": "Oersted",
+      "summary": "A current makes a magnetic field."
+    },
+    {
+      "id": "fleming",
+      "name": "Fleming's left-hand rule",
+      "formula": "F = B I L",
+      "summary": "The force on a current in a field."
+    },
+    {
+      "id": "faraday",
+      "name": "Faraday",
+      "formula": "emf = −N ΔΦ/Δt",
+      "summary": "A changing field induces a current."
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasCompassTool": true,
+    "hasCurrentSwitch": true,
+    "hasGalvanometer": true
+  }
+}

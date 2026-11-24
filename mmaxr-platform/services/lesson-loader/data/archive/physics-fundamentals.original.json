@@ -1,0 +1,120 @@
+{
+  "lessonId": "physics-fundamentals",
+  "type": "physics_fundamentals_sandbox",
+  "title": "Fundamental Physics & Mechanics Lab",
+  "modelUrl": "http://localhost:3007/assets/models/physics_lab_bench.glb",
+  "config": {
+    "enableScenarioSwitcher": true,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logLatency": true,
+      "logMeasurementValues": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "kinematics_vectors",
+      "tabName": "Kinematics & Vectors",
+      "setup": "A car on a circular track with an odometer (distance) and a displacement arrow.",
+      "tasks": [
+        {
+          "id": "kin_1",
+          "prompt": "Drive the car in a complete circle back to the start. Predict what the Displacement arrow will show.",
+          "predictionOptions": [
+            "Displacement will equal the distance travelled",
+            "Displacement will be zero",
+            "Displacement will be half the distance"
+          ],
+          "expectedOutcome": "Displacement is zero because the start and end points are the same.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Distance is a scalar (total path length). Displacement is a vector (change in position). If you return to the start, displacement is zero."
+        }
+      ]
+    },
+    {
+      "id": "dynamics_impulse",
+      "tabName": "Dynamics & Impulse",
+      "setup": "An egg, a concrete floor, and a foam cushion.",
+      "tasks": [
+        {
+          "id": "dyn_1",
+          "prompt": "Drop the egg on the concrete. Then drop it on the foam. Predict which one will break.",
+          "predictionOptions": [
+            "The egg on concrete will break",
+            "The egg on foam will break",
+            "Neither will break"
+          ],
+          "expectedOutcome": "The egg on concrete breaks. The foam increases the time of impact, reducing the force.",
+          "isAnomaly": false
+        },
+        {
+          "id": "dyn_2_anomaly",
+          "prompt": "Both the concrete and foam bring the egg to a stop (change in momentum is the same). Why does the foam protect the egg?",
+          "predictionOptions": [
+            "The foam reduces the egg's momentum",
+            "The foam increases the time of impact, reducing the force",
+            "The foam cancels gravity"
+          ],
+          "expectedOutcome": "The foam increases the time of impact, reducing the force.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Impulse = Force × Time = Change in Momentum. Since the momentum change is fixed, increasing the time (via foam) decreases the force, keeping the egg intact."
+        }
+      ]
+    },
+    {
+      "id": "work_energy",
+      "tabName": "Work & Energy",
+      "setup": "A pendulum, a motorized pulley, and a generator.",
+      "tasks": [
+        {
+          "id": "energy_1",
+          "prompt": "Pull the pendulum back (giving it Potential Energy) and release it. Predict what happens to the energy at the lowest point of the swing.",
+          "predictionOptions": [
+            "Potential energy is maximum",
+            "Kinetic energy is maximum",
+            "Energy is zero"
+          ],
+          "expectedOutcome": "Kinetic energy is maximum at the lowest point.",
+          "isAnomaly": false
+        },
+        {
+          "id": "energy_2_anomaly",
+          "prompt": "Attach a generator to the pendulum. Predict what will happen to the swing over time.",
+          "predictionOptions": [
+            "It will swing forever",
+            "It will stop swinging because the energy is lost",
+            "It will stop swinging because the energy is converted to electricity"
+          ],
+          "expectedOutcome": "It will stop swinging because the energy is converted to electricity.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Energy is never destroyed, only converted (Law of Conservation of Energy). The mechanical energy of the pendulum is converted into electrical energy by the generator."
+        }
+      ]
+    },
+    {
+      "id": "fundamental_quantities",
+      "tabName": "Measurements",
+      "setup": "A workstation with a digital balance, stopwatch, graduated cylinder, thermometer, and ammeter.",
+      "tasks": [
+        {
+          "id": "measure_1",
+          "prompt": "Measure the mass of the block on Earth, then on the Moon (simulated). Predict what changes.",
+          "predictionOptions": [
+            "Mass changes, Weight stays the same",
+            "Mass stays the same, Weight changes",
+            "Both stay the same"
+          ],
+          "expectedOutcome": "Mass stays the same, Weight changes.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Mass is a fundamental scalar quantity (amount of matter), measured in kg. Weight is a derived vector quantity (Force of gravity = mg), measured in Newtons. Gravity on the Moon is 1/6th of Earth, so weight changes, but mass does not."
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasMeasurementTools": true,
+    "hasPendulumSlider": true
+  }
+}

@@ -1,18 +1,41 @@
 import express from 'express';
 import cors from 'cors';
 import { Pool } from 'pg';
+import jwt from 'jsonwebtoken';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { XapiVerb, SensorDataRow } from '@mmaxr/schema';
+import { analyze, parseSensorCsv, type EventRow, type SensorData, type TruthInfo } from './scoring';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Only signed-in instructors (tokens issued by user-auth) may read students, sessions and analyses.
+// Set REQUIRE_INSTRUCTOR_AUTH=false to run local scripts without a token.
+const JWT_SECRET = process.env.JWT_SECRET || 'mmaxr-dev-secret-change-me';
+const REQUIRE_AUTH = process.env.REQUIRE_INSTRUCTOR_AUTH !== 'false';
+
+function requireInstructor(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!REQUIRE_AUTH) return next();
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing bearer token' });
+  try {
+    const claims = jwt.verify(header.slice(7), JWT_SECRET) as jwt.JwtPayload;
+    if (claims.role !== 'instructor') return res.status(403).json({ error: 'Instructor access only' });
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://admin:password@localhost:5432/mmaxr',
 });
 
-// Initialize S3 Client to read from MinIO
+// The xapi-emitter owns this table; make sure the device column exists even if we start first.
+pool
+  .query(`ALTER TABLE IF EXISTS xapi_events ADD COLUMN IF NOT EXISTS device VARCHAR(8)`)
+  .catch((err) => console.error('device column check failed:', err));
+
 const s3Client = new S3Client({
   region: 'us-east-1',
   endpoint: process.env.S3_ENDPOINT || 'http://localhost:9000',
@@ -23,172 +46,123 @@ const s3Client = new S3Client({
   },
 });
 
-// Helper to fetch and parse CSV from MinIO
-async function getSensorData(sessionId: string): Promise<SensorDataRow[]> {
+async function getSensorData(sessionId: string): Promise<SensorData | null> {
   try {
-    // 1. Look up the file URL in Postgres
-    const manifestRes = await pool.query(
-      `SELECT file_url FROM session_manifests WHERE session_id = $1 LIMIT 1`,
-      [sessionId]
-    );
-    
-    if (manifestRes.rows.length === 0) return []; // No CSV uploaded
-
-    // 2. Extract filename from URL and download from MinIO
-    const fileUrl = manifestRes.rows[0].file_url;
-    const filename = fileUrl.split('/').pop();
-    
-    const s3Res = await s3Client.send(new GetObjectCommand({
-      Bucket: 'mmaxr-telemetry',
-      Key: filename,
-    }));
-
-    const csvString = await s3Res.Body?.transformToString();
-    if (!csvString) return [];
-
-    // 3. Parse the CSV
-    const lines = csvString.trim().split('\n');
-    const data: SensorDataRow[] = [];
-    
-    // Skip the header (line 0) and parse rows
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(',');
-      if (cols.length >= 7) {
-        data.push({
-          timestamp: Number(cols[0]),
-          head_x: Number(cols[1]), head_y: Number(cols[2]), head_z: Number(cols[3]),
-          hand_x: Number(cols[4]), hand_y: Number(cols[5]), hand_z: Number(cols[6]),
-        });
-      }
-    }
-    return data;
+    const manifest = await pool.query(`SELECT file_url FROM session_manifests WHERE session_id = $1 ORDER BY id DESC LIMIT 1`, [sessionId]);
+    if (manifest.rows.length === 0) return null;
+    const key = String(manifest.rows[0].file_url).split('/').pop();
+    const obj = await s3Client.send(new GetObjectCommand({ Bucket: 'mmaxr-telemetry', Key: key }));
+    const csv = await obj.Body?.transformToString();
+    return csv ? parseSensorCsv(csv) : null;
   } catch (err) {
     console.error('Error fetching sensor CSV:', err);
-    return [];
+    return null;
   }
 }
 
-app.get('/analyze/:sessionId', async (req, res) => {
-  const { sessionId } = req.params;
+const LESSON_LOADER_URL = process.env.LESSON_LOADER_URL || 'http://localhost:3007';
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev';
 
+/** The hidden answers and the locked submission for a chemistry session, from the lesson service. Null if there are none. */
+async function getTruth(sessionId: string): Promise<TruthInfo | null> {
   try {
-    const result = await pool.query(
-      `SELECT verb, object_data, timestamp FROM xapi_events 
-       WHERE session_id = $1 ORDER BY timestamp ASC`,
-      [sessionId]
-    );
-    const events = result.rows;
+    const res = await fetch(`${LESSON_LOADER_URL}/internal/assignments/${encodeURIComponent(sessionId)}`, { headers: { 'x-internal-key': INTERNAL_KEY } });
+    if (!res.ok) return null;
+    const a = (await res.json()) as { kind?: string; tubes: TruthInfo['tubes']; submission: { tubes: { tube: number; conclusion: string | null; ph: number | null }[] } | null; biology?: TruthInfo['biology']; optics?: TruthInfo['optics']; motion?: TruthInfo['motion']; reasoning?: TruthInfo['reasoning'] };
+    if (a.kind === 'sound') return { tubes: [], submission: null, sound: (a as unknown as { sound?: TruthInfo['sound'] }).sound };
+    if (a.kind === 'optics') return { tubes: [], submission: null, optics: a.optics };
+    if (a.kind === 'motion') return { tubes: [], submission: null, motion: a.motion };
+    if (a.kind === 'biology') return { tubes: [], submission: null, biology: a.biology };
+    return { tubes: a.tubes ?? [], submission: a.submission ?? null, reasoning: a.reasoning ?? null };
+  } catch {
+    return null;
+  }
+}
 
-    if (events.length === 0) {
-      if (!res.headersSent) return res.status(404).json({ error: 'Session not found' });
-      return;
-    }
+const SESSION_COLUMNS = `
+  session_id,
+  MAX(student_id) AS student_id,
+  COUNT(*) AS event_count,
+  MIN(timestamp) AS started_at,
+  MAX(timestamp) AS last_update,
+  MAX(device) AS device,
+  MAX(CASE WHEN object_data->>'action' = 'enter_lab' THEN object_data->>'target' END) AS lesson_id,
+  BOOL_OR(object_data->>'action' IN ('submit_analysis')) AS completed`;
 
-    // Fetch the spatial data
-    const sensorData = await getSensorData(sessionId);
+app.get('/health', (_req, res) => res.json({ ok: true }));
 
-    let predictionsMade = 0;
-    let actionsMade = 0;
-    let anomaliesNoticed = 0;
-    
-    let totalThinkTime = 0;
-    let thinkCount = 0;
-    let totalHandMovement = 0; // Measured during think time
-
-    for (let i = 0; i < events.length; i++) {
-      const event = events[i];
-      
-      if (event.verb === XapiVerb.PREDICTED) predictionsMade++;
-      if (event.verb === XapiVerb.ACTED) actionsMade++;
-      if (event.verb === XapiVerb.NOTICED_ANOMALY) anomaliesNoticed++;
-
-      // Calculate time and movement between PREDICTED and ACTED
-      if (event.verb === XapiVerb.PREDICTED && i + 1 < events.length) {
-        const nextEvent = events[i + 1];
-        if (nextEvent.verb === XapiVerb.ACTED) {
-          const timeDiff = Number(nextEvent.timestamp) - Number(event.timestamp);
-          totalThinkTime += timeDiff;
-          thinkCount++;
-
-          // --- CSV ANALYZER: Physical Retrieval Effort ---
-          // Calculate how much the hand moved between the prediction and the action
-          if (sensorData.length > 0) {
-            const startTime = Number(event.timestamp);
-            const endTime = Number(nextEvent.timestamp);
-            const intervalData = sensorData.filter(d => d.timestamp >= startTime && d.timestamp <= endTime);
-            
-            let handDistance = 0;
-            for (let j = 1; j < intervalData.length; j++) {
-              const dx = intervalData[j].hand_x - intervalData[j-1].hand_x;
-              const dy = intervalData[j].hand_y - intervalData[j-1].hand_y;
-              const dz = intervalData[j].hand_z - intervalData[j-1].hand_z;
-              handDistance += Math.sqrt(dx*dx + dy*dy + dz*dz);
-            }
-            totalHandMovement += handDistance;
-          }
-        }
-      }
-    }
-
-    // --- RUBRIC SCORING ---
-    let predictionScore = actionsMade > 0 ? Math.min(3, Math.ceil((predictionsMade / actionsMade) * 3)) : 0;
-    let revisionScore = anomaliesNoticed > 0 ? 3 : 0;
-    
-    // Retrieval Score is now based on BOTH time and physical movement
-    const avgThinkTime = thinkCount > 0 ? totalThinkTime / thinkCount : 0;
-    const avgHandMovement = thinkCount > 0 ? totalHandMovement / thinkCount : 0;
-    
-    let retrievalScore = 1;
-    if (avgThinkTime > 2000 || avgHandMovement > 0.5) retrievalScore = 3; // Active thought or physical exploration
-    else if (avgThinkTime > 500 || avgHandMovement > 0.1) retrievalScore = 2;
-
-    if (!res.headersSent) {
-      res.json({
-        sessionId,
-        timestamp: new Date().toISOString(),
-        scores: {
-          predictionDiscipline: predictionScore,
-          retrievalEffort: retrievalScore,
-          revisionQuality: revisionScore,
-          causalCoherence: 1, // Handled by explain-back later
-          metacognitiveCalibration: 1, // Handled by anomaly time later
-          transfer: 0
-        },
-        metrics: {
-          predictionsMade,
-          actionsMade,
-          anomaliesNoticed,
-          avgThinkTimeMs: Math.round(avgThinkTime),
-          avgHandMovementMeters: Number(avgHandMovement.toFixed(2)),
-          hasSensorData: sensorData.length > 0
-        },
-        trace: events.map(e => ({ ...e, timestamp: Number(e.timestamp) }))
-      });
-    }
-
+// Recent sessions across all students.
+app.get('/sessions', requireInstructor, async (_req, res) => {
+  try {
+    const result = await pool.query(`SELECT ${SESSION_COLUMNS} FROM xapi_events GROUP BY session_id ORDER BY last_update DESC LIMIT 50`);
+    res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    if (!res.headersSent) res.status(500).json({ error: 'Analysis failed' });
+    console.error('Failed to fetch sessions', err);
+    res.status(500).json({ error: 'Failed to fetch sessions' });
   }
 });
 
-app.get('/sessions', async (req, res) => {
+// One row per student who has any activity: used to decorate the enrolment list.
+app.get('/students/summary', requireInstructor, async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT student_id,
+             COUNT(DISTINCT session_id) AS sessions,
+             COUNT(*) AS events,
+             MAX(timestamp) AS last_update,
+             BOOL_OR(device = 'web') AS used_web,
+             BOOL_OR(device = 'vr') AS used_vr
+        FROM xapi_events
+       GROUP BY student_id
+       ORDER BY last_update DESC`);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Failed to fetch student summary', err);
+    res.status(500).json({ error: 'Failed to fetch students' });
+  }
+});
+
+app.get('/students/:studentId/sessions', requireInstructor, async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT ${SESSION_COLUMNS} FROM xapi_events WHERE student_id = $1 GROUP BY session_id ORDER BY last_update DESC`, [req.params.studentId]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Failed to fetch student sessions', err);
+    res.status(500).json({ error: 'Failed to fetch sessions' });
+  }
+});
+
+app.get('/analyze/:sessionId', requireInstructor, async (req, res) => {
+  const { sessionId } = req.params;
   try {
     const result = await pool.query(
-      `SELECT session_id, COUNT(*) as event_count, MAX(timestamp) as last_update 
-       FROM xapi_events 
-       GROUP BY session_id 
-       ORDER BY last_update DESC LIMIT 10`
+      `SELECT id, verb, object_data, timestamp, device, student_id FROM xapi_events WHERE session_id = $1 ORDER BY timestamp ASC, id ASC`,
+      [sessionId],
     );
-    
-    if (!res.headersSent) res.json(result.rows);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Session not found' });
+
+    const events: EventRow[] = result.rows.map((r) => ({ id: Number(r.id), verb: r.verb, object_data: r.object_data, timestamp: Number(r.timestamp), device: r.device }));
+    const [sensor, truth] = await Promise.all([getSensorData(sessionId), getTruth(sessionId)]);
+    const report = analyze(events, sensor, truth);
+
+    // Legacy flat score map, kept for scripts that read `scores.<dimension>`.
+    const scores = Object.fromEntries(report.dimensions.map((d) => [d.key, d.score ?? 0]));
+
+    res.json({
+      sessionId,
+      studentId: result.rows[0].student_id,
+      timestamp: new Date().toISOString(),
+      ...report,
+      scores,
+      trace: events,
+    });
   } catch (err) {
-    console.error('Failed to fetch sessions', err);
-    if (!res.headersSent) res.status(500).json({ error: 'Failed to fetch sessions' });
+    console.error(err);
+    res.status(500).json({ error: 'Analysis failed' });
   }
 });
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
-  console.log(`📊 Rubric Engine with CSV Analyzer running on http://localhost:${PORT}`);
+  console.log(`📊 Rubric Engine running on http://localhost:${PORT}`);
 });

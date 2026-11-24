@@ -1,0 +1,114 @@
+{
+  "lessonId": "metals-101",
+  "type": "chemistry_metals",
+  "title": "Properties of Metals & Non-Metals",
+  "modelUrl": "http://localhost:3007/assets/models/chemistry_lab_bench.glb",
+   "assets": {
+    "testTubeRack": "http://localhost:3007/assets/models/test-tube-rack-2.glb",
+    "hammer": "http://localhost:3007/assets/models/claw-hammer.glb",
+    "bunsenBurner": "http://localhost:3007/assets/models/bunsen-burner.glb",
+    "ironSample": "http://localhost:3007/assets/models/iron-ore-rock.glb"
+  },
+  "config": {
+    "totalSamples": 5,
+    "requirePredictionBeforeTest": true
+  },
+  "tools": [
+    { "id": "hammer", "name": "Hammer", "testType": "malleability" },
+    { "id": "circuit", "name": "Conductivity Tester", "testType": "conductivity" },
+    { "id": "burner", "name": "Burner & Litmus", "testType": "oxide_nature" }
+  ],
+  "materialPool": [
+    {
+      "id": "iron",
+      "name": "Iron",
+      "formula": "Fe",
+      "trueType": "metal",
+      "visuals": { "color": "grey", "state": "solid", "isLustrous": true },
+      "properties": {
+        "isMalleable": true,
+        "isConductive": true,
+        "isSonorous": true,
+        "oxideNature": "basic"
+      }
+    },
+    {
+      "id": "sulfur",
+      "name": "Sulfur",
+      "formula": "S",
+      "trueType": "non-metal",
+      "visuals": { "color": "yellow", "state": "solid", "isLustrous": false },
+      "properties": {
+        "isMalleable": false,
+        "isConductive": false,
+        "isSonorous": false,
+        "oxideNature": "acidic"
+      }
+    },
+    {
+      "id": "graphite",
+      "name": "Graphite",
+      "formula": "C",
+      "trueType": "non-metal",
+      "anomalyFlag": true,
+      "visuals": { "color": "black", "state": "solid", "isLustrous": false },
+      "properties": {
+        "isMalleable": false,
+        "isConductive": true,
+        "isSonorous": false,
+        "oxideNature": "acidic"
+      }
+    },
+    {
+      "id": "iodine",
+      "name": "Iodine",
+      "formula": "I2",
+      "trueType": "non-metal",
+      "anomalyFlag": true,
+      "visuals": { "color": "purple-black", "state": "solid", "isLustrous": true },
+      "properties": {
+        "isMalleable": false,
+        "isConductive": false,
+        "isSonorous": false,
+        "oxideNature": "acidic"
+      }
+    },
+    {
+      "id": "mercury",
+      "name": "Mercury",
+      "formula": "Hg",
+      "trueType": "metal",
+      "anomalyFlag": true,
+      "visuals": { "color": "silver", "state": "liquid", "isLustrous": true },
+      "properties": {
+        "isMalleable": false,
+        "isConductive": true,
+        "isSonorous": false,
+        "oxideNature": "basic"
+      }
+    },
+    {
+      "id": "magnesium",
+      "name": "Magnesium",
+      "formula": "Mg",
+      "trueType": "metal",
+      "visuals": { "color": "silver-grey", "state": "solid", "isLustrous": true },
+      "properties": {
+        "isMalleable": true,
+        "isConductive": true,
+        "isSonorous": true,
+        "oxideNature": "basic"
+      }
+    }
+  ],
+  "uiSchema": {
+    "tableColumns": [
+      "Sample",
+      "Lustre (Shiny?)",
+      "Malleability (Hammer)",
+      "Conductivity (Circuit)",
+      "Oxide Nature (Burner)",
+      "Conclusion (Metal/Non-Metal)"
+    ]
+  }
+}

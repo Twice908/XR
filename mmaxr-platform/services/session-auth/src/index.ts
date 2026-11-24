@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import { createClient } from 'redis';
 import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'mmaxr-dev-secret-change-me';
 
 const app = express();
 app.use(cors());
@@ -17,7 +20,20 @@ redisClient.connect().then(() => console.log('✅ Connected to Redis'));
 // Endpoint to generate a new session
 app.post('/auth/session', async (req, res) => {
   try {
-    const { studentId, lessonId } = req.body; // Now accepts lessonId
+    let { studentId } = req.body;
+    const { lessonId, device } = req.body;
+
+    // When the caller presents a user-auth token, the pseudonymous account id is the student id.
+    // Anonymous callers (Unity prototype, test scripts) can still pass studentId directly.
+    const header = req.headers.authorization || '';
+    if (header.startsWith('Bearer ')) {
+      try {
+        const claims = jwt.verify(header.slice(7), JWT_SECRET) as jwt.JwtPayload;
+        if (claims.sub) studentId = String(claims.sub);
+      } catch {
+        return res.status(401).json({ error: 'Invalid or expired user token' });
+      }
+    }
 
     if (!studentId) {
       if (!res.headersSent) return res.status(400).json({ error: 'studentId is required' });
@@ -31,13 +47,13 @@ app.post('/auth/session', async (req, res) => {
     await redisClient.setEx(
       `session:${sessionId}`, 
       86400, 
-      JSON.stringify({ studentId, lessonId: lessonId || 'physics-101', token, createdAt: Date.now() })
+      JSON.stringify({ studentId, lessonId: lessonId || 'physics-101', token, device: device === 'vr' ? 'vr' : 'web', createdAt: Date.now() })
     );
 
     console.log(`[Auth] Created session ${sessionId} for student ${studentId} (Lesson: ${lessonId || 'physics-101'})`);
 
     if (!res.headersSent) {
-      res.status(201).json({ sessionId, token, studentId, lessonId: lessonId || 'physics-101' });
+      res.status(201).json({ sessionId, token, studentId, lessonId: lessonId || 'physics-101', device: device === 'vr' ? 'vr' : 'web' });
     }
   } catch (err) {
     console.error(err);

@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-// Node 18-20 shim (uncomment if needed):
-// import { fetch, WebSocket } from 'undici'
-// globalThis.fetch = fetch
-// globalThis.WebSocket = WebSocket
 
 const RED = '\x1b[31m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m'
 const CYAN = '\x1b[36m', RESET = '\x1b[0m', DIM = '\x1b[2m'

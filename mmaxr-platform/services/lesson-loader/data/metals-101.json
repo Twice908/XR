@@ -1,0 +1,424 @@
+{
+  "lessonId": "metals-101",
+  "type": "chemistry_metals",
+  "title": "Properties of Metals & Non-Metals",
+  "subject": "Chemistry",
+  "summary": "Five unknown samples, seven tests and a limited budget. Predict every result, hunt for exceptions, and decide which samples are metals before the reveal explains why.",
+  "durationMinutes": 25,
+  "difficulty": "Intermediate",
+  "modelUrl": "http://localhost:3007/assets/models/chemistry_lab_bench.glb",
+  "assets": {
+    "hammer": "http://localhost:3007/assets/models/claw-hammer.glb",
+    "bunsenBurner": "http://localhost:3007/assets/models/bunsen-burner.glb"
+  },
+  "config": {
+    "totalSamples": 5,
+    "testBudget": 16,
+    "minTestsPerSample": 2,
+    "minAnomalies": 2,
+    "requirePredictionBeforeTest": true
+  },
+  "tools": [
+    {
+      "id": "hammer",
+      "name": "Hammer",
+      "property": "Malleability",
+      "group": "Physical",
+      "question": "Hit it with the hammer. What happens?",
+      "outcomes": [
+        {
+          "id": "flattens",
+          "label": "Flattens into a sheet"
+        },
+        {
+          "id": "shatters",
+          "label": "Shatters or crumbles"
+        },
+        {
+          "id": "not_possible",
+          "label": "Cannot be hammered (liquid)"
+        }
+      ]
+    },
+    {
+      "id": "wire",
+      "name": "Wire drawer",
+      "property": "Ductility",
+      "group": "Physical",
+      "question": "Pull it through the die to draw it into a wire. What happens?",
+      "outcomes": [
+        {
+          "id": "draws",
+          "label": "Draws out into a wire"
+        },
+        {
+          "id": "snaps",
+          "label": "Snaps or breaks"
+        },
+        {
+          "id": "not_possible",
+          "label": "Cannot be drawn (liquid)"
+        }
+      ]
+    },
+    {
+      "id": "tap",
+      "name": "Tap rod",
+      "property": "Sonority",
+      "group": "Physical",
+      "question": "Tap it with the rod. What do you hear?",
+      "outcomes": [
+        {
+          "id": "rings",
+          "label": "A ringing sound"
+        },
+        {
+          "id": "thud",
+          "label": "A dull thud"
+        },
+        {
+          "id": "not_possible",
+          "label": "Nothing to tap (liquid)"
+        }
+      ]
+    },
+    {
+      "id": "circuit",
+      "name": "Circuit tester",
+      "property": "Electrical conductivity",
+      "group": "Physical",
+      "question": "Touch the probes to it. Does the bulb light?",
+      "outcomes": [
+        {
+          "id": "glows",
+          "label": "The bulb lights up"
+        },
+        {
+          "id": "dark",
+          "label": "The bulb stays dark"
+        }
+      ]
+    },
+    {
+      "id": "heat",
+      "name": "Heat strip",
+      "property": "Thermal conductivity",
+      "group": "Physical",
+      "question": "Heat one end with a wax bead on the other. What does the wax do?",
+      "outcomes": [
+        {
+          "id": "conducts_well",
+          "label": "The wax melts and falls quickly"
+        },
+        {
+          "id": "conducts_poorly",
+          "label": "The wax barely changes"
+        }
+      ]
+    },
+    {
+      "id": "oxygen",
+      "name": "Burn in air",
+      "property": "Reaction with oxygen",
+      "group": "Chemical",
+      "question": "Heat it in the flame. How does it react with the oxygen in air?",
+      "outcomes": [
+        {
+          "id": "burns_bright",
+          "label": "Burns with a bright flame"
+        },
+        {
+          "id": "burns",
+          "label": "Burns with a steady flame"
+        },
+        {
+          "id": "tarnishes",
+          "label": "Only glows and darkens on the surface"
+        },
+        {
+          "id": "no_reaction",
+          "label": "No visible reaction"
+        }
+      ]
+    },
+    {
+      "id": "water",
+      "name": "Water trough",
+      "property": "Reaction with water",
+      "group": "Chemical",
+      "question": "Drop it into water. What happens?",
+      "outcomes": [
+        {
+          "id": "violent",
+          "label": "Fizzes violently"
+        },
+        {
+          "id": "slow_bubbles",
+          "label": "A few slow bubbles"
+        },
+        {
+          "id": "none",
+          "label": "Nothing happens"
+        }
+      ]
+    }
+  ],
+  "materialPool": [
+    {
+      "id": "iron",
+      "name": "Iron",
+      "formula": "Fe",
+      "trueType": "metal",
+      "appearance": {
+        "color": "grey",
+        "colorHex": "#8d9096",
+        "state": "solid",
+        "lustre": "shiny",
+        "texture": "chunk"
+      },
+      "results": {
+        "hammer": "flattens",
+        "wire": "draws",
+        "tap": "rings",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "tarnishes",
+        "water": "none"
+      },
+      "oxideLitmus": "no_change",
+      "why": "A typical metal: malleable, ductile, sonorous and a good conductor. Its oxide is insoluble, so litmus does not change."
+    },
+    {
+      "id": "copper",
+      "name": "Copper",
+      "formula": "Cu",
+      "trueType": "metal",
+      "appearance": {
+        "color": "orange-brown",
+        "colorHex": "#b87333",
+        "state": "solid",
+        "lustre": "shiny",
+        "texture": "chunk"
+      },
+      "results": {
+        "hammer": "flattens",
+        "wire": "draws",
+        "tap": "rings",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "tarnishes",
+        "water": "none"
+      },
+      "oxideLitmus": "no_change",
+      "why": "One of the best conductors of heat and electricity, which is why wires and pans are made of it."
+    },
+    {
+      "id": "aluminium",
+      "name": "Aluminium",
+      "formula": "Al",
+      "trueType": "metal",
+      "appearance": {
+        "color": "silver",
+        "colorHex": "#c9ced6",
+        "state": "solid",
+        "lustre": "shiny",
+        "texture": "chunk"
+      },
+      "results": {
+        "hammer": "flattens",
+        "wire": "draws",
+        "tap": "rings",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "tarnishes",
+        "water": "none"
+      },
+      "oxideLitmus": "no_change",
+      "why": "Light, malleable and a good conductor. A thin oxide film forms at once and protects it from water."
+    },
+    {
+      "id": "magnesium",
+      "name": "Magnesium",
+      "formula": "Mg",
+      "trueType": "metal",
+      "appearance": {
+        "color": "silver-grey",
+        "colorHex": "#b9bec6",
+        "state": "solid",
+        "lustre": "shiny",
+        "texture": "chunk"
+      },
+      "results": {
+        "hammer": "flattens",
+        "wire": "draws",
+        "tap": "rings",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "burns_bright",
+        "water": "slow_bubbles"
+      },
+      "oxideLitmus": "blue_basic",
+      "why": "Burns with a dazzling white flame. Its oxide dissolves to make a base, so litmus turns blue, and it reacts slowly with cold water."
+    },
+    {
+      "id": "sodium",
+      "name": "Sodium",
+      "formula": "Na",
+      "trueType": "metal",
+      "appearance": {
+        "color": "dull white",
+        "colorHex": "#cfd2cc",
+        "state": "solid",
+        "lustre": "dull",
+        "texture": "soft"
+      },
+      "results": {
+        "hammer": "flattens",
+        "wire": "draws",
+        "tap": "thud",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "burns_bright",
+        "water": "violent"
+      },
+      "oxideLitmus": "blue_basic",
+      "anomalyFlag": true,
+      "why": "A metal that is soft enough to cut with a knife, so it does not ring. It reacts violently with water, which is why it is kept under oil."
+    },
+    {
+      "id": "mercury",
+      "name": "Mercury",
+      "formula": "Hg",
+      "trueType": "metal",
+      "appearance": {
+        "color": "silver",
+        "colorHex": "#d4d8de",
+        "state": "liquid",
+        "lustre": "shiny",
+        "texture": "liquid"
+      },
+      "results": {
+        "hammer": "not_possible",
+        "wire": "not_possible",
+        "tap": "not_possible",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "tarnishes",
+        "water": "none"
+      },
+      "oxideLitmus": "no_change",
+      "anomalyFlag": true,
+      "why": "The one metal that is liquid at room temperature, so it cannot be hammered or drawn, yet it still conducts electricity."
+    },
+    {
+      "id": "sulfur",
+      "name": "Sulfur",
+      "formula": "S",
+      "trueType": "non-metal",
+      "appearance": {
+        "color": "yellow",
+        "colorHex": "#e6d23a",
+        "state": "solid",
+        "lustre": "dull",
+        "texture": "powder"
+      },
+      "results": {
+        "hammer": "shatters",
+        "wire": "snaps",
+        "tap": "thud",
+        "circuit": "dark",
+        "heat": "conducts_poorly",
+        "oxygen": "burns",
+        "water": "none"
+      },
+      "oxideLitmus": "red_acidic",
+      "why": "A typical non-metal: brittle, dull and a poor conductor. It burns with a blue flame to make an acidic oxide."
+    },
+    {
+      "id": "carbon",
+      "name": "Carbon (charcoal)",
+      "formula": "C",
+      "trueType": "non-metal",
+      "appearance": {
+        "color": "black",
+        "colorHex": "#26262a",
+        "state": "solid",
+        "lustre": "dull",
+        "texture": "chunk"
+      },
+      "results": {
+        "hammer": "shatters",
+        "wire": "snaps",
+        "tap": "thud",
+        "circuit": "dark",
+        "heat": "conducts_poorly",
+        "oxygen": "burns",
+        "water": "none"
+      },
+      "oxideLitmus": "red_acidic",
+      "why": "Brittle, dull and a poor conductor. Burning gives carbon dioxide, an acidic oxide."
+    },
+    {
+      "id": "graphite",
+      "name": "Graphite",
+      "formula": "C",
+      "trueType": "non-metal",
+      "appearance": {
+        "color": "dark grey",
+        "colorHex": "#3a3d44",
+        "state": "solid",
+        "lustre": "dull",
+        "texture": "flaky"
+      },
+      "results": {
+        "hammer": "shatters",
+        "wire": "snaps",
+        "tap": "thud",
+        "circuit": "glows",
+        "heat": "conducts_well",
+        "oxygen": "no_reaction",
+        "water": "none"
+      },
+      "oxideLitmus": "none",
+      "anomalyFlag": true,
+      "why": "A non-metal that conducts electricity and heat, because its carbon atoms form sheets with free-moving electrons. Conducting does not make something a metal."
+    },
+    {
+      "id": "iodine",
+      "name": "Iodine",
+      "formula": "I2",
+      "trueType": "non-metal",
+      "appearance": {
+        "color": "purple-black",
+        "colorHex": "#4a2f6b",
+        "state": "solid",
+        "lustre": "shiny",
+        "texture": "crystal"
+      },
+      "results": {
+        "hammer": "shatters",
+        "wire": "snaps",
+        "tap": "thud",
+        "circuit": "dark",
+        "heat": "conducts_poorly",
+        "oxygen": "no_reaction",
+        "water": "none"
+      },
+      "oxideLitmus": "none",
+      "anomalyFlag": true,
+      "why": "A non-metal that looks shiny, so lustre alone can mislead you. It is brittle and does not conduct."
+    }
+  ],
+  "uiSchema": {
+    "classifications": [
+      {
+        "id": "metal",
+        "label": "Metal"
+      },
+      {
+        "id": "non-metal",
+        "label": "Non-metal"
+      }
+    ]
+  }
+}

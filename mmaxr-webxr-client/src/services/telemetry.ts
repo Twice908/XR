@@ -1,64 +1,79 @@
 import type { TelemetryEvent, XapiVerb } from '@mmaxr/schema'
-import { CONFIG } from '../config'
+import { CONFIG, DEVICE } from '../config'
 
 interface SessionContext {
   sessionId: string
-  token: string
   studentId: string
-  lessonId: string
+  token: string
 }
 
-class TelemetryClient {
+type EventObject = TelemetryEvent['object']
+
+/**
+ * Batches xAPI events to the xapi-emitter. Raw sensor streams never go through here.
+ * Events are kept in order and retried until accepted.
+ */
+export class TelemetryClient {
   private ctx: SessionContext | null = null
   private queue: TelemetryEvent[] = []
   private flushing = false
+  private retryTimer: number | null = null
 
   configure(ctx: SessionContext) {
     this.ctx = ctx
+    this.queue = []
   }
 
-  emit(verb: XapiVerb, object: string, context: Record<string, unknown> = {}) {
-    if (!this.ctx) {
-      console.warn('[telemetry] emit before configure() — dropping', verb)
-      return
-    }
+  reset() {
+    this.ctx = null
+    this.queue = []
+    if (this.retryTimer) window.clearTimeout(this.retryTimer)
+  }
+
+  emit(verb: XapiVerb, object: EventObject): TelemetryEvent | null {
+    if (!this.ctx) return null
     const event: TelemetryEvent = {
-      // Assumes TelemetryEvent shape { sessionId, studentId, lessonId, verb, object, context, timestamp }
       sessionId: this.ctx.sessionId,
       studentId: this.ctx.studentId,
-      lessonId: this.ctx.lessonId,
-      timestamp: new Date().toISOString(),
+      timestamp: Date.now(),
+      device: DEVICE,
       verb,
       object,
-      context,
-    } as TelemetryEvent
-
+    }
     this.queue.push(event)
     void this.flush()
+    return event
+  }
+
+  /** Best-effort delivery on page close. */
+  flushBeacon() {
+    if (!this.ctx || this.queue.length === 0) return
+    const body = JSON.stringify({ events: this.queue })
+    navigator.sendBeacon(CONFIG.TELEMETRY_URL, new Blob([body], { type: 'application/json' }))
+    this.queue = []
+  }
+
+  get pending() {
+    return this.queue.length
   }
 
   private async flush() {
     if (this.flushing || this.queue.length === 0 || !this.ctx) return
     this.flushing = true
     try {
-      while (this.queue.length > 0) {
-        const batch = this.queue.splice(0, this.queue.length)
+      while (this.queue.length > 0 && this.ctx) {
+        const batch = this.queue.slice()
         const res = await fetch(CONFIG.TELEMETRY_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.ctx.token}`,
-          },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.ctx.token}` },
           body: JSON.stringify({ events: batch }),
         })
-        if (!res.ok) {
-          this.queue.unshift(...batch)
-          throw new Error(`Telemetry ${res.status}`)
-        }
+        if (!res.ok) throw new Error(`Telemetry ${res.status}`)
+        this.queue.splice(0, batch.length)
       }
     } catch (err) {
       console.warn('[telemetry] flush failed, retrying in 2s', err)
-      setTimeout(() => void this.flush(), 2000)
+      this.retryTimer = window.setTimeout(() => void this.flush(), 2000)
     } finally {
       this.flushing = false
     }

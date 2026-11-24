@@ -1,0 +1,79 @@
+{
+  "lessonId": "biology-101",
+  "type": "biology_digestive_system",
+  "title": "The Human Digestive System: A Guided Journey",
+  "modelUrl": "http://localhost:3007/assets/models/digestive-system.glb",
+  "assets": {
+    update these as per the available models from assets/models
+  },
+  "config": {
+    "isGuidedTour": true,
+    "requireAudioExplanation": true
+  },
+  "checkpoints": [
+    {
+      "id": "mouth",
+      "organName": "Mouth (Buccal Cavity)",
+      "cameraPosition": { "x": 0, "y": 1.7, "z": 0 },
+      "lookAtTarget": { "x": 0, "y": 1.5, "z": 0.5 },
+      "prompt": "You are in the Mouth. What is the role of teeth and tongue here? What digestive juice is secreted, and what enzyme does it contain?",
+      "glandsInvolved": ["Salivary Glands"],
+      "juicesInvolved": ["Saliva (Salivary Amylase)"],
+      "targetNutrient": "Carbohydrates (Starch)",
+      "revealExplanation": "Mechanical digestion begins here. Teeth chew food, and the tongue mixes it with Saliva. Saliva contains the enzyme Salivary Amylase (Ptyalin), which breaks down complex starches into simpler sugars.",
+      "expectedKeywords": ["saliva", "amylase", "chewing", "starch", "carbohydrate"]
+    },
+    {
+      "id": "stomach",
+      "organName": "Stomach",
+      "cameraPosition": { "x": 0, "y": 1.2, "z": 0.2 },
+      "lookAtTarget": { "x": 0, "y": 1.0, "z": 0.2 },
+      "prompt": "You have reached the Stomach. What digestive juices are secreted here? What is the role of Hydrochloric Acid (HCl) and Pepsin?",
+      "glandsInvolved": ["Gastric Glands"],
+      "juicesInvolved": ["Gastric Juice (HCl, Pepsin, Mucus)"],
+      "targetNutrient": "Proteins",
+      "revealExplanation": "The stomach churns food into chyme. Gastric glands secrete HCl, which creates an acidic medium to kill bacteria and activate Pepsin. Pepsin breaks down proteins into peptones. Mucus protects the stomach lining.",
+      "expectedKeywords": ["gastric juice", "hcl", "pepsin", "protein", "acidic", "mucus"]
+    },
+    {
+      "id": "liver_pancreas",
+      "organName": "Liver & Pancreas (Duodenum)",
+      "cameraPosition": { "x": 0.3, "y": 1.3, "z": 0.4 },
+      "lookAtTarget": { "x": 0.3, "y": 1.1, "z": 0.4 },
+      "prompt": "As food enters the Small Intestine (Duodenum), two major glands release juices. Name them and explain what they do (specifically regarding fats and proteins).",
+      "glandsInvolved": ["Liver", "Pancreas"],
+      "juicesInvolved": ["Bile Juice", "Pancreatic Juice (Trypsin, Lipase)"],
+      "targetNutrient": "Fats and Proteins",
+      "revealExplanation": "The Liver secretes Bile, which makes the medium alkaline and emulsifies large fat globules into smaller ones. The Pancreas secretes Pancreatic Juice, which contains Trypsin (digests proteins) and Lipase (digests fats).",
+      "expectedKeywords": ["liver", "bile", "pancreas", "pancreatic juice", "lipase", "trypsin", "fats", "emulsification"]
+    },
+    {
+      "id": "small_intestine",
+      "organName": "Small Intestine",
+      "cameraPosition": { "x": 0, "y": 1.0, "z": 0.6 },
+      "lookAtTarget": { "x": 0, "y": 0.8, "z": 0.6 },
+      "prompt": "You are now in the longest part of the alimentary canal. What is the main function of this organ? What are Villi?",
+      "glandsInvolved": ["Intestinal Glands"],
+      "juicesInvolved": ["Intestinal Juice (Sucrase, Maltase, Peptidase)"],
+      "targetNutrient": "All digested nutrients",
+      "revealExplanation": "This is the site of complete digestion and absorption. Intestinal juice completes the breakdown of carbohydrates and proteins. The inner wall has finger-like projections called Villi, which have a rich blood supply to absorb nutrients into the bloodstream.",
+      "expectedKeywords": ["digestion", "absorption", "villi", "blood supply", "intestinal juice"]
+    },
+    {
+      "id": "large_intestine",
+      "organName": "Large Intestine & Anus",
+      "cameraPosition": { "x": -0.3, "y": 0.8, "z": 0.8 },
+      "lookAtTarget": { "x": -0.3, "y": 0.6, "z": 0.8 },
+      "prompt": "Your journey is almost over. What happens in the Large Intestine? What is the final step of the digestive process?",
+      "glandsInvolved": [],
+      "juicesInvolved": [],
+      "targetNutrient": "Water",
+      "revealExplanation": "The Large Intestine absorbs excess water and electrolytes from the undigested food, turning it into solid waste (faeces). This waste is stored in the rectum and expelled through the anus via Egestion.",
+      "expectedKeywords": ["water absorption", "faeces", "rectum", "egestion", "anus"]
+    }
+  ],
+  "uiSchema": {
+    "hasAudioRecordButton": true,
+    "show3DHighlightOnReveal": true
+  }
+}

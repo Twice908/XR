@@ -1,0 +1,73 @@
+{
+  "lessonId": "physics-magnetism",
+  "type": "physics_electromagnetism",
+  "title": "Magnetism & Electromagnetism Lab",
+  "modelUrl": "http://localhost:3007/assets/models/magnetism_lab_bench.glb",
+  "config": {
+    "enableScenarioSwitcher": true
+  },
+  "scenarios": [
+    {
+      "id": "magnets_fields",
+      "tabName": "Magnets & Fields",
+      "setup": "A bar magnet, a horseshoe magnet, and a draggable compass.",
+      "tasks": [
+        {
+          "id": "mag_1",
+          "prompt": "Move the compass around the bar magnet. Predict the direction the North pole of the compass will point.",
+          "expectedOutcome": "It points along the magnetic field lines, away from the magnet's North pole and towards its South pole."
+        },
+        {
+          "id": "mag_2_anomaly",
+          "prompt": "Can you find a point where two magnetic field lines cross each other?",
+          "expectedOutcome": "No, field lines never intersect.",
+          "isAnomaly": true,
+          "explanation": "If field lines crossed, a compass at that point would point in two directions at once, which is impossible. The field has only one direction at any point."
+        }
+      ]
+    },
+    {
+      "id": "electromagnetism",
+      "tabName": "Electromagnetism",
+      "setup": "A battery, a straight wire, a compass, an iron nail, and copper wire for winding.",
+      "tasks": [
+        {
+          "id": "em_1",
+          "prompt": "Place the compass under the straight wire. Switch on the current. Predict what happens to the compass needle.",
+          "expectedOutcome": "The needle deflects, showing a magnetic field is created by the current."
+        },
+        {
+          "id": "em_2_anomaly",
+          "prompt": "Wrap the wire around the iron nail to make an electromagnet. Switch on the current and pick up paper clips. Now switch off the current. Predict what happens to the paper clips.",
+          "expectedOutcome": "They all fall off instantly.",
+          "isAnomaly": true,
+          "explanation": "An electromagnet is only magnetic while current flows. Unlike a permanent magnet, its magnetism can be switched on and off."
+        }
+      ]
+    },
+    {
+      "id": "force_induction",
+      "tabName": "Force & Induction",
+      "setup": "A current-carrying rod between two magnet poles, and a separate coil with a galvanometer.",
+      "tasks": [
+        {
+          "id": "force_1",
+          "prompt": "Use Fleming's Left-Hand Rule. If the current flows upwards and the magnetic field points to the right, in which direction will the rod move?",
+          "expectedOutcome": "The rod moves out of the screen (towards you)."
+        },
+        {
+          "id": "induction_1",
+          "prompt": "Move the magnet quickly into the coil. Predict what the galvanometer needle will do.",
+          "expectedOutcome": "The needle deflects, showing an induced current.",
+          "explanation": "A changing magnetic field through a coil induces a voltage (Electromagnetic Induction)."
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasCompassTool": true,
+    "hasCurrentSwitch": true,
+    "hasGalvanometer": true
+  }
+}

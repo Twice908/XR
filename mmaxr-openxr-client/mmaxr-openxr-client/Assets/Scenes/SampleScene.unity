@@ -947,6 +947,7 @@ GameObject:
   - component: {fileID: 460102448}
   - component: {fileID: 460102447}
   - component: {fileID: 460102450}
+  - component: {fileID: 460102451}
   m_Layer: 0
   m_Name: LabManager
   m_TagString: Untagged
@@ -966,7 +967,8 @@ Transform:
   m_LocalPosition: {x: 0.56585, y: 0.39609, z: 0.56585}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1956290723}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &460102447
@@ -1012,11 +1014,13 @@ MonoBehaviour:
   simulation: {fileID: 0}
   sensorLogger: {fileID: 0}
   modelRoot: {fileID: 0}
+  chemistryUI: {fileID: 460102451}
+  uiCanvasRoot: {fileID: 1956290723}
   studentId: student_99
-  lessonId: physics-101
-  activeLessonUrl: http://localhost:3007/lessons/active
-  autoBootOnStart: 0
+  lessonId: chemistry-101
+  activeLessonUrl: http://localhost:3007/lessons/active?type=chemistry
   lessonTimeoutSeconds: 15
+  autoBootOnStart: 1
 --- !u!114 &460102450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1035,6 +1039,21 @@ MonoBehaviour:
   sampleHz: 30
   uploadBaseUrl: http://localhost:3005/upload
   uploadTimeoutSeconds: 30
+--- !u!114 &460102451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460102445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a63c236005fc4f06a71ef35de6a8936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MMAXR.UI.ChemistryTableUI
+  headerBgColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.9}
+  rowBgColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.8}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &497645517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2058,6 +2077,7 @@ RectTransform:
   - {fileID: 1823980023}
   - {fileID: 497645518}
   - {fileID: 1892465976}
+  - {fileID: 1455142311}
   m_Father: {fileID: 1956290723}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
@@ -2150,6 +2170,57 @@ MonoBehaviour:
   chatInput: {fileID: 497645519}
   sendButton: {fileID: 1892465977}
   chatHistoryText: {fileID: 368241240}
+--- !u!1 &1455142310
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1455142311}
+  - component: {fileID: 1455142312}
+  m_Layer: 5
+  m_Name: AIChatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1455142311
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455142310}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1342293903}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1455142312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455142310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e6164fc265f4403ba08f60ce0f71164, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MMAXR.UI.AIChatManager
+  inputField: {fileID: 497645519}
+  chatLogDisplay: {fileID: 368241240}
+  chatPanel: {fileID: 1823980022}
 --- !u!1 &1651464781
 GameObject:
   m_ObjectHideFlags: 0
@@ -2913,7 +2984,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1342293903}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 460102446}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3074,7 +3145,6 @@ SceneRoots:
   - {fileID: 1958940823}
   - {fileID: 460102446}
   - {fileID: 416989018}
-  - {fileID: 1956290723}
   - {fileID: 207660088}
   - {fileID: 1452644704}
   - {fileID: 215935118}

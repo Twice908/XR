@@ -1,0 +1,102 @@
+{
+  "lessonId": "physics-archimedes",
+  "type": "physics_buoyancy",
+  "title": "Archimedes' Principle & Buoyancy Lab",
+  "modelUrl": "http://localhost:3007/assets/models/buoyancy_lab_bench.glb",
+  "config": {
+    "enableScenarioSwitcher": true,
+    "telemetryRules": {
+      "requirePredictionBeforeAction": true,
+      "logLatency": true,
+      "logMeasurementValues": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "displacement",
+      "tabName": "Displacement",
+      "setup": "An overflow can filled to the brim, a small heavy iron cube, and a large light wooden cube.",
+      "tasks": [
+        {
+          "id": "disp_1_anomaly",
+          "prompt": "Place both the iron cube and the wooden cube into the water. Predict which one will displace more water.",
+          "predictionOptions": [
+            "The heavy iron cube will displace more water",
+            "The large wooden cube will displace more water",
+            "They will displace the same amount"
+          ],
+          "expectedOutcome": "The large wooden cube displaces more water.",
+          "isAnomaly": true,
+          "anomalyExplanation": "The volume of water displaced depends on the volume of the object submerged, not its weight. The wooden cube is larger, so it pushes more water out of the way."
+        }
+      ]
+    },
+    {
+      "id": "buoyant_force",
+      "tabName": "Buoyant Force",
+      "setup": "A spring scale, a beaker of water, an iron block, and an aluminum block of the exact same size.",
+      "tasks": [
+        {
+          "id": "force_1",
+          "prompt": "Hang the iron block from the scale (in air) and note the weight. Lower it into the water. Predict what will happen to the scale reading.",
+          "predictionOptions": [
+            "The reading will increase",
+            "The reading will decrease",
+            "The reading will stay the same"
+          ],
+          "expectedOutcome": "The reading decreases. The water exerts an upward buoyant force, making the object seem lighter.",
+          "isAnomaly": false
+        },
+        {
+          "id": "force_2_anomaly",
+          "prompt": "The iron and aluminum blocks have the same volume. Submerge both of them. Predict which one experiences a greater loss in weight (buoyant force).",
+          "predictionOptions": [
+            "The heavier iron block loses more weight",
+            "The lighter aluminum block loses more weight",
+            "They both lose the exact same amount of weight"
+          ],
+          "expectedOutcome": "They both lose the exact same amount of weight.",
+          "isAnomaly": true,
+          "anomalyExplanation": "Archimedes' Principle states that the buoyant force equals the weight of the fluid displaced. Since both blocks have the same volume, they displace the same amount of water, regardless of their actual mass."
+        }
+      ]
+    },
+    {
+      "id": "floatation",
+      "tabName": "Floatation",
+      "setup": "A tank of water and a moldable lump of clay.",
+      "tasks": [
+        {
+          "id": "float_1",
+          "prompt": "Drop the solid lump of clay into the water. Predict what will happen.",
+          "predictionOptions": [
+            "It will float",
+            "It will sink",
+            "It will stay suspended in the middle"
+          ],
+          "expectedOutcome": "It will sink. The density of solid clay is greater than the density of water.",
+          "isAnomaly": false
+        },
+        {
+          "id": "float_2_anomaly",
+          "prompt": "Now mold the exact same amount of clay into the shape of a boat. Drop it in. Predict what will happen.",
+          "predictionOptions": [
+            "It will sink",
+            "It will float",
+            "It will dissolve"
+          ],
+          "expectedOutcome": "It will float.",
+          "isAnomaly": true,
+          "anomalyExplanation": "By shaping the clay into a boat, you increased its volume without adding mass. This lowers its overall density (Density = Mass / Volume) to less than that of water, allowing it to float."
+        }
+      ]
+    }
+  ],
+  "uiSchema": {
+    "hasTabs": true,
+    "hasPredictionModal": true,
+    "hasSpringScaleReadout": true,
+    "hasOverflowCan": true,
+    "hasClaySculptingTool": true
+  }
+}

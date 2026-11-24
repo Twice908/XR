@@ -1,35 +1,83 @@
-import type { RubricDimension } from '@mmaxr/schema'
+export type Role = 'student' | 'instructor'
+export type Device = 'web' | 'vr' | 'unknown'
 
-export type RubricScores = Record<RubricDimension, number>
+export interface AuthUser {
+  id: string
+  username: string
+  email: string | null
+  role: Role
+  createdAt: string
+}
+
+/** From user-auth GET /students. */
+export interface Student {
+  id: string
+  username: string
+  createdAt: string
+  lastLoginAt: string | null
+}
+
+/** From rubric-engine GET /students/summary. */
+export interface StudentActivity {
+  student_id: string
+  sessions: string | number
+  events: string | number
+  last_update: string | number
+  used_web: boolean | null
+  used_vr: boolean | null
+}
 
 export interface SessionSummary {
   session_id: string
-  /** Fields the backend actually returns from GET /sessions */
-  event_count?: string | number
-  last_update?: string | number
-  /** Optional enrichment fields — present only when backend includes them */
-  studentId?: string
-  lessonId?: string
-  status?: 'active' | 'completed' | 'abandoned'
-  startedAt?: string
-  endedAt?: string
+  student_id: string
+  event_count: string | number
+  started_at: string | number
+  last_update: string | number
+  device: 'web' | 'vr' | null
+  lesson_id: string | null
+  completed: boolean | null
 }
 
 export interface TraceEvent {
-  id?: string
-  timestamp: string
-  dimension?: RubricDimension | null
-  verb?: string
-  action?: string
-  object?: string
-  detail?: string
-  context?: Record<string, unknown>
+  id: number
+  verb: string
+  timestamp: number
+  device?: string | null
+  object_data: {
+    action?: string
+    target?: string
+    value?: string | number
+    data?: Record<string, unknown>
+  } | null
+}
+
+export interface DimensionResult {
+  key: string
+  label: string
+  score: number | null
+  max: 3
+  basis: string
+  evidence: number[]
+  measures: Record<string, number | string | null>
+}
+
+export interface StatItem {
+  label: string
+  value: string
+  hint: string
 }
 
 export interface SessionDetail {
   sessionId: string
+  studentId: string
   timestamp: string
-  scores: RubricScores
-  metrics: Record<string, unknown>
+  rubricVersion: string
+  lessonType: 'chemistry_indicators' | 'physics_bohr' | 'unknown'
+  device: Device
+  complete: boolean
+  dimensions: DimensionResult[]
+  overall: { points: number; max: number; percent: number | null }
+  deviceStats: { kind: Device; items: StatItem[] }
+  metrics: Record<string, number | boolean | string | null>
   trace: TraceEvent[]
 }

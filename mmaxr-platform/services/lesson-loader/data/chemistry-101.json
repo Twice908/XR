@@ -1,0 +1,220 @@
+{
+  "lessonId": "chemistry-101",
+  "type": "chemistry_indicators",
+  "title": "Acids, Bases & Natural Indicators Lab",
+  "subject": "Chemistry",
+  "summary": "Five unknown solutions, three natural or synthetic indicators. Predict each colour, test, and work out which are acids, bases or neutral before pH paper gives the final number.",
+  "durationMinutes": 25,
+  "difficulty": "Intermediate",
+  "modelUrl": "http://localhost:3007/assets/models/chemistry_lab_bench.glb",
+  "assets": {
+    "testTube": "http://localhost:3007/assets/models/test_tube.glb",
+    "flask": "http://localhost:3007/assets/models/erlenmeyer_flask.glb",
+    "dropper": "http://localhost:3007/assets/models/pipette_set.glb",
+    "testTubeRack": "http://localhost:3007/assets/models/test_tube_rack.glb"
+  },
+  "config": {
+    "totalTestTubes": 5,
+    "requiredIndicatorsToSelect": 3
+  },
+  "indicators": [
+    {
+      "id": "litmus",
+      "name": "Litmus Paper",
+      "source": "Natural (Lichen)",
+      "colors": { "neutral": "Purple", "acid": "Red", "base": "Blue" }
+    },
+    {
+      "id": "turmeric",
+      "name": "Turmeric",
+      "source": "Natural (Plant Root)",
+      "colors": {
+        "neutral": "Yellow",
+        "acid": "Yellow",
+        "base": "Reddish-Brown"
+      }
+    },
+    {
+      "id": "red_cabbage",
+      "name": "Red Cabbage",
+      "source": "Natural (Leaves)",
+      "colors": {
+        "neutral": "Purple",
+        "acid": "Red / Pink",
+        "base": "Green / Yellow"
+      }
+    },
+    {
+      "id": "hydrangea",
+      "name": "Hydrangea",
+      "source": "Natural (Flower Petals)",
+      "colors": { "neutral": "Blue", "acid": "Blue", "base": "Pink" }
+    },
+    {
+      "id": "petunia",
+      "name": "Petunia",
+      "source": "Natural (Flower Petals)",
+      "colors": {
+        "neutral": "Reddish-Purple",
+        "acid": "Reddish-Purple",
+        "base": "Violet"
+      }
+    },
+    {
+      "id": "geranium",
+      "name": "Geranium",
+      "source": "Natural (Flower Petals)",
+      "colors": {
+        "neutral": "Orange-Red",
+        "acid": "Orange-Red",
+        "base": "Blue"
+      }
+    },
+    {
+      "id": "phenolphthalein",
+      "name": "Phenolphthalein",
+      "source": "Synthetic (Man-made)",
+      "colors": { "neutral": "Colorless", "acid": "Colorless", "base": "Pink" }
+    },
+    {
+      "id": "methyl_orange",
+      "name": "Methyl Orange",
+      "source": "Synthetic (Man-made)",
+      "colors": { "neutral": "Orange", "acid": "Red", "base": "Yellow" }
+    },
+    {
+      "id": "ph_paper",
+      "name": "Universal pH Paper",
+      "source": "Synthetic",
+      "isPhTest": true
+    }
+  ],
+  "solutionPool": [
+    {
+      "id": "hcl",
+      "name": "Hydrochloric Acid",
+      "formula": "HCl",
+      "type": "acid",
+      "ph": 1
+    },
+    {
+      "id": "hno3",
+      "name": "Nitric Acid",
+      "formula": "HNO3",
+      "type": "acid",
+      "ph": 1
+    },
+    {
+      "id": "h2so4",
+      "name": "Sulfuric Acid",
+      "formula": "H2SO4",
+      "type": "acid",
+      "ph": 1
+    },
+    {
+      "id": "h3po4",
+      "name": "Phosphoric Acid",
+      "formula": "H3PO4",
+      "type": "acid",
+      "ph": 2
+    },
+    {
+      "id": "citric",
+      "name": "Citric Acid (Lemon Juice)",
+      "formula": "C6H8O7",
+      "type": "acid",
+      "ph": 2
+    },
+    {
+      "id": "tartaric",
+      "name": "Tartaric Acid (Tamarind Juice)",
+      "formula": "C4H6O6",
+      "type": "acid",
+      "ph": 3
+    },
+    {
+      "id": "oxalic",
+      "name": "Oxalic Acid (Tomato Juice)",
+      "formula": "C2H2O4",
+      "type": "acid",
+      "ph": 3
+    },
+    {
+      "id": "naoh",
+      "name": "Sodium Hydroxide",
+      "formula": "NaOH",
+      "type": "base",
+      "ph": 14
+    },
+    {
+      "id": "caoh2",
+      "name": "Calcium Hydroxide",
+      "formula": "Ca(OH)2",
+      "type": "base",
+      "ph": 12
+    },
+    {
+      "id": "na2co3",
+      "name": "Sodium Carbonate",
+      "formula": "Na2CO3",
+      "type": "base",
+      "ph": 11
+    },
+    {
+      "id": "nahco3",
+      "name": "Sodium Bicarbonate",
+      "formula": "NaHCO3",
+      "type": "base",
+      "ph": 8
+    },
+    {
+      "id": "cao",
+      "name": "Calcium Oxide",
+      "formula": "CaO",
+      "type": "base",
+      "ph": 13
+    },
+    {
+      "id": "soap",
+      "name": "Soap Solution",
+      "formula": "R-COONa",
+      "type": "base",
+      "ph": 10
+    },
+    {
+      "id": "eno",
+      "name": "ENO Solution",
+      "formula": "NaHCO3+Na2CO3",
+      "type": "base",
+      "ph": 9
+    },
+    {
+      "id": "mgoh2",
+      "name": "Magnesium Hydroxide",
+      "formula": "Mg(OH)2",
+      "type": "base",
+      "ph": 10
+    },
+    {
+      "id": "nacl",
+      "name": "Salt Water",
+      "formula": "NaCl",
+      "type": "neutral",
+      "ph": 7
+    },
+    {
+      "id": "distilled_water",
+      "name": "Distilled Water",
+      "formula": "H2O",
+      "type": "neutral",
+      "ph": 7
+    },
+    {
+      "id": "glucose",
+      "name": "Glucose Water",
+      "formula": "C6H12O6",
+      "type": "neutral",
+      "ph": 7
+    }
+  ]
+}

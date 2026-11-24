@@ -1,16 +1,26 @@
-import type { LessonContract } from '@mmaxr/schema'
+import type { ChemistryLessonContract, LessonContract, LessonSummary } from '@mmaxr/schema'
 import { CONFIG } from '../config'
 
-export async function fetchActiveLesson(): Promise<LessonContract> {
+export async function listLessons(): Promise<LessonSummary[]> {
   const res = await fetch(CONFIG.LESSONS_URL)
-  if (!res.ok) {
-    throw new Error(`Lesson ${res.status}: ${res.statusText}`)
-  }
+  if (!res.ok) throw new Error(`Experiments failed to load (${res.status})`)
+  return (await res.json()) as LessonSummary[]
+}
+
+/** The lesson for one session. The server binds the (hidden) tube assignment to the session; none of it is sent here. */
+export async function fetchLesson(lessonId: string, session: { sessionId: string; token: string }): Promise<LessonContract> {
+  const res = await fetch(`${CONFIG.LESSONS_URL}/${encodeURIComponent(lessonId)}?sessionId=${encodeURIComponent(session.sessionId)}`, {
+    headers: { Authorization: `Bearer ${session.token}` },
+  })
+  if (!res.ok) throw new Error(`Lesson ${lessonId} failed to load (${res.status})`)
   const lesson = (await res.json()) as LessonContract
+  if (lesson.type !== 'physics_mechanics_sandbox' && lesson.type !== 'physics_electromagnetism' && lesson.type !== 'physics_circuits' && lesson.type !== 'physics_simple_machines' && lesson.type !== 'physics_fundamentals_sandbox' && lesson.type !== 'science_matter_properties' && !lesson.modelUrl) throw new Error('Lesson contract is missing modelUrl')
+  return lesson
+}
 
-  // Fail-fast so the state machine never receives garbage
-  if (!lesson.modelUrl) throw new Error('LessonContract missing modelUrl')
-  if (!lesson.simulation) throw new Error('LessonContract missing simulation')
-
+export function assertChemistry(lesson: LessonContract): ChemistryLessonContract {
+  if (lesson.type !== 'chemistry_indicators') throw new Error(`Unsupported lab type: ${lesson.type}`)
+  if (!lesson.config?.totalTestTubes) throw new Error('Lesson contract has no test tubes')
+  if (!lesson.indicators?.length) throw new Error('Lesson contract has no indicators')
   return lesson
 }
