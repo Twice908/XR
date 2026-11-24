@@ -15,7 +15,7 @@ Oracle needs a card for identity verification; Render and Railway trials are use
 | Postgres | Supabase project `M-XR` (Singapore), session pooler | Done; all services create their tables on boot (tested) |
 | Telemetry bucket | Supabase Storage `mmaxr-telemetry` (private, S3 keys in `deploy/.env`) | Done; object-store reaches it (tested) |
 | 3D models | Cloudflare Pages `mmaxr-assets.pages.dev` (49 files) + Supabase public bucket `mmaxr-models` (tooth, stomach: >25 MB) | Done; lesson-loader rewrites model URLs via `ASSET_BASE_URL` / `ASSET_OVERRIDES` |
-| Web client | Cloudflare Pages `mmaxr.pages.dev`, builds from GitHub branch `chemistry` | Live; its `VITE_*` backend URLs still need setting |
+| Web client | Cloudflare Pages `mmaxr.pages.dev`, builds from GitHub branch `main` (production branch) | Live; its `VITE_*` backend URLs still need setting |
 | Instructor dashboard | Cloudflare Pages `mmaxr-dashboard.pages.dev` (static export) | Live; rebuild with `deploy/deploy-frontends.sh <backend-url>` |
 | Backend container + Tailscale Funnel + LRS | Spare laptop | **Remaining** |
 
