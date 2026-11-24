@@ -9,6 +9,18 @@ Oracle needs a card for identity verification; Render and Railway trials are use
 4. **Card-free cloud backup:** Back4app Containers (free, no card per its pricing page; 600 server-hours/month and small RAM — use the same single image). Koyeb's card policy is contradictory in sources; unverified.
 5. The **LRS** later goes on the same laptop (it is the same machine, so `LRS_URL=http://host.docker.internal:8080`).
 
+### Live now (Nov 2026)
+| Piece | Where | Status |
+|---|---|---|
+| Postgres | Supabase project `M-XR` (Singapore), session pooler | Done; all services create their tables on boot (tested) |
+| Telemetry bucket | Supabase Storage `mmaxr-telemetry` (private, S3 keys in `deploy/.env`) | Done; object-store reaches it (tested) |
+| 3D models | Cloudflare Pages `mmaxr-assets.pages.dev` (49 files) + Supabase public bucket `mmaxr-models` (tooth, stomach: >25 MB) | Done; lesson-loader rewrites model URLs via `ASSET_BASE_URL` / `ASSET_OVERRIDES` |
+| Web client | Cloudflare Pages `mmaxr.pages.dev`, builds from GitHub branch `chemistry` | Live; its `VITE_*` backend URLs still need setting |
+| Instructor dashboard | Cloudflare Pages `mmaxr-dashboard.pages.dev` (static export) | Live; rebuild with `deploy/deploy-frontends.sh <backend-url>` |
+| Backend container + Tailscale Funnel + LRS | Spare laptop | **Remaining** |
+
+R2 needs a paid plan on file, so it is not used. Pages cannot take files over 25 MB, hence the Supabase bucket for two models.
+
 Trade-off: the laptop must stay on and online, and the public URL is only as reliable as its connection. Sections below describing Oracle/Render are superseded.
 
 Verified in this repo: the Docker image builds and `user-auth` boots and answers `/health`; the compose file validates.
