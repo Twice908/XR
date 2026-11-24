@@ -1,6 +1,6 @@
 # Production stack for ONE free VM (Oracle Cloud Always Free ARM, or any Linux box).
 # Postgres + S3 come from Supabase, Redis is local, Caddy terminates HTTPS.
-#   cp deploy/.env.production.example deploy/.env && edit  ->  docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d --build
+#   cp deploy/.env.example deploy/.env && edit  ->  docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d --build
 x-common: &common
   restart: unless-stopped
   env_file: .env

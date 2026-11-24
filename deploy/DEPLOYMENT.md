@@ -47,7 +47,7 @@ Free-tier numbers are from vendor pages / blogs checked Nov 2026 — **re-check 
 ## Steps
 1. Supabase: create project → copy pooler URI; Storage → create bucket `mmaxr-telemetry` → enable S3 connection, make keys.
 2. Oracle: create A1.Flex VM (Ubuntu), open 80/443, install Docker, clone repo.
-3. `cp deploy/.env.production.example deploy/.env`, fill secrets (`openssl rand -hex 32` for JWT/INTERNAL keys).
+3. `cp deploy/.env.example deploy/.env`, fill secrets (`openssl rand -hex 32` for JWT/INTERNAL keys).
 4. `docker compose -f deploy/docker-compose.prod.yml up -d --build`
 5. Cloudflare Pages (root `mmaxr-webxr-client`, build `pnpm build`, output `dist`) with:
    ```
