@@ -1,0 +1,66 @@
+# Quiz pools for the respiratory-system lab. (question, correct, [3 wrong options], why)
+QUIZ = {
+ 'nasal_cavity': [
+  ("Why is air breathed through the nose better for the lungs than air breathed through the mouth?", "The nose filters, warms and moistens it first", ["The nose adds extra oxygen", "The nose removes all carbon dioxide", "The nose makes the air colder and drier"], "Hairs, mucus and capillaries prepare the air."),
+  ("What do the cilia in the nasal lining do?", "Sweep dust-trapping mucus back towards the throat", ["Exchange oxygen with the blood", "Make the voice", "Pump air into the lungs"], "Cilia move the mucus along."),
+  ("What warms the air in the nasal cavity?", "A rich supply of blood capillaries", ["Cartilage rings", "Alveoli", "The diaphragm"], "Blood in the lining warms the air to body temperature."),
+  ("What do the hairs just inside the nostrils trap?", "The largest dust particles", ["Carbon dioxide", "Oxygen", "Water vapour"], "They are the first filter."),
+  ("Why is the lining of the nose moist and sticky?", "Mucus traps dust, pollen and germs", ["It stores oxygen", "It makes sound", "It digests food"], "Sticky mucus catches particles."),
+ ],
+ 'pharynx': [
+  ("The pharynx is a passage for…", "Both air and food", ["Air only", "Food only", "Blood only"], "It is a shared route."),
+  ("What stops food entering the larynx when you swallow?", "The epiglottis folds over its entrance", ["The vocal cords seal the lungs", "The tongue blocks the nose", "The alveoli close"], "The epiglottis directs food into the oesophagus."),
+  ("Air flowing from the nasal cavity passes through the pharynx and then into the…", "Larynx", ["Stomach", "Alveoli", "Bronchioles directly"], "Pharynx leads down to the larynx."),
+  ("If the epiglottis did not close, what would most likely happen?", "Food could enter the windpipe and cause choking", ["Air could not reach the nose", "The lungs would fill with blood", "The voice would get louder"], "That is why you cough when something goes down the wrong way."),
+  ("Which organ is commonly called the throat?", "Pharynx", ["Trachea", "Alveolus", "Diaphragm"], "Pharynx means throat."),
+ ],
+ 'larynx_trachea': [
+  ("What makes the sound when you speak?", "Air makes the vocal cords in the larynx vibrate", ["Air rushing through the alveoli", "The diaphragm clapping", "Mucus popping in the trachea"], "The larynx is the voice box."),
+  ("Why does the trachea not collapse when you breathe in?", "It is held open by C-shaped rings of cartilage", ["It is filled with water", "It is full of alveoli", "It is wrapped in the diaphragm"], "Cartilage keeps the airway open."),
+  ("What is the other common name for the trachea?", "Windpipe", ["Voice box", "Food pipe", "Air sac"], "The larynx is the voice box."),
+  ("The open side of each C-shaped ring faces the oesophagus. Why is that useful?", "Food can bulge through as it passes down the oesophagus", ["Air can leak out of the trachea", "Mucus drains faster", "Sound is louder"], "It lets swallowed food pass."),
+  ("What keeps sweeping dust upwards in the trachea?", "Cilia and mucus in its lining", ["Cartilage rings", "The diaphragm", "Haemoglobin"], "The lining works like the nose's."),
+ ],
+ 'bronchi': [
+  ("How many bronchi come off the trachea?", "Two, one for each lung", ["One", "Three", "Four"], "The trachea divides into two."),
+  ("What is different about bronchioles compared with bronchi?", "They have no cartilage and have smooth muscle", ["They are wider", "They carry blood", "They make sound"], "Smooth muscle can narrow them."),
+  ("During an asthma attack the airways become narrow. Which part is mainly responsible?", "Smooth muscle in the bronchioles tightens", ["The cartilage rings of the trachea collapse", "The alveoli fill with food", "The diaphragm stops"], "Bronchioles can narrow."),
+  ("What does each bronchiole end in?", "A cluster of alveoli", ["A vocal cord", "A pleural membrane", "A rib"], "Alveoli are the tiny air sacs."),
+  ("Why do the airways branch again and again?", "To carry air to every part of the lungs", ["To make the lungs heavier", "To store food", "To make mucus"], "It is like an upside-down tree."),
+ ],
+ 'lungs': [
+  ("Why does the left lung have two lobes while the right has three?", "To leave room for the heart", ["The left lung is damaged", "The left side has no airways", "The diaphragm is smaller there"], "The heart sits slightly to the left."),
+  ("What do the pleural membranes and the fluid between them do?", "Let the lungs slide smoothly as they expand and recoil", ["Make mucus", "Exchange oxygen", "Hold the lungs open with cartilage"], "The fluid reduces friction."),
+  ("What protects the lungs?", "The rib cage", ["The cartilage rings", "The epiglottis", "The pharynx"], "The ribs surround the lungs."),
+  ("Why do the lungs contain hundreds of millions of alveoli?", "To give a huge surface area for gas exchange", ["To make the lungs heavier", "To store oxygen for a day", "To make the voice"], "About 70 square metres."),
+  ("How would you describe lung tissue?", "Soft, spongy and elastic", ["Hard and rigid", "Hollow with one big space", "Made only of cartilage"], "Elastic tissue lets the lungs recoil."),
+ ],
+ 'alveoli': [
+  ("In the alveoli, which way does oxygen move?", "From the air in the alveolus into the blood", ["From the blood into the air", "From the air into the trachea", "From the alveolus into the diaphragm"], "Oxygen is more concentrated in the alveolus."),
+  ("Why does carbon dioxide leave the blood at the alveoli?", "It is more concentrated in the blood than in the alveolar air", ["It is pumped out by the diaphragm", "It is destroyed by haemoglobin", "It is absorbed by cilia"], "It diffuses down its concentration gradient."),
+  ("What carries oxygen in red blood cells?", "Haemoglobin", ["Mucus", "Cartilage", "Cilia"], "Haemoglobin picks up oxygen."),
+  ("Which feature makes gas exchange fast?", "A wall one cell thick, moist and surrounded by capillaries", ["A thick muscular wall", "A dry waterproof wall", "A wall full of cartilage"], "Short distance, large area."),
+  ("Which process moves gases across the alveolar wall?", "Diffusion", ["Peristalsis", "Digestion", "Emulsification"], "Gases spread from high to low concentration."),
+ ],
+ 'diaphragm': [
+  ("When you breathe in, the diaphragm…", "Contracts and flattens downwards", ["Relaxes and domes upwards", "Fills with air", "Moves the cartilage"], "That raises the chest volume."),
+  ("When the chest volume increases, the pressure in the lungs…", "Drops below the outside pressure, so air flows in", ["Rises above the outside pressure", "Stays exactly the same", "Is replaced by blood pressure"], "Air moves from high to low pressure."),
+  ("What do the intercostal muscles do during inhalation?", "Lift the rib cage up and out", ["Pull the ribs down and in", "Squeeze the alveoli", "Open the epiglottis"], "The ribs raise and the chest widens."),
+  ("What happens when you breathe out normally?", "Diaphragm and intercostals relax, volume falls, pressure rises", ["The diaphragm flattens harder", "The lungs suck air in", "The ribs lift higher"], "Air is pushed out."),
+  ("Which is a correct description of breathing?", "A mechanical process driven by pressure changes", ["A chemical process that makes glucose", "A process that happens only in the alveoli", "A process where lungs push themselves"], "Lungs have no muscle; the diaphragm and ribs do the work."),
+ ],
+ 'cells': [
+  ("Where inside a cell is energy released from glucose?", "The mitochondria", ["The nucleus", "The cell wall", "The ribosome"], "Mitochondria are the powerhouses."),
+  ("Which word equation shows aerobic respiration?", "Glucose + oxygen gives carbon dioxide + water + energy", ["Glucose + carbon dioxide gives oxygen + water", "Oxygen gives glucose + energy", "Water + energy gives glucose + oxygen"], "Oxygen is used up."),
+  ("What carries the carbon dioxide made in cells back to the lungs?", "The blood", ["The bile", "The saliva", "The mucus"], "It is breathed out at the alveoli."),
+  ("What is the energy from respiration used for?", "Movement, growth and body warmth", ["Making oxygen", "Making cartilage only", "Making air"], "Energy is stored as ATP."),
+  ("Why is aerobic respiration the most efficient mode?", "Glucose is fully broken down using oxygen", ["It uses no glucose", "It needs no oxygen", "It makes lactic acid"], "Full breakdown releases the most energy."),
+ ],
+ 'anaerobic': [
+  ("What builds up in muscles during hard exercise when there is not enough oxygen?", "Lactic acid", ["Ethanol", "Oxygen", "Glucose"], "Muscle cells make lactic acid."),
+  ("What does yeast produce when it respires without air?", "Ethanol and carbon dioxide", ["Lactic acid and water", "Oxygen and glucose", "Water only"], "This is fermentation."),
+  ("Why does bread dough rise?", "Yeast fermentation releases carbon dioxide", ["Yeast makes oxygen", "Yeast makes lactic acid", "Water evaporates"], "The gas bubbles puff up the dough."),
+  ("Compared with aerobic respiration, anaerobic respiration releases…", "Much less energy", ["Much more energy", "The same energy", "No carbon dioxide at all"], "Glucose is only partly broken down."),
+  ("Which statement is correct?", "Muscles make lactic acid, yeast makes ethanol, when oxygen is short", ["Muscles make ethanol, yeast makes lactic acid", "Both make only water", "Both need plenty of oxygen"], "Different organisms, different products."),
+ ],
+}

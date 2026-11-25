@@ -1,121 +1,132 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { cleanSelection, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, stem, wordCount, type Checkpoint, type Commit } from '../biology';
+import { dealQuiz, keywordResults, markAnswer, quizFor, redactBiology, secretTerms, type Checkpoint } from '../biology';
+import { rngFor, seededRand } from '../questionEngine';
 
-const lesson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/biology-101.json'), 'utf8'));
-const cps: Checkpoint[] = lesson.checkpoints;
-const cp = (id: string) => cps.find((c) => c.id === id)!;
+const load = (id: string) => JSON.parse(fs.readFileSync(path.join(__dirname, `../../data/${id}.json`), 'utf8'));
+const LABS = [
+  ['biology-101', 'biology_digestive_system', ['salivary_glands', 'mouth', 'esophagus', 'stomach', 'liver', 'pancreas', 'small_intestine', 'villi', 'large_intestine']],
+  ['biology-respiratory', 'biology_respiratory_system', ['nasal_cavity', 'pharynx', 'larynx_trachea', 'bronchi', 'lungs', 'alveoli', 'diaphragm', 'cells', 'anaerobic']],
+] as const;
 
-describe('biology-101 data', () => {
-  it('every answer id exists in the choice pools', () => {
+describe.each(LABS)('%s contract', (id, type, stops) => {
+  const lesson = load(id);
+  const cps: Checkpoint[] = lesson.checkpoints;
+  it('is the right lesson and keeps its stops in order', () => {
+    expect(lesson.type).toBe(type);
+    expect(cps.map((c) => c.id)).toEqual(stops);
+  });
+  it('has the old prediction questions and transfer scenarios removed', () => {
+    for (const k of ['choices', 'groups', 'transfer']) expect(lesson).not.toHaveProperty(k);
+    for (const c of cps) for (const k of ['prompt', 'answers', 'expectedKeywords', 'answerGlands']) expect(c).not.toHaveProperty(k);
+  });
+  it('every organ has a pool of >= 5 questions with 2-4 options and one valid answer', () => {
     for (const c of cps) {
-      for (const id of c.answerGlands) expect(lesson.choices.glands.map((o: any) => o.id)).toContain(id);
-      for (const id of c.answerJuices) expect(lesson.choices.juices.map((o: any) => o.id)).toContain(id);
-      for (const id of c.answerComponents) expect(lesson.choices.components.map((o: any) => o.id)).toContain(id);
-      for (const id of c.answerNutrients) expect(lesson.choices.nutrients.map((o: any) => o.id)).toContain(id);
+      expect(c.quiz.length, c.id).toBeGreaterThanOrEqual(5);
+      expect(new Set(c.quiz.map((q) => q.id)).size).toBe(c.quiz.length);
+      for (const q of c.quiz) {
+        expect(q.options.length, q.id).toBeGreaterThanOrEqual(2);
+        expect(q.options.length, q.id).toBeLessThanOrEqual(4);
+        expect(q.options.map((o) => o.id), q.id).toContain(q.answer);
+        expect(new Set(q.options.map((o) => o.label)).size, q.id).toBe(q.options.length);
+      }
     }
   });
-  it('scenario answers are among their options', () => {
-    for (const s of lesson.transfer.scenarios) expect(s.options.map((o: any) => o.id)).toContain(s.answer);
+  it('every stop teaches something and has labels for its animation', () => {
+    for (const c of cps) {
+      expect(c.explanation.length).toBeGreaterThan(40);
+      expect(c.animLabels.length, c.id).toBeGreaterThan(0);
+    }
   });
-  it('covers every named digestive juice and component', () => {
-    const labels = [...lesson.choices.juices, ...lesson.choices.components].map((o: any) => o.label).join(' | ').toLowerCase();
-    for (const name of ['pepsin', 'bile', 'trypsin', 'hydrochloric', 'mucus', 'salivary amylase', 'maltase', 'sucrase', 'lactase', 'peptidase', 'lipase', 'saliva', 'gastric juice', 'pancreatic juice', 'intestinal juice']) expect(labels).toContain(name);
+  it('has a closing explanation with keywords and a model answer', () => {
+    expect(lesson.finalExplain.expectedKeywords.length).toBeGreaterThan(5);
+    expect(lesson.finalExplain.modelAnswer.length).toBeGreaterThan(50);
   });
-  it('has the salivary glands and the pancreas as their own stops, with close-up models', () => {
-    expect(cps.map((c) => c.id)).toEqual(expect.arrayContaining(['salivary_glands', 'pancreas', 'liver']));
-    expect(cp('salivary_glands').detail).toBe('salivary');
-    expect(cp('pancreas').detail).toBe('pancreas');
-    expect(cps.length).toBeGreaterThanOrEqual(9);
-    expect(lesson.transfer.scenarios.length).toBeGreaterThanOrEqual(6);
+  it('asks 2-3 questions in the quiz', () => {
+    expect(lesson.config.quizSize).toBeGreaterThanOrEqual(2);
+    expect(lesson.config.quizSize).toBeLessThanOrEqual(3);
   });
-  it('answer ids are not all in the same position as the pools (no giveaway order)', () => {
-    const pos = cps.filter((c) => c.answerGlands[0] !== 'none').map((c) => lesson.choices.glands.findIndex((o: any) => o.id === c.answerGlands[0]));
-    expect(new Set(pos).size).toBeGreaterThan(1);
+
+  describe('dealing', () => {
+    it('is deterministic for a session and differs between sessions', () => {
+      const a = dealQuiz(lesson, rngFor('s1', id));
+      expect(dealQuiz(lesson, rngFor('s1', id))).toEqual(a);
+      const sigs = new Set(Array.from({ length: 50 }, (_, i) => JSON.stringify(dealQuiz(lesson, rngFor(`s${i}`, id)))));
+      expect(sigs.size).toBeGreaterThan(40);
+    });
+    it('asks quiz-size questions from different organs', () => {
+      const d = dealQuiz(lesson, rngFor('x', id));
+      expect(d).toHaveLength(lesson.config.quizSize);
+      expect(new Set(d.map((x) => x.cp)).size).toBe(d.length);
+    });
+    it('balances the right answer across positions over 1000 sessions', () => {
+      const hits = [0, 0, 0, 0];
+      for (let i = 0; i < 1000; i++) {
+        const [d] = dealQuiz(lesson, seededRand(i + 1));
+        const q = cps.find((c) => c.id === d.cp)!.quiz.find((x) => x.id === d.qid)!;
+        if (q.options.length === 4) hits[d.order.indexOf(q.answer)]++;
+      }
+      for (const h of hits) expect(h).toBeGreaterThan(150);
+    });
+    it('avoids questions already seen while unseen ones remain', () => {
+      const seen = new Set(cps.flatMap((c) => c.quiz.slice(0, 4).map((q) => q.id)));
+      for (let i = 0; i < 100; i++) for (const d of dealQuiz(lesson, seededRand(i + 9), seen)) expect(seen.has(d.qid)).toBe(false);
+    });
+    it('falls back to repeats when every variant has been seen', () => {
+      const all = new Set(cps.flatMap((c) => c.quiz.map((q) => q.id)));
+      expect(dealQuiz(lesson, seededRand(2), all)).toHaveLength(lesson.config.quizSize);
+    });
   });
-  it('uses the available models', () => {
-    expect(Object.values(lesson.assets).join(' ')).toMatch(/digestive-system.*human-stomach.*liver.*human-tooth/);
+
+  describe('what the browser sees', () => {
+    const deal = dealQuiz(lesson, rngFor('leak', id));
+    it('the lesson has no quiz, answers or keywords', () => {
+      const json = JSON.stringify(redactBiology(lesson));
+      expect(json).not.toContain('"quiz"');
+      expect(json).not.toContain('"answer"');
+      expect(json).not.toContain('expectedKeywords');
+      expect(json).not.toContain('modelAnswer');
+    });
+    it('the dealt questions carry no answer, no real option ids and no explanation', () => {
+      const qs = quizFor(lesson, { quiz: deal });
+      const json = JSON.stringify(qs);
+      expect(json).not.toContain('answer');
+      expect(json).not.toContain('explanation');
+      for (const q of qs) {
+        expect(q.options.map((o) => o.id)).toEqual(q.options.map((_, i) => `p${i}`));
+        expect(q.options.length).toBeLessThanOrEqual(4);
+      }
+    });
+    it('marks an answer by position and reveals the right one only then', () => {
+      const [d] = deal;
+      const q = cps.find((c) => c.id === d.cp)!.quiz.find((x) => x.id === d.qid)!;
+      const rightPos = `p${d.order.indexOf(q.answer)}`;
+      const ok = markAnswer(lesson, { quiz: deal }, d.qid, rightPos)!;
+      expect(ok.correct).toBe(true);
+      expect(ok.answerPos).toBe(rightPos);
+      const wrongPos = ['p0', 'p1', 'p2', 'p3'].filter((p) => p !== rightPos && Number(p[1]) < d.order.length)[0];
+      expect(markAnswer(lesson, { quiz: deal }, d.qid, wrongPos)!.correct).toBe(false);
+      expect(markAnswer(lesson, { quiz: deal }, d.qid, 'p9')).toBeNull();
+      expect(markAnswer(lesson, { quiz: deal }, 'nope', 'p0')).toBeNull();
+    });
+  });
+
+  it('the coach guard hides the right answer of an unanswered question', () => {
+    const q = cps[0].quiz[0];
+    expect(secretTerms(q)).toEqual([q.options.find((o) => o.id === q.answer)!.label]);
   });
 });
 
-describe('keyword matching', () => {
-  const mouth = cp('mouth');
-  it('matches keywords, synonyms and simple inflections', () => {
-    const r = keywordResults('Teeth are chewing the food and the tongue shapes a bolus while amylase digests starch into maltose', mouth.expectedKeywords, mouth.keywordSynonyms);
-    expect(r.matched).toEqual(expect.arrayContaining(['chewing', 'tongue', 'bolus', 'starch', 'maltose', 'amylase']));
-    expect(r.coverage).toBe(1);
+describe('closing explanation scoring', () => {
+  const lesson = load('biology-respiratory');
+  it('scores key-idea coverage with synonyms', () => {
+    const fe = lesson.finalExplain;
+    expect(keywordResults(fe.modelAnswer, fe.expectedKeywords, fe.keywordSynonyms).coverage).toBe(1);
+    expect(keywordResults('I like pizza', fe.expectedKeywords, fe.keywordSynonyms).coverage).toBe(0);
   });
-  it('reports what is missing', () => {
-    const r = keywordResults('The food just goes down quickly', mouth.expectedKeywords, mouth.keywordSynonyms);
-    expect(r.coverage).toBe(0);
-    expect(r.missed).toHaveLength(mouth.expectedKeywords.length);
-  });
-  it('does not count a keyword that is merely a fragment of another word', () => {
-    expect(keywordResults('The salivation response', ['saliva'], {}).matched).toEqual([]);
-    expect(keywordResults('proteins', ['protein'], {}).matched).toEqual(['protein']);
-  });
-  it('handles multi-word keywords and their phrasings', () => {
-    const li = cp('large_intestine');
-    const r = keywordResults('The large intestine absorbs water and the faeces are stored in the rectum then pushed out of the anus', li.expectedKeywords, li.keywordSynonyms);
-    expect(r.matched).toEqual(expect.arrayContaining(['water absorption', 'faeces', 'rectum', 'anus']));
-  });
-  it('stems', () => {
-    expect(stem('absorbing')).toBe(stem('absorbs'));
-    expect(wordCount('One two  three!')).toBe(3);
-  });
-});
-
-describe('selection scoring', () => {
-  const lp = cp('pancreas');
-  it('is exact for the full right answer', () => {
-    expect(scoreSelection(lp, { glands: ['pancreas'], juices: ['pancreatic_juice'], components: ['trypsin', 'pancreatic_amylase', 'pancreatic_lipase', 'bicarbonate'], nutrients: ['carbs', 'proteins', 'fats'] }).allCorrect).toBe(true);
-  });
-  it('gives partial credit', () => {
-    const s = scoreSelection(lp, { glands: ['pancreas', 'liver'], juices: ['pancreatic_juice'], components: ['trypsin', 'pepsin'], nutrients: ['fats'] });
-    expect(s.allCorrect).toBe(false);
-    expect(s.glands).toBeCloseTo(0.5);
-    expect(s.juices).toBe(1);
-    expect(s.components).toBeCloseTo(0.2);
-  });
-  it('rejects empty or unknown picks', () => {
-    expect(cleanSelection({ glands: [], juices: ['saliva'], components: ['salivary_amylase'], nutrients: ['carbs'] }, lesson.choices)).toBeNull();
-    expect(cleanSelection({ glands: ['x'], juices: ['saliva'], components: ['salivary_amylase'], nutrients: ['carbs'] }, lesson.choices)).toBeNull();
-    expect(cleanSelection({ glands: ['salivary'], juices: ['saliva'], nutrients: ['carbs'] }, lesson.choices)).toBeNull(); // enzymes are required too
-    expect(cleanSelection({ glands: ['salivary'], juices: ['saliva'], components: ['salivary_amylase'], nutrients: ['carbs'] }, lesson.choices)).toEqual({ glands: ['salivary'], juices: ['saliva'], components: ['salivary_amylase'], nutrients: ['carbs'] });
-  });
-});
-
-describe('what the browser may see', () => {
-  const out = JSON.stringify(redactBiology(lesson));
-  it('has no answers, keywords, reveal text or scenario answers', () => {
-    for (const secret of ['answerGlands', 'answerJuices', 'answerComponents', 'answerNutrients', 'expectedKeywords', 'keywordSynonyms', 'revealExplanation', 'Pepsin breaks down', 'glandsInvolved', 'juicesInvolved', 'componentsInvolved', 'targetNutrient', '"answer"', '"explanation"']) expect(out).not.toContain(secret);
-  });
-  it('keeps the questions and answer pools', () => {
-    expect(out).toContain('How do the teeth and tongue help');
-    expect(out).toContain('Pancreas');
-    expect(redactBiology(lesson).checkpoints).toHaveLength(cps.length);
-  });
-  it('the coach guard terms cover the answers of a checkpoint', () => {
-    const t = secretTerms(cp('stomach')).join(' ').toLowerCase();
-    for (const w of ['pepsin', 'hydrochloric', 'mucus', 'gastric']) expect(t).toContain(w);
-  });
-});
-
-describe('reveal and final', () => {
-  it('reveals the explanation with matched and missed keywords', () => {
-    const c = cp('stomach');
-    const kw = keywordResults('Acid and pepsin break down protein', c.expectedKeywords, c.keywordSynonyms);
-    const commit = { selectionScore: scoreSelection(c, { glands: ['gastric'], juices: ['gastric_juice'], components: ['hcl', 'pepsin', 'mucus'], nutrients: ['proteins'] }), matched: kw.matched, missed: kw.missed, coverage: kw.coverage } as unknown as Commit;
-    const r = revealFor(c, commit, lesson.choices);
-    expect(r.explanation).toContain('Pepsin');
-    expect(r.keywords.find((k) => k.keyword === 'pepsin')!.matched).toBe(true);
-    expect(r.keywords.find((k) => k.keyword === 'mucus')!.matched).toBe(false);
-    expect(r.selectionScore.allCorrect).toBe(true);
-  });
-  it('scores the transfer scenarios', () => {
-    const r = scoreFinal(lesson.transfer.scenarios, { bile_blocked: 'fats', no_chewing: 'pepsin', no_acid: 'pepsin', no_saliva: 'carbs', duct_blocked: 'pancreas', epiglottis: 'epiglottis', flat_villi: 'absorb', no_lactase: 'lactose' });
-    expect(r.correct).toBe(7);
-    expect(r.total).toBe(8);
+  it('the digestive model answer covers its own keywords too', () => {
+    const fe = load('biology-101').finalExplain;
+    expect(keywordResults(fe.modelAnswer, fe.expectedKeywords, fe.keywordSynonyms).coverage).toBe(1);
   });
 });
