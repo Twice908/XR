@@ -10,6 +10,7 @@
  */
 import type { SoundAct, SoundCalcResult, SoundLessonContract, SoundReveal, SoundTask, SoundTrialResult } from '@mmaxr/schema';
 import { meetsAnchors, wordCount } from './optics';
+import { pickIndex, shuffle, type Rand } from './questionEngine';
 
 export interface SoundExplanation {
   text: string;
@@ -55,21 +56,12 @@ export interface SoundAssignment {
   createdAt: number;
 }
 
-type Rand = () => number;
-function shuffle<T>(xs: T[], rand: Rand): T[] {
-  const a = [...xs];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 export function makePlan(lesson: SoundLessonContract, rand: Rand = Math.random): SoundPlan {
   const plan: SoundPlan = { taskOrder: {}, tasks: {} };
   for (const sc of lesson.scenarios) {
     plan.taskOrder[sc.id] = shuffle(sc.tasks.map((t) => t.id), rand);
-    for (const t of sc.tasks) plan.tasks[t.id] = { variant: Math.floor(rand() * (t.variants?.length ?? 1)), optionOrder: shuffle(t.predictionOptions.map((o) => o.id), rand) };
+    for (const t of sc.tasks) plan.tasks[t.id] = { variant: pickIndex(t.variants?.length ?? 1, rand), optionOrder: shuffle(t.predictionOptions.map((o) => o.id), rand) };
   }
   return plan;
 }

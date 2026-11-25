@@ -3,6 +3,8 @@
  * type or pH, nor an indicator's acid/base colours: it asks the server what a test shows.
  */
 
+import { shuffle } from './questionEngine';
+
 export type Verdict = 'acid' | 'base' | 'neutral';
 
 export interface Solution {
@@ -61,12 +63,7 @@ export function reactionColor(indicators: Indicator[], solution: Solution, toolI
 
 /** Fisher-Yates over a copy; `rand` is injectable for tests. */
 export function pickSolutions(pool: Solution[], count: number, rand: () => number = Math.random): Solution[] {
-  const a = [...pool];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a.slice(0, count);
+  return shuffle(pool, rand).slice(0, count);
 }
 
 /** The lesson as the browser may see it: no solution pool, no assignment, only the neutral colour of each indicator. */

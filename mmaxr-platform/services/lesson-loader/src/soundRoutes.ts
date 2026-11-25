@@ -1,3 +1,4 @@
+import { rngFor } from './questionEngine';
 import type express from 'express';
 import * as snd from './sound';
 
@@ -14,7 +15,7 @@ export async function soundLessonFor(d: SoundDeps, lesson: any, sessionId: strin
   if (!sessionId || !studentId) return snd.redactSound(snd.personalize(lesson, snd.makePlan(lesson)));
   let a = await d.load(sessionId);
   if (!a) {
-    a = { kind: 'sound', lessonId: lesson.lessonId, studentId, plan: snd.makePlan(lesson), trials: {}, submission: null, createdAt: Date.now() };
+    a = { kind: 'sound', lessonId: lesson.lessonId, studentId, plan: snd.makePlan(lesson, rngFor(sessionId, lesson.lessonId)), trials: {}, submission: null, createdAt: Date.now() };
     await d.save(sessionId, a);
   }
   return snd.redactSound(snd.personalize(lesson, a.plan));

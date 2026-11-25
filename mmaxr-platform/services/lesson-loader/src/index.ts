@@ -11,6 +11,7 @@ import type { SoundAssignment } from './sound';
 import { drawVariants, redactMotion, type MotionAssignment } from './motion';
 import { motionInternal, registerMotion } from './motionRoutes';
 import { reasoningSummary, registerReasoning } from './reasoningRoutes';
+import { rngFor } from './questionEngine';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -94,7 +95,7 @@ async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
   if (!a || (a as OpticsAssignment).kind !== 'optics') return null;
   const op = a as OpticsAssignment;
   // A session started before runs were randomised gets a run of its own now.
-  if (!op.plan) op.plan = makePlan(readLesson(op.lessonId));
+  if (!op.plan) op.plan = makePlan(readLesson(op.lessonId), rngFor(sessionId, op.lessonId));
   return op;
 }
 /** This session's own run of the optics lab: values drawn, everything in its shuffled order. */
@@ -175,7 +176,7 @@ app.get(
             kind: 'metals',
             lessonId: lesson.lessonId,
             studentId: who.studentId,
-            samples: pickMaterials(lesson.materialPool, lesson.config.totalSamples, lesson.config.minAnomalies ?? 2),
+            samples: pickMaterials(lesson.materialPool, lesson.config.totalSamples, lesson.config.minAnomalies ?? 2, rngFor(sessionId, lesson.lessonId)),
             tested: {},
             submission: null,
             createdAt: Date.now(),
@@ -205,7 +206,7 @@ app.get(
         if (!who) return res.status(401).json({ error: 'Invalid session' });
         let mo = await loadMotion(sessionId);
         if (!mo) {
-          mo = { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, ...drawVariants(lesson), createdAt: Date.now() };
+          mo = { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, ...drawVariants(lesson, rngFor(sessionId, lesson.lessonId)), createdAt: Date.now() };
           await saveAssignment(sessionId, mo);
         }
         return res.json(redactMotion(lesson, mo));
@@ -229,7 +230,7 @@ app.get(
         if (!who) return res.status(401).json({ error: 'Invalid session' });
         let op = await loadOptics(sessionId);
         if (!op) {
-          op = { kind: 'optics', lessonId: lesson.lessonId, studentId: who.studentId, plan: makePlan(lesson), trials: {}, submission: null, createdAt: Date.now() };
+          op = { kind: 'optics', lessonId: lesson.lessonId, studentId: who.studentId, plan: makePlan(lesson, rngFor(sessionId, lesson.lessonId)), trials: {}, submission: null, createdAt: Date.now() };
           await saveAssignment(sessionId, op);
         }
         return res.json(redactOptics(opticsLesson(op)));
@@ -246,7 +247,7 @@ app.get(
         const a: Assignment = {
           lessonId: lesson.lessonId,
           studentId: who.studentId,
-          tubes: pickSolutions(lesson.solutionPool, lesson.config.totalTestTubes),
+          tubes: pickSolutions(lesson.solutionPool, lesson.config.totalTestTubes, rngFor(sessionId, lesson.lessonId)),
           tested: {},
           submission: null,
           createdAt: Date.now(),

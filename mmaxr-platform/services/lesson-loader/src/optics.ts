@@ -11,6 +11,8 @@
  */
 import type { OpticsImage, OpticsImageField, OpticsLessonContract, OpticsMirror, OpticsOption, OpticsRevealCase, OpticsReveal, OpticsTrialKind, OpticsTrialResult } from '@mmaxr/schema';
 
+import { pickIndex, shuffle, type Rand } from './questionEngine';
+
 export const IMAGE_FIELDS: OpticsImageField[] = ['position', 'size', 'nature', 'orientation'];
 
 export interface Explanation {
@@ -81,19 +83,9 @@ export interface FlatCase {
   anomalyExplanation: string;
 }
 
-type Rand = () => number;
 
 /* ---------------------------------------------------------------- per-session plan */
 
-function shuffle<T>(xs: T[], rand: Rand): T[] {
-  const a = [...xs];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-const pick = (n: number, rand: Rand) => Math.floor(rand() * n);
 const ids = (xs: { id: string }[]) => xs.map((x) => x.id);
 
 /** Where a candle may sit inside its zone without changing what the textbook says about the image. */
@@ -112,8 +104,8 @@ export function makePlan(lesson: OpticsLessonContract, rand: Rand = Math.random)
   return {
     surfaceOrder: shuffle(ids(lesson.planeMirror.scenarios), rand),
     planeOptionOrder: shuffle(ids(lesson.planeMirror.predictionOptions), rand),
-    laws: shuffle(lesson.lawsOfReflection.laws, rand).map((l) => ({ id: l.id, variant: pick(l.variants?.length ?? 1, rand), side: rand() < 0.5 ? ('left' as const) : ('right' as const), optionOrder: shuffle(ids(l.options), rand) })),
-    rules: shuffle(lesson.rayRules.rules, rand).map((r) => ({ id: r.id, variant: pick(r.variants?.length ?? 1, rand), where: rand() < 0.5 ? ('above' as const) : ('below' as const), optionOrder: shuffle(ids(lesson.rayRules.outcomes), rand) })),
+    laws: shuffle(lesson.lawsOfReflection.laws, rand).map((l) => ({ id: l.id, variant: pickIndex(l.variants?.length ?? 1, rand), side: rand() < 0.5 ? ('left' as const) : ('right' as const), optionOrder: shuffle(ids(l.options), rand) })),
+    rules: shuffle(lesson.rayRules.rules, rand).map((r) => ({ id: r.id, variant: pickIndex(r.variants?.length ?? 1, rand), where: rand() < 0.5 ? ('above' as const) : ('below' as const), optionOrder: shuffle(ids(lesson.rayRules.outcomes), rand) })),
     caseOrder: { concave: shuffle(ids(concave), rand), convex: shuffle(ids(convex), rand) },
     uOverF,
     fieldOrder: Object.fromEntries(IMAGE_FIELDS.map((f) => [f, shuffle(ids(lesson.imageFields[f]), rand)])) as OpticsPlan['fieldOrder'],
