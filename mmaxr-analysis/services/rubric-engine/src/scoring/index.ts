@@ -25,7 +25,7 @@ export function detectLesson(events: EventRow[]): Report['lessonType'] {
   if (target.startsWith('physics-sound') || events.some((e) => e.object_data?.action === 'predict_sound')) return 'physics_waves_sound';
   if (target.startsWith('physics-motion') || target.startsWith('physics-magnetism') || target.startsWith('physics-electricity') || target.startsWith('simple-machines') || target.startsWith('physics-fundamentals') || target.startsWith('matter-') || events.some((e) => e.object_data?.action === 'predict_trial')) return 'physics_motion';
   if (target.startsWith('biology-respiratory')) return 'biology_respiratory_system';
-  if (target.startsWith('biology') || events.some((e) => e.object_data?.action === 'predict_selection')) return 'biology_digestive_system';
+  if (target.startsWith('biology') || events.some((e) => e.object_data?.action === 'quiz_answer')) return 'biology_digestive_system';
   if (target.startsWith('metals') || events.some((e) => e.object_data?.action === 'predict_outcome')) return 'chemistry_metals';
   if (target.startsWith('chemistry') || events.some((e) => e.object_data?.action === 'predict_color')) return 'chemistry_indicators';
   if (target.startsWith('physics') || events.some((e) => e.verb === 'noticed_anomaly')) return 'physics_bohr';

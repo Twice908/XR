@@ -251,66 +251,50 @@ describe('metals lab scoring', () => {
   });
 });
 
-describe('digestive-system journey scoring', () => {
-  const stop = (n: number, opts: { all?: boolean; cov?: number; covFinal?: number; revisions?: number; voice?: boolean } = {}) => ({
-    id: `s${n}`, n, selection: { glands: opts.all === false ? 0.5 : 1, juices: 1, nutrients: opts.all === false ? 0.5 : 1, allCorrect: opts.all !== false },
-    coverageFirst: opts.cov ?? 1, coverageFinal: opts.covFinal ?? opts.cov ?? 1, revisions: opts.revisions ?? 0, inputMode: opts.voice === false ? 'typed' as const : 'voice' as const, speakMs: 20000, thinkMs: 9000,
-  });
-  const truth = (stops: ReturnType<typeof stop>[], fin: { correct: number; total: number } | null) => ({ tubes: [], submission: null, biology: { checkpoints: stops, final: fin } });
-  const mk = (n: number, confidence: number, match: boolean) => {
+describe('biology journey scoring (tour, quiz, closing explanation)', () => {
+  const q = (n: number, correct: boolean) => ({ id: `q${n}`, organ: `organ${n}`, correct, thinkMs: 8000 });
+  const truth = (quiz: ReturnType<typeof q>[], fin: { correct: number; total: number; explainCoverage?: number | null; inputMode?: 'voice' | 'typed'; speakMs?: number } | null) => ({ tubes: [], submission: null, biology: { visited: 9, stops: 9, quiz, quizTotal: 3, final: fin } });
+  const events = (target = 'biology-101'): EventRow[] => {
     id = 0; t = 1_000_000;
-    const out: EventRow[] = [ev('investigated', 'enter_lab', { target: 'biology-101' })];
-    for (let i = 1; i <= n; i++) {
-      const data = { sample: i, tool: 'explain' };
-      out.push(ev('predicted', 'predict_selection', { target: `checkpoint:s${i}`, value: ['a', 'b', 'c', 'd', 'e'][i - 1] ?? 'x', data: { ...data, decisionMs: 9000, confidence } }, 9000));
-      out.push(ev('acted', 'commit_explanation', { target: `checkpoint:s${i}`, value: 'explain', data }, 20000));
-      out.push(ev('observed', 'reveal_shown', { target: `checkpoint:s${i}`, value: match ? 'correct' : 'partly', data: { ...data, match } }, 10));
-    }
-    return out;
+    return [ev('investigated', 'enter_lab', { target }), ev('acted', 'quiz_answer', { target: 'question:q1', value: 'correct', data: { sample: 1, tool: 'quiz', match: true } }, 9000)];
   };
 
-  it('is detected as the journey and scores a strong student highly', () => {
-    const stops = [1, 2, 3, 4, 5].map((n) => stop(n));
-    const r = analyze(mk(5, 3, true), null, truth(stops, { correct: 3, total: 3 }));
-    expect(r.lessonType).toBe('biology_digestive_system');
+  it('is detected for both labs', () => {
+    expect(analyze(events(), null, truth([], null)).lessonType).toBe('biology_digestive_system');
+    expect(analyze(events('biology-respiratory'), null, truth([], null)).lessonType).toBe('biology_respiratory_system');
+  });
+
+  it('scores causal coherence from the quiz and transfer from the closing explanation', () => {
+    const r = analyze(events(), null, truth([q(1, true), q(2, true), q(3, true)], { correct: 3, total: 3, explainCoverage: 1, inputMode: 'voice', speakMs: 30000 }));
     expect(score(r, 'causalCoherence')).toBe(3);
     expect(score(r, 'transfer')).toBe(3);
-    expect(score(r, 'revisionQuality')).toBe(3); // nothing needed improving
-    expect(score(r, 'metacognitiveCalibration')).toBe(3);
     expect(r.complete).toBe(true);
-    expect(r.overall.percent!).toBeGreaterThan(75);
+    expect(r.overall.percent).toBe(100);
   });
 
-  it('rewards improving a thin explanation after the reveal, and marks down not trying', () => {
-    const thin = [1, 2, 3, 4, 5].map((n) => stop(n, { cov: 0.4 }));
-    expect(score(analyze(mk(5, 2, false), null, truth(thin, null)), 'revisionQuality')).toBe(0);
-    const improved = [1, 2, 3, 4, 5].map((n) => stop(n, { cov: 0.4, covFinal: 0.9, revisions: 1 }));
-    expect(score(analyze(mk(5, 2, false), null, truth(improved, null)), 'revisionQuality')).toBe(3);
+  it('scales with correct answers and explanation coverage', () => {
+    const r = analyze(events(), null, truth([q(1, true), q(2, false), q(3, false)], { correct: 1, total: 3, explainCoverage: 0.4 }));
+    expect(score(r, 'causalCoherence')).toBe(1);
+    expect(score(r, 'transfer')).toBe(1);
+    expect(r.dimensions.find((x) => x.key === 'causalCoherence')!.basis).toContain('organ2');
   });
 
-  it('scores causal coherence from the first explanations and the predicted selections', () => {
-    const weak = [1, 2, 3, 4, 5].map((n) => stop(n, { all: false, cov: 0.2 }));
-    expect(score(analyze(mk(5, 3, false), null, truth(weak, null)), 'causalCoherence')!).toBeLessThanOrEqual(1);
+  it('waits for the results and does not invent dimensions it cannot judge', () => {
+    const r = analyze(events(), null, truth([], null));
+    expect(score(r, 'causalCoherence')).toBeNull();
+    expect(score(r, 'transfer')).toBeNull();
+    expect(r.complete).toBe(false);
+    for (const k of ['predictionDiscipline', 'retrievalEffort', 'revisionQuality', 'metacognitiveCalibration'] as const) expect(score(r, k)).toBeNull();
   });
 
-  it('transfer waits for the challenge and scales with correct answers', () => {
-    const stops = [1, 2, 3].map((n) => stop(n));
-    expect(score(analyze(mk(3, 2, true), null, truth(stops, null)), 'transfer')).toBeNull();
-    expect(score(analyze(mk(3, 2, true), null, truth(stops, { correct: 1, total: 3 })), 'transfer')).toBe(1);
-    expect(analyze(mk(3, 2, true), null, truth(stops, null)).complete).toBe(false);
-  });
-
-  it('flags overconfidence: certain but not matching', () => {
-    const stops = [1, 2, 3, 4, 5].map((n) => stop(n, { all: false, cov: 0.3 }));
-    expect(score(analyze(mk(5, 3, false), null, truth(stops, null)), 'metacognitiveCalibration')).toBe(0);
+  it('a lab with no closing explanation leaves transfer unassessed', () => {
+    expect(score(analyze(events(), null, truth([q(1, true)], { correct: 1, total: 1 })), 'transfer')).toBeNull();
   });
 
   it('reports device-appropriate stats', () => {
-    const stops = [1, 2].map((n) => stop(n));
-    const vr = analyze(mk(2, 2, true).map((e) => ({ ...e, device: 'vr' })), null, truth(stops, null));
+    const vr = analyze(events().map((e) => ({ ...e, device: 'vr' })), null, truth([q(1, true)], null));
     expect(vr.deviceStats.items.some((i) => i.label === 'Eye gaze')).toBe(true);
-    const web = analyze(mk(2, 2, true), null, truth(stops, null));
-    expect(web.deviceStats.items.some((i) => i.label === 'Camera movement')).toBe(true);
+    expect(analyze(events(), null, truth([q(1, true)], null)).deviceStats.items.some((i) => i.label === 'Camera movement')).toBe(true);
   });
 });
 
@@ -400,28 +384,3 @@ describe('reasoning counts towards causal coherence', () => {
   });
 });
 
-describe('respiratory-system journey scoring', () => {
-  const stop = (n: number) => ({ id: `s${n}`, n, selection: { organs: 1, features: 1, processes: 1, molecules: 1, allCorrect: true }, coverageFirst: 1, coverageFinal: 1, revisions: 0, inputMode: 'voice' as const, speakMs: 20000, thinkMs: 9000 });
-  const run = (fin: { correct: number; total: number; explainCoverage?: number | null } | null) => {
-    id = 0; t = 1_000_000;
-    const evs: EventRow[] = [ev('investigated', 'enter_lab', { target: 'biology-respiratory' })];
-    for (let i = 1; i <= 3; i++) {
-      const data = { sample: i, tool: 'explain' };
-      evs.push(ev('predicted', 'predict_selection', { target: `checkpoint:s${i}`, value: 'x', data: { ...data, decisionMs: 9000, confidence: 3 } }, 9000));
-      evs.push(ev('acted', 'commit_explanation', { target: `checkpoint:s${i}`, value: 'explain', data }, 20000));
-      evs.push(ev('observed', 'reveal_shown', { target: `checkpoint:s${i}`, value: 'correct', data: { ...data, match: true } }, 10));
-    }
-    return analyze(evs, null, { tubes: [], submission: null, biology: { checkpoints: [1, 2, 3].map(stop), final: fin } });
-  };
-
-  it('is detected as the respiratory lesson and scores question groups it has never heard of', () => {
-    const r = run({ correct: 8, total: 8, explainCoverage: 1 });
-    expect(r.lessonType).toBe('biology_respiratory_system');
-    expect(score(r, 'causalCoherence')).toBe(3);
-  });
-  it('counts the closing explanation as half of transfer', () => {
-    expect(score(run({ correct: 8, total: 8, explainCoverage: 0 }), 'transfer')).toBe(2); // 0.5 * 3 = 1.5, rounded
-    expect(score(run({ correct: 8, total: 8, explainCoverage: 1 }), 'transfer')).toBe(3);
-    expect(score(run({ correct: 4, total: 8 }), 'transfer')).toBe(2); // digestive-style: no explanation
-  });
-});

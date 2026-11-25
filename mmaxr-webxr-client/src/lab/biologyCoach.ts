@@ -1,24 +1,25 @@
 import type { Snapshot } from '../services/aiCoach'
 import type { JourneyExperiment } from '../state/biology'
 
-/** What the coach may know: the questions, and the student's own predictions and words. Revealed stops include what was missed. */
+/** What the coach may know: where the student is, what they have been taught, and the quiz answers they have already given. */
 export function buildBiologySnapshot(exp: JourneyExperiment): Snapshot {
-  const label = (g: string, ids: string[]) => ids.map((id) => exp.lesson.choices[g].find((o) => o.id === id)?.label ?? id).join(', ')
   const lines = [`Stage: ${exp.stage}. The student is on stop ${Math.min(exp.n, exp.stops.length)} of ${exp.stops.length}.`]
   exp.stops.forEach((s, i) => {
-    if (i > exp.index && exp.stage !== 'final' && exp.stage !== 'done') return
-    const picked = exp.groups.every((g) => s.selection[g.key].length > 0)
-    const sel = picked ? `predicted ${exp.groups.map((g) => `${g.key}: ${label(g.key, s.selection[g.key])}`).join('; ')}${s.confidence ? ` (${['', 'a guess', 'fairly sure', 'certain'][s.confidence]})` : ''}` : 'no prediction yet'
-    const said = s.explanation ? `explained: "${s.explanation.slice(0, 280)}"` : 'no explanation yet'
-    const rev = s.reveal ? `revealed; they covered ${Math.round(s.coverage * 100)}% of the key ideas${s.reveal.keywords.some((k) => !k.matched) ? `, missing: ${s.reveal.keywords.filter((k) => !k.matched).map((k) => k.keyword).join(', ')}` : ''}` : 'not yet revealed'
-    lines.push(`Stop ${i + 1} (${s.cp.organName}): question: "${s.cp.prompt}" — ${sel}; ${said}; ${rev}.`)
+    if (i > exp.index && exp.stage === 'tour') return
+    lines.push(`Stop ${i + 1} (${s.cp.organName}): ${s.cp.explanation}`)
   })
+  if (exp.stage === 'quiz' || exp.stage === 'final' || exp.stage === 'done') {
+    exp.questions.forEach((q, i) => {
+      const f = exp.feedback[q.id]
+      if (f) lines.push(`Quiz ${i + 1} (${q.organ}): "${q.prompt}" — answered ${f.correct ? 'correctly' : 'wrongly'}.`)
+      else if (i === exp.quizIndex && exp.stage === 'quiz') lines.push(`Quiz ${i + 1} (${q.organ}): "${q.prompt}" — not answered yet.`)
+    })
+  }
   return { phase: exp.stage, tools: [], activeTool: null, tubes: [], lines }
 }
 
 export const say = {
-  mismatch: (organ: string) => `At the ${organ} stop the student's prediction or explanation was not fully right once the answer was revealed.`,
-  revision: (organ: string) => `The student improved their explanation for the ${organ} stop after seeing the reveal.`,
-  ready: 'The student has finished every stop and is about to try the final challenge.',
+  wrong: (organ: string) => `The student got the quiz question about the ${organ} wrong.`,
+  ready: 'The student has finished the quiz and is about to explain the whole pathway.',
   idle: 'The student has not done anything for a while.',
 }

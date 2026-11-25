@@ -1,15 +1,14 @@
-import type { BiologyFinalResult, BiologyReveal } from '@mmaxr/schema'
+import type { BiologyFinalResult, BiologyQuizFeedback, BiologyQuizQuestion } from '@mmaxr/schema'
 import { CONFIG } from '../config'
 import type { LabSessionRef } from './labApi'
-import type { Selection } from '../state/biology'
 
-async function post<T>(session: LabSessionRef, path: string, body: unknown): Promise<T> {
+async function call<T>(session: LabSessionRef, path: string, init?: { body: unknown }): Promise<T> {
   let res: Response
   try {
     res = await fetch(`${CONFIG.LABS_URL}/sessions/${encodeURIComponent(session.sessionId)}/biology/${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.token}` },
-      body: JSON.stringify(body),
+      method: init ? 'POST' : 'GET',
+      headers: { ...(init ? { 'Content-Type': 'application/json' } : {}), Authorization: `Bearer ${session.token}` },
+      ...(init ? { body: JSON.stringify(init.body) } : {}),
     })
   } catch {
     throw new Error('Cannot reach the lab service. Check your connection and try again.')
@@ -19,37 +18,24 @@ async function post<T>(session: LabSessionRef, path: string, body: unknown): Pro
   return data as T
 }
 
-export interface CommitBody {
-  checkpoint: string
-  selection: Selection
-  explanation: string
-  confidence: number | null
-  inputMode: 'voice' | 'typed'
-  thinkMs: number
-  speakMs: number
-}
+/** Tells the server this organ has been seen. After the last one the quiz opens. */
+export const visitStop = (session: LabSessionRef, checkpoint: string) => call<{ visited: number; total: number; quizOpen: boolean }>(session, 'visit', { body: { checkpoint } })
 
-/** Locks the student's answer for this stop. Only then does the server reveal what is right. */
-export async function commitStop(session: LabSessionRef, body: CommitBody): Promise<BiologyReveal> {
-  const r = await post<{ reveal: BiologyReveal }>(session, 'commit', body)
-  return r.reveal
-}
+/** This session's own questions, in this session's order. */
+export const fetchQuiz = (session: LabSessionRef) => call<{ questions: BiologyQuizQuestion[]; answered: string[] }>(session, 'quiz')
 
-export function reviseStop(session: LabSessionRef, checkpoint: string, explanation: string) {
-  return post<{ coverage: number; keywords: { keyword: string; matched: boolean }[]; revisions: number; maxRevisions: number }>(session, 'revise', { checkpoint, explanation })
-}
+/** Locks the answer to one question. Only then does the server say which option was right. */
+export const answerQuestion = (session: LabSessionRef, body: { question: string; choice: string; thinkMs: number }) => call<BiologyQuizFeedback>(session, 'quiz/answer', { body })
 
-export function submitChallenge(session: LabSessionRef, body: { answers: Record<string, string>; explanation?: string; inputMode?: 'voice' | 'typed'; speakMs?: number }): Promise<BiologyFinalResult> {
-  return post<BiologyFinalResult>(session, 'final', body)
-}
+export const submitChallenge = (session: LabSessionRef, body: { explanation?: string; inputMode?: 'voice' | 'typed'; speakMs?: number }) => call<BiologyFinalResult>(session, 'final', { body })
 
 /** Best effort: the explanation is already scored; the recording is kept for the instructor. */
-export async function uploadAudio(session: LabSessionRef, checkpoint: string, blob: Blob): Promise<void> {
+export async function uploadAudio(session: LabSessionRef, blob: Blob): Promise<void> {
   const b64 = await new Promise<string>((resolve, reject) => {
     const r = new FileReader()
     r.onload = () => resolve(String(r.result).split(',')[1] ?? '')
     r.onerror = () => reject(r.error)
     r.readAsDataURL(blob)
   })
-  await post(session, 'audio', { checkpoint, contentType: blob.type || 'audio/webm', fileBase64: b64 })
+  await call(session, 'audio', { body: { contentType: blob.type || 'audio/webm', fileBase64: b64 } })
 }

@@ -1,183 +1,114 @@
 import { describe, expect, it } from 'vitest'
 import { XapiVerb } from '@mmaxr/schema'
-import type { BiologyLessonContract, BiologyReveal, TelemetryEvent } from '@mmaxr/schema'
+import type { BiologyLessonContract, BiologyQuizFeedback, BiologyQuizQuestion, TelemetryEvent } from '@mmaxr/schema'
 import { JourneyExperiment, StateError } from '../state/biology'
 
+const v = { x: 0, y: 0, z: 0 }
 const lesson: BiologyLessonContract = {
   lessonId: 'biology-101',
   type: 'biology_digestive_system',
   title: 'Digestive system',
   modelUrl: 'http://x/d.glb',
-  assets: { digestiveSystem: 'a', stomach: 'b', liver: 'c', tooth: 'd' },
-  config: { isGuidedTour: true, requireAudioExplanation: true, minExplanationWords: 4, maxRevisions: 2 },
-  choices: { glands: [{ id: 'salivary', label: 'Salivary' }, { id: 'none', label: 'None' }], juices: [{ id: 'saliva', label: 'Saliva' }, { id: 'none', label: 'None' }], components: [{ id: 'amylase', label: 'Amylase' }, { id: 'pepsin', label: 'Pepsin' }, { id: 'hcl', label: 'HCl' }, { id: 'mucus', label: 'Mucus' }, { id: 'none', label: 'None' }], nutrients: [{ id: 'carbs', label: 'Carbs' }] },
+  assets: { digestiveSystem: 'a' },
+  config: { isGuidedTour: true, requireAudioExplanation: true, minExplanationWords: 4, quizSize: 2 },
+  finalExplain: { prompt: 'Explain it all', minWords: 4 },
   checkpoints: [
-    { id: 'mouth', organName: 'Mouth', prompt: 'p1', cameraPosition: { x: 0, y: 0, z: 0 }, lookAtTarget: { x: 0, y: 0, z: 0 }, modelAnchor: { x: 0, y: 0, z: 0 }, detail: 'tooth' },
-    { id: 'stomach', organName: 'Stomach', prompt: 'p2', cameraPosition: { x: 0, y: 0, z: 0 }, lookAtTarget: { x: 0, y: 0, z: 0 }, modelAnchor: { x: 0, y: 0, z: 0 }, detail: 'stomach' },
+    { id: 'mouth', organName: 'Mouth', cameraPosition: v, lookAtTarget: v, modelAnchor: v, detail: 'tooth', explanation: 'Chewing and saliva.', animLabels: ['Saliva'] },
+    { id: 'stomach', organName: 'Stomach', cameraPosition: v, lookAtTarget: v, modelAnchor: v, detail: 'stomach', explanation: 'Acid and pepsin.', animLabels: ['HCl'] },
   ],
-  transfer: { scenarios: [{ id: 's1', question: 'q', options: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }] }] },
 }
-
-const reveal = (cp: string, all: boolean, coverage: number): BiologyReveal => ({
-  checkpoint: cp, explanation: 'x', answer: { glands: [], juices: [], components: [], nutrients: [], targetNutrient: 't' },
-  selectionScore: { glands: all ? 1 : 0.5, juices: 1, components: 1, nutrients: 1, allCorrect: all }, keywords: [], coverage,
-})
+const questions: BiologyQuizQuestion[] = [
+  { id: 'q1', organ: 'Stomach', prompt: 'p1', options: [{ id: 'p0', label: 'A' }, { id: 'p1', label: 'B' }, { id: 'p2', label: 'C' }, { id: 'p3', label: 'D' }] },
+  { id: 'q2', organ: 'Mouth', prompt: 'p2', options: [{ id: 'p0', label: 'A' }, { id: 'p1', label: 'B' }] },
+]
+const fb = (correct: boolean, answered: number): BiologyQuizFeedback => ({ correct, answer: 'p1', yourAnswer: correct ? 'p1' : 'p0', explanation: 'because', answered, total: 2 })
 
 function setup() {
   const events: { verb: XapiVerb; object: TelemetryEvent['object'] }[] = []
   let t = 1000
   const exp = new JourneyExperiment(lesson, (verb, object) => events.push({ verb, object }), () => (t += 800))
-  const lock = () => {
-    exp.toggle('glands', 'salivary'); exp.toggle('juices', 'saliva'); exp.toggle('components', 'amylase'); exp.toggle('nutrients', 'carbs'); exp.setConfidence(2)
-    exp.lockPrediction()
-  }
-  return { exp, events, lock }
+  return { exp, events }
 }
 
-describe('option order', () => {
-  it('is stable within a stop, keeps "none" last, and keeps every option', () => {
+describe('JourneyExperiment (tour, quiz, final)', () => {
+  it('starts on the first stop of a view-only tour', () => {
+    const { exp, events } = setup()
+    expect(exp.stage).toBe('tour')
+    expect(exp.stop.cp.id).toBe('mouth')
+    expect(events[0].object.action).toBe('arrive_checkpoint')
+  })
+
+  it('records a watched animation once', () => {
+    const { exp, events } = setup()
+    exp.markWatched()
+    exp.markWatched()
+    expect(exp.stop.watched).toBe(true)
+    expect(events.filter((e) => e.object.action === 'watch_animation')).toHaveLength(1)
+  })
+
+  it('moves through the stops, then asks for the quiz after the last', () => {
     const { exp } = setup()
-    const a = exp.optionsFor('components').map((o) => o.id)
-    expect(exp.optionsFor('components').map((o) => o.id)).toEqual(a)
-    expect(a[a.length - 1]).toBe('none')
-    expect([...a].sort()).toEqual(['amylase', 'hcl', 'mucus', 'none', 'pepsin'])
+    expect(exp.nextStop()).toBe(false)
+    expect(exp.stop.cp.id).toBe('stomach')
+    expect(exp.isLastStop).toBe(true)
+    expect(exp.nextStop()).toBe(true)
+    expect(exp.stage).toBe('tour')
   })
-  it('does not follow the lesson order across many runs', () => {
-    const firsts = new Set<string>()
-    for (let i = 0; i < 40; i++) firsts.add(setup().exp.optionsFor('components')[0].id)
-    expect(firsts.size).toBeGreaterThan(1)
-  })
-  it('differs between stops', () => {
-    const orders = new Set<string>()
-    for (let i = 0; i < 30; i++) {
-      const { exp } = setup()
-      orders.add(exp.optionsFor('components', 0).map((o) => o.id).join() === exp.optionsFor('components', 1).map((o) => o.id).join() ? 'same' : 'diff')
-    }
-    expect(orders.has('diff')).toBe(true)
-  })
-  it('shuffles scenario options without losing any', () => {
+
+  it('shows one question at a time and needs a pick before checking', () => {
     const { exp } = setup()
-    expect(exp.scenarioOptions('s1').map((o) => o.id).sort()).toEqual(['a', 'b'])
+    exp.startQuiz(questions)
+    expect(exp.stage).toBe('quiz')
+    expect(exp.question?.id).toBe('q1')
+    expect(exp.canCheck).toBe(false)
+    expect(() => exp.checkPayload()).toThrow(StateError)
+    expect(() => exp.pick('p9')).toThrow(StateError)
+    exp.pick('p2')
+    expect(exp.canCheck).toBe(true)
+    expect(exp.checkPayload()).toMatchObject({ question: 'q1', choice: 'p2' })
   })
-})
 
-describe('JourneyExperiment', () => {
-  it('holds no answers: stops carry only what the student chose', () => {
+  it('locks a question once feedback arrives and cannot move on before it', () => {
+    const { exp, events } = setup()
+    exp.startQuiz(questions)
+    expect(() => exp.nextQuestion()).toThrow(StateError)
+    exp.pick('p0')
+    exp.recordFeedback(fb(false, 1))
+    expect(() => exp.pick('p1')).toThrow(StateError)
+    expect(events.find((e) => e.object.action === 'quiz_answer')?.object.value).toBe('wrong')
+    exp.nextQuestion()
+    expect(exp.question?.id).toBe('q2')
+    expect(exp.picked).toBeNull()
+  })
+
+  it('resumes at the first unanswered question', () => {
     const { exp } = setup()
-    const dump = JSON.stringify(exp.stops)
-    for (const secret of ['revealExplanation', 'expectedKeywords', 'answerGlands']) expect(dump).not.toContain(secret)
-    expect(exp.stops.every((s) => s.reveal === null)).toBe(true)
+    exp.startQuiz(questions, ['q1'])
+    expect(exp.question?.id).toBe('q2')
   })
 
-  it('needs a gland, a juice, a nutrient and a confidence before the prediction locks', () => {
+  it('goes to the final explanation after the last question, which needs enough words', () => {
     const { exp } = setup()
-    expect(exp.canLock).toBe(false)
-    expect(() => exp.lockPrediction()).toThrow(StateError)
-    exp.toggle('glands', 'salivary')
-    exp.toggle('juices', 'saliva')
-    exp.toggle('nutrients', 'carbs')
-    expect(exp.canLock).toBe(false)
-    exp.toggle('components', 'amylase')
-    expect(exp.canLock).toBe(false) // still no confidence
-    exp.setConfidence(3)
-    expect(exp.canLock).toBe(true)
-  })
-
-  it('"none" excludes the other choices in its group and back again', () => {
-    const { exp } = setup()
-    exp.toggle('glands', 'salivary')
-    exp.toggle('glands', 'none')
-    expect(exp.stop.selection.glands).toEqual(['none'])
-    exp.toggle('glands', 'salivary')
-    expect(exp.stop.selection.glands).toEqual(['salivary'])
-  })
-
-  it('locking fires PREDICTED with the think time; the selection cannot change afterwards', () => {
-    const { exp, events, lock } = setup()
-    lock()
-    const p = events.find((e) => e.verb === XapiVerb.PREDICTED)!
-    expect(p.object.data).toMatchObject({ sample: 1, tool: 'explain', confidence: 2, checkpoint: 'mouth' })
-    expect(Number((p.object.data as { decisionMs: number }).decisionMs)).toBeGreaterThan(0)
-    expect(() => exp.toggle('glands', 'none')).toThrow(StateError)
-  })
-
-  it('requires enough words, then ACTED and OBSERVED follow the server reveal', () => {
-    const { exp, events, lock } = setup()
-    lock()
-    expect(() => exp.commitPayload('too short', 'typed', 0)).toThrow(StateError)
-    const body = exp.commitPayload('saliva has amylase for starch', 'voice', 4200)
-    expect(body).toMatchObject({ checkpoint: 'mouth', inputMode: 'voice', speakMs: 4200 })
-    exp.recordReveal(reveal('mouth', true, 0.8))
-    expect(exp.stage).toBe('revealed')
-    expect(events.map((e) => e.verb).slice(-3)).toEqual([XapiVerb.PREDICTED, XapiVerb.ACTED, XapiVerb.OBSERVED])
-    const obs = events[events.length - 1].object.data as { match: boolean; coverage: number }
-    expect(obs).toMatchObject({ match: true, coverage: 0.8 })
-  })
-
-  it('a revision is only offered while there is something to improve and revisions remain', () => {
-    const { exp, events, lock } = setup()
-    lock()
-    exp.commitPayload('saliva has amylase for starch', 'typed', 0)
-    exp.recordReveal(reveal('mouth', false, 0.4))
-    expect(exp.canRevise).toBe(true)
-    exp.recordRevision('saliva amylase starch chewing carbohydrate', 1, 1)
-    expect(events.find((e) => e.verb === XapiVerb.REVISED_MODEL)!.object.data).toMatchObject({ coverageBefore: 0.4, coverageAfter: 1, revision: 1 })
-    expect(exp.canRevise).toBe(false) // coverage is already complete
-  })
-
-  it('moves in order, then the challenge, then done', () => {
-    const { exp, events, lock } = setup()
-    lock(); exp.commitPayload('saliva has amylase for starch', 'typed', 0); exp.recordReveal(reveal('mouth', true, 1))
-    exp.next()
-    expect(exp.index).toBe(1)
-    expect(exp.stage).toBe('predict')
-    exp.toggle('glands', 'salivary'); exp.toggle('juices', 'saliva'); exp.toggle('components', 'amylase'); exp.toggle('nutrients', 'carbs'); exp.setConfidence(1); exp.lockPrediction()
-    exp.commitPayload('pepsin and acid break down protein', 'typed', 0); exp.recordReveal(reveal('stomach', true, 1))
-    exp.next()
+    exp.startQuiz(questions)
+    exp.pick('p1'); exp.recordFeedback(fb(true, 1)); exp.nextQuestion()
+    exp.pick('p1'); exp.recordFeedback(fb(true, 2)); exp.nextQuestion()
     expect(exp.stage).toBe('final')
     expect(exp.canSubmitFinal).toBe(false)
-    exp.scenarioAnswers.s1 = 'a'
+    exp.finalText = 'one two three four'
     expect(exp.canSubmitFinal).toBe(true)
-    exp.finish({ correct: 1, total: 1, results: [] })
+    expect(exp.finalPayload()).toMatchObject({ explanation: 'one two three four', inputMode: 'typed' })
+    exp.finish({ correct: 2, total: 2, explain: { coverage: 0.8, keywords: [], modelAnswer: 'm' } })
     expect(exp.stage).toBe('done')
-    expect(events.some((e) => e.object.action === 'submit_analysis')).toBe(true)
-    expect(JSON.stringify(events)).not.toMatch(/revealExplanation|expectedKeywords/)
+    expect(exp.summary()).toMatchObject({ quizCorrect: 2, quizTotal: 2, finalCoverage: 0.8 })
   })
-})
 
-describe('a lesson with its own question groups (respiratory)', () => {
-  const resp: BiologyLessonContract = {
-    ...lesson,
-    lessonId: 'biology-respiratory',
-    type: 'biology_respiratory_system',
-    groups: [{ key: 'organs', question: 'Which parts?' }, { key: 'molecules', question: 'Which molecules?' }],
-    choices: { organs: [{ id: 'lungs', label: 'Lungs' }, { id: 'alveoli', label: 'Alveoli' }, { id: 'blood', label: 'Blood' }], molecules: [{ id: 'oxygen', label: 'Oxygen' }, { id: 'co2', label: 'CO2' }, { id: 'none', label: 'None' }] },
-    finalExplain: { prompt: 'Explain the path of oxygen', minWords: 5 },
-  }
-  const make = () => new JourneyExperiment(resp, () => {}, () => 1000)
+  it('holds no answers of its own: questions carry wording and options only', () => {
+    expect(JSON.stringify(questions)).not.toMatch(/answer|correct/)
+  })
 
-  it('asks exactly the lesson\'s groups and needs an answer in each', () => {
-    const exp = make()
-    expect(exp.groups.map((g) => g.key)).toEqual(['organs', 'molecules'])
-    exp.toggle('organs', 'alveoli')
-    exp.setConfidence(2)
-    expect(exp.canLock).toBe(false)
-    exp.toggle('molecules', 'oxygen')
-    expect(exp.canLock).toBe(true)
-  })
-  it('shuffles each group and keeps "none" last', () => {
-    const exp = make()
-    const o = exp.optionsFor('molecules').map((x) => x.id)
-    expect(o[o.length - 1]).toBe('none')
-    expect([...exp.optionsFor('organs')].map((x) => x.id).sort()).toEqual(['alveoli', 'blood', 'lungs'])
-  })
-  it('the final explanation is required before the challenge can be submitted', () => {
-    const exp = make()
-    exp.stage = 'final'
-    exp.scenarioAnswers.s1 = 'a'
-    expect(exp.canSubmitFinal).toBe(false)
-    exp.finalText = 'oxygen goes from the nose to the alveoli'
-    expect(exp.canSubmitFinal).toBe(true)
-    expect(exp.finalPayload()).toMatchObject({ answers: { s1: 'a' }, explanation: 'oxygen goes from the nose to the alveoli', inputMode: 'typed' })
+  it('skips the quiz when there are no questions', () => {
+    const { exp } = setup()
+    exp.startQuiz([])
+    expect(exp.stage).toBe('final')
   })
 })

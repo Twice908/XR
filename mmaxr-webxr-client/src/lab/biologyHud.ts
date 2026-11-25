@@ -1,5 +1,4 @@
-import type { BiologyOption } from '@mmaxr/schema'
-import type { Confidence, Group, JourneyExperiment, Stop } from '../state/biology'
+import type { JourneyExperiment, Stop } from '../state/biology'
 import { wordCount } from '../state/biology'
 import { h } from '../ui/dom'
 import { badge, button, setDisabled } from '../ui/components'
@@ -8,24 +7,17 @@ import { sound } from './sound'
 
 export interface BiologyHudHandlers {
   onBack(): void
-  onToggle(group: Group, id: string): void
-  onConfidence(c: Confidence): void
-  onLock(): void
-  onCommit(text: string, inputMode: 'voice' | 'typed', speakMs: number, audio: Blob | null): void
-  onRevise(text: string): void
+  /** Play this stop's animation. */
+  onWatch(): void
   onContinue(): void
-  onScenario(id: string, option: string): void
+  onPick(optionId: string): void
+  onCheck(): void
+  onNextQuestion(): void
   onSubmitFinal(audio: Blob | null): void
-  /** The student closed (true) or reopened (false) the question panel to look at the whole model. */
+  /** The student closed (true) or reopened (false) the panel to look at the whole model. */
   onView(overview: boolean): void
   onLayout(insets: { left: number; right: number; top: number; bottom: number }): void
 }
-
-const CONFIDENCE: { value: Confidence; label: string; hint: string }[] = [
-  { value: 1, label: 'Just a guess', hint: 'I am not sure' },
-  { value: 2, label: 'Fairly sure', hint: 'I have a reason' },
-  { value: 3, label: 'Certain', hint: 'I know this one' },
-]
 
 export class BiologyHud {
   readonly root: HTMLElement
@@ -36,16 +28,7 @@ export class BiologyHud {
   private panelListeners = new Map<HTMLElement, (open: boolean) => void>()
   private soundToggle: HTMLButtonElement
   private voice = new VoiceCapture()
-  private micNote = h('span', { class: 't-support' })
-  private micButton: HTMLButtonElement | null = null
-  private textArea: HTMLTextAreaElement | null = null
-  private wordLabel: HTMLElement | null = null
-  private commitBtn: HTMLButtonElement | null = null
-  private recorded: VoiceResult | null = null
   private micFailed = false
-  private transcript = ''
-  private reviseDraft: string | null = null
-  private reviseResult: { keywords: { keyword: string; matched: boolean }[]; coverage: number; revisions: number } | null = null
   private traveling = false
   private busyLabel: string | null = null
   private lastKey = ''
@@ -67,7 +50,7 @@ export class BiologyHud {
     this.soundToggle = button(sound.muted ? 'Sound off' : 'Sound on', { size: 'sm', variant: 'ghost', onClick: () => this.toggleSound() })
     this.toggles.append(this.soundToggle)
     exp.lesson.checkpoints.forEach((cp, i) => this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, String(i + 1)), h('span', { class: 'step-l' }, cp.organName.split(' (')[0].replace(' & Anus', '').replace(' & Oesophagus', '').replace(' & Gallbladder', '')))))
-    this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, '★'), h('span', { class: 'step-l' }, 'What if?')))
+    this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, '?'), h('span', { class: 'step-l' }, 'Quiz')), h('li', { class: 'step' }, h('span', { class: 'step-n' }, '★'), h('span', { class: 'step-l' }, 'Explain')))
     this.root = h(
       'div',
       { class: 'hud' },
@@ -149,34 +132,20 @@ export class BiologyHud {
     this.busyLabel = label
     this.update()
   }
-  setReviseResult(r: { keywords: { keyword: string; matched: boolean }[]; coverage: number; revisions: number }) {
-    this.reviseResult = r
-    this.reviseDraft = null
-    this.update()
-  }
-
   update() {
     const e = this.exp
-    const stepIndex = e.stage === 'final' || e.stage === 'done' ? e.stops.length : e.index
+    const stepIndex = e.stage === 'done' ? e.stops.length + 2 : e.stage === 'final' ? e.stops.length + 1 : e.stage === 'quiz' ? e.stops.length : e.index
     ;[...this.stepper.children].forEach((li, i) => {
       li.classList.toggle('done', i < stepIndex || e.stage === 'done')
       li.classList.toggle('current', i === stepIndex && e.stage !== 'done')
     })
     // A new stop or stage starts with a clean slate for the voice and text boxes.
-    const key = `${e.index}:${e.stage}:${this.traveling}:${this.busyLabel}:${this.watching}`
+    const key = `${e.index}:${e.stage}:${e.quizIndex}:${this.traveling}:${this.busyLabel}:${this.watching}`
     if (key !== this.lastKey) {
       this.lastKey = key
-      // Moving on to another stop or stage brings the panel back; the scene flies to the new view itself.
+      // Moving on to another stop or question brings the panel back; the scene flies to the new view itself.
       this.collapsed = false
-      if (e.stage === 'predict') {
-        this.recorded = null
-        this.micFailed = false
-        this.transcript = ''
-        this.reviseDraft = null
-        this.reviseResult = null
-        this.finalRecorded = null
-      }
-      if (e.stage === 'revealed') this.reviseDraft = null
+      if (e.stage === 'tour') this.finalRecorded = null
     }
     this.card.replaceChildren(...this.render())
     this.card.hidden = this.watching || this.collapsed
@@ -190,151 +159,54 @@ export class BiologyHud {
     if (this.traveling) return [h('div', { class: 'row', style: 'gap:12px' }, h('span', { class: 'spinner' }), h('span', { class: 't-label' }, 'Following the food to the next stop…'))]
     if (this.busyLabel) return [h('div', { class: 'row', style: 'gap:12px' }, h('span', { class: 'spinner' }), h('span', { class: 't-label' }, this.busyLabel))]
     switch (e.stage) {
-      case 'predict': return this.renderPredict()
-      case 'explain': return this.renderExplain()
-      case 'revealed': return this.renderRevealed()
+      case 'tour': return this.renderTour()
+      case 'quiz': return this.renderQuiz()
       case 'final': return this.renderFinal()
       case 'done': return this.renderDone()
     }
   }
 
-  private head(stop: Stop, sub: string): Node {
-    return h('div', { class: 'stack', style: 'gap:4px' }, h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, stop.cp.organName), h('div', { class: 'row', style: 'gap:8px' }, badge(`Stop ${this.exp.n} of ${this.exp.stops.length}`, 'info'), h('button', { class: 'bio-close', type: 'button', 'aria-label': 'Close this panel to see the whole model', title: 'Close and view the whole model', onclick: () => this.setCollapsed(true) }, '✕'))), h('p', { class: 't-support' }, sub))
+  private head(title: string, sub: string, tag: string): Node {
+    return h('div', { class: 'stack', style: 'gap:4px' }, h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, title), h('div', { class: 'row', style: 'gap:8px' }, badge(tag, 'info'), h('button', { class: 'bio-close', type: 'button', 'aria-label': 'Close this panel to see the whole model', title: 'Close and view the whole model', onclick: () => this.setCollapsed(true) }, '✕'))), h('p', { class: 't-support' }, sub))
   }
 
-  /* ---- predict ---- */
-  private renderPredict(): Node[] {
+  /* ---- tour: read, watch, move on ---- */
+  private renderTour(): Node[] {
     const e = this.exp
-    const s = e.stop
-    const chips = (group: Group, pool: BiologyOption[]) =>
-      h('div', { class: 'chips', role: 'group', 'aria-label': group }, ...pool.map((o) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(s.selection[group].includes(o.id)), onclick: () => this.handlers.onToggle(group, o.id) }, o.label)))
-    const conf = h('div', { class: 'conf-row', role: 'radiogroup', 'aria-label': 'How sure are you?' }, ...CONFIDENCE.map((c) => h('button', { class: 'conf-btn', type: 'button', role: 'radio', 'aria-checked': String(s.confidence === c.value), onclick: () => this.handlers.onConfidence(c.value) }, h('span', { class: 't-label' }, c.label), h('span', { class: 't-support' }, c.hint))))
-    const lock = button('Lock in my prediction', { variant: 'primary', disabled: !e.canLock, onClick: () => this.handlers.onLock() })
+    const s: Stop = e.stop
     return [
-      this.head(s, 'Look at the highlighted organ, then commit to a prediction before you explain.'),
-      h('p', { class: 'bio-prompt' }, s.cp.prompt),
-      ...e.groups.map((g) => h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, g.question), chips(g.key, e.optionsFor(g.key)))),
-      h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'How sure are you?'), conf),
-      h('div', { class: 'dialog-actions' }, lock),
-    ]
-  }
-
-  /* ---- explain ---- */
-  private renderExplain(): Node[] {
-    const e = this.exp
-    const s = e.stop
-    const sel = (g: Group) => s.selection[g].map((id) => e.lesson.choices[g].find((o) => o.id === id)?.label ?? id)
-    const support = voiceSupport()
-    const needsAudio = e.lesson.config.requireAudioExplanation && support.recorder && !this.micFailed
-    this.textArea = h('textarea', { class: 'input bio-text', rows: '4', placeholder: support.recognition ? 'Press record and explain aloud. Your words appear here, and you can fix them.' : 'Explain in your own words…', 'aria-label': 'Your explanation', oninput: () => this.onType() }) as HTMLTextAreaElement
-    this.textArea.value = this.transcript
-    this.wordLabel = h('span', { class: 't-support t-mono' })
-    this.micButton = button(this.voice.recording ? '■ Stop' : this.recorded ? '● Record again' : '● Record my explanation', { variant: this.recorded ? 'secondary' : 'primary', onClick: () => void this.toggleMic() })
-    this.commitBtn = button('Commit & reveal', { variant: 'primary', onClick: () => this.commit() })
-    this.paintCommit(needsAudio)
-    this.micNote.textContent = !support.recorder ? 'This browser cannot record. Type your explanation instead.' : this.micFailed ? 'The microphone is not available. Type your explanation instead.' : this.recorded ? `Recorded ${(this.recorded.durationMs / 1000).toFixed(0)}s. You can record again or edit the text.` : needsAudio ? 'Explaining aloud is part of this lab.' : ''
-    return [
-      this.head(s, 'Your prediction is locked. Now explain why, in your own words.'),
-      h('div', { class: 'chips' }, ...e.groups.flatMap((g) => sel(g.key)).map((l) => h('span', { class: 'chip chip-static' }, l))),
-      h('p', { class: 'bio-prompt' }, s.cp.prompt),
-      h('div', { class: 'row', style: 'gap:12px;flex-wrap:wrap' }, this.micButton, this.micNote),
-      this.textArea,
-      h('div', { class: 'row row-between' }, this.wordLabel, this.commitBtn),
-    ]
-  }
-
-  private needsAudio() {
-    const sup = voiceSupport()
-    return this.exp.lesson.config.requireAudioExplanation && sup.recorder && !this.micFailed
-  }
-
-  private onType() {
-    this.transcript = this.textArea?.value ?? ''
-    this.paintCommit(this.needsAudio())
-  }
-
-  private paintCommit(needsAudio: boolean) {
-    const words = wordCount(this.transcript)
-    const min = this.exp.minWords
-    if (this.wordLabel) this.wordLabel.textContent = `${words} / ${min} words`
-    if (this.commitBtn) {
-      const blocked = words < min || (needsAudio && !this.recorded)
-      setDisabled(this.commitBtn, blocked)
-      this.commitBtn.title = words < min ? `Write at least ${min} words` : needsAudio && !this.recorded ? 'Record your explanation first' : ''
-    }
-  }
-
-  private async toggleMic() {
-    if (this.voice.recording) {
-      const r = await this.voice.stop()
-      this.recorded = r
-      if (r.transcript && wordCount(r.transcript) >= wordCount(this.transcript)) this.transcript = r.transcript
-      this.update()
-      return
-    }
-    this.micNote.textContent = 'Listening… speak now.'
-    const ok = await this.voice.start(
-      (text) => {
-        this.transcript = text
-        if (this.textArea) this.textArea.value = text
-        this.paintCommit(this.needsAudio())
-      },
-      (msg) => {
-        this.micNote.textContent = msg
-      },
-    )
-    if (!ok) {
-      this.micFailed = true
-      this.update()
-      return
-    }
-    if (this.micButton) this.micButton.textContent = '■ Stop'
-  }
-
-  private commit() {
-    if (this.commitBtn?.getAttribute('aria-disabled') === 'true') return
-    const speakMs = this.recorded?.durationMs ?? 0
-    this.handlers.onCommit(this.transcript, this.recorded ? 'voice' : 'typed', speakMs, this.recorded?.blob ?? null)
-  }
-
-  /* ---- revealed ---- */
-  private renderRevealed(): Node[] {
-    const e = this.exp
-    const s = e.stop
-    const r = s.reveal!
-    const row = (g: Group, title: string, answer: BiologyOption[]) => {
-      const chosen = new Set(s.selection[g])
-      const truth = new Set(answer.map((a) => a.id))
-      const items = [
-        ...answer.map((a) => h('span', { class: `chip chip-static ${chosen.has(a.id) ? 'ok' : 'miss'}` }, `${chosen.has(a.id) ? '✓' : '+'} ${a.label}`)),
-        ...[...chosen].filter((id) => !truth.has(id)).map((id) => h('span', { class: 'chip chip-static wrong' }, `✗ ${e.lesson.choices[g].find((o) => o.id === id)?.label ?? id}`)),
-      ]
-      return h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 't-label' }, title), h('div', { class: 'chips' }, ...items))
-    }
-    const kws = this.reviseResult?.keywords ?? r.keywords
-    const coverage = this.reviseResult ? Math.max(this.reviseResult.coverage, r.coverage) : r.coverage
-    const matched = kws.filter((k) => k.matched).length
-    const pct = Math.round(coverage * 100)
-    const left = e.maxRevisions - s.revisions
-    const reviseBox =
-      this.reviseDraft !== null
-        ? [
-            h('textarea', { class: 'input bio-text', rows: '3', 'aria-label': 'Improve your explanation', oninput: (ev: Event) => (this.reviseDraft = (ev.target as HTMLTextAreaElement).value) }, this.reviseDraft),
-            h('div', { class: 'dialog-actions' }, button('Cancel', { variant: 'ghost', onClick: () => { this.reviseDraft = null; this.update() } }), button('Check again', { variant: 'primary', onClick: () => this.handlers.onRevise(this.reviseDraft ?? '') })),
-          ]
-        : []
-    return [
-      this.head(s, 'Here is what really happens at this stop.'),
-      h('p', { class: 'bio-reveal' }, r.explanation),
-      ...e.groups.map((g) => row(g.key, g.question.replace(/\?$/, ''), r.answer[g.key] as BiologyOption[])),
-      h('div', { class: 'stack', style: 'gap:6px' }, h('div', { class: 'row row-between' }, h('span', { class: 't-label' }, 'Key ideas in your explanation'), h('span', { class: 't-label t-mono' }, `${matched} of ${kws.length} · ${pct}%`)), h('div', { class: 'chips' }, ...kws.map((k) => h('span', { class: `chip chip-static ${k.matched ? 'ok' : 'miss'}` }, `${k.matched ? '✓' : '○'} ${k.keyword}`)))),
-      ...reviseBox,
+      this.head(s.cp.organName, 'Look at the highlighted organ, read what happens here, then watch it in action.', `Stop ${e.n} of ${e.stops.length}`),
+      h('p', { class: 'bio-reveal' }, s.cp.explanation),
+      ...(s.cp.animLabels.length ? [h('div', { class: 'chips' }, ...s.cp.animLabels.map((l) => h('span', { class: 'chip chip-static' }, l)))] : []),
       h(
         'div',
         { class: 'dialog-actions' },
-        e.canRevise && this.reviseDraft === null ? button(`Improve my explanation (${left} left)`, { variant: 'secondary', onClick: () => { this.reviseDraft = s.explanation; this.update() } }) : null,
-        button(e.isLastStop ? 'Finish: the “what if?” challenge →' : 'Next stop →', { variant: 'primary', onClick: () => this.handlers.onContinue() }),
+        button(s.watched ? '▶ Watch it again' : '▶ Watch it in action', { variant: s.watched ? 'secondary' : 'primary', onClick: () => this.handlers.onWatch() }),
+        button(e.isLastStop ? 'Finish the tour: quick quiz →' : 'Next stop →', { variant: s.watched ? 'primary' : 'secondary', onClick: () => this.handlers.onContinue() }),
       ),
+    ]
+  }
+
+  /* ---- quiz: one question at a time, at most four options ---- */
+  private renderQuiz(): Node[] {
+    const e = this.exp
+    const q = e.question
+    if (!q) return [h('p', { class: 't-support' }, 'No questions to show.')]
+    const f = e.feedback[q.id]
+    const options = h(
+      'div',
+      { class: 'opt-list', role: 'radiogroup', 'aria-label': q.prompt },
+      ...q.options.map((o) => {
+        const state = f ? (o.id === f.answer ? ' ok' : o.id === f.yourAnswer ? ' wrong' : '') : ''
+        return h('button', { class: `conf-btn${state}`, type: 'button', role: 'radio', disabled: !!f, 'aria-checked': String(f ? o.id === f.yourAnswer : e.picked === o.id), onclick: () => this.handlers.onPick(o.id) }, h('span', { class: 't-label' }, `${f && o.id === f.answer ? '✓ ' : f && o.id === f.yourAnswer ? '✗ ' : ''}${o.label}`))
+      }),
+    )
+    return [
+      this.head('Quick quiz', `About the ${q.organ.split(' (')[0]}.`, `Question ${e.quizIndex + 1} of ${e.questions.length}`),
+      h('p', { class: 'bio-prompt' }, q.prompt),
+      options,
+      ...(f ? [h('p', { class: 'bio-reveal' }, `${f.correct ? 'Right. ' : 'Not quite. '}${f.explanation}`)] : []),
+      h('div', { class: 'dialog-actions' }, f ? button(e.isLastQuestion ? 'Explain the whole journey →' : 'Next question →', { variant: 'primary', onClick: () => this.handlers.onNextQuestion() }) : button('Check my answer', { variant: 'primary', disabled: !e.canCheck, onClick: () => this.handlers.onCheck() })),
     ]
   }
 
@@ -352,7 +224,7 @@ export class BiologyHud {
         this.finalSubmit.title = needAudio ? 'Record your explanation first' : ''
       }
     }
-    this.finalSubmit = button('Submit my answers', { variant: 'primary', onClick: () => { if (this.finalSubmit?.getAttribute('aria-disabled') !== 'true') this.handlers.onSubmitFinal(this.finalRecorded?.blob ?? null) } })
+    this.finalSubmit = button('Submit my explanation', { variant: 'primary', onClick: () => { if (this.finalSubmit?.getAttribute('aria-disabled') !== 'true') this.handlers.onSubmitFinal(this.finalRecorded?.blob ?? null) } })
     const explain: Node[] = []
     if (fe) {
       const area = h('textarea', { class: 'input bio-text', rows: '5', placeholder: support.recognition ? 'Press record and explain aloud. Your words appear here, and you can fix them.' : 'Explain in your own words…', 'aria-label': 'Your explanation of the whole pathway', oninput: (ev: Event) => { e.finalText = (ev.target as HTMLTextAreaElement).value; paintSubmit() } }) as HTMLTextAreaElement
@@ -364,16 +236,8 @@ export class BiologyHud {
     }
     queueMicrotask(paintSubmit)
     return [
-      h('div', { class: 'stack', style: 'gap:4px' }, h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, fe ? 'Final check' : 'What if…?'), badge('Final challenge', 'info')), h('p', { class: 't-support' }, fe ? 'You are back at the start. Explain the whole journey, then work out what would happen in each case.' : 'Use what you learned on the journey to work out what would happen.')),
+      h('div', { class: 'stack', style: 'gap:4px' }, h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, 'Explain the journey'), badge('Last step', 'info')), h('p', { class: 't-support' }, 'Put the whole journey into your own words. Speaking it aloud is the best way to find what you still need to learn.')),
       ...explain,
-      ...e.lesson.transfer.scenarios.map((sc) =>
-        h(
-          'div',
-          { class: 'stack', style: 'gap:6px' },
-          h('p', { class: 'bio-prompt' }, sc.question),
-          h('div', { class: 'opt-list', role: 'radiogroup', 'aria-label': sc.question }, ...e.scenarioOptions(sc.id).map((o) => h('button', { class: 'conf-btn', type: 'button', role: 'radio', 'aria-checked': String(e.scenarioAnswers[sc.id] === o.id), onclick: () => this.handlers.onScenario(sc.id, o.id) }, h('span', { class: 't-label' }, o.label)))),
-        ),
-      ),
       h('div', { class: 'dialog-actions' }, this.finalSubmit),
     ]
   }
@@ -409,20 +273,15 @@ export class BiologyHud {
   }
 
   /* ---- done ---- */
-  /* ---- done ---- */
   private renderDone(): Node[] {
     const e = this.exp
     const sum = e.summary()
     const fin = e.finalResult!
     const stat = (n: string, l: string) => h('div', { class: 'stat' }, h('div', { class: 't-title' }, n), h('div', { class: 't-support' }, l))
     return [
-      h('div', { class: 'stack', style: 'gap:4px' }, h('h2', { class: 't-title' }, 'Journey complete'), h('p', { class: 't-support' }, e.lesson.finalExplain ? 'You followed one breath from the nose into your cells. Here is how your thinking went.' : 'You followed a meal from mouth to exit. Here is how your thinking went.')),
-      h('div', { class: 'stats' }, stat(`${sum.selectionsRight}/${sum.stops}`, 'stops predicted fully right'), stat(`${Math.round(sum.avgCoverage * 100)}%`, 'key ideas in your first explanations'), stat(String(sum.revisions), 'times you improved an explanation'), stat(`${fin.correct}/${fin.total}`, '“what if?” answers right'), ...(fin.explain ? [stat(`${Math.round(fin.explain.coverage * 100)}%`, 'key ideas in your final explanation')] : [])),
-      ...(fin.explain ? [h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'Key ideas in your final explanation'), h('div', { class: 'chips' }, ...fin.explain.keywords.map((k) => h('span', { class: `chip chip-static ${k.matched ? 'ok' : 'miss'}` }, `${k.matched ? '✓' : '○'} ${k.keyword}`))), h('p', { class: 'bio-reveal' }, fin.explain.modelAnswer))] : []),
-      ...fin.results.map((r, i) => {
-        const sc = e.lesson.transfer.scenarios[i]
-        return h('div', { class: 'stack', style: 'gap:2px' }, h('div', { class: 'row', style: 'gap:8px' }, badge(r.correct ? 'Right' : 'Not quite', r.correct ? 'success' : 'warning'), h('span', { class: 't-label' }, sc.question)), h('span', { class: 't-support' }, r.explanation))
-      }),
+      h('div', { class: 'stack', style: 'gap:4px' }, h('h2', { class: 't-title' }, 'Journey complete'), h('p', { class: 't-support' }, e.lesson.type === 'biology_respiratory_system' ? 'You followed one breath from the nose into your cells.' : 'You followed a meal from mouth to exit.')),
+      h('div', { class: 'stats' }, stat(`${sum.watched}/${sum.stops}`, 'stops watched'), stat(`${sum.quizCorrect}/${sum.quizTotal}`, 'quiz questions right'), ...(fin.explain ? [stat(`${Math.round(fin.explain.coverage * 100)}%`, 'key ideas in your explanation')] : [])),
+      ...(fin.explain ? [h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'Key ideas in your explanation'), h('div', { class: 'chips' }, ...fin.explain.keywords.map((k) => h('span', { class: `chip chip-static ${k.matched ? 'ok' : 'miss'}` }, `${k.matched ? '✓' : '○'} ${k.keyword}`))), h('p', { class: 'bio-reveal' }, fin.explain.modelAnswer))] : []),
       h('div', { class: 'dialog-actions' }, button('Back to experiments', { variant: 'primary', onClick: () => this.handlers.onBack() })),
     ]
   }

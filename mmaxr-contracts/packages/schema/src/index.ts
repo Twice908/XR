@@ -214,12 +214,7 @@ export interface MetalsRevealSample {
 }
 
 
-// 11. Human Digestive System: guided journey
-export interface BiologyGroup {
-  key: string;
-  question: string;
-}
-
+// 11. Human Digestive and Respiratory Systems: a view-only guided tour, then a short quiz
 export interface BiologyOption {
   id: string;
   label: string;
@@ -228,21 +223,17 @@ export interface BiologyOption {
 export interface BiologyCheckpoint {
   id: string;
   organName: string;
-  prompt: string;
   /** Camera and look-at in full-body (VR) space. */
   cameraPosition: { x: number; y: number; z: number };
   lookAtTarget: { x: number; y: number; z: number };
   /** Where the organ sits on the teaching torso model. */
   modelAnchor: { x: number; y: number; z: number };
-  /** Close-up model shown beside the torso at this stop. */
   /** Which close-up model is shown beside the body at this stop (digestive: tooth, stomach, liver, salivary, pancreas; respiratory: nasal, larynx, alveolus, diaphragm, cell, anaerobic). */
   detail: string | null;
-}
-
-export interface BiologyScenario {
-  id: string;
-  question: string;
-  options: BiologyOption[];
+  /** What this stop teaches. Public: the quiz comes after the tour. */
+  explanation: string;
+  /** Names floated over the animation at this stop. */
+  animLabels: string[];
 }
 
 export interface BiologyLessonContract {
@@ -255,34 +246,36 @@ export interface BiologyLessonContract {
   durationMinutes?: number;
   difficulty?: string;
   assets: Record<string, string>;
-  /** The question groups each stop asks, in order. Older lessons omit this and use glands, juices, components, nutrients. */
-  groups?: BiologyGroup[];
-  /** A closing explain-back (the respiratory lesson asks for the whole oxygen pathway). The expected keywords stay on the server. */
+  /** The closing explain-back. The expected keywords stay on the server. */
   finalExplain?: { prompt: string; minWords: number };
-  /** Which answer groups name the things floated over the reveal animation (default: juices, components). */
-  revealLabels?: string[];
-  /** Wording for the countdown while the reveal animation plays (default: "Watch the enzymes at work"). */
+  /** Wording for the countdown while the stop's animation plays. */
   revealTimerLabel?: string;
   /** Salivary glands and pancreas have no downloaded model: the client builds them procedurally. */
-  config: { isGuidedTour: boolean; requireAudioExplanation: boolean; minExplanationWords: number; maxRevisions: number };
-  choices: Record<string, BiologyOption[]>;
+  config: { isGuidedTour: boolean; requireAudioExplanation: boolean; minExplanationWords: number; quizSize: number };
   checkpoints: BiologyCheckpoint[];
-  transfer: { scenarios: BiologyScenario[] };
 }
 
-export interface BiologyReveal {
-  checkpoint: string;
+/** One dealt quiz question. Option ids are opaque (their position); the answer is not here. */
+export interface BiologyQuizQuestion {
+  id: string;
+  organ: string;
+  prompt: string;
+  options: BiologyOption[];
+}
+
+export interface BiologyQuizFeedback {
+  correct: boolean;
+  /** Option id of the right answer, and of the one the student chose. */
+  answer: string;
+  yourAnswer: string;
   explanation: string;
-  answer: Record<string, BiologyOption[] | string>;
-  selectionScore: { allCorrect: boolean } & Record<string, number | boolean>;
-  keywords: { keyword: string; matched: boolean }[];
-  coverage: number;
+  answered: number;
+  total: number;
 }
 
 export interface BiologyFinalResult {
   correct: number;
   total: number;
-  results: { id: string; correct: boolean; answer: string; yourAnswer: string; explanation: string }[];
   /** How well the closing explanation covered the key ideas, with a model answer to compare with. */
   explain?: { coverage: number; keywords: { keyword: string; matched: boolean }[]; modelAnswer: string };
 }
