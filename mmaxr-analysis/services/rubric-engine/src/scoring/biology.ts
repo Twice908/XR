@@ -1,5 +1,6 @@
 import { r1, r2 } from './chemistry';
 import { travel } from './sensors';
+import { band, BIOLOGY_DIMENSIONS, overall } from './rules';
 import { LABELS, RUBRIC_VERSION, type Device, type DimensionKey, type DimensionResult, type EventRow, type Report, type SensorData, type StatItem, type TruthInfo } from './types';
 
 /*
@@ -26,7 +27,7 @@ function causalCoherence(truth: TruthInfo | null): DimensionResult {
   if (!b || b.quiz.length === 0) return { ...base, score: null, basis: 'The quiz has not been answered yet.', evidence: [], measures: {} };
   const right = b.quiz.filter((q) => q.correct).length;
   const ratio = right / b.quiz.length;
-  const score = Math.round(ratio * 3);
+  const score = band(ratio);
   const missed = b.quiz.filter((q) => !q.correct).map((q) => q.organ);
   return {
     ...base,
@@ -42,7 +43,7 @@ function transfer(truth: TruthInfo | null): DimensionResult {
   const fin = truth?.biology?.final;
   if (!fin) return { ...base, score: null, basis: 'The closing explanation has not been submitted.', evidence: [], measures: {} };
   if (typeof fin.explainCoverage !== 'number') return { ...base, score: null, basis: 'This lab has no closing explanation to judge.', evidence: [], measures: {} };
-  const score = Math.round(fin.explainCoverage * 3);
+  const score = band(fin.explainCoverage);
   return { ...base, score, basis: `The closing explanation of the whole pathway covered ${Math.round(fin.explainCoverage * 100)}% of the key ideas.`, evidence: [], measures: { explainCoverage: r2(fin.explainCoverage) } };
 }
 
@@ -69,9 +70,6 @@ function stats(events: EventRow[], truth: TruthInfo | null, sensor: SensorData |
 
 export function scoreBiology(events: EventRow[], sensor: SensorData | null, device: Device, truth: TruthInfo | null = null, lessonType: 'biology_digestive_system' | 'biology_respiratory_system' = 'biology_digestive_system'): Report {
   const dims: DimensionResult[] = [notAssessed('predictionDiscipline'), notAssessed('retrievalEffort'), notAssessed('revisionQuality'), causalCoherence(truth), notAssessed('metacognitiveCalibration'), transfer(truth)];
-  const assessed = dims.filter((x) => x.score !== null);
-  const points = assessed.reduce((s, x) => s + (x.score as number), 0);
-  const max = assessed.length * 3;
   const b = truth?.biology;
   return {
     rubricVersion: `${RUBRIC_VERSION}-biology`,
@@ -79,7 +77,7 @@ export function scoreBiology(events: EventRow[], sensor: SensorData | null, devi
     device,
     complete: b?.final != null,
     dimensions: dims,
-    overall: { points, max, percent: max ? Math.round((points / max) * 100) : null },
+    overall: overall(dims, b?.final != null, BIOLOGY_DIMENSIONS),
     deviceStats: stats(events, truth, sensor, device),
     metrics: {
       stopsVisited: b?.visited ?? 0,

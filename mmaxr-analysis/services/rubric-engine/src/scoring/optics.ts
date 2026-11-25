@@ -1,4 +1,5 @@
 import { action, cap, d, deviceStats, metacognition, num, pairActions, predictionDiscipline, r2, retrievalEffort } from './chemistry';
+import { ALL_DIMENSIONS, band, overall } from './rules';
 import { LABELS, RUBRIC_VERSION, type Device, type DimensionResult, type EventRow, type Report, type SensorData, type TruthInfo } from './types';
 
 /*
@@ -25,7 +26,7 @@ function revisionQuality(events: EventRow[], truth: TruthInfo | null): Dimension
   const anomaly = cases.find((c) => c.anomaly);
   const anomalyFixed = anomaly ? anomaly.firstScore < FIELDS_PER_IMAGE && (anomaly.finalScore ?? 0) > anomaly.firstScore : false;
   const ratio = improved / need.length;
-  const score = ratio >= 0.75 ? 3 : ratio >= 0.5 ? 2 : ratio > 0 ? 1 : 0;
+  const score = Math.max(0, band(ratio) - worse);
   return {
     ...base,
     score,
@@ -55,7 +56,7 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
   const legacy = events.filter((e) => e.verb === 'explained' && (num(d(e).words) ?? 0) >= 6).length;
   const explainedRatio = ex ? (required ? Math.min(1, real.length / required) : 1) : Math.min(1, legacy / 3);
   const blend = 0.5 * finalAcc + 0.15 * basicsAcc + 0.35 * explainedRatio;
-  const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
+  const score = band(blend);
   const pasted = given.filter((g) => !genuine(g) && g.pasted >= 40).length;
   const voice = given.filter((g) => g.inputMode === 'voice').length;
   return {
@@ -75,7 +76,7 @@ function transfer(truth: TruthInfo | null): DimensionResult {
   const convex = (truth?.optics?.cases ?? []).filter((c) => c.mirror === 'convex');
   if (!convex.length) return { ...base, score: null, basis: 'The convex mirror has not been tested yet.', evidence: [], measures: {} };
   const acc = convex.reduce((s, c) => s + c.firstScore, 0) / (convex.length * FIELDS_PER_IMAGE);
-  const score = Math.round(acc * 3);
+  const score = band(acc);
   return { ...base, score, basis: `Applied the concave-mirror rules to a new mirror: ${Math.round(acc * 100)}% of the first convex predictions were right.`, evidence: [], measures: { convexCases: convex.length, firstAttemptAccuracy: r2(acc) } };
 }
 
@@ -100,16 +101,13 @@ export function scoreOptics(events: EventRow[], sensor: SensorData | null, devic
       { label: 'Time with the result', value: `${r2(median(given.map((g) => g.dwellMs)) / 1000)}s`, hint: 'Median time between seeing a result and explaining it' },
     );
   }
-  const assessed = dims.filter((x) => x.score !== null);
-  const points = assessed.reduce((s, x) => s + (x.score as number), 0);
-  const max = assessed.length * 3;
   return {
     rubricVersion: `${RUBRIC_VERSION}-optics`,
     lessonType: 'physics_optics',
     device,
     complete: truth?.optics?.submitted === true,
     dimensions: dims,
-    overall: { points, max, percent: max ? Math.round((points / max) * 100) : null },
+    overall: overall(dims, truth?.optics?.submitted === true, ALL_DIMENSIONS),
     deviceStats: stats,
     metrics: {
       predictionsMade: events.filter((e) => e.verb === 'predicted').length,

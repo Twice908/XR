@@ -11,6 +11,7 @@ import {
   type StatItem,
   type TruthInfo,
 } from './types';
+import { band, NO_TRANSFER, overall } from './rules';
 
 /*
  * Deterministic rubric for the chemistry indicators lab (0-3 per dimension).
@@ -121,7 +122,11 @@ export function predictionDiscipline(events: EventRow[], pairs: Pair[], unpredic
   };
 }
 
-export function retrievalEffort(pairs: Pair[], sensor: SensorData | null, device: Device): DimensionResult {
+/** Pairs where the student did something after predicting. "What if?" answers lock and act in one click, so they are left out. */
+export const timedPairs = (pairs: Pair[]) => pairs.filter((p) => d(p.acted).tool !== 'answer');
+
+export function retrievalEffort(allPairs: Pair[], sensor: SensorData | null, device: Device): DimensionResult {
+  const pairs = timedPairs(allPairs);
   if (!pairs.length) {
     return { key: 'retrievalEffort', label: LABELS.retrievalEffort, score: null, max: 3, basis: 'No predict-then-act pairs yet.', evidence: [], measures: {} };
   }
@@ -184,8 +189,7 @@ export function revisionQuality(events: EventRow[], truth: TruthInfo | null): Di
     basis = harmful === 0 ? 'First conclusions were all right, and none were talked out of.' : `First conclusions were right, but ${harmful} were changed to wrong ones.`;
   } else {
     const ratio = improved / wrongFirst;
-    score = ratio >= 1 ? 3 : ratio >= 0.5 ? 2 : ratio > 0 ? 1 : 0;
-    score = Math.max(0, score - harmful);
+    score = Math.max(0, band(ratio) - harmful);
     basis = `${wrongFirst} first conclusion${wrongFirst > 1 ? 's were' : ' was'} wrong; ${improved} corrected after new evidence${harmful ? `, ${harmful} made worse` : ''}.`;
   }
   return {
@@ -257,7 +261,7 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
   const base = 0.5 * (right / n) + 0.25 * (phNear / n) + 0.25 * (coherent / n);
   const rz = withReasoning(base, truth);
   const blend = rz.blend;
-  const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
+  const score = band(blend);
   return {
     key: 'causalCoherence',
     label: LABELS.causalCoherence,
@@ -296,10 +300,11 @@ export function metacognition(events: EventRow[]): DimensionResult {
   };
 }
 
-export function deviceStats(events: EventRow[], pairs: Pair[], sensor: SensorData | null, device: Device): { kind: Device; items: StatItem[] } {
+export function deviceStats(events: EventRow[], allPairs: Pair[], sensor: SensorData | null, device: Device): { kind: Device; items: StatItem[] } {
   const first = events[0]?.timestamp ?? 0;
   const last = events[events.length - 1]?.timestamp ?? first;
   const decisions = events.filter((e) => e.verb === 'predicted').map((e) => num(d(e).decisionMs)).filter((x): x is number => x !== null);
+  const pairs = timedPairs(allPairs);
   const gap = mean(pairs.map((p) => p.gapMs));
   const handDuring = sensor ? mean(pairs.map((p) => travel(sensor, 'hand', p.predicted.timestamp, p.acted.timestamp))) : null;
   const headTotal = sensor ? travel(sensor, 'head', first, last) : null;
@@ -342,9 +347,6 @@ export function scoreChemistry(events: EventRow[], sensor: SensorData | null, de
     metacognition(events),
     { key: 'transfer' as DimensionKey, label: LABELS.transfer, score: null, max: 3, basis: 'This lab has no transfer task.', evidence: [], measures: {} },
   ];
-  const assessed = dims.filter((x) => x.score !== null);
-  const points = assessed.reduce((s, x) => s + (x.score as number), 0);
-  const max = assessed.length * 3;
   const complete = submitted(events, truth) !== null;
   return {
     rubricVersion: RUBRIC_VERSION,
@@ -352,7 +354,7 @@ export function scoreChemistry(events: EventRow[], sensor: SensorData | null, de
     device,
     complete,
     dimensions: dims,
-    overall: { points, max, percent: max ? Math.round((points / max) * 100) : null },
+    overall: overall(dims, complete, NO_TRANSFER),
     deviceStats: deviceStats(events, pairs, sensor, device),
     metrics: {
       predictionsMade: events.filter((e) => e.verb === 'predicted').length,

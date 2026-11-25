@@ -3,7 +3,7 @@ import type { OpticsImage, OpticsImageField, OpticsLessonContract, OpticsMirror,
 
 export type Phase = 'plane' | 'laws' | 'rules' | 'concave' | 'convex' | 'table' | 'reveal'
 export type Confidence = 1 | 2 | 3
-export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object'], at?: number) => void
 export type Tool = 'plane' | 'law' | 'rule' | 'concave' | 'convex'
 
 export const IMAGE_FIELDS: OpticsImageField[] = ['position', 'size', 'nature', 'orientation']
@@ -172,15 +172,16 @@ export class OpticsExperiment {
   }
 
   /** The student fired the laser / traced the rays. `result` is what the lesson service disclosed. */
-  act(result: OpticsTrialResult): Trial {
+  act(result: OpticsTrialResult, clickedAt?: number): Trial {
     const t = this.pending
     if (!t || t.id !== result.id) throw new StateError('Make a prediction first.')
     t.result = result
-    t.actedAt = this.now()
-    t.resultAt = t.actedAt
+    // The student acted when they clicked; the result arrived after the server's reply.
+    t.actedAt = clickedAt ?? this.now()
+    t.resultAt = this.now()
     this.pending = null
     const data = { sample: t.sample, tool: t.tool, id: t.id }
-    this.emit(XapiVerb.ACTED, { action: t.kind === 'plane' ? 'fire_laser' : t.kind === 'law' ? 'fire_law' : t.kind === 'rule' ? 'fire_ray' : 'trace_rays', target: `${t.tool}:${t.sample}`, data })
+    this.emit(XapiVerb.ACTED, { action: t.kind === 'plane' ? 'fire_laser' : t.kind === 'law' ? 'fire_law' : t.kind === 'rule' ? 'fire_ray' : 'trace_rays', target: `${t.tool}:${t.sample}`, data }, t.actedAt)
     this.emit(XapiVerb.OBSERVED, { action: 'test_result', target: `${t.tool}:${t.sample}`, value: result.outcome ?? result.image?.position ?? '', data: { ...data, match: result.match, fields: result.fields ?? null, anomaly: result.anomaly === true } })
     if (t.kind === 'case') this.table[t.id] = { ...(t.prediction as Partial<OpticsImage>) }
     return t

@@ -39,6 +39,13 @@ export function parseSensorCsv(csv: string): SensorData | null {
   return samples.length ? { format: isWeb ? 'web' : 'vr', samples } : null;
 }
 
+/** Join CSV chunks of one session into one sample list, in time order. Null when there are none. */
+export function mergeSensorData(parts: SensorData[]): SensorData | null {
+  if (!parts.length) return null;
+  const samples = parts.flatMap((p) => p.samples).sort((a, b) => a.t - b.t);
+  return samples.length ? { format: parts[0].format, samples } : null;
+}
+
 const dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /** Path length (metres) of one tracked point between two timestamps. Jumps over 0.5 m in one step are tracking glitches. */

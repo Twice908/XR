@@ -3,7 +3,7 @@ import type { BiologyLessonContract } from '@mmaxr/schema'
 import { go } from '../router'
 import { CoachClient, loadMode } from '../services/aiCoach'
 import type { LabSession } from '../services/session'
-import { answerQuestion, fetchQuiz, submitChallenge, uploadAudio, visitStop } from '../services/biologyApi'
+import { answerQuestion, fetchQuiz, submitChallenge, uploadAudio, visitStop, watchedStop } from '../services/biologyApi'
 import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
 import { BiologyHud, type BiologyHudHandlers } from '../lab/biologyHud'
@@ -27,7 +27,7 @@ interface Ctx {
 /** Runs the Human Digestive System guided journey. Returns a cleanup function. */
 export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
-  const exp = new JourneyExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
+  const exp = new JourneyExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   const sceneEvents = { onProgress: (d: number, t: number) => (status.querySelector('p')!.textContent = `Preparing your lab… ${d}/${t}`) }
   const scene: JourneyScene = lesson.type === 'biology_respiratory_system' ? new RespiratoryScene(canvas, lesson, sceneEvents) : new BiologyScene(canvas, lesson, sceneEvents)
   let hud: BiologyHud | null = null
@@ -65,7 +65,10 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
           window.clearInterval(tick)
           hud!.setWatching(false)
         }
+        await watchedStop(session, cp.id)
         exp.markWatched()
+      } catch (err) {
+        toast((err as Error).message, 'error')
       } finally {
         working = false
         hud!.update()
@@ -204,7 +207,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
     return () => {}
   }
   scene.start()
-  sensorTracker.start(session.sessionId, () => scene.head, () => scene.hand)
+  sensorTracker.start(session, () => scene.head, () => scene.hand)
   status.remove()
   hud.update()
   void scene.arrive(0)

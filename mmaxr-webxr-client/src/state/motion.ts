@@ -2,7 +2,7 @@ import { XapiVerb } from '@mmaxr/schema'
 import type { MotionExplanationResult, MotionLessonContract, MotionObservation, MotionScenario, MotionTrial, TelemetryEvent } from '@mmaxr/schema'
 
 export type Confidence = 1 | 2 | 3
-export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object'], at?: number) => void
 /** open: choosing a prediction. locked: ready to run. running: the experiment is playing. observed: result known. done: finished. */
 export type TrialStage = 'open' | 'locked' | 'running' | 'observed' | 'done'
 
@@ -136,18 +136,20 @@ export class MotionExperiment {
     return { trial: t.trial.id, value, confidence: t.confidence, thinkMs: this.now() - t.openedAt }
   }
   /** The server accepted the prediction. */
-  recordLocked(thinkMs: number): void {
+  recordLocked(thinkMs: number, clickedAt?: number): void {
     const t = this.current
     t.thinkMs = thinkMs
     t.stage = 'locked'
-    t.lockedAt = this.now()
+    // Stamp the moment the student clicked "Lock", not when the server's reply arrived, so network delay does not eat
+    // into the time between predicting and acting.
+    t.lockedAt = clickedAt ?? this.now()
     const isRun = t.trial.action !== null
     this.emit(XapiVerb.PREDICTED, {
       action: isRun ? 'predict_trial' : 'predict_transfer',
       target: `trial:${t.trial.id}`,
       value: this.describeValue(t),
       data: { sample: t.n, tool: isRun ? 'run' : 'answer', trial: t.trial.id, module: t.scenario, confidence: t.confidence, decisionMs: thinkMs, anomaly: t.trial.anomaly },
-    })
+    }, t.lockedAt)
   }
 
   private describeValue(t: TrialState): string {

@@ -28,7 +28,7 @@ interface Ctx {
 /** Runs the Metals & Non-Metals lab. Returns a cleanup function. */
 export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
-  const exp = new MetalsExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
+  const exp = new MetalsExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let busy = false
   let submitting = false
   let reasoned = false
@@ -74,6 +74,7 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
     busy = true
     const p = exp.pending
     hud!.hint('Running the test…', null)
+    const clickedAt = Date.now()
     let server: Awaited<ReturnType<typeof runMetalsTest>>
     try {
       server = await runMetalsTest(session, p.sample + 1, p.tool)
@@ -83,7 +84,7 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
       refresh()
       return
     }
-    const r = guard(() => exp.act({ outcome: server.outcome, litmus: server.litmus }))
+    const r = guard(() => exp.act({ outcome: server.outcome, litmus: server.litmus }, clickedAt))
     if (!r) {
       busy = false
       return
@@ -254,7 +255,7 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
     return () => {}
   }
   scene.start()
-  sensorTracker.start(session.sessionId, () => scene!.head, () => scene!.hand)
+  sensorTracker.start(session, () => scene!.head, () => scene!.hand)
   status.remove()
   refresh()
   ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers }

@@ -7,7 +7,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const upload = multer({ storage: multer.memoryStorage() });
+// One chunk is about 20 s of 30 Hz samples (~40 KB); 2 MB leaves room for a long single upload from older clients.
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
+
+const SESSION_AUTH_URL = process.env.SESSION_AUTH_URL || 'http://localhost:3004';
+const OBJECT_STORE_URL = process.env.OBJECT_STORE_URL || 'http://localhost:3006';
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev';
+
+/** Does this token belong to this session? The browser sends it as a header, or as a form field from sendBeacon. */
+async function validSession(sessionId: string, token: string): Promise<boolean> {
+  if (!token) return false;
+  try {
+    const res = await fetch(`${SESSION_AUTH_URL}/auth/verify/${encodeURIComponent(sessionId)}`, { headers: { Authorization: `Bearer ${token}` } });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://admin:password@localhost:5432/mmaxr',
@@ -24,6 +40,7 @@ async function initDB() {
         file_url TEXT,
         uploaded_at BIGINT
       );
+      ALTER TABLE session_manifests ADD COLUMN IF NOT EXISTS part INTEGER;
     `);
     console.log('✅ Database connected and manifest table ensured.');
   } catch (err) {
@@ -36,15 +53,20 @@ initDB();
 app.post('/upload/:sessionId', upload.single('file'), async (req, res) => {
   try {
     const { sessionId } = req.params;
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : typeof req.body?.token === 'string' ? req.body.token : '';
+    if (!(await validSession(sessionId, token))) return res.status(401).json({ error: 'Invalid session token' });
+    // Clients upload the CSV in numbered chunks during the session; the rubric engine joins them in order.
+    const part = Number.isInteger(Number(req.body?.part)) ? Number(req.body.part) : null;
     if (!req.file) {
       if (!res.headersSent) return res.status(400).json({ error: 'No file uploaded' });
       return;
     }
 
     // 1. Forward the file to the object-store service
-    const storeRes = await fetch('http://localhost:3006/upload/base64', {
+    const storeRes = await fetch(`${OBJECT_STORE_URL}/upload/base64`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-internal-key': INTERNAL_KEY },
       body: JSON.stringify({
         filename: req.file.originalname,
         contentType: req.file.mimetype,
@@ -61,12 +83,12 @@ app.post('/upload/:sessionId', upload.single('file'), async (req, res) => {
 
     // 2. Save the manifest to Postgres
     await pool.query(
-      `INSERT INTO session_manifests (session_id, file_type, file_url, uploaded_at) 
-       VALUES ($1, $2, $3, $4)`,
-      [sessionId, 'sensor_csv', storeData.url, Date.now()]
+      `INSERT INTO session_manifests (session_id, file_type, file_url, uploaded_at, part)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [sessionId, 'sensor_csv', storeData.url, Date.now(), part]
     );
 
-    console.log(`[Sensor Stream] Logged manifest for ${sessionId}`);
+    console.log(`[Sensor Stream] Logged manifest for ${sessionId}${part !== null ? ` (part ${part})` : ''}`);
     
     if (!res.headersSent) {
       res.status(201).json({

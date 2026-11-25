@@ -80,7 +80,8 @@
       "id": "methyl_orange",
       "name": "Methyl Orange",
       "source": "Synthetic (Man-made)",
-      "colors": { "neutral": "Orange", "acid": "Red", "base": "Yellow" }
+      "colors": { "bottle": "Orange",
+      "neutral": "Yellow", "acid": "Red", "base": "Yellow" }
     },
     {
       "id": "ph_paper",

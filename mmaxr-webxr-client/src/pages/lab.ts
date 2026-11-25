@@ -83,10 +83,10 @@ export function labPage(lessonId: string): Page {
       telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
       telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: lesson.lessonId })
 
-      const exp = new ChemistryExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
+      const exp = new ChemistryExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
       let busy = false
 
-      const toolColor = (tool: string) => exp.indicator(tool)?.colors?.neutral ?? 'Colorless'
+      const toolColor = (tool: string) => exp.indicator(tool)?.colors?.bottle ?? exp.indicator(tool)?.colors?.neutral ?? 'Colorless'
 
       const defaultHint = () => {
         if (exp.phase === 'select_tools') {
@@ -311,7 +311,7 @@ export function labPage(lessonId: string): Page {
       if (destroyed) return
 
       scene.start()
-      sensorTracker.start(session.sessionId, () => scene!.head, () => scene!.hand)
+      sensorTracker.start(session, () => scene!.head, () => scene!.hand)
       status.remove()
       refresh()
       ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers: hudHandlers }

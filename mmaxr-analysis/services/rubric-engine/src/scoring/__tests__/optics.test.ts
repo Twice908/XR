@@ -51,7 +51,8 @@ describe('optics rubric', () => {
     const r = analyze(session([true, true, true, true]), null, truth());
     expect(score(r, 'revisionQuality')).toBe(3);
     expect(score(r, 'causalCoherence')).toBe(3);
-    expect(score(r, 'transfer')).toBe(3);
+    // Convex first try 7 of 8 fields = 0.875: below the shared 0.9 step for a 3.
+    expect(score(r, 'transfer')).toBe(2);
     expect(score(r, 'predictionDiscipline')).toBeGreaterThanOrEqual(2);
     expect(r.complete).toBe(true);
     expect(r.dimensions.find((d) => d.key === 'revisionQuality')!.basis).toContain('case at F was corrected');

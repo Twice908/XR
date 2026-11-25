@@ -80,8 +80,9 @@ export interface ChemistryIndicator {
   name: string;
   source: string;
   isPhTest?: boolean;
-  /** The browser only receives `neutral` (the colour of the liquid in the bottle). acid/base stay server-side. */
+  /** The browser only receives `neutral` (and `bottle`, the stock solution's colour when it differs). acid/base stay server-side. */
   colors?: {
+    bottle?: string;
     neutral?: string;
     acid?: string;
     base?: string;
@@ -277,7 +278,8 @@ export interface BiologyFinalResult {
   correct: number;
   total: number;
   /** How well the closing explanation covered the key ideas, with a model answer to compare with. */
-  explain?: { coverage: number; keywords: { keyword: string; matched: boolean }[]; modelAnswer: string };
+  /** `listLike`: some sentences were only lists of key words, so they did not count towards coverage. */
+  explain?: { coverage: number; listLike?: boolean; keywords: { keyword: string; matched: boolean }[]; modelAnswer: string };
 }
 
 

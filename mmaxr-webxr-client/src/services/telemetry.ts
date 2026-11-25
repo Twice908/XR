@@ -30,12 +30,13 @@ export class TelemetryClient {
     if (this.retryTimer) window.clearTimeout(this.retryTimer)
   }
 
-  emit(verb: XapiVerb, object: EventObject): TelemetryEvent | null {
+  /** `at` lets a lab stamp the moment the student acted (e.g. the click), when the event is sent after a server reply. */
+  emit(verb: XapiVerb, object: EventObject, at?: number): TelemetryEvent | null {
     if (!this.ctx) return null
     const event: TelemetryEvent = {
       sessionId: this.ctx.sessionId,
       studentId: this.ctx.studentId,
-      timestamp: Date.now(),
+      timestamp: at ?? Date.now(),
       device: DEVICE,
       verb,
       object,
@@ -48,7 +49,8 @@ export class TelemetryClient {
   /** Best-effort delivery on page close. */
   flushBeacon() {
     if (!this.ctx || this.queue.length === 0) return
-    const body = JSON.stringify({ events: this.queue })
+    // sendBeacon cannot set an Authorization header, so the session token travels in the body.
+    const body = JSON.stringify({ token: this.ctx.token, events: this.queue })
     navigator.sendBeacon(CONFIG.TELEMETRY_URL, new Blob([body], { type: 'application/json' }))
     this.queue = []
   }

@@ -486,7 +486,7 @@ export class LabScene {
       group.position.set(x, BENCH_Y + RISER_H, BOTTLE_Z)
       group.userData.bottleId = ind.id
 
-      const liquidColor = swatchFor(ind.colors?.neutral ?? 'Colorless')
+      const liquidColor = swatchFor(ind.colors?.bottle ?? ind.colors?.neutral ?? 'Colorless')
       const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xe8f0ff, transparent: true, opacity: 0.28, roughness: 0.05, metalness: 0, clearcoat: 1, depthWrite: false })
       const body = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.04, 0.12, 28), glassMat)
       body.position.y = 0.06

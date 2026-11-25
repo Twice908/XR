@@ -2,7 +2,7 @@ import { XapiVerb } from '@mmaxr/schema'
 import type { SoundAct, SoundCalcResult, SoundExplainResult, SoundLessonContract, SoundReveal, SoundTask, SoundTool, SoundTrialResult, TelemetryEvent } from '@mmaxr/schema'
 
 export type Confidence = 1 | 2 | 3
-export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object'], at?: number) => void
 
 export class StateError extends Error {}
 
@@ -130,14 +130,14 @@ export class SoundExperiment {
   }
 
   /** The lesson service accepted the run. */
-  act(result: SoundTrialResult & { hasCalc: boolean }): Trial {
+  act(result: SoundTrialResult & { hasCalc: boolean }, clickedAt?: number): Trial {
     const t = this.pending
     if (!t || t.id !== result.id) throw new StateError('Make a prediction first.')
     t.result = result
     t.resultAt = this.now()
     this.pending = null
     const data = { sample: t.sample, tool: t.tab, id: t.id }
-    this.emit(XapiVerb.ACTED, { action: 'run_task', target: `${t.tab}:${t.sample}`, data })
+    this.emit(XapiVerb.ACTED, { action: 'run_task', target: `${t.tab}:${t.sample}`, data }, clickedAt)
     this.emit(XapiVerb.OBSERVED, { action: 'test_result', target: `${t.tab}:${t.sample}`, value: String(t.prediction), data: { ...data, match: result.match, anomaly: result.anomaly === true } })
     return t
   }

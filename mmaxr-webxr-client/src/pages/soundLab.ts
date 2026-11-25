@@ -28,7 +28,7 @@ const num = (v: unknown, d: number) => (Number.isFinite(Number(v)) ? Number(v) :
 /** Runs the Sound & Waves sandbox. Returns a cleanup function. */
 export async function startSoundLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
-  const exp = new SoundExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
+  const exp = new SoundExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let busy = false
   let submitting = false
   let coach: CoachClient | null = null
@@ -135,6 +135,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
     if (!body) return
     busy = true
     hud!.hint('Recording your run…', null)
+    const clickedAt = Date.now()
     let result: Awaited<ReturnType<typeof runTask>>
     try {
       result = await runTask(session, body)
@@ -145,7 +146,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
       return
     }
     busy = false
-    const trial = guard(() => exp.act(result))
+    const trial = guard(() => exp.act(result, clickedAt))
     if (!trial) return
     if (!result.match) coach?.event('prediction_mismatch', result.anomaly ? say.anomaly : say.mismatch(trial.task.prompt), buildSoundSnapshot(exp))
     hud!.show(trial.id)
@@ -357,7 +358,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
     return () => {}
   }
   scene.start()
-  sensorTracker.start(session.sessionId, () => scene!.head, () => scene!.hand)
+  sensorTracker.start(session, () => scene!.head, () => scene!.hand)
   status.remove()
   scene.setWave({ freq: 3, amp: 3, speed: 0.24 })
   refresh()

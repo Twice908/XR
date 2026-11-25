@@ -8,7 +8,7 @@ export type Confidence = 1 | 2 | 3
 
 export const PH_TOOL = 'ph_paper'
 
-export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object'], at?: number) => void
 
 export interface TestResult {
   tool: string

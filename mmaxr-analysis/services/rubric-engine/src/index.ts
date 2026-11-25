@@ -3,7 +3,7 @@ import cors from 'cors';
 import { Pool } from 'pg';
 import jwt from 'jsonwebtoken';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { analyze, parseSensorCsv, type EventRow, type SensorData, type TruthInfo } from './scoring';
+import { analyze, mergeSensorData, parseSensorCsv, type EventRow, type SensorData, type TruthInfo } from './scoring';
 
 const app = express();
 app.use(cors());
@@ -48,12 +48,21 @@ const s3Client = new S3Client({
 
 async function getSensorData(sessionId: string): Promise<SensorData | null> {
   try {
-    const manifest = await pool.query(`SELECT file_url FROM session_manifests WHERE session_id = $1 ORDER BY id DESC LIMIT 1`, [sessionId]);
+    // Clients upload the CSV in numbered chunks during the session (older clients sent one file): join them in order.
+    const manifest = await pool.query(
+      `SELECT file_url FROM session_manifests WHERE session_id = $1 AND file_type = 'sensor_csv' ORDER BY COALESCE(part, 0), id`,
+      [sessionId],
+    );
     if (manifest.rows.length === 0) return null;
-    const key = String(manifest.rows[0].file_url).split('/').pop();
-    const obj = await s3Client.send(new GetObjectCommand({ Bucket: 'mmaxr-telemetry', Key: key }));
-    const csv = await obj.Body?.transformToString();
-    return csv ? parseSensorCsv(csv) : null;
+    const parts: SensorData[] = [];
+    for (const row of manifest.rows) {
+      const key = String(row.file_url).split('/').pop();
+      const obj = await s3Client.send(new GetObjectCommand({ Bucket: 'mmaxr-telemetry', Key: key }));
+      const csv = await obj.Body?.transformToString();
+      const parsed = csv ? parseSensorCsv(csv) : null;
+      if (parsed) parts.push(parsed);
+    }
+    return mergeSensorData(parts);
   } catch (err) {
     console.error('Error fetching sensor CSV:', err);
     return null;

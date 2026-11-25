@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { dealQuiz, keywordResults, markAnswer, quizFor, redactBiology, secretTerms, type Checkpoint } from '../biology';
+import { dealQuiz, explanationResults, keywordResults, markAnswer, quizFor, redactBiology, secretTerms, type Checkpoint } from '../biology';
 import { rngFor, seededRand } from '../questionEngine';
 
 const load = (id: string) => JSON.parse(fs.readFileSync(path.join(__dirname, `../../data/${id}.json`), 'utf8'));
@@ -128,5 +128,26 @@ describe('closing explanation scoring', () => {
   it('the digestive model answer covers its own keywords too', () => {
     const fe = load('biology-101').finalExplain;
     expect(keywordResults(fe.modelAnswer, fe.expectedKeywords, fe.keywordSynonyms).coverage).toBe(1);
+  });
+});
+
+describe('closing explanation: key words only count inside real sentences', () => {
+  const fe = load('biology-respiratory').finalExplain;
+  const run = (text: string) => explanationResults(text, fe.expectedKeywords, fe.keywordSynonyms);
+
+  it('does not give full marks to a list of key words (QA run, 25 Nov 2026)', () => {
+    const r = run('cells blood pressure diaphragm alveoli bronchi trachea larynx pharynx nose. The diaphragm pumps blood into the trachea and the alveoli make carbon dioxide from nothing. cells blood pressure diaphragm alveoli bronchi');
+    expect(r.listLike).toBe(true);
+    expect(r.coverage).toBeLessThan(0.5);
+  });
+
+  it('still gives full marks to a real explanation of the pathway', () => {
+    const r = run(fe.modelAnswer);
+    expect(r.coverage).toBe(1);
+    expect(r.listLike).toBe(false);
+  });
+
+  it('ignores a bare list even when it is written in pathway order', () => {
+    expect(run('nose pharynx larynx trachea bronchi alveoli blood cells diaphragm pressure').coverage).toBe(0);
   });
 });

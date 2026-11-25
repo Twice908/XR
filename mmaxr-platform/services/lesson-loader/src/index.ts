@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { createClient } from 'redis';
-import { dealQuiz, keywordResults, markAnswer, questionOf, quizFor, redactBiology, secretTerms, wordCount, type BiologyAssignment, type Checkpoint } from './biology';
+import { dealQuiz, explanationResults, markAnswer, questionOf, quizFor, redactBiology, secretTerms, wordCount, type BiologyAssignment, type Checkpoint } from './biology';
 import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
 import { allTrialsDone, buildReveal, checkExplanation, cleanTable, flatCases, judgeTrial, makePlan, owesExplanation, personalize, redactOptics, stageBlocker, trialKey, truthFor, type OpticsAssignment, type OpticsTrial } from './optics';
 import { registerSound, soundInternal, soundLessonFor } from './soundRoutes';
@@ -112,10 +112,11 @@ async function sessionFor(req: express.Request, sessionId: string): Promise<{ st
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   if (!token) return null;
   try {
-    const res = await fetch(`${SESSION_AUTH_URL}/auth/verify/${encodeURIComponent(sessionId)}`);
+    // session-auth checks the token and answers 200 only when it belongs to this session.
+    const res = await fetch(`${SESSION_AUTH_URL}/auth/verify/${encodeURIComponent(sessionId)}`, { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) return null;
-    const s = (await res.json()) as { token?: string; studentId?: string; lessonId?: string };
-    return s.token === token && s.studentId ? { studentId: s.studentId, lessonId: s.lessonId ?? '' } : null;
+    const s = (await res.json()) as { studentId?: string; lessonId?: string };
+    return s.studentId ? { studentId: s.studentId, lessonId: s.lessonId ?? '' } : null;
   } catch {
     return null;
   }
@@ -473,7 +474,7 @@ app.post(
     const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
     const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-internal-key': process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev' },
       body: JSON.stringify({ filename: `optics_${sessionId}_${kind}_${id}.${ext}`, contentType: type, fileBase64: b64 }),
     });
     if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });
@@ -540,10 +541,36 @@ app.post(
     if (index < 0) return res.status(400).json({ error: 'Unknown checkpoint' });
     if (!a.visited.includes(id)) {
       if (index !== a.visited.length) return res.status(409).json({ error: 'Follow the journey in order' });
+      if (!(a.watched ?? []).includes(id)) return res.status(409).json({ error: 'Watch this stop in action before moving on' });
       a.visited.push(id);
+      a.arrivedAt = Date.now();
       await saveAssignment(sessionId, a);
     }
     res.json({ visited: a.visited.length, total: cps.length, quizOpen: a.visited.length === cps.length });
+  }),
+);
+
+// The student has watched the current stop's animation. It must be the stop they are on, and they must have been there
+// for at least a few seconds (the animations run for about 6 s), so a script cannot tick every stop at once.
+const MIN_WATCH_MS = 3000;
+app.post(
+  '/sessions/:sessionId/biology/watched',
+  wrap(async (req, res) => {
+    const ctx = await bioSession(req, res);
+    if (!ctx) return;
+    const { sessionId, a, lesson } = ctx;
+    const cps: Checkpoint[] = lesson.checkpoints;
+    const id = String(req.body?.checkpoint ?? '');
+    const index = cps.findIndex((c) => c.id === id);
+    if (index < 0) return res.status(400).json({ error: 'Unknown checkpoint' });
+    const watched = a.watched ?? [];
+    if (!watched.includes(id)) {
+      if (index !== a.visited.length) return res.status(409).json({ error: 'Watch the stop you are on' });
+      if (Date.now() - (a.arrivedAt ?? a.createdAt) < MIN_WATCH_MS) return res.status(409).json({ error: 'Watch the whole animation first' });
+      a.watched = [...watched, id];
+      await saveAssignment(sessionId, a);
+    }
+    res.json({ watched: a.watched?.length ?? watched.length, total: cps.length });
   }),
 );
 
@@ -598,7 +625,7 @@ app.post(
     const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
     const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-internal-key': process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev' },
       body: JSON.stringify({ filename: `explain_${sessionId}_final.${ext}`, contentType: type, fileBase64: b64 }),
     });
     if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });
@@ -624,8 +651,8 @@ app.post(
       if (fe) {
         const text = String(req.body?.explanation ?? '').trim().slice(0, MAX_EXPLANATION);
         if (wordCount(text) < (fe.minWords ?? 20)) return res.status(400).json({ error: `Explain the whole pathway in at least ${fe.minWords ?? 20} words` });
-        const kw = keywordResults(text, fe.expectedKeywords, fe.keywordSynonyms);
-        explain = { text, coverage: kw.coverage, matched: kw.matched, missed: kw.missed, inputMode: req.body?.inputMode === 'voice' ? ('voice' as const) : ('typed' as const), speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)) };
+        const kw = explanationResults(text, fe.expectedKeywords, fe.keywordSynonyms);
+        explain = { text, coverage: kw.coverage, matched: kw.matched, missed: kw.missed, listLike: kw.listLike, inputMode: req.body?.inputMode === 'voice' ? ('voice' as const) : ('typed' as const), speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)) };
       }
       a.final = { correct: a.quiz.filter((d) => a.answers[d.qid]?.correct).length, total: a.quiz.length, submittedAt: Date.now(), ...(explain ? { explain } : {}) };
       await saveAssignment(sessionId, a);
@@ -634,7 +661,7 @@ app.post(
     res.json({
       correct: a.final.correct,
       total: a.final.total,
-      ...(ex && fe ? { explain: { coverage: ex.coverage, keywords: [...ex.matched.map((k) => ({ keyword: k, matched: true })), ...ex.missed.map((k) => ({ keyword: k, matched: false }))], modelAnswer: fe.modelAnswer ?? '' } } : {}),
+      ...(ex && fe ? { explain: { coverage: ex.coverage, listLike: ex.listLike ?? false, keywords: [...ex.matched.map((k) => ({ keyword: k, matched: true })), ...ex.missed.map((k) => ({ keyword: k, matched: false }))], modelAnswer: fe.modelAnswer ?? '' } } : {}),
     });
   }),
 );

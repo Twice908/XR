@@ -182,7 +182,7 @@ export class BiologyHud {
         'div',
         { class: 'dialog-actions' },
         button(s.watched ? '▶ Watch it again' : '▶ Watch it in action', { variant: s.watched ? 'secondary' : 'primary', onClick: () => this.handlers.onWatch() }),
-        button(e.isLastStop ? 'Finish the tour: quick quiz →' : 'Next stop →', { variant: s.watched ? 'primary' : 'secondary', onClick: () => this.handlers.onContinue() }),
+        button(e.isLastStop ? 'Finish the tour: quick quiz →' : 'Next stop →', { variant: s.watched ? 'primary' : 'secondary', disabled: !s.watched, onClick: () => this.handlers.onContinue() }),
       ),
     ]
   }
@@ -281,7 +281,7 @@ export class BiologyHud {
     return [
       h('div', { class: 'stack', style: 'gap:4px' }, h('h2', { class: 't-title' }, 'Journey complete'), h('p', { class: 't-support' }, e.lesson.type === 'biology_respiratory_system' ? 'You followed one breath from the nose into your cells.' : 'You followed a meal from mouth to exit.')),
       h('div', { class: 'stats' }, stat(`${sum.watched}/${sum.stops}`, 'stops watched'), stat(`${sum.quizCorrect}/${sum.quizTotal}`, 'quiz questions right'), ...(fin.explain ? [stat(`${Math.round(fin.explain.coverage * 100)}%`, 'key ideas in your explanation')] : [])),
-      ...(fin.explain ? [h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'Key ideas in your explanation'), h('div', { class: 'chips' }, ...fin.explain.keywords.map((k) => h('span', { class: `chip chip-static ${k.matched ? 'ok' : 'miss'}` }, `${k.matched ? '✓' : '○'} ${k.keyword}`))), h('p', { class: 'bio-reveal' }, fin.explain.modelAnswer))] : []),
+      ...(fin.explain ? [h('div', { class: 'stack', style: 'gap:6px' }, h('span', { class: 't-label' }, 'Key ideas in your explanation'), h('div', { class: 'chips' }, ...fin.explain.keywords.map((k) => h('span', { class: `chip chip-static ${k.matched ? 'ok' : 'miss'}` }, `${k.matched ? '✓' : '○'} ${k.keyword}`))), fin.explain.listLike ? h('p', { class: 't-support' }, 'Some of your sentences were only lists of key words, so they did not count. Explain how the parts connect.') : null, h('p', { class: 'bio-reveal' }, fin.explain.modelAnswer))] : []),
       h('div', { class: 'dialog-actions' }, button('Back to experiments', { variant: 'primary', onClick: () => this.handlers.onBack() })),
     ]
   }

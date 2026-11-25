@@ -1,4 +1,5 @@
 import { cap, deviceStats, metacognition, pairActions, predictionDiscipline, r2, retrievalEffort } from './chemistry';
+import { ALL_DIMENSIONS, band, overall } from './rules';
 import { LABELS, RUBRIC_VERSION, type Device, type DimensionResult, type EventRow, type Report, type SensorData, type TruthInfo } from './types';
 
 /*
@@ -24,7 +25,7 @@ function revisionQuality(events: EventRow[], truth: TruthInfo | null): Dimension
   const handledWrong = wrong.filter((t) => given.some((g) => g.id === t.id && genuine(g)) && (!t.anomaly || noticed.length > 0)).length;
   const handledSlips = slips.filter((t) => t.calcOk).length;
   const ratio = (handledWrong + handledSlips) / opportunities;
-  const score = ratio >= 0.9 ? 3 : ratio >= 0.6 ? 2 : ratio > 0 ? 1 : 0;
+  const score = band(ratio);
   return {
     ...base,
     score,
@@ -45,7 +46,7 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
   const real = given.filter(genuine);
   const ratio = s.explanations.required ? Math.min(1, real.length / s.explanations.required) : 1;
   const blend = 0.4 * acc + 0.2 * calcFirst + 0.4 * ratio;
-  const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
+  const score = band(blend);
   const pasted = pastedCount(given);
   const voice = given.filter((g) => g.inputMode === 'voice').length;
   return {
@@ -64,16 +65,13 @@ function transfer(truth: TruthInfo | null): DimensionResult {
   const tasks = (s?.tasks ?? []).filter((t) => t.id === 'echo_2' || t.id === 'sonar_1');
   if (!tasks.length) return { ...base, score: null, basis: 'The echo and sonar tasks have not been done yet.', evidence: [], measures: {} };
   const right = tasks.filter((t) => t.match && (!t.hasCalc || t.calcAttempts <= 1)).length;
-  const score = Math.round((right / tasks.length) * 3);
+  const score = band(right / tasks.length);
   return { ...base, score, basis: `Applied “distance = (speed × time) / 2” to an echo in air and to sonar in water: ${right} of ${tasks.length} right first time.`, evidence: [], measures: { tasks: tasks.length, rightFirstTime: right } };
 }
 
 export function scoreSound(events: EventRow[], sensor: SensorData | null, device: Device, truth: TruthInfo | null = null): Report {
   const { pairs, unpredicted } = pairActions(events);
   const dims: DimensionResult[] = [predictionDiscipline(events, pairs, unpredicted), retrievalEffort(pairs, sensor, device), revisionQuality(events, truth), causalCoherence(events, truth), metacognition(events), transfer(truth)];
-  const assessed = dims.filter((x) => x.score !== null);
-  const points = assessed.reduce((s, x) => s + (x.score as number), 0);
-  const max = assessed.length * 3;
   const given = truth?.sound?.explanations.given ?? [];
   const stats = deviceStats(events, pairs, sensor, device);
   if (given.length) {
@@ -92,7 +90,7 @@ export function scoreSound(events: EventRow[], sensor: SensorData | null, device
     device,
     complete: truth?.sound?.submitted === true,
     dimensions: dims,
-    overall: { points, max, percent: max ? Math.round((points / max) * 100) : null },
+    overall: overall(dims, truth?.sound?.submitted === true, ALL_DIMENSIONS),
     deviceStats: stats,
     metrics: {
       predictionsMade: events.filter((e) => e.verb === 'predicted').length,

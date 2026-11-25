@@ -3,7 +3,7 @@ import type { MaterialKind, MetalsLessonContract, MetalsRevealSample, MetalsSamp
 
 export type Phase = 'hypothesis' | 'testing' | 'reveal'
 export type Confidence = 1 | 2 | 3
-export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object'], at?: number) => void
 
 export interface ServerOutcome {
   outcome: string
@@ -181,12 +181,12 @@ export class MetalsExperiment {
   }
 
   // ---- 3. action + observation ----
-  act(server: ServerOutcome): { sample: number; tool: string; actual: string; litmus: string | null; predicted: string; match: boolean } {
+  act(server: ServerOutcome, clickedAt?: number): { sample: number; tool: string; actual: string; litmus: string | null; predicted: string; match: boolean } {
     const p = this.pending
     if (!p) throw new StateError('Make a prediction first.')
     if (!server?.outcome) throw new StateError('The lab did not report a result.')
     const s = this.samples[p.sample]
-    const actedAt = this.now()
+    const actedAt = clickedAt ?? this.now()
     s.results[p.tool] = {
       tool: p.tool,
       predicted: p.predicted,
@@ -202,7 +202,7 @@ export class MetalsExperiment {
     this.pending = null
     this.used += 1
     const match = p.predicted === server.outcome
-    this.emit(XapiVerb.ACTED, { action: 'run_test', target: `sample:${p.sample + 1}`, value: p.tool, data: { sample: p.sample + 1, tool: p.tool, msSincePrediction: actedAt - p.predictedAt } })
+    this.emit(XapiVerb.ACTED, { action: 'run_test', target: `sample:${p.sample + 1}`, value: p.tool, data: { sample: p.sample + 1, tool: p.tool, msSincePrediction: actedAt - p.predictedAt } }, actedAt)
     this.emit(XapiVerb.OBSERVED, {
       action: 'test_result',
       target: `sample:${p.sample + 1}`,

@@ -3,7 +3,7 @@ import type { BiologyCheckpoint, BiologyFinalResult, BiologyLessonContract, Biol
 
 /** tour: walk the organs (view-only). quiz: a few questions, one at a time. final: the closing explanation. */
 export type Stage = 'tour' | 'quiz' | 'final' | 'done'
-export type Emit = (verb: XapiVerb, object: TelemetryEvent['object']) => void
+export type Emit = (verb: XapiVerb, object: TelemetryEvent['object'], at?: number) => void
 
 export interface Stop {
   cp: BiologyCheckpoint

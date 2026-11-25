@@ -274,7 +274,8 @@ describe('biology journey scoring (tour, quiz, closing explanation)', () => {
 
   it('scales with correct answers and explanation coverage', () => {
     const r = analyze(events(), null, truth([q(1, true), q(2, false), q(3, false)], { correct: 1, total: 3, explainCoverage: 0.4 }));
-    expect(score(r, 'causalCoherence')).toBe(1);
+    // Shared bands (rules.ts): 1 of 3 = 0.33 is below the 0.35 step, so 0; coverage 0.4 is 1.
+    expect(score(r, 'causalCoherence')).toBe(0);
     expect(score(r, 'transfer')).toBe(1);
     expect(r.dimensions.find((x) => x.key === 'causalCoherence')!.basis).toContain('organ2');
   });
@@ -342,7 +343,8 @@ describe('motion sandbox scoring', () => {
     expect(score(analyze(events(rows), null, truth([tr(1, { anomaly: true, coverage: 0.2 }), tr(2), tr(3)])), 'causalCoherence')).toBe(0);
     expect(score(analyze(events(rows), null, truth([tr(1), tr(2), tr(3)])), 'transfer')).toBeNull();
     const half = analyze(events(rows), null, truth([tr(1, { kind: 'transfer' }), tr(2, { kind: 'transfer', match: false }), tr(3)]));
-    expect(score(half, 'transfer')).toBe(2);
+    // Half right is 0.5: one point under the shared bands (it used to round up to 2).
+    expect(score(half, 'transfer')).toBe(1);
   });
 
   it('flags overconfidence and keeps incomplete sessions incomplete', () => {

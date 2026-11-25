@@ -27,7 +27,7 @@ const STAGE_OF: Record<Tool, Stage> = { plane: 'plane', law: 'laws', rule: 'rule
 /** Runs the Light: Reflection & Spherical Mirrors lab. Returns a cleanup function. */
 export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
-  const exp = new OpticsExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
+  const exp = new OpticsExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let busy = false
   let submitting = false
   let coach: CoachClient | null = null
@@ -135,6 +135,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
     busy = true
     const p = exp.pending
     hud!.hint(p.kind === 'case' ? 'Tracing the rays…' : 'Firing…', null)
+    const clickedAt = Date.now()
     let result: Awaited<ReturnType<typeof runTrial>>
     try {
       result = await runTrial(session, { kind: p.kind, id: p.id, prediction: p.prediction!, confidence: p.confidence!, thinkMs: p.decisionMs })
@@ -144,7 +145,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
       refresh()
       return
     }
-    const trial = guard(() => exp.act(result))
+    const trial = guard(() => exp.act(result, clickedAt))
     if (!trial) {
       busy = false
       return
@@ -320,7 +321,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
     return () => {}
   }
   scene.start()
-  sensorTracker.start(session.sessionId, () => scene!.head, () => scene!.hand)
+  sensorTracker.start(session, () => scene!.head, () => scene!.hand)
   status.remove()
   stage = 'plane'
   scene.setStage('plane', false)

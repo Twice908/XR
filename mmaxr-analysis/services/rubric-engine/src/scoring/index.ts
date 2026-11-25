@@ -8,7 +8,7 @@ import { scoreSound } from './sound';
 import type { Device, EventRow, Report, SensorData, TruthInfo } from './types';
 
 export * from './types';
-export { parseSensorCsv } from './sensors';
+export { mergeSensorData, parseSensorCsv } from './sensors';
 
 /** The device a session was recorded on: the events say so; otherwise the sensor file's format does. */
 export function detectDevice(events: EventRow[], sensor: SensorData | null): Device {

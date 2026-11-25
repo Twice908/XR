@@ -123,7 +123,8 @@ export interface Report {
   metrics: Record<string, number | boolean | string | null>;
 }
 
-export const RUBRIC_VERSION = 'chem-1.0';
+/** 2.0: one set of score bands for every lab, click-time action stamps, provisional overall for unfinished sessions. */
+export const RUBRIC_VERSION = 'rubric-2.0';
 
 export const LABELS: Record<DimensionKey, string> = {
   predictionDiscipline: 'Prediction discipline',

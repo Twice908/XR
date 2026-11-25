@@ -1,5 +1,6 @@
 import { cap, metacognition, pairActions, predictionDiscipline, r1, r2, retrievalEffort } from './chemistry';
 import { travel } from './sensors';
+import { ALL_DIMENSIONS, band, BANDS, overall } from './rules';
 import { LABELS, RUBRIC_VERSION, type Device, type DimensionResult, type EventRow, type Report, type SensorData, type StatItem, type TruthInfo } from './types';
 
 /*
@@ -23,7 +24,7 @@ const trialsOf = (truth: TruthInfo | null): T[] => truth?.motion?.trials ?? [];
 function revisionQuality(events: EventRow[], truth: TruthInfo | null): DimensionResult {
   const base = { key: 'revisionQuality' as const, label: LABELS.revisionQuality, max: 3 as const };
   const all = trialsOf(truth).filter((t) => t.kind === 'prediction');
-  if (all.length < 3) return { ...base, score: null, basis: 'Needs at least 3 predictions to judge.', evidence: [], measures: { trials: all.length } };
+  if (!all.length) return { ...base, score: null, basis: 'No predictions yet.', evidence: [], measures: { trials: 0 } };
   const surprised = all.filter((t) => !t.match);
   const evidence = cap(events.filter((e) => e.object_data?.action === 'explain_result').map((e) => e.id));
   if (!surprised.length) return { ...base, score: 3, basis: 'Every prediction matched, so there was nothing to revise.', evidence, measures: { trials: all.length, surprised: 0 } };
@@ -33,8 +34,8 @@ function revisionQuality(events: EventRow[], truth: TruthInfo | null): Dimension
     return next ? (next.match ? 1 : 0) : 0.5;
   });
   const ratio = avg(credit);
-  const score = ratio >= 0.75 ? 3 : ratio >= 0.5 ? 2 : ratio > 0.1 ? 1 : 0;
-  return { ...base, score, basis: `${surprised.length} prediction${surprised.length > 1 ? 's' : ''} did not match; after seeing the result they ${ratio >= 0.75 ? 'explained or corrected nearly all of them' : ratio >= 0.5 ? 'explained or corrected about half' : 'rarely explained or corrected them'}.`, evidence, measures: { trials: all.length, surprised: surprised.length, learned: r2(ratio) } };
+  const score = band(ratio);
+  return { ...base, score, basis: `${surprised.length} prediction${surprised.length > 1 ? 's' : ''} did not match; after seeing the result they ${ratio >= BANDS.three ? 'explained or corrected nearly all of them' : ratio >= BANDS.two ? 'explained or corrected most of them' : ratio >= BANDS.one ? 'explained or corrected some of them' : 'rarely explained or corrected them'}.`, evidence, measures: { trials: all.length, surprised: surprised.length, learned: r2(ratio) } };
 }
 
 function causalCoherence(truth: TruthInfo | null): DimensionResult {
@@ -42,7 +43,7 @@ function causalCoherence(truth: TruthInfo | null): DimensionResult {
   const ex = trialsOf(truth).filter((t) => t.coverage !== null);
   if (!ex.length) return { ...base, score: null, basis: 'No explanations written yet.', evidence: [], measures: {} };
   const cov = avg(ex.map((t) => t.coverage as number));
-  const score = cov >= 0.8 ? 3 : cov >= 0.55 ? 2 : cov >= 0.3 ? 1 : 0;
+  const score = band(cov);
   return { ...base, score, basis: `Explanations of the surprising results covered ${Math.round(cov * 100)}% of the key ideas across ${ex.length} ${ex.length > 1 ? 'explanations' : 'explanation'}.`, evidence: [], measures: { explanations: ex.length, keyIdeas: r2(cov), avgWords: Math.round(avg(ex.map((t) => t.words))) } };
 }
 
@@ -51,7 +52,7 @@ function transfer(truth: TruthInfo | null): DimensionResult {
   const tr = trialsOf(truth).filter((t) => t.kind === 'transfer');
   if (!tr.length) return { ...base, score: null, basis: 'No “what if?” questions answered yet.', evidence: [], measures: {} };
   const right = tr.filter((t) => t.match).length;
-  return { ...base, score: Math.round((right / tr.length) * 3), basis: `Applied the ideas to new situations: ${right} of ${tr.length} “what if?” question${tr.length > 1 ? 's' : ''} right.`, evidence: [], measures: { correct: right, answered: tr.length } };
+  return { ...base, score: band(right / tr.length), basis: `Applied the ideas to new situations: ${right} of ${tr.length} “what if?” question${tr.length > 1 ? 's' : ''} right.`, evidence: [], measures: { correct: right, answered: tr.length } };
 }
 
 function stats(truth: TruthInfo | null, events: EventRow[], sensor: SensorData | null, device: Device): { kind: Device; items: StatItem[] } {
@@ -85,18 +86,16 @@ export function scoreMotion(events: EventRow[], sensor: SensorData | null, devic
     metacognition(events),
     transfer(truth),
   ];
-  const assessed = dims.filter((x) => x.score !== null);
-  const points = assessed.reduce((s, x) => s + (x.score as number), 0);
-  const max = assessed.length * 3;
   const ts = trialsOf(truth);
   const total = truth?.motion?.total ?? 0;
+  const complete = total > 0 && ts.length >= total;
   return {
     rubricVersion: `${RUBRIC_VERSION}-motion`,
     lessonType: 'physics_motion',
     device,
-    complete: total > 0 && ts.length >= total,
+    complete,
     dimensions: dims,
-    overall: { points, max, percent: max ? Math.round((points / max) * 100) : null },
+    overall: overall(dims, complete, ALL_DIMENSIONS),
     deviceStats: stats(truth, events, sensor, device),
     metrics: {
       predictionsMade: events.filter((e) => e.verb === 'predicted').length,

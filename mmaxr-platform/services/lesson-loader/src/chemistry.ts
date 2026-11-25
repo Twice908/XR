@@ -20,7 +20,8 @@ export interface Indicator {
   name: string;
   source: string;
   isPhTest?: boolean;
-  colors?: { neutral?: string; acid?: string; base?: string };
+  /** `bottle`: the stock solution's own colour, when it differs from its colour in a neutral liquid (methyl orange). */
+  colors?: { bottle?: string; neutral?: string; acid?: string; base?: string };
 }
 
 export interface Submission {
@@ -71,7 +72,7 @@ export function redactChemistry(lesson: any): any {
   const { solutionPool: _pool, assignedSolutions: _assigned, ...rest } = lesson;
   return {
     ...rest,
-    indicators: (lesson.indicators ?? []).map((i: Indicator) => (i.isPhTest ? { ...i, colors: undefined } : { ...i, colors: { neutral: i.colors?.neutral } })),
+    indicators: (lesson.indicators ?? []).map((i: Indicator) => (i.isPhTest ? { ...i, colors: undefined } : { ...i, colors: { neutral: i.colors?.neutral, ...(i.colors?.bottle ? { bottle: i.colors.bottle } : {}) } })),
   };
 }
 

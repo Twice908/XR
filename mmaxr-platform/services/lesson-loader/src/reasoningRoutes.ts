@@ -117,7 +117,7 @@ export function registerReasoning(app: express.Express, d: ReasoningDeps) {
       const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
       const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-internal-key': process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev' },
         body: JSON.stringify({ filename: `reasoning_${c.sessionId}.${ext}`, contentType: type, fileBase64: b64 }),
       });
       if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });

@@ -30,7 +30,7 @@ interface Ctx {
 /** Runs the Motion, Forces & Gravitation sandbox. Returns a cleanup function. */
 export async function startMotionLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
-  const exp = new MotionExperiment(lesson, (verb, object) => telemetry.emit(verb, object))
+  const exp = new MotionExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let hud: MotionHud | null = null
   let coach: CoachClient | null = null
   let idleTimer: number | null = null
@@ -115,9 +115,10 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       if (!body) return
       working = true
       hud!.setBusy('Locking in…')
+      const clickedAt = Date.now()
       try {
         await lockPrediction(session, body)
-        exp.recordLocked(body.thinkMs)
+        exp.recordLocked(body.thinkMs, clickedAt)
         hud!.setBusy(null)
         working = false
         hud!.update()
@@ -245,7 +246,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
   await scene.goto(lesson.scenarios[0].id, true)
   stageTrial()
   scene.start()
-  sensorTracker.start(session.sessionId, () => scene.head, () => scene.hand)
+  sensorTracker.start(session, () => scene.head, () => scene.hand)
   status.remove()
   hud.update()
   ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers }

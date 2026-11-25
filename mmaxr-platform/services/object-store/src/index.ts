@@ -9,6 +9,14 @@ app.use(express.json({ limit: '25mb' }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Only other MMAXR services (sensor-stream, lesson-loader) write here; browsers never call this service directly.
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'mmaxr-internal-dev';
+if (process.env.NODE_ENV === 'production' && INTERNAL_KEY === 'mmaxr-internal-dev') throw new Error('INTERNAL_API_KEY must be set in production');
+function requireInternal(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}
+
 const s3Client = new S3Client({
   region: process.env.S3_REGION || 'us-east-1',
   endpoint: process.env.S3_ENDPOINT || 'http://localhost:9000',
@@ -52,7 +60,7 @@ async function initBucket() {
 }
 initBucket();
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', requireInternal, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       if (!res.headersSent) return res.status(400).json({ error: 'No file uploaded' });
@@ -74,7 +82,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-app.post('/upload/base64', async (req, res) => {
+app.post('/upload/base64', requireInternal, async (req, res) => {
   try {
     const { filename, contentType, fileBase64 } = req.body ?? {};
     if (

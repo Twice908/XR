@@ -21,6 +21,9 @@ async function call<T>(session: LabSessionRef, path: string, init?: { body: unkn
 /** Tells the server this organ has been seen. After the last one the quiz opens. */
 export const visitStop = (session: LabSessionRef, checkpoint: string) => call<{ visited: number; total: number; quizOpen: boolean }>(session, 'visit', { body: { checkpoint } })
 
+/** Tells the server this stop's animation has been watched. A stop cannot be left before this. */
+export const watchedStop = (session: LabSessionRef, checkpoint: string) => call<{ watched: number; total: number }>(session, 'watched', { body: { checkpoint } })
+
 /** This session's own questions, in this session's order. */
 export const fetchQuiz = (session: LabSessionRef) => call<{ questions: BiologyQuizQuestion[]; answered: string[] }>(session, 'quiz')
 

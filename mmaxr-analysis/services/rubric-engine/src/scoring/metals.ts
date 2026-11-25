@@ -12,6 +12,7 @@ import {
   slotOf,
   withReasoning,
 } from './chemistry';
+import { band, NO_TRANSFER, overall } from './rules';
 import { LABELS, RUBRIC_VERSION, type Device, type DimensionResult, type EventRow, type Report, type SensorData, type TruthInfo } from './types';
 
 /*
@@ -55,7 +56,7 @@ function causalCoherence(events: EventRow[], truth: TruthInfo | null): Dimension
   }
   const rz = withReasoning(0.6 * (right / n) + 0.4 * (consistent / n), truth);
   const blend = rz.blend;
-  const score = blend >= 0.9 ? 3 : blend >= 0.65 ? 2 : blend >= 0.35 ? 1 : 0;
+  const score = band(blend);
   return {
     ...base,
     score,
@@ -75,9 +76,6 @@ export function scoreMetals(events: EventRow[], sensor: SensorData | null, devic
     metacognition(events),
     { key: 'transfer', label: LABELS.transfer, score: null, max: 3, basis: 'This lab has no transfer task.', evidence: [], measures: {} },
   ];
-  const assessed = dims.filter((x) => x.score !== null);
-  const points = assessed.reduce((s, x) => s + (x.score as number), 0);
-  const max = assessed.length * 3;
   const used = events.filter((e) => e.verb === 'acted').length;
   return {
     rubricVersion: `${RUBRIC_VERSION}-metals`,
@@ -85,7 +83,7 @@ export function scoreMetals(events: EventRow[], sensor: SensorData | null, devic
     device,
     complete: truth?.submission != null,
     dimensions: dims,
-    overall: { points, max, percent: max ? Math.round((points / max) * 100) : null },
+    overall: overall(dims, truth?.submission != null, NO_TRANSFER),
     deviceStats: deviceStats(events, pairs, sensor, device),
     metrics: {
       predictionsMade: events.filter((e) => e.verb === 'predicted').length,

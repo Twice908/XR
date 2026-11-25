@@ -56,10 +56,9 @@ async function authorize(url: URL): Promise<boolean> {
   const token = url.searchParams.get('token');
   if (!sessionId || !token) return false;
   try {
-    const res = await fetch(`${SESSION_AUTH_URL}/auth/verify/${encodeURIComponent(sessionId)}`);
-    if (!res.ok) return false;
-    const s = (await res.json()) as { token?: string };
-    return s.token === token;
+    // session-auth answers 200 only when the token belongs to this session.
+    const res = await fetch(`${SESSION_AUTH_URL}/auth/verify/${encodeURIComponent(sessionId)}`, { headers: { Authorization: `Bearer ${token}` } });
+    return res.ok;
   } catch {
     return false;
   }

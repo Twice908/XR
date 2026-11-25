@@ -6,23 +6,33 @@ export interface Vec3Like {
   z: number
 }
 
+const HEADER = 'timestamp,head_x,head_y,head_z,hand_x,hand_y,hand_z'
+/** About 20 s of 30 Hz rows (~37 KB): small enough for keepalive fetch and sendBeacon, which browsers cap at 64 KB. */
+export const ROWS_PER_CHUNK = 600
+
 /**
- * Buffers 30 Hz head + hand samples and uploads the CSV once, when the session ends.
+ * Buffers 30 Hz head + hand samples and uploads them as numbered CSV chunks while the session runs, then the rest
+ * when it ends. A single end-of-session upload would exceed the 64 KB keepalive/beacon limit after about 35 s and be
+ * dropped, so a whole session's movement would be lost.
  * On desktop the "hand" is the pointer projected into the lab; in XR it will be the controller / hand joint.
  */
 export class SensorTracker {
   private timer: number | null = null
   private rows: string[] = []
   private sessionId: string | null = null
+  private token = ''
+  private part = 0
   private getHead: () => Vec3Like = () => ({ x: 0, y: 0, z: 0 })
   private getHand: () => Vec3Like = () => ({ x: 0, y: 0, z: 0 })
 
-  start(sessionId: string, getHead: () => Vec3Like, getHand: () => Vec3Like) {
+  start(session: { sessionId: string; token: string }, getHead: () => Vec3Like, getHand: () => Vec3Like) {
     this.stop(false)
-    this.sessionId = sessionId
+    this.sessionId = session.sessionId
+    this.token = session.token
+    this.part = 0
     this.getHead = getHead
     this.getHand = getHand
-    this.rows = ['timestamp,head_x,head_y,head_z,hand_x,hand_y,hand_z']
+    this.rows = []
     this.timer = window.setInterval(() => this.capture(), 1000 / 30)
     window.addEventListener('pagehide', this.onPageHide)
   }
@@ -32,6 +42,7 @@ export class SensorTracker {
     const p = this.getHand()
     const f = (n: number) => n.toFixed(4)
     this.rows.push(`${Date.now()},${f(h.x)},${f(h.y)},${f(h.z)},${f(p.x)},${f(p.y)},${f(p.z)}`)
+    if (this.rows.length >= ROWS_PER_CHUNK) this.upload(false)
   }
 
   private onPageHide = () => {
@@ -39,18 +50,21 @@ export class SensorTracker {
   }
 
   private upload(useBeacon: boolean) {
-    if (!this.sessionId || this.rows.length <= 1) return
-    // sensor-stream takes a multipart upload with the CSV in a `file` field.
+    if (!this.sessionId || this.rows.length === 0) return
+    // sensor-stream takes a multipart upload with the CSV in a `file` field, plus the session token and chunk number.
     const body = new FormData()
-    body.append('file', new Blob([this.rows.join('\n')], { type: 'text/csv' }), `sensor_${this.sessionId}.csv`)
+    body.append('token', this.token)
+    body.append('part', String(this.part))
+    body.append('file', new Blob([[HEADER, ...this.rows].join('\n')], { type: 'text/csv' }), `sensor_${this.sessionId}_${this.part}.csv`)
     const url = `${CONFIG.SENSOR_UPLOAD_URL}/${this.sessionId}`
     if (useBeacon) navigator.sendBeacon(url, body)
     else void fetch(url, { method: 'POST', body, keepalive: true }).catch(() => {})
-    this.rows = this.rows.slice(0, 1)
+    this.part += 1
+    this.rows = []
   }
 
   get sampleCount() {
-    return Math.max(0, this.rows.length - 1)
+    return this.rows.length
   }
 
   stop(upload = true) {

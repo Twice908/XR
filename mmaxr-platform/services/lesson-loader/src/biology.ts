@@ -58,6 +58,8 @@ export interface FinalExplain {
   coverage: number;
   matched: string[];
   missed: string[];
+  /** Some sentences were key-word lists and did not count. */
+  listLike?: boolean;
   inputMode: 'voice' | 'typed';
   speakMs: number;
 }
@@ -76,6 +78,10 @@ export interface BiologyAssignment {
   studentId: string;
   /** Checkpoint ids the student has walked through, in order. */
   visited: string[];
+  /** Checkpoint ids whose animation the student has watched. A stop cannot be left until it is in here. */
+  watched?: string[];
+  /** When the student arrived at the current stop (the journey start for stop 1). */
+  arrivedAt?: number;
   quiz: QuizDeal[];
   answers: Record<string, QuizAnswer>;
   final: FinalResult | null;
@@ -165,6 +171,41 @@ export function keywordResults(text: string, keywords: string[], synonyms: Recor
   const results = keywords.map((k) => ({ keyword: k, matched: [k, ...(synonyms[k] ?? [])].some((v) => containsPhrase(hay, tokens(v))) }));
   const matched = results.filter((r) => r.matched).length;
   return { results, matched: results.filter((r) => r.matched).map((r) => r.keyword), missed: results.filter((r) => !r.matched).map((r) => r.keyword), coverage: keywords.length ? matched / keywords.length : 1 };
+}
+
+/**
+ * Words that tie ideas together in a sentence. A keyword only counts when its sentence has one of these: a bare list of
+ * organ names says nothing about how they connect.
+ */
+const LINK_WORDS = new Set(
+  'is are was were be it its they them this that these those so because then into through to from by with where which when while as and carries carry carried moves move moved passes pass passed goes go travels travel enters enter leaves leave pushes push pulls pull breaks break turns turn makes make takes take absorbs absorb releases release sends send helps help happens after before until'
+    .split(' ')
+    .map(stem),
+);
+
+/**
+ * Key-idea coverage of a written or spoken explanation. Unlike `keywordResults`, a keyword only counts inside a real
+ * sentence: at least 5 words, at least one linking word, and no more than half of its words being key terms. This stops
+ * a list of key words ("nose pharynx larynx trachea ...") from scoring as a full explanation.
+ */
+export function explanationResults(text: string, keywords: string[], synonyms: Record<string, string[]> = {}) {
+  const sentences = text
+    .split(/[.!?;:\n]+/)
+    .map((x) => tokens(x))
+    .filter((t) => t.length > 0);
+  const phrases = keywords.map((k) => [k, ...(synonyms[k] ?? [])].map((v) => tokens(v)).filter((p) => p.length > 0));
+  const keyTokens = new Set(phrases.flat(2));
+  const usable = sentences.filter((t) => t.length >= 5 && t.some((w) => LINK_WORDS.has(w)) && t.filter((w) => keyTokens.has(w)).length / t.length <= 0.5);
+  const results = keywords.map((k, i) => ({ keyword: k, matched: usable.some((t) => phrases[i].some((p) => containsPhrase(t, p))) }));
+  const matched = results.filter((r) => r.matched).length;
+  return {
+    results,
+    matched: results.filter((r) => r.matched).map((r) => r.keyword),
+    missed: results.filter((r) => !r.matched).map((r) => r.keyword),
+    coverage: keywords.length ? matched / keywords.length : 1,
+    /** True when some sentences were ignored because they were word lists rather than explanations. */
+    listLike: usable.length < sentences.length,
+  };
 }
 
 export const wordCount = (s: string) => normalizeText(s).split(' ').filter(Boolean).length;
