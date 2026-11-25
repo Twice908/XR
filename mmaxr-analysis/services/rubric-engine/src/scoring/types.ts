@@ -28,19 +28,13 @@ export interface SensorData {
 
 /** The hidden answers for a session, read from the lesson service. Never sent by the browser. */
 export interface BiologyTruth {
-  checkpoints: {
-    id: string;
-    n: number;
-    /** Score per question group (0 to 1), plus allCorrect. Group names depend on the lesson. */
-    selection: { allCorrect: boolean } & Record<string, number | boolean>;
-    coverageFirst: number;
-    coverageFinal: number;
-    revisions: number;
-    inputMode: 'voice' | 'typed';
-    speakMs: number;
-    thinkMs: number;
-  }[];
-  final: { correct: number; total: number; explainCoverage?: number | null } | null;
+  /** How many organs the student has walked through, out of how many. */
+  visited: number;
+  stops: number;
+  /** The quiz questions answered so far (the ones dealt to this session). */
+  quiz: { id: string; organ: string; correct: boolean; thinkMs: number }[];
+  quizTotal: number;
+  final: { correct: number; total: number; explainCoverage?: number | null; inputMode?: 'voice' | 'typed' | null; speakMs?: number } | null;
 }
 
 export interface MotionTruth {

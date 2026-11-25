@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { createClient } from 'redis';
-import { cleanSelection, groupsOf, keywordResults, redactBiology, revealFor, scoreFinal, scoreSelection, secretTerms, wordCount, type BiologyAssignment, type Checkpoint, type Commit, type Scenario } from './biology';
+import { dealQuiz, keywordResults, markAnswer, questionOf, quizFor, redactBiology, secretTerms, wordCount, type BiologyAssignment, type Checkpoint } from './biology';
 import { budgetUsed, factsFor, isKind, pickMaterials, redactMetals, runTest as runMetalsTest, visibleSamples, type MetalsAssignment, type MetalsSubmission } from './metals';
 import { allTrialsDone, buildReveal, checkExplanation, cleanTable, flatCases, judgeTrial, makePlan, owesExplanation, personalize, redactOptics, stageBlocker, trialKey, truthFor, type OpticsAssignment, type OpticsTrial } from './optics';
 import { registerSound, soundInternal, soundLessonFor } from './soundRoutes';
@@ -11,6 +11,7 @@ import type { SoundAssignment } from './sound';
 import { drawVariants, redactMotion, type MotionAssignment } from './motion';
 import { motionInternal, registerMotion } from './motionRoutes';
 import { reasoningSummary, registerReasoning } from './reasoningRoutes';
+import { rngFor } from './questionEngine';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -75,7 +76,11 @@ async function loadAssignment(sessionId: string): Promise<Assignment | null> {
 }
 async function loadBiology(sessionId: string): Promise<BiologyAssignment | null> {
   const a = await loadAny(sessionId);
-  return a && (a as BiologyAssignment).kind === 'biology' ? (a as BiologyAssignment) : null;
+  if (!a || (a as BiologyAssignment).kind !== 'biology') return null;
+  const bio = a as BiologyAssignment;
+  // A session that began before the quiz existed gets a tour and a quiz of its own now.
+  if (!bio.quiz) Object.assign(bio, { visited: [], quiz: dealQuiz(readLesson(bio.lessonId), rngFor(sessionId, bio.lessonId)), answers: {} });
+  return bio;
 }
 async function loadMetals(sessionId: string): Promise<MetalsAssignment | null> {
   const a = await loadAny(sessionId);
@@ -94,7 +99,7 @@ async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
   if (!a || (a as OpticsAssignment).kind !== 'optics') return null;
   const op = a as OpticsAssignment;
   // A session started before runs were randomised gets a run of its own now.
-  if (!op.plan) op.plan = makePlan(readLesson(op.lessonId));
+  if (!op.plan) op.plan = makePlan(readLesson(op.lessonId), rngFor(sessionId, op.lessonId));
   return op;
 }
 /** This session's own run of the optics lab: values drawn, everything in its shuffled order. */
@@ -175,7 +180,7 @@ app.get(
             kind: 'metals',
             lessonId: lesson.lessonId,
             studentId: who.studentId,
-            samples: pickMaterials(lesson.materialPool, lesson.config.totalSamples, lesson.config.minAnomalies ?? 2),
+            samples: pickMaterials(lesson.materialPool, lesson.config.totalSamples, lesson.config.minAnomalies ?? 2, rngFor(sessionId, lesson.lessonId)),
             tested: {},
             submission: null,
             createdAt: Date.now(),
@@ -192,7 +197,7 @@ app.get(
         const who = await sessionFor(req, sessionId);
         if (!who) return res.status(401).json({ error: 'Invalid session' });
         if (!(await loadBiology(sessionId))) {
-          await saveAssignment(sessionId, { kind: 'biology', lessonId: lesson.lessonId, studentId: who.studentId, commits: {}, final: null, createdAt: Date.now() });
+          await saveAssignment(sessionId, { kind: 'biology', lessonId: lesson.lessonId, studentId: who.studentId, visited: [], quiz: dealQuiz(lesson, rngFor(sessionId, lesson.lessonId)), answers: {}, final: null, createdAt: Date.now() });
         }
       }
       return res.json(redactBiology(lesson));
@@ -205,7 +210,7 @@ app.get(
         if (!who) return res.status(401).json({ error: 'Invalid session' });
         let mo = await loadMotion(sessionId);
         if (!mo) {
-          mo = { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, ...drawVariants(lesson), createdAt: Date.now() };
+          mo = { kind: 'motion', lessonId: lesson.lessonId, studentId: who.studentId, predictions: {}, ...drawVariants(lesson, rngFor(sessionId, lesson.lessonId)), createdAt: Date.now() };
           await saveAssignment(sessionId, mo);
         }
         return res.json(redactMotion(lesson, mo));
@@ -229,7 +234,7 @@ app.get(
         if (!who) return res.status(401).json({ error: 'Invalid session' });
         let op = await loadOptics(sessionId);
         if (!op) {
-          op = { kind: 'optics', lessonId: lesson.lessonId, studentId: who.studentId, plan: makePlan(lesson), trials: {}, submission: null, createdAt: Date.now() };
+          op = { kind: 'optics', lessonId: lesson.lessonId, studentId: who.studentId, plan: makePlan(lesson, rngFor(sessionId, lesson.lessonId)), trials: {}, submission: null, createdAt: Date.now() };
           await saveAssignment(sessionId, op);
         }
         return res.json(redactOptics(opticsLesson(op)));
@@ -246,7 +251,7 @@ app.get(
         const a: Assignment = {
           lessonId: lesson.lessonId,
           studentId: who.studentId,
-          tubes: pickSolutions(lesson.solutionPool, lesson.config.totalTestTubes),
+          tubes: pickSolutions(lesson.solutionPool, lesson.config.totalTestTubes, rngFor(sessionId, lesson.lessonId)),
           tested: {},
           submission: null,
           createdAt: Date.now(),
@@ -522,9 +527,9 @@ const bioSession = async (req: express.Request, res: express.Response) => {
   return { sessionId, a, lesson: readLesson(a.lessonId) };
 };
 
-// Commit the student's prediction and explanation for the next checkpoint. Only then is it revealed.
+// The tour is view-only: the student reports each organ they have seen, in order. The quiz opens after the last one.
 app.post(
-  '/sessions/:sessionId/biology/commit',
+  '/sessions/:sessionId/biology/visit',
   wrap(async (req, res) => {
     const ctx = await bioSession(req, res);
     if (!ctx) return;
@@ -533,106 +538,88 @@ app.post(
     const id = String(req.body?.checkpoint ?? '');
     const index = cps.findIndex((c) => c.id === id);
     if (index < 0) return res.status(400).json({ error: 'Unknown checkpoint' });
-    if (a.commits[id]) return res.status(409).json({ error: 'This checkpoint is already answered', reveal: revealFor(cps[index], a.commits[id], lesson.choices, groupsOf(lesson)) });
-    if (index !== Object.keys(a.commits).length) return res.status(409).json({ error: 'Follow the journey in order' });
-
-    const selection = cleanSelection(req.body?.selection, lesson.choices, groupsOf(lesson));
-    if (!selection) return res.status(400).json({ error: 'Choose at least one option in every group (or "none")' });
-    const explanation = String(req.body?.explanation ?? '').trim().slice(0, MAX_EXPLANATION);
-    const minWords = lesson.config.minExplanationWords ?? 8;
-    if (wordCount(explanation) < minWords) return res.status(400).json({ error: `Explain it in at least ${minWords} words` });
-    const confidence = [1, 2, 3].includes(Number(req.body?.confidence)) ? (Number(req.body.confidence) as 1 | 2 | 3) : null;
-    if (!confidence) return res.status(400).json({ error: 'Say how sure you are' });
-
-    const cp = cps[index];
-    const kw = keywordResults(explanation, cp.expectedKeywords, cp.keywordSynonyms);
-    const commit: Commit = {
-      checkpoint: id,
-      n: index + 1,
-      selection,
-      explanation,
-      confidence,
-      inputMode: req.body?.inputMode === 'voice' ? 'voice' : 'typed',
-      thinkMs: Math.max(0, Math.min(3_600_000, Number(req.body?.thinkMs) || 0)),
-      speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)),
-      committedAt: Date.now(),
-      selectionScore: scoreSelection(cp, selection, groupsOf(lesson)),
-      coverage: kw.coverage,
-      matched: kw.matched,
-      missed: kw.missed,
-      revisions: [],
-    };
-    a.commits[id] = commit;
-    await saveAssignment(sessionId, a);
-    res.status(201).json({ reveal: revealFor(cp, commit, lesson.choices, groupsOf(lesson)) });
+    if (!a.visited.includes(id)) {
+      if (index !== a.visited.length) return res.status(409).json({ error: 'Follow the journey in order' });
+      a.visited.push(id);
+      await saveAssignment(sessionId, a);
+    }
+    res.json({ visited: a.visited.length, total: cps.length, quizOpen: a.visited.length === cps.length });
   }),
 );
 
-// Improve the explanation after the reveal. Counted as a revision; the first attempt is never overwritten.
+// The questions dealt to this session: wording and options only, in this session's order.
+app.get(
+  '/sessions/:sessionId/biology/quiz',
+  wrap(async (req, res) => {
+    const ctx = await bioSession(req, res);
+    if (!ctx) return;
+    const { a, lesson } = ctx;
+    if (a.visited.length < lesson.checkpoints.length) return res.status(409).json({ error: 'Finish the tour first' });
+    res.json({ questions: quizFor(lesson, a), answered: Object.keys(a.answers) });
+  }),
+);
+
+// One question at a time. The answer is locked on first submit; the right answer comes back only now.
 app.post(
-  '/sessions/:sessionId/biology/revise',
+  '/sessions/:sessionId/biology/quiz/answer',
   wrap(async (req, res) => {
     const ctx = await bioSession(req, res);
     if (!ctx) return;
     const { sessionId, a, lesson } = ctx;
-    const id = String(req.body?.checkpoint ?? '');
-    const commit = a.commits[id];
-    if (!commit) return res.status(409).json({ error: 'Answer this checkpoint first' });
-    if (a.final) return res.status(409).json({ error: 'The journey is already finished' });
-    if (commit.revisions.length >= (lesson.config.maxRevisions ?? 3)) return res.status(409).json({ error: 'No more revisions for this checkpoint' });
-    const text = String(req.body?.explanation ?? '').trim().slice(0, MAX_EXPLANATION);
-    if (wordCount(text) < (lesson.config.minExplanationWords ?? 8)) return res.status(400).json({ error: 'Write a little more' });
-    const cp: Checkpoint = lesson.checkpoints.find((c: Checkpoint) => c.id === id);
-    const kw = keywordResults(text, cp.expectedKeywords, cp.keywordSynonyms);
-    commit.revisions.push({ text, coverage: kw.coverage, at: Date.now() });
-    await saveAssignment(sessionId, a);
-    res.json({ coverage: kw.coverage, keywords: kw.results, revisions: commit.revisions.length, maxRevisions: lesson.config.maxRevisions ?? 3 });
+    if (a.visited.length < lesson.checkpoints.length) return res.status(409).json({ error: 'Finish the tour first' });
+    const qid = String(req.body?.question ?? '');
+    const marked = markAnswer(lesson, a, qid, String(req.body?.choice ?? ''));
+    if (!marked) return res.status(400).json({ error: 'Unknown question or option' });
+    const prior = a.answers[qid];
+    if (!prior) {
+      // Questions are asked in the dealt order.
+      const next = a.quiz.find((d) => !a.answers[d.qid]);
+      if (next?.qid !== qid) return res.status(409).json({ error: 'Answer the questions in order' });
+      a.answers[qid] = { qid, choice: marked.choice, correct: marked.correct, thinkMs: Math.max(0, Math.min(3_600_000, Number(req.body?.thinkMs) || 0)), at: Date.now() };
+      await saveAssignment(sessionId, a);
+    }
+    const kept = a.answers[qid];
+    const ans = a.quiz.find((d) => d.qid === qid)!;
+    res.status(prior ? 200 : 201).json({ correct: kept.correct, answer: marked.answerPos, yourAnswer: `p${ans.order.indexOf(kept.choice)}`, explanation: marked.explanation, answered: Object.keys(a.answers).length, total: a.quiz.length });
   }),
 );
 
-// Explain-back audio, kept with the session for the instructor.
+// Explain-back audio for the closing explanation, kept with the session for the instructor.
 app.post(
   '/sessions/:sessionId/biology/audio',
   wrap(async (req, res) => {
     const ctx = await bioSession(req, res);
     if (!ctx) return;
     const { sessionId, a } = ctx;
-    const id = String(req.body?.checkpoint ?? '');
     const b64 = String(req.body?.fileBase64 ?? '');
     const type = String(req.body?.contentType ?? 'audio/webm');
-    const isFinal = id === 'final' && a.final;
-    if (!a.commits[id] && !isFinal) return res.status(409).json({ error: 'Answer this checkpoint first' });
+    if (!a.final) return res.status(409).json({ error: 'Submit the final explanation first' });
     if (!/^audio\//.test(type) || b64.length === 0 || b64.length > 5_000_000) return res.status(400).json({ error: 'Invalid audio' });
     const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm';
     const store = await fetch(`${process.env.OBJECT_STORE_URL || 'http://localhost:3006'}/upload/base64`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filename: `explain_${sessionId}_${id}.${ext}`, contentType: type, fileBase64: b64 }),
+      body: JSON.stringify({ filename: `explain_${sessionId}_final.${ext}`, contentType: type, fileBase64: b64 }),
     });
     if (!store.ok) return res.status(502).json({ error: 'Could not store the audio' });
     const data = (await store.json()) as { url?: string };
-    if (isFinal) {
-      if (a.final?.explain) (a.final.explain as { audioUrl?: string }).audioUrl = data.url;
-    } else a.commits[id].audioUrl = data.url;
+    a.final.audioUrl = data.url;
     await saveAssignment(sessionId, a);
     res.status(201).json({ stored: true });
   }),
 );
 
-// The "what if" challenge. One shot, after the whole journey.
+// The closing explanation. One shot, after the tour and the quiz; scored on key-idea coverage.
 app.post(
   '/sessions/:sessionId/biology/final',
   wrap(async (req, res) => {
     const ctx = await bioSession(req, res);
     if (!ctx) return;
     const { sessionId, a, lesson } = ctx;
-    const scenarios: Scenario[] = lesson.transfer.scenarios;
-    if (Object.keys(a.commits).length < lesson.checkpoints.length) return res.status(409).json({ error: 'Finish the journey first' });
+    if (a.visited.length < lesson.checkpoints.length) return res.status(409).json({ error: 'Finish the tour first' });
+    if (a.quiz.some((d) => !a.answers[d.qid])) return res.status(409).json({ error: 'Answer the quiz first' });
     const fe = lesson.finalExplain as { prompt: string; minWords?: number; expectedKeywords: string[]; keywordSynonyms?: Record<string, string[]>; modelAnswer?: string } | undefined;
     if (!a.final) {
-      const answers: Record<string, string> = {};
-      for (const s of scenarios) answers[s.id] = String(req.body?.answers?.[s.id] ?? '');
-      const r = scoreFinal(scenarios, answers);
       let explain;
       if (fe) {
         const text = String(req.body?.explanation ?? '').trim().slice(0, MAX_EXPLANATION);
@@ -640,14 +627,13 @@ app.post(
         const kw = keywordResults(text, fe.expectedKeywords, fe.keywordSynonyms);
         explain = { text, coverage: kw.coverage, matched: kw.matched, missed: kw.missed, inputMode: req.body?.inputMode === 'voice' ? ('voice' as const) : ('typed' as const), speakMs: Math.max(0, Math.min(600_000, Number(req.body?.speakMs) || 0)) };
       }
-      a.final = { answers, results: r.results, correct: r.correct, total: r.total, submittedAt: Date.now(), ...(explain ? { explain } : {}) };
+      a.final = { correct: a.quiz.filter((d) => a.answers[d.qid]?.correct).length, total: a.quiz.length, submittedAt: Date.now(), ...(explain ? { explain } : {}) };
       await saveAssignment(sessionId, a);
     }
     const ex = a.final.explain;
     res.json({
       correct: a.final.correct,
       total: a.final.total,
-      results: scenarios.map((s) => ({ id: s.id, correct: a.final!.results.find((r) => r.id === s.id)?.correct ?? false, answer: s.answer, yourAnswer: a.final!.answers[s.id], explanation: s.explanation })),
       ...(ex && fe ? { explain: { coverage: ex.coverage, keywords: [...ex.matched.map((k) => ({ keyword: k, matched: true })), ...ex.missed.map((k) => ({ keyword: k, matched: false }))], modelAnswer: fe.modelAnswer ?? '' } } : {}),
     });
   }),
@@ -685,20 +671,25 @@ app.get(
     if (bio) {
       const lesson = readLesson(bio.lessonId);
       const cps: Checkpoint[] = lesson.checkpoints;
+      const dealt = bio.quiz.flatMap((d) => {
+        const q = questionOf(lesson, d);
+        const cp = cps.find((c) => c.id === d.cp);
+        return q && cp ? [{ d, q, cp }] : [];
+      });
       return res.json({
         kind: 'biology',
         lessonId: bio.lessonId,
         studentId: bio.studentId,
         submitted: bio.final !== null,
         submission: null,
-        // For the coach's guard: every checkpoint, with whether its answer has already been revealed to the student.
-        tubes: cps.map((c, i) => ({ tube: i + 1, id: c.id, name: c.organName, formula: '', type: '', ph: 0, facts: c.revealExplanation, terms: secretTerms(c), open: !bio.commits[c.id] })),
+        // For the coach's guard: each dealt question, with whether the student has answered it yet.
+        tubes: dealt.map(({ d, q, cp }, i) => ({ tube: i + 1, id: q.id, name: cp.organName, formula: '', type: '', ph: 0, facts: q.explanation, terms: secretTerms(q), open: !bio.answers[d.qid] })),
         biology: {
-          checkpoints: cps.map((c, i) => {
-            const k = bio.commits[c.id];
-            return k && { id: c.id, n: i + 1, selection: k.selectionScore, coverageFirst: k.coverage, coverageFinal: k.revisions.length ? Math.max(k.coverage, ...k.revisions.map((r) => r.coverage)) : k.coverage, revisions: k.revisions.length, inputMode: k.inputMode, speakMs: k.speakMs, thinkMs: k.thinkMs };
-          }).filter(Boolean),
-          final: bio.final && { correct: bio.final.correct, total: bio.final.total, explainCoverage: bio.final.explain?.coverage ?? null },
+          visited: bio.visited.length,
+          stops: cps.length,
+          quiz: dealt.flatMap(({ d, cp }) => { const k = bio.answers[d.qid]; return k ? [{ id: d.qid, organ: cp.id, correct: k.correct, thinkMs: k.thinkMs }] : []; }),
+          quizTotal: bio.quiz.length,
+          final: bio.final && { correct: bio.final.correct, total: bio.final.total, explainCoverage: bio.final.explain?.coverage ?? null, inputMode: bio.final.explain?.inputMode ?? null, speakMs: bio.final.explain?.speakMs ?? 0 },
         },
       });
     }

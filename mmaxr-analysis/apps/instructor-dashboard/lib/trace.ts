@@ -77,7 +77,7 @@ export function describeEvent(e: TraceEvent): string {
     case 'arrive_checkpoint':
       return `Arrived at stop ${str(d.sample ?? d.checkpoint)}`
     case 'start_challenge':
-      return 'Started the “what if?” challenge'
+      return 'Started the closing step'
     case 'predict_selection': {
       const n = (k: string) => (Array.isArray(d[k]) ? (d[k] as unknown[]).length : 0)
       const groups = Array.isArray(d.groups) ? (d.groups as string[]) : ['glands', 'juices', 'components', 'nutrients']
@@ -90,6 +90,16 @@ export function describeEvent(e: TraceEvent): string {
       return `Stop ${str(d.sample)}: reveal shown${d.match === true ? ' (prediction matched)' : d.match === false ? ' (prediction missed some)' : ''}`
     case 'revise_explanation':
       return `Stop ${str(d.sample)}: revised the explanation (key ideas ${Math.round(Number(d.coverageBefore) * 100)}% → ${Math.round(Number(d.coverageAfter) * 100)}%)`
+    case 'watch_animation':
+      return `Stop ${str(d.sample)}: watched the animation`
+    case 'finish_tour':
+      return 'Finished the tour'
+    case 'start_quiz':
+      return `Started the quiz (${str(o.value)} questions)`
+    case 'quiz_answer': {
+      const id = String(o.target ?? '').replace('question:', '')
+      return `Quiz question ${str(d.sample)} (${id}): ${o.value === 'correct' ? 'right' : 'not right'} (${Math.round(Number(d.decisionMs) / 100) / 10}s)`
+    }
     case 'select_module':
       return `Opened the ${str(o.value).replace(/_/g, ' ')} module`
     case 'predict_trial':

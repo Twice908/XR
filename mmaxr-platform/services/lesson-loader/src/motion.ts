@@ -1,4 +1,5 @@
 import { keywordResults, wordCount } from './biology';
+import { pickIndex, shuffle, type Rand } from './questionEngine';
 
 /*
  * Motion, Forces & Gravitation: pure logic. Answers, tolerances, outcomes and explanations live only in the lesson
@@ -66,25 +67,16 @@ export function resolveTrial(t: MotionTrial, idx: number | undefined): MotionTri
   return { ...t, ...v, coachSecrets: v.coachSecrets ?? [], params: v.params ?? t.params };
 }
 
-const shuffled = <T,>(xs: T[], rnd: () => number): T[] => {
-  const a = [...xs];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rnd() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-};
-
 /** Deals this session its values and its option order for every question, like drawing samples for the test tubes. */
-export function drawVariants(lesson: { scenarios: MotionScenario[] }, rnd: () => number = Math.random): Pick<MotionAssignment, 'variants' | 'orders'> {
+export function drawVariants(lesson: { scenarios: MotionScenario[] }, rnd: Rand = Math.random): Pick<MotionAssignment, 'variants' | 'orders'> {
   const variants: Record<string, number> = {};
   const orders: Record<string, string[]> = {};
   for (const t of lesson.scenarios.flatMap((s) => s.trials)) {
     const n = t.variants?.length ?? 0;
-    const idx = n > 1 ? Math.floor(rnd() * n) : 0;
+    const idx = pickIndex(n, rnd);
     if (n > 0) variants[t.id] = idx;
     const r = resolveTrial(t, idx);
-    if (r.input.type === 'choice') orders[t.id] = shuffled(r.input.options.map((o) => o.id), rnd);
+    if (r.input.type === 'choice') orders[t.id] = shuffle(r.input.options.map((o) => o.id), rnd);
   }
   return { variants, orders };
 }

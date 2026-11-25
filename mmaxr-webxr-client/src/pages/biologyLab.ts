@@ -1,9 +1,9 @@
 import { XapiVerb } from '@mmaxr/schema'
-import type { BiologyLessonContract, BiologyOption } from '@mmaxr/schema'
+import type { BiologyLessonContract } from '@mmaxr/schema'
 import { go } from '../router'
 import { CoachClient, loadMode } from '../services/aiCoach'
 import type { LabSession } from '../services/session'
-import { commitStop, reviseStop, submitChallenge, uploadAudio } from '../services/biologyApi'
+import { answerQuestion, fetchQuiz, submitChallenge, uploadAudio, visitStop } from '../services/biologyApi'
 import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
 import { BiologyHud, type BiologyHudHandlers } from '../lab/biologyHud'
@@ -47,67 +47,25 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
 
   const handlers: BiologyHudHandlers = {
     onBack: () => go('/experiments'),
-    onToggle: (g, id) => {
-      guard(() => exp.toggle(g, id))
-      hud!.update()
-    },
-    onConfidence: (c) => {
-      guard(() => exp.setConfidence(c))
-      hud!.update()
-    },
-    onLock: () => {
-      guard(() => exp.lockPrediction())
-      hud!.update()
-    },
-    onCommit: async (text, mode, speakMs, audio) => {
+    // Hold a moment, clear the lower panel, then let this stop's animation play with a mini timer.
+    onWatch: async () => {
       if (working) return
-      const body = guard(() => exp.commitPayload(text, mode, speakMs))
-      if (!body) return
       working = true
-      hud!.setBusy('Checking your explanation…')
+      const cp = exp.stop.cp
       try {
-        const reveal = await commitStop(session, body)
-        if (audio) void uploadAudio(session, body.checkpoint, audio).catch(() => {})
-        const wrong = !reveal.selectionScore.allCorrect || reveal.coverage < 0.5
-        if (wrong) coach?.event('prediction_mismatch', say.mismatch(exp.stop.cp.organName), buildBiologySnapshot(exp))
-        // The names floated over the animation come from the groups the lesson lists (digestive: juices and enzymes).
-        const labelOf = (k: string) => ((reveal.answer[k] as BiologyOption[] | undefined) ?? []).filter((j) => j.id !== 'none').map((j) => j.label)
-        const labels = (lesson.revealLabels ?? ['juices', 'components']).flatMap(labelOf)
-        // Hold a second, clear the lower panel, then let the enzyme action play on its own with a mini timer.
-        hud!.setBusy('Answer received. Watch what happens inside…')
-        await new Promise((r) => setTimeout(r, 1000))
         hud!.setWatching(true)
-        hud!.setBusy(null)
-        exp.recordReveal(reveal)
         const total = 5000
         const t0 = performance.now()
         const timerLabel = lesson.revealTimerLabel
         const tick = window.setInterval(() => hud!.setTimer(total - (performance.now() - t0), timerLabel), 100)
         hud!.setTimer(total, timerLabel)
         try {
-          await scene.playReveal(body.checkpoint, labels.length ? labels : labelOf(exp.groups[exp.groups.length - 1].key), total)
+          await scene.playReveal(cp.id, cp.animLabels, total)
         } finally {
           window.clearInterval(tick)
           hud!.setWatching(false)
         }
-      } catch (err) {
-        hud!.setBusy(null)
-        toast((err as Error).message, 'error')
-      } finally {
-        working = false
-        hud!.update()
-      }
-    },
-    onRevise: async (text) => {
-      if (working) return
-      working = true
-      try {
-        const r = await reviseStop(session, exp.stop.cp.id, text)
-        exp.recordRevision(text, r.coverage, r.revisions)
-        hud!.setReviseResult({ keywords: r.keywords, coverage: r.coverage, revisions: r.revisions })
-        coach?.event('revision', say.revision(exp.stop.cp.organName), buildBiologySnapshot(exp))
-      } catch (err) {
-        toast((err as Error).message, 'error')
+        exp.markWatched()
       } finally {
         working = false
         hud!.update()
@@ -115,31 +73,68 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
     },
     onContinue: async () => {
       if (working) return
-      if (exp.isLastStop) {
-        guard(() => exp.next())
-        hud!.update()
-        void scene.enterFinal?.()
-        coach?.event('ready_to_submit', say.ready, buildBiologySnapshot(exp))
-        return
-      }
       working = true
-      guard(() => exp.next())
-      hud!.setTraveling(true)
-      await scene.arrive(exp.index)
-      hud!.setTraveling(false)
-      working = false
+      try {
+        const cp = exp.stop.cp
+        const last = exp.isLastStop
+        const seen = await visitStop(session, cp.id)
+        if (!last) {
+          guard(() => exp.nextStop())
+          hud!.setTraveling(true)
+          await scene.arrive(exp.index)
+          hud!.setTraveling(false)
+          return
+        }
+        guard(() => exp.nextStop())
+        if (seen.quizOpen) {
+          const q = await fetchQuiz(session)
+          exp.startQuiz(q.questions, q.answered)
+          void scene.enterFinal?.()
+          if (exp.stage === 'final') coach?.event('ready_to_submit', say.ready, buildBiologySnapshot(exp))
+        }
+      } catch (err) {
+        hud!.setTraveling(false)
+        toast((err as Error).message, 'error')
+      } finally {
+        working = false
+        hud!.update()
+      }
     },
-    onScenario: (id, option) => {
-      exp.scenarioAnswers[id] = option
+    onPick: (id) => {
+      guard(() => exp.pick(id))
+      hud!.update()
+    },
+    onCheck: async () => {
+      if (working) return
+      const body = guard(() => exp.checkPayload())
+      if (!body) return
+      working = true
+      hud!.setBusy('Checking…')
+      try {
+        const f = await answerQuestion(session, body)
+        hud!.setBusy(null)
+        exp.recordFeedback(f)
+        if (!f.correct) coach?.event('prediction_mismatch', say.wrong(exp.question!.organ), buildBiologySnapshot(exp))
+      } catch (err) {
+        hud!.setBusy(null)
+        toast((err as Error).message, 'error')
+      } finally {
+        working = false
+        hud!.update()
+      }
+    },
+    onNextQuestion: () => {
+      guard(() => exp.nextQuestion())
+      if (exp.stage === 'final') coach?.event('ready_to_submit', say.ready, buildBiologySnapshot(exp))
       hud!.update()
     },
     onSubmitFinal: async (audio) => {
       if (working || !exp.canSubmitFinal) return
       working = true
-      hud!.setBusy('Checking your answers…')
+      hud!.setBusy('Checking your explanation…')
       try {
         const result = await submitChallenge(session, exp.finalPayload())
-        if (audio) void uploadAudio(session, 'final', audio).catch(() => {})
+        if (audio) void uploadAudio(session, audio).catch(() => {})
         exp.finish(result)
         hud!.setBusy(null)
         coach?.reveal(buildBiologySnapshot(exp))

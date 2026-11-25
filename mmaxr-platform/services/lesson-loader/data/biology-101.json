@@ -17,157 +17,7 @@
     "isGuidedTour": true,
     "requireAudioExplanation": true,
     "minExplanationWords": 8,
-    "maxRevisions": 3
-  },
-  "choices": {
-    "glands": [
-      {
-        "id": "salivary",
-        "label": "Salivary glands"
-      },
-      {
-        "id": "gastric",
-        "label": "Gastric glands"
-      },
-      {
-        "id": "liver",
-        "label": "Liver"
-      },
-      {
-        "id": "pancreas",
-        "label": "Pancreas"
-      },
-      {
-        "id": "intestinal",
-        "label": "Intestinal glands"
-      },
-      {
-        "id": "none",
-        "label": "No digestive glands here"
-      }
-    ],
-    "juices": [
-      {
-        "id": "saliva",
-        "label": "Saliva"
-      },
-      {
-        "id": "gastric_juice",
-        "label": "Gastric juice"
-      },
-      {
-        "id": "bile",
-        "label": "Bile"
-      },
-      {
-        "id": "pancreatic_juice",
-        "label": "Pancreatic juice"
-      },
-      {
-        "id": "intestinal_juice",
-        "label": "Intestinal juice (succus entericus)"
-      },
-      {
-        "id": "none",
-        "label": "No digestive juice here"
-      }
-    ],
-    "components": [
-      {
-        "id": "salivary_amylase",
-        "label": "Salivary amylase (Ptyalin)"
-      },
-      {
-        "id": "lysozyme",
-        "label": "Lysozyme"
-      },
-      {
-        "id": "mucus",
-        "label": "Mucus"
-      },
-      {
-        "id": "hcl",
-        "label": "Hydrochloric acid (HCl)"
-      },
-      {
-        "id": "pepsin",
-        "label": "Pepsin"
-      },
-      {
-        "id": "bile_salts",
-        "label": "Bile salts"
-      },
-      {
-        "id": "trypsin",
-        "label": "Trypsin"
-      },
-      {
-        "id": "pancreatic_amylase",
-        "label": "Pancreatic amylase"
-      },
-      {
-        "id": "pancreatic_lipase",
-        "label": "Pancreatic lipase"
-      },
-      {
-        "id": "bicarbonate",
-        "label": "Sodium bicarbonate"
-      },
-      {
-        "id": "enterokinase",
-        "label": "Enterokinase"
-      },
-      {
-        "id": "maltase",
-        "label": "Maltase"
-      },
-      {
-        "id": "sucrase",
-        "label": "Sucrase"
-      },
-      {
-        "id": "lactase",
-        "label": "Lactase"
-      },
-      {
-        "id": "peptidase",
-        "label": "Peptidase (Erepsin)"
-      },
-      {
-        "id": "intestinal_lipase",
-        "label": "Intestinal lipase"
-      },
-      {
-        "id": "none",
-        "label": "No enzyme or chemical here"
-      }
-    ],
-    "nutrients": [
-      {
-        "id": "carbs",
-        "label": "Carbohydrates"
-      },
-      {
-        "id": "proteins",
-        "label": "Proteins"
-      },
-      {
-        "id": "fats",
-        "label": "Fats"
-      },
-      {
-        "id": "water",
-        "label": "Water"
-      },
-      {
-        "id": "all",
-        "label": "All digested nutrients"
-      },
-      {
-        "id": "none",
-        "label": "No nutrient is digested here"
-      }
-    ]
+    "quizSize": 3
   },
   "checkpoints": [
     {
@@ -189,64 +39,135 @@
         "z": 0.03
       },
       "detail": "salivary",
-      "prompt": "You are at the head and neck. Three pairs of glands sit around the mouth. Which glands are they, what fluid do they release, and which enzyme and other chemicals does it contain?",
-      "glandsInvolved": [
-        "Salivary Glands (Parotid, Submandibular, Sublingual)"
-      ],
-      "juicesInvolved": [
-        "Saliva"
-      ],
-      "componentsInvolved": [
-        "Salivary Amylase (Ptyalin)",
+      "animLabels": [
+        "Saliva",
+        "Salivary amylase (Ptyalin)",
         "Mucus",
         "Lysozyme"
       ],
-      "targetNutrient": "Carbohydrates (Starch)",
-      "answerGlands": [
-        "salivary"
-      ],
-      "answerJuices": [
-        "saliva"
-      ],
-      "answerComponents": [
-        "salivary_amylase",
-        "mucus",
-        "lysozyme"
-      ],
-      "answerNutrients": [
-        "carbs"
-      ],
-      "revealExplanation": "Three pairs of salivary glands release about 1 to 1.5 litres of saliva a day: the Parotid glands (in front of the ears), the Submandibular glands (under the jaw) and the Sublingual glands (under the tongue). Saliva is mostly water with Salivary Amylase (Ptyalin), which starts breaking starch into maltose, Mucus, which lubricates food into a soft bolus, and Lysozyme, which kills bacteria. Even the smell of food can make these glands start working.",
-      "expectedKeywords": [
-        "saliva",
-        "parotid",
-        "submandibular",
-        "sublingual",
-        "amylase",
-        "mucus"
-      ],
-      "keywordSynonyms": {
-        "saliva": [
-          "salivary",
-          "spit"
-        ],
-        "parotid": [
-          "parotids"
-        ],
-        "submandibular": [
-          "submaxillary"
-        ],
-        "sublingual": [
-          "under the tongue"
-        ],
-        "amylase": [
-          "ptyalin"
-        ],
-        "mucus": [
-          "mucous",
-          "mucin"
-        ]
-      }
+      "explanation": "Three pairs of salivary glands release about 1 to 1.5 litres of saliva a day: the Parotid glands (in front of the ears), the Submandibular glands (under the jaw) and the Sublingual glands (under the tongue). Saliva is mostly water with Salivary Amylase (Ptyalin), which starts breaking starch into maltose, Mucus, which lubricates food into a soft bolus, and Lysozyme, which kills bacteria. Even the smell of food can make these glands start working.",
+      "quiz": [
+        {
+          "id": "salivary_glands_q1",
+          "prompt": "You smell freshly baked bread and your mouth waters. What are the salivary glands doing?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Releasing saliva that holds amylase before any food arrives"
+            },
+            {
+              "id": "b",
+              "label": "Releasing bile to digest the bread's fat"
+            },
+            {
+              "id": "c",
+              "label": "Releasing HCl to kill bacteria"
+            },
+            {
+              "id": "d",
+              "label": "Storing saliva until you swallow"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Even the smell of food starts the salivary glands, so saliva with amylase is ready for starch."
+        },
+        {
+          "id": "salivary_glands_q2",
+          "prompt": "Which enzyme in saliva starts breaking starch down?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Salivary amylase"
+            },
+            {
+              "id": "b",
+              "label": "Pepsin"
+            },
+            {
+              "id": "c",
+              "label": "Lipase"
+            },
+            {
+              "id": "d",
+              "label": "Trypsin"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Salivary amylase (ptyalin) turns starch into the sugar maltose."
+        },
+        {
+          "id": "salivary_glands_q3",
+          "prompt": "What does the lysozyme in saliva do?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Kills bacteria that enter with food"
+            },
+            {
+              "id": "b",
+              "label": "Breaks down proteins"
+            },
+            {
+              "id": "c",
+              "label": "Emulsifies fats"
+            },
+            {
+              "id": "d",
+              "label": "Lubricates the bolus"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Lysozyme is the germ-killing part of saliva. Mucus does the lubricating."
+        },
+        {
+          "id": "salivary_glands_q4",
+          "prompt": "Where are the three pairs of salivary glands found?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Near the ears, under the jaw and under the tongue"
+            },
+            {
+              "id": "b",
+              "label": "In the wall of the stomach"
+            },
+            {
+              "id": "c",
+              "label": "Beside the liver"
+            },
+            {
+              "id": "d",
+              "label": "Along the small intestine"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Parotid (by the ears), submandibular (under the jaw) and sublingual (under the tongue)."
+        },
+        {
+          "id": "salivary_glands_q5",
+          "prompt": "What is the job of mucus in saliva?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Makes food slippery and soft so it forms a bolus that is easy to swallow"
+            },
+            {
+              "id": "b",
+              "label": "Breaks starch into maltose"
+            },
+            {
+              "id": "c",
+              "label": "Neutralises stomach acid"
+            },
+            {
+              "id": "d",
+              "label": "Absorbs glucose into blood"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Mucus lubricates; it is not an enzyme."
+        }
+      ]
     },
     {
       "id": "mouth",
@@ -267,70 +188,133 @@
         "z": 0.0
       },
       "detail": "tooth",
-      "prompt": "You are in the Mouth. How do the teeth and tongue help, and what begins to happen to starch while you chew?",
-      "glandsInvolved": [
-        "Salivary Glands"
+      "animLabels": [
+        "Saliva",
+        "Salivary amylase (Ptyalin)"
       ],
-      "juicesInvolved": [
-        "Saliva (Salivary Amylase)"
-      ],
-      "componentsInvolved": [
-        "Salivary Amylase (Ptyalin)"
-      ],
-      "targetNutrient": "Carbohydrates (Starch)",
-      "answerGlands": [
-        "salivary"
-      ],
-      "answerJuices": [
-        "saliva"
-      ],
-      "answerComponents": [
-        "salivary_amylase"
-      ],
-      "answerNutrients": [
-        "carbs"
-      ],
-      "revealExplanation": "Mechanical digestion begins here. Incisors cut, canines tear and molars grind the food, while the tongue mixes it with saliva and shapes it into a soft bolus ready to swallow. Chemical digestion also begins: Salivary Amylase turns starch into the sugar maltose. Its work stops once the stomach acid reaches it.",
-      "expectedKeywords": [
-        "chewing",
-        "tongue",
-        "bolus",
-        "starch",
-        "maltose",
-        "amylase"
-      ],
-      "keywordSynonyms": {
-        "chewing": [
-          "chew",
-          "chewed",
-          "mastication",
-          "grinding",
-          "biting",
-          "teeth",
-          "molars"
-        ],
-        "tongue": [
-          "tongue mixes"
-        ],
-        "bolus": [
-          "ball of food",
-          "soft ball"
-        ],
-        "starch": [
-          "starches",
-          "carbohydrate",
-          "carbohydrates",
-          "carbs"
-        ],
-        "maltose": [
-          "sugar",
-          "sugars"
-        ],
-        "amylase": [
-          "ptyalin",
-          "salivary amylase"
-        ]
-      }
+      "explanation": "Mechanical digestion begins here. Incisors cut, canines tear and molars grind the food, while the tongue mixes it with saliva and shapes it into a soft bolus ready to swallow. Chemical digestion also begins: Salivary Amylase turns starch into the sugar maltose. Its work stops once the stomach acid reaches it.",
+      "quiz": [
+        {
+          "id": "mouth_q1",
+          "prompt": "Which teeth are best for tearing food?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Canines"
+            },
+            {
+              "id": "b",
+              "label": "Incisors"
+            },
+            {
+              "id": "c",
+              "label": "Molars"
+            },
+            {
+              "id": "d",
+              "label": "Wisdom teeth only"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Incisors cut, canines tear and molars grind."
+        },
+        {
+          "id": "mouth_q2",
+          "prompt": "Chewing food into small pieces mainly helps because it…",
+          "options": [
+            {
+              "id": "a",
+              "label": "Gives enzymes a larger surface to work on"
+            },
+            {
+              "id": "b",
+              "label": "Makes the food acidic"
+            },
+            {
+              "id": "c",
+              "label": "Turns starch into protein"
+            },
+            {
+              "id": "d",
+              "label": "Removes all the water from food"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Mechanical digestion increases surface area for chemical digestion."
+        },
+        {
+          "id": "mouth_q3",
+          "prompt": "Hold a piece of bread in your mouth for a minute and it tastes sweeter. Why?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Salivary amylase turns starch into the sugar maltose"
+            },
+            {
+              "id": "b",
+              "label": "Pepsin turns protein into sugar"
+            },
+            {
+              "id": "c",
+              "label": "The tongue makes glucose"
+            },
+            {
+              "id": "d",
+              "label": "Bile turns starch into fat"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Chemical digestion of starch begins in the mouth."
+        },
+        {
+          "id": "mouth_q4",
+          "prompt": "What is the soft ball of chewed food that is swallowed called?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Bolus"
+            },
+            {
+              "id": "b",
+              "label": "Chyme"
+            },
+            {
+              "id": "c",
+              "label": "Bile"
+            },
+            {
+              "id": "d",
+              "label": "Villus"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Chyme is the thick liquid made later in the stomach."
+        },
+        {
+          "id": "mouth_q5",
+          "prompt": "Why does salivary amylase stop working once food reaches the stomach?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Stomach acid stops it"
+            },
+            {
+              "id": "b",
+              "label": "It is used up as soon as you swallow"
+            },
+            {
+              "id": "c",
+              "label": "Bile destroys it"
+            },
+            {
+              "id": "d",
+              "label": "There is no starch left"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Amylase works in a neutral to slightly alkaline mouth; the acid in the stomach stops it."
+        }
+      ]
     },
     {
       "id": "esophagus",
@@ -351,60 +335,133 @@
         "z": 0.02
       },
       "detail": null,
-      "prompt": "The food has been swallowed. What stops it entering the windpipe, what carries it down the food pipe, and is any chemical digestion happening here?",
-      "glandsInvolved": [],
-      "juicesInvolved": [],
-      "componentsInvolved": [],
-      "targetNutrient": "No nutrient is digested here",
-      "answerGlands": [
-        "none"
+      "animLabels": [
+        "Peristalsis (muscle waves)",
+        "Mucus only: no enzymes"
       ],
-      "answerJuices": [
-        "none"
-      ],
-      "answerComponents": [
-        "none"
-      ],
-      "answerNutrients": [
-        "none"
-      ],
-      "revealExplanation": "When you swallow, the Epiglottis folds over the windpipe so food goes down the oesophagus instead. Waves of muscle contraction called Peristalsis squeeze the bolus down to the stomach in a few seconds, even if you are upside down. No digestive enzymes are made here; mucus only lubricates the passage, so there is no chemical digestion.",
-      "expectedKeywords": [
-        "peristalsis",
-        "epiglottis",
-        "muscles",
-        "windpipe",
-        "no digestion"
-      ],
-      "keywordSynonyms": {
-        "peristalsis": [
-          "peristaltic",
-          "wave of contraction",
-          "waves"
-        ],
-        "epiglottis": [
-          "flap"
-        ],
-        "muscles": [
-          "muscle",
-          "muscular",
-          "contract",
-          "contracts",
-          "contractions",
-          "contraction"
-        ],
-        "windpipe": [
-          "trachea"
-        ],
-        "no digestion": [
-          "no enzymes",
-          "no enzyme",
-          "not digested",
-          "no chemical digestion",
-          "no digestive juice",
-          "no juices"
-        ]
-      }
+      "explanation": "When you swallow, the Epiglottis folds over the windpipe so food goes down the oesophagus instead. Waves of muscle contraction called Peristalsis squeeze the bolus down to the stomach in a few seconds, even if you are upside down. No digestive enzymes are made here; mucus only lubricates the passage, so there is no chemical digestion.",
+      "quiz": [
+        {
+          "id": "esophagus_q1",
+          "prompt": "What stops food from entering the windpipe when you swallow?",
+          "options": [
+            {
+              "id": "a",
+              "label": "The epiglottis folds over the windpipe"
+            },
+            {
+              "id": "b",
+              "label": "The tongue seals the nose"
+            },
+            {
+              "id": "c",
+              "label": "Peristalsis closes the lungs"
+            },
+            {
+              "id": "d",
+              "label": "The oesophagus closes"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The epiglottis covers the entrance of the larynx."
+        },
+        {
+          "id": "esophagus_q2",
+          "prompt": "What pushes the bolus down the oesophagus?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Waves of muscle contraction called peristalsis"
+            },
+            {
+              "id": "b",
+              "label": "Gravity alone"
+            },
+            {
+              "id": "c",
+              "label": "Enzymes pulling it down"
+            },
+            {
+              "id": "d",
+              "label": "Suction from the stomach"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Peristalsis works even if you are upside down."
+        },
+        {
+          "id": "esophagus_q3",
+          "prompt": "Is any chemical digestion done in the oesophagus?",
+          "options": [
+            {
+              "id": "a",
+              "label": "No. Only mucus is added to lubricate"
+            },
+            {
+              "id": "b",
+              "label": "Yes, proteins are broken into peptones"
+            },
+            {
+              "id": "c",
+              "label": "Yes, fats are emulsified"
+            },
+            {
+              "id": "d",
+              "label": "Yes, starch is changed to glucose"
+            }
+          ],
+          "answer": "a",
+          "explanation": "No digestive enzymes are made here."
+        },
+        {
+          "id": "esophagus_q4",
+          "prompt": "An astronaut can swallow in space. Which fact explains this?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Peristalsis, not gravity, moves food along"
+            },
+            {
+              "id": "b",
+              "label": "Saliva is lighter in space"
+            },
+            {
+              "id": "c",
+              "label": "The stomach pulls food up"
+            },
+            {
+              "id": "d",
+              "label": "Food floats into the stomach"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Muscle waves do the moving."
+        },
+        {
+          "id": "esophagus_q5",
+          "prompt": "About how long does the bolus take to pass down the oesophagus?",
+          "options": [
+            {
+              "id": "a",
+              "label": "A few seconds"
+            },
+            {
+              "id": "b",
+              "label": "About an hour"
+            },
+            {
+              "id": "c",
+              "label": "About a day"
+            },
+            {
+              "id": "d",
+              "label": "About ten minutes"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Peristalsis squeezes it down in a few seconds."
+        }
+      ]
     },
     {
       "id": "stomach",
@@ -425,69 +482,135 @@
         "z": 0.02
       },
       "detail": "stomach",
-      "prompt": "You have reached the Stomach. What digestive juice is secreted here? What is the role of Hydrochloric Acid (HCl), Pepsin and Mucus?",
-      "glandsInvolved": [
-        "Gastric Glands"
-      ],
-      "juicesInvolved": [
-        "Gastric Juice"
-      ],
-      "componentsInvolved": [
-        "Hydrochloric Acid (HCl)",
+      "animLabels": [
+        "Gastric juice",
+        "Hydrochloric acid (HCl)",
         "Pepsin",
         "Mucus"
       ],
-      "targetNutrient": "Proteins",
-      "answerGlands": [
-        "gastric"
-      ],
-      "answerJuices": [
-        "gastric_juice"
-      ],
-      "answerComponents": [
-        "hcl",
-        "pepsin",
-        "mucus"
-      ],
-      "answerNutrients": [
-        "proteins"
-      ],
-      "revealExplanation": "The stomach churns food into a thick liquid called chyme. Gastric glands secrete Gastric Juice: HCl makes an acidic medium that kills bacteria and activates Pepsin, Pepsin breaks proteins into peptones, and Mucus protects the stomach lining from the acid.",
-      "expectedKeywords": [
-        "gastric juice",
-        "hcl",
-        "pepsin",
-        "protein",
-        "acidic",
-        "mucus",
-        "chyme"
-      ],
-      "keywordSynonyms": {
-        "gastric juice": [
-          "gastric",
-          "stomach juice"
-        ],
-        "hcl": [
-          "hydrochloric acid",
-          "hydrochloric"
-        ],
-        "protein": [
-          "proteins"
-        ],
-        "acidic": [
-          "acid",
-          "acidity"
-        ],
-        "mucus": [
-          "mucous",
-          "mucin"
-        ],
-        "chyme": [
-          "churned food",
-          "semi liquid",
-          "semi-liquid"
-        ]
-      }
+      "explanation": "The stomach churns food into a thick liquid called chyme. Gastric glands secrete Gastric Juice: HCl makes an acidic medium that kills bacteria and activates Pepsin, Pepsin breaks proteins into peptones, and Mucus protects the stomach lining from the acid.",
+      "quiz": [
+        {
+          "id": "stomach_q1",
+          "prompt": "What does hydrochloric acid do in the stomach?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Kills bacteria and activates pepsin"
+            },
+            {
+              "id": "b",
+              "label": "Digests fats into fatty acids"
+            },
+            {
+              "id": "c",
+              "label": "Absorbs water into blood"
+            },
+            {
+              "id": "d",
+              "label": "Turns starch into maltose"
+            }
+          ],
+          "answer": "a",
+          "explanation": "HCl makes the acidic medium pepsin needs."
+        },
+        {
+          "id": "stomach_q2",
+          "prompt": "Which nutrient does pepsin start digesting?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Proteins"
+            },
+            {
+              "id": "b",
+              "label": "Carbohydrates"
+            },
+            {
+              "id": "c",
+              "label": "Fats"
+            },
+            {
+              "id": "d",
+              "label": "Vitamins"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Pepsin breaks proteins into smaller peptones."
+        },
+        {
+          "id": "stomach_q3",
+          "prompt": "What protects the stomach wall from its own acid?",
+          "options": [
+            {
+              "id": "a",
+              "label": "A layer of mucus"
+            },
+            {
+              "id": "b",
+              "label": "Bile"
+            },
+            {
+              "id": "c",
+              "label": "Saliva"
+            },
+            {
+              "id": "d",
+              "label": "A layer of villi"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Mucus lines the stomach and shields it."
+        },
+        {
+          "id": "stomach_q4",
+          "prompt": "What is the thick liquid that leaves the stomach called?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Chyme"
+            },
+            {
+              "id": "b",
+              "label": "Bolus"
+            },
+            {
+              "id": "c",
+              "label": "Bile"
+            },
+            {
+              "id": "d",
+              "label": "Lymph"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Churning turns food into chyme."
+        },
+        {
+          "id": "stomach_q5",
+          "prompt": "A medicine that greatly reduces stomach acid would mainly slow digestion of…",
+          "options": [
+            {
+              "id": "a",
+              "label": "Proteins, because pepsin needs acid to work"
+            },
+            {
+              "id": "b",
+              "label": "Starch in the mouth"
+            },
+            {
+              "id": "c",
+              "label": "Fats in the liver"
+            },
+            {
+              "id": "d",
+              "label": "Water in the large intestine"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Without HCl pepsin stays inactive."
+        }
+      ]
     },
     {
       "id": "liver",
@@ -508,70 +631,133 @@
         "z": 0.03
       },
       "detail": "liver",
-      "prompt": "You are at the largest gland in the body, on the right side. What fluid does it make, where is that fluid stored, and what does it do to fats? Does that fluid contain an enzyme?",
-      "glandsInvolved": [
-        "Liver"
+      "animLabels": [
+        "Bile",
+        "Bile salts"
       ],
-      "juicesInvolved": [
-        "Bile"
-      ],
-      "componentsInvolved": [
-        "Bile Salts"
-      ],
-      "targetNutrient": "Fats",
-      "answerGlands": [
-        "liver"
-      ],
-      "answerJuices": [
-        "bile"
-      ],
-      "answerComponents": [
-        "bile_salts"
-      ],
-      "answerNutrients": [
-        "fats"
-      ],
-      "revealExplanation": "The Liver makes Bile, which is stored and concentrated in the gallbladder and released into the duodenum through the bile duct. Bile contains no digestive enzymes. Its Bile Salts emulsify large fat globules into tiny droplets so enzymes can reach them, and its alkaline nature neutralises the acidic chyme.",
-      "expectedKeywords": [
-        "bile",
-        "gallbladder",
-        "emulsification",
-        "alkaline",
-        "fats",
-        "bile salts"
-      ],
-      "keywordSynonyms": {
-        "bile": [
-          "bile juice"
-        ],
-        "gallbladder": [
-          "gall bladder",
-          "gall-bladder"
-        ],
-        "emulsification": [
-          "emulsify",
-          "emulsifies",
-          "emulsifying",
-          "emulsified",
-          "breaks fat globules",
-          "breaks up fat"
-        ],
-        "alkaline": [
-          "neutralise",
-          "neutralises",
-          "neutralize",
-          "neutralizes",
-          "basic"
-        ],
-        "fats": [
-          "fat",
-          "lipids",
-          "lipid"
-        ],
-        "bile salts": [
-          "bile salt"
-        ]
-      }
+      "explanation": "The Liver makes Bile, which is stored and concentrated in the gallbladder and released into the duodenum through the bile duct. Bile contains no digestive enzymes. Its Bile Salts emulsify large fat globules into tiny droplets so enzymes can reach them, and its alkaline nature neutralises the acidic chyme.",
+      "quiz": [
+        {
+          "id": "liver_q1",
+          "prompt": "What does bile contain?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Bile salts but no digestive enzymes"
+            },
+            {
+              "id": "b",
+              "label": "Lipase and amylase"
+            },
+            {
+              "id": "c",
+              "label": "Pepsin and HCl"
+            },
+            {
+              "id": "d",
+              "label": "Trypsin and maltase"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Bile helps digestion without being an enzyme."
+        },
+        {
+          "id": "liver_q2",
+          "prompt": "Where is bile stored and concentrated?",
+          "options": [
+            {
+              "id": "a",
+              "label": "The gallbladder"
+            },
+            {
+              "id": "b",
+              "label": "The pancreas"
+            },
+            {
+              "id": "c",
+              "label": "The stomach"
+            },
+            {
+              "id": "d",
+              "label": "The villi"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The liver makes bile and the gallbladder stores it."
+        },
+        {
+          "id": "liver_q3",
+          "prompt": "What do bile salts do to fat globules?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Break them into tiny droplets (emulsify) so lipase can reach them"
+            },
+            {
+              "id": "b",
+              "label": "Turn them into protein"
+            },
+            {
+              "id": "c",
+              "label": "Turn them into glucose"
+            },
+            {
+              "id": "d",
+              "label": "Absorb them straight into blood"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Emulsification gives enzymes more surface."
+        },
+        {
+          "id": "liver_q4",
+          "prompt": "Why is bile alkaline?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To neutralise the acidic chyme from the stomach"
+            },
+            {
+              "id": "b",
+              "label": "To start protein digestion"
+            },
+            {
+              "id": "c",
+              "label": "To kill the bacteria in saliva"
+            },
+            {
+              "id": "d",
+              "label": "To make the bolus"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Intestinal enzymes need a less acidic medium."
+        },
+        {
+          "id": "liver_q5",
+          "prompt": "A person's bile duct is blocked. Which food group becomes hardest to digest?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Fats"
+            },
+            {
+              "id": "b",
+              "label": "Starch"
+            },
+            {
+              "id": "c",
+              "label": "Proteins"
+            },
+            {
+              "id": "d",
+              "label": "Water"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Without bile, fats are not emulsified."
+        }
+      ]
     },
     {
       "id": "pancreas",
@@ -592,73 +778,136 @@
         "z": 0.035
       },
       "detail": "pancreas",
-      "prompt": "Behind the stomach lies a long, leaf-shaped gland that pours its juice into the duodenum. Which juice is it, and which enzymes does it hold for carbohydrates, proteins and fats?",
-      "glandsInvolved": [
-        "Pancreas"
-      ],
-      "juicesInvolved": [
-        "Pancreatic Juice"
-      ],
-      "componentsInvolved": [
+      "animLabels": [
+        "Pancreatic juice",
         "Trypsin",
-        "Pancreatic Amylase",
-        "Pancreatic Lipase",
-        "Sodium Bicarbonate"
+        "Pancreatic amylase",
+        "Pancreatic lipase",
+        "Sodium bicarbonate"
       ],
-      "targetNutrient": "Carbohydrates, Proteins and Fats",
-      "answerGlands": [
-        "pancreas"
-      ],
-      "answerJuices": [
-        "pancreatic_juice"
-      ],
-      "answerComponents": [
-        "trypsin",
-        "pancreatic_amylase",
-        "pancreatic_lipase",
-        "bicarbonate"
-      ],
-      "answerNutrients": [
-        "carbs",
-        "proteins",
-        "fats"
-      ],
-      "revealExplanation": "The Pancreas secretes Pancreatic Juice through the pancreatic duct into the duodenum. It contains Pancreatic Amylase (starch into maltose), Trypsin (proteins into peptides) and Lipase (fats into fatty acids and glycerol), plus sodium bicarbonate to neutralise the acid chyme. Trypsin is released inactive and switched on by enterokinase in the intestine. The pancreas also makes the hormone insulin.",
-      "expectedKeywords": [
-        "pancreatic juice",
-        "trypsin",
-        "lipase",
-        "amylase",
-        "bicarbonate",
-        "duodenum"
-      ],
-      "keywordSynonyms": {
-        "pancreatic juice": [
-          "pancreatic",
-          "pancreas juice"
-        ],
-        "trypsin": [
-          "trypsinogen"
-        ],
-        "lipase": [
-          "lipases"
-        ],
-        "amylase": [
-          "pancreatic amylase"
-        ],
-        "bicarbonate": [
-          "sodium bicarbonate",
-          "alkaline",
-          "neutralise",
-          "neutralises",
-          "neutralize",
-          "neutralizes"
-        ],
-        "duodenum": [
-          "small intestine",
-          "pancreatic duct"
-        ]
-      }
+      "explanation": "The Pancreas secretes Pancreatic Juice through the pancreatic duct into the duodenum. It contains Pancreatic Amylase (starch into maltose), Trypsin (proteins into peptides) and Lipase (fats into fatty acids and glycerol), plus sodium bicarbonate to neutralise the acid chyme. Trypsin is released inactive and switched on by enterokinase in the intestine. The pancreas also makes the hormone insulin.",
+      "quiz": [
+        {
+          "id": "pancreas_q1",
+          "prompt": "Which enzyme in pancreatic juice digests fats?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Lipase"
+            },
+            {
+              "id": "b",
+              "label": "Amylase"
+            },
+            {
+              "id": "c",
+              "label": "Trypsin"
+            },
+            {
+              "id": "d",
+              "label": "Pepsin"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Lipase splits fats into fatty acids and glycerol."
+        },
+        {
+          "id": "pancreas_q2",
+          "prompt": "Why does pancreatic juice contain sodium bicarbonate?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To neutralise the acidic chyme entering the duodenum"
+            },
+            {
+              "id": "b",
+              "label": "To digest starch"
+            },
+            {
+              "id": "c",
+              "label": "To kill bacteria in the mouth"
+            },
+            {
+              "id": "d",
+              "label": "To make bile"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Bicarbonate is alkaline."
+        },
+        {
+          "id": "pancreas_q3",
+          "prompt": "Trypsin digests…",
+          "options": [
+            {
+              "id": "a",
+              "label": "Proteins into peptides"
+            },
+            {
+              "id": "b",
+              "label": "Fats into fatty acids"
+            },
+            {
+              "id": "c",
+              "label": "Starch into maltose"
+            },
+            {
+              "id": "d",
+              "label": "Sucrose into glucose"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Trypsin is the pancreatic protease."
+        },
+        {
+          "id": "pancreas_q4",
+          "prompt": "How does pancreatic juice reach the small intestine?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Through the pancreatic duct into the duodenum"
+            },
+            {
+              "id": "b",
+              "label": "Through the bloodstream"
+            },
+            {
+              "id": "c",
+              "label": "Through the oesophagus"
+            },
+            {
+              "id": "d",
+              "label": "Through the large intestine"
+            }
+          ],
+          "answer": "a",
+          "explanation": "A duct delivers it to the duodenum."
+        },
+        {
+          "id": "pancreas_q5",
+          "prompt": "Which statement about the pancreas is true?",
+          "options": [
+            {
+              "id": "a",
+              "label": "It makes digestive enzymes and also the hormone insulin"
+            },
+            {
+              "id": "b",
+              "label": "It only stores bile"
+            },
+            {
+              "id": "c",
+              "label": "It absorbs digested food"
+            },
+            {
+              "id": "d",
+              "label": "It makes only acid"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The pancreas has both digestive and hormonal roles."
+        }
+      ]
     },
     {
       "id": "small_intestine",
@@ -679,76 +928,138 @@
         "z": 0.03
       },
       "detail": null,
-      "prompt": "The chyme now enters the longest part of the alimentary canal, about 6 to 7 metres. Glands in its wall release a juice. Name it, name its enzymes, and say what they finish digesting.",
-      "glandsInvolved": [
-        "Intestinal Glands"
-      ],
-      "juicesInvolved": [
-        "Intestinal Juice (Succus Entericus)"
-      ],
-      "componentsInvolved": [
+      "animLabels": [
+        "Intestinal juice (succus entericus)",
         "Maltase",
         "Sucrase",
         "Lactase",
         "Peptidase (Erepsin)",
-        "Intestinal Lipase",
+        "Intestinal lipase",
         "Enterokinase"
       ],
-      "targetNutrient": "Carbohydrates, Proteins and Fats",
-      "answerGlands": [
-        "intestinal"
-      ],
-      "answerJuices": [
-        "intestinal_juice"
-      ],
-      "answerComponents": [
-        "maltase",
-        "sucrase",
-        "lactase",
-        "peptidase",
-        "intestinal_lipase",
-        "enterokinase"
-      ],
-      "answerNutrients": [
-        "carbs",
-        "proteins",
-        "fats"
-      ],
-      "revealExplanation": "Intestinal glands secrete Intestinal Juice, also called succus entericus. Its enzymes complete digestion: Maltase (maltose into glucose), Sucrase (sucrose into glucose and fructose), Lactase (lactose into glucose and galactose), Peptidase or Erepsin (peptides into amino acids) and Intestinal Lipase (fats into fatty acids and glycerol). Enterokinase activates trypsin.",
-      "expectedKeywords": [
-        "intestinal juice",
-        "maltase",
-        "sucrase",
-        "lactase",
-        "peptidase",
-        "glucose"
-      ],
-      "keywordSynonyms": {
-        "intestinal juice": [
-          "succus entericus",
-          "intestinal"
-        ],
-        "maltase": [
-          "maltose"
-        ],
-        "sucrase": [
-          "sucrose",
-          "invertase"
-        ],
-        "lactase": [
-          "lactose"
-        ],
-        "peptidase": [
-          "erepsin",
-          "peptidases"
-        ],
-        "glucose": [
-          "simple sugar",
-          "simple sugars",
-          "amino acids",
-          "fatty acids"
-        ]
-      }
+      "explanation": "Intestinal glands secrete Intestinal Juice, also called succus entericus. Its enzymes complete digestion: Maltase (maltose into glucose), Sucrase (sucrose into glucose and fructose), Lactase (lactose into glucose and galactose), Peptidase or Erepsin (peptides into amino acids) and Intestinal Lipase (fats into fatty acids and glycerol). Enterokinase activates trypsin.",
+      "quiz": [
+        {
+          "id": "small_intestine_q1",
+          "prompt": "Which enzyme turns maltose into glucose?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Maltase"
+            },
+            {
+              "id": "b",
+              "label": "Lactase"
+            },
+            {
+              "id": "c",
+              "label": "Pepsin"
+            },
+            {
+              "id": "d",
+              "label": "Lipase"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Maltase completes the digestion of maltose."
+        },
+        {
+          "id": "small_intestine_q2",
+          "prompt": "What do peptidases (erepsin) finish breaking down?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Peptides into amino acids"
+            },
+            {
+              "id": "b",
+              "label": "Fats into glycerol"
+            },
+            {
+              "id": "c",
+              "label": "Starch into maltose"
+            },
+            {
+              "id": "d",
+              "label": "Lactose into galactose"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Proteins end as amino acids."
+        },
+        {
+          "id": "small_intestine_q3",
+          "prompt": "Which enzyme digests the sugar in milk?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Lactase"
+            },
+            {
+              "id": "b",
+              "label": "Sucrase"
+            },
+            {
+              "id": "c",
+              "label": "Maltase"
+            },
+            {
+              "id": "d",
+              "label": "Amylase"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Lactase breaks lactose into glucose and galactose."
+        },
+        {
+          "id": "small_intestine_q4",
+          "prompt": "What is the role of enterokinase?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Activates trypsin"
+            },
+            {
+              "id": "b",
+              "label": "Digests fat"
+            },
+            {
+              "id": "c",
+              "label": "Neutralises acid"
+            },
+            {
+              "id": "d",
+              "label": "Absorbs glucose"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Trypsin is released inactive and switched on here."
+        },
+        {
+          "id": "small_intestine_q5",
+          "prompt": "By the end of the small intestine, starch has become…",
+          "options": [
+            {
+              "id": "a",
+              "label": "Glucose"
+            },
+            {
+              "id": "b",
+              "label": "Fatty acids"
+            },
+            {
+              "id": "c",
+              "label": "Amino acids"
+            },
+            {
+              "id": "d",
+              "label": "Bile salts"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Carbohydrates end as simple sugars such as glucose."
+        }
+      ]
     },
     {
       "id": "villi",
@@ -769,60 +1080,134 @@
         "z": 0.04
       },
       "detail": null,
-      "prompt": "The nutrients are now tiny enough to absorb. What does the inner wall of the small intestine look like, why is it built that way, and where do the nutrients go?",
-      "glandsInvolved": [],
-      "juicesInvolved": [],
-      "componentsInvolved": [],
-      "targetNutrient": "All digested nutrients",
-      "answerGlands": [
-        "none"
+      "animLabels": [
+        "Villi (finger-like folds)",
+        "Capillaries: glucose and amino acids",
+        "Lacteal: fatty acids and glycerol"
       ],
-      "answerJuices": [
-        "none"
-      ],
-      "answerComponents": [
-        "none"
-      ],
-      "answerNutrients": [
-        "all"
-      ],
-      "revealExplanation": "The inner wall is folded into millions of finger-like Villi, which hugely increase the surface area for absorption. Each villus is one cell thick and has a network of capillaries that carry glucose and amino acids into the blood, and a lacteal that absorbs fatty acids and glycerol into the lymph. The blood then carries the nutrients to the liver and to every cell of the body.",
-      "expectedKeywords": [
-        "villi",
-        "surface area",
-        "absorption",
-        "blood supply",
-        "lacteal"
-      ],
-      "keywordSynonyms": {
-        "villi": [
-          "villus",
-          "finger-like",
-          "finger like"
-        ],
-        "surface area": [
-          "larger area",
-          "big area",
-          "greater area",
-          "increase area",
-          "increases the area"
-        ],
-        "absorption": [
-          "absorb",
-          "absorbed",
-          "absorbs",
-          "absorbing"
-        ],
-        "blood supply": [
-          "blood",
-          "capillaries",
-          "bloodstream"
-        ],
-        "lacteal": [
-          "lymph",
-          "lymphatic"
-        ]
-      }
+      "explanation": "The inner wall is folded into millions of finger-like Villi, which hugely increase the surface area for absorption. Each villus is one cell thick and has a network of capillaries that carry glucose and amino acids into the blood, and a lacteal that absorbs fatty acids and glycerol into the lymph. The blood then carries the nutrients to the liver and to every cell of the body.",
+      "quiz": [
+        {
+          "id": "villi_q1",
+          "prompt": "Why is the small intestine wall folded into villi?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To increase the surface area for absorption"
+            },
+            {
+              "id": "b",
+              "label": "To slow food down so it can be stored"
+            },
+            {
+              "id": "c",
+              "label": "To make more bile"
+            },
+            {
+              "id": "d",
+              "label": "To grind food"
+            }
+          ],
+          "answer": "a",
+          "explanation": "More surface means faster absorption."
+        },
+        {
+          "id": "villi_q2",
+          "prompt": "What does the lacteal in a villus absorb?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Fatty acids and glycerol"
+            },
+            {
+              "id": "b",
+              "label": "Glucose"
+            },
+            {
+              "id": "c",
+              "label": "Amino acids"
+            },
+            {
+              "id": "d",
+              "label": "Water only"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Fats go into the lymph through the lacteal."
+        },
+        {
+          "id": "villi_q3",
+          "prompt": "Which nutrients pass into the capillaries of a villus?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Glucose and amino acids"
+            },
+            {
+              "id": "b",
+              "label": "Fatty acids and glycerol"
+            },
+            {
+              "id": "c",
+              "label": "Bile and mucus"
+            },
+            {
+              "id": "d",
+              "label": "Faeces and water"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Capillaries carry them to the blood."
+        },
+        {
+          "id": "villi_q4",
+          "prompt": "Why can nutrients cross a villus so quickly?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Its wall is only one cell thick and next to capillaries"
+            },
+            {
+              "id": "b",
+              "label": "It is covered in thick mucus"
+            },
+            {
+              "id": "c",
+              "label": "It is full of enzymes only"
+            },
+            {
+              "id": "d",
+              "label": "It is made of cartilage"
+            }
+          ],
+          "answer": "a",
+          "explanation": "A thin wall and a rich blood supply speed absorption."
+        },
+        {
+          "id": "villi_q5",
+          "prompt": "After absorption in the villi, where does the blood first take the nutrients?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To the liver, then on to every cell"
+            },
+            {
+              "id": "b",
+              "label": "Straight to the mouth"
+            },
+            {
+              "id": "c",
+              "label": "Back to the stomach"
+            },
+            {
+              "id": "d",
+              "label": "To the large intestine"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Blood from the intestine goes to the liver first."
+        }
+      ]
     },
     {
       "id": "large_intestine",
@@ -843,254 +1228,200 @@
         "z": 0.03
       },
       "detail": null,
-      "prompt": "Your journey is almost over. What happens in the Large Intestine? What is the final step of the digestive process?",
-      "glandsInvolved": [],
-      "juicesInvolved": [],
-      "targetNutrient": "Water",
-      "answerGlands": [
-        "none"
+      "animLabels": [
+        "Water and salts absorbed",
+        "Solid waste (faeces)"
       ],
-      "answerJuices": [
-        "none"
-      ],
-      "answerNutrients": [
-        "water"
-      ],
-      "revealExplanation": "The Large Intestine absorbs excess water and electrolytes from the undigested food, turning it into solid waste (faeces). This waste is stored in the rectum and expelled through the anus via Egestion.",
-      "expectedKeywords": [
-        "water absorption",
-        "faeces",
-        "rectum",
-        "egestion",
-        "anus"
-      ],
-      "keywordSynonyms": {
-        "water absorption": [
-          "absorbs water",
-          "absorb water",
-          "absorbed water",
-          "water is absorbed",
-          "absorbing water",
-          "reabsorb water"
-        ],
-        "faeces": [
-          "feces",
-          "stool",
-          "solid waste",
-          "waste"
-        ],
-        "egestion": [
-          "defecation",
-          "egest",
-          "egested"
-        ],
-        "rectum": [],
-        "anus": []
-      },
-      "componentsInvolved": [],
-      "answerComponents": [
-        "none"
+      "explanation": "The Large Intestine absorbs excess water and electrolytes from the undigested food, turning it into solid waste (faeces). This waste is stored in the rectum and expelled through the anus via Egestion.",
+      "quiz": [
+        {
+          "id": "large_intestine_q1",
+          "prompt": "What does the large intestine mainly absorb?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Water and salts from undigested food"
+            },
+            {
+              "id": "b",
+              "label": "Glucose from starch"
+            },
+            {
+              "id": "c",
+              "label": "Amino acids from proteins"
+            },
+            {
+              "id": "d",
+              "label": "Fatty acids from fats"
+            }
+          ],
+          "answer": "a",
+          "explanation": "It dries the waste into solid faeces."
+        },
+        {
+          "id": "large_intestine_q2",
+          "prompt": "Where is solid waste stored before it leaves the body?",
+          "options": [
+            {
+              "id": "a",
+              "label": "The rectum"
+            },
+            {
+              "id": "b",
+              "label": "The gallbladder"
+            },
+            {
+              "id": "c",
+              "label": "The duodenum"
+            },
+            {
+              "id": "d",
+              "label": "The pancreas"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The anus then lets it out."
+        },
+        {
+          "id": "large_intestine_q3",
+          "prompt": "What is the removal of undigested waste called?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Egestion"
+            },
+            {
+              "id": "b",
+              "label": "Ingestion"
+            },
+            {
+              "id": "c",
+              "label": "Absorption"
+            },
+            {
+              "id": "d",
+              "label": "Assimilation"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Egestion is expelled through the anus."
+        },
+        {
+          "id": "large_intestine_q4",
+          "prompt": "Why does diarrhoea cause dehydration?",
+          "options": [
+            {
+              "id": "a",
+              "label": "The large intestine has little time to absorb water"
+            },
+            {
+              "id": "b",
+              "label": "Too much bile is made"
+            },
+            {
+              "id": "c",
+              "label": "The stomach makes extra acid"
+            },
+            {
+              "id": "d",
+              "label": "Villi stop absorbing glucose"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Water not absorbed is lost."
+        },
+        {
+          "id": "large_intestine_q5",
+          "prompt": "Which part of the food reaches the large intestine?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Mostly undigested food such as fibre"
+            },
+            {
+              "id": "b",
+              "label": "Fully digested glucose"
+            },
+            {
+              "id": "c",
+              "label": "Freshly chewed bolus"
+            },
+            {
+              "id": "d",
+              "label": "Bile and saliva only"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Digested nutrients were absorbed earlier."
+        }
       ]
     }
   ],
-  "transfer": {
-    "scenarios": [
-      {
-        "id": "bile_blocked",
-        "question": "A person's bile duct is blocked, so bile cannot reach the small intestine. Which food group becomes hardest to digest?",
-        "options": [
-          {
-            "id": "carbs",
-            "label": "Carbohydrates"
-          },
-          {
-            "id": "proteins",
-            "label": "Proteins"
-          },
-          {
-            "id": "fats",
-            "label": "Fats"
-          },
-          {
-            "id": "water",
-            "label": "Water"
-          }
-        ],
-        "answer": "fats",
-        "explanation": "Bile salts emulsify fat globules into smaller droplets so lipase can reach them. Without bile, fat digestion is slow and incomplete."
-      },
-      {
-        "id": "no_chewing",
-        "question": "Someone swallows their food almost whole, without chewing. What is affected first?",
-        "options": [
-          {
-            "id": "mech",
-            "label": "Less mechanical breakdown and less saliva mixing, so starch digestion starts poorly"
-          },
-          {
-            "id": "pepsin",
-            "label": "Pepsin can no longer be made"
-          },
-          {
-            "id": "bile",
-            "label": "The liver stops making bile"
-          },
-          {
-            "id": "water",
-            "label": "The large intestine cannot absorb water"
-          }
-        ],
-        "answer": "mech",
-        "explanation": "Chewing breaks food into small pieces and mixes it with saliva, so salivary amylase can begin turning starch into sugars."
-      },
-      {
-        "id": "no_acid",
-        "question": "A medicine stops the stomach making hydrochloric acid. Which job is most affected?",
-        "options": [
-          {
-            "id": "pepsin",
-            "label": "Pepsin is not activated, so protein digestion slows"
-          },
-          {
-            "id": "saliva",
-            "label": "Saliva stops being made"
-          },
-          {
-            "id": "bile",
-            "label": "Bile cannot emulsify fats"
-          },
-          {
-            "id": "villi",
-            "label": "The villi stop absorbing nutrients"
-          }
-        ],
-        "answer": "pepsin",
-        "explanation": "HCl makes the stomach acidic, which activates pepsin. Without the acid, proteins are broken down far less."
-      },
-      {
-        "id": "no_saliva",
-        "question": "A person's salivary glands stop working. Which food group is affected first, in the mouth?",
-        "options": [
-          {
-            "id": "carbs",
-            "label": "Carbohydrates (starch)"
-          },
-          {
-            "id": "proteins",
-            "label": "Proteins"
-          },
-          {
-            "id": "fats",
-            "label": "Fats"
-          },
-          {
-            "id": "water",
-            "label": "Water"
-          }
-        ],
-        "answer": "carbs",
-        "explanation": "Salivary amylase in saliva starts the digestion of starch in the mouth. Without saliva, starch digestion is delayed and food is also harder to swallow."
-      },
-      {
-        "id": "duct_blocked",
-        "question": "The pancreatic duct is blocked, so pancreatic juice cannot reach the duodenum. What goes wrong?",
-        "options": [
-          {
-            "id": "saliva",
-            "label": "Saliva stops flowing in the mouth"
-          },
-          {
-            "id": "pancreas",
-            "label": "Digestion of carbohydrates, proteins and fats in the small intestine is greatly reduced"
-          },
-          {
-            "id": "acid",
-            "label": "The stomach stops making acid"
-          },
-          {
-            "id": "water",
-            "label": "The large intestine cannot absorb water"
-          }
-        ],
-        "answer": "pancreas",
-        "explanation": "Pancreatic juice holds amylase, trypsin and lipase, the main enzymes of the small intestine. Without it, all three food groups are poorly digested."
-      },
-      {
-        "id": "epiglottis",
-        "question": "Which structure stops food entering the windpipe when you swallow?",
-        "options": [
-          {
-            "id": "epiglottis",
-            "label": "The epiglottis"
-          },
-          {
-            "id": "villi",
-            "label": "The villi"
-          },
-          {
-            "id": "gallbladder",
-            "label": "The gallbladder"
-          },
-          {
-            "id": "rectum",
-            "label": "The rectum"
-          }
-        ],
-        "answer": "epiglottis",
-        "explanation": "The epiglottis is a flap that folds over the windpipe during swallowing, so the food bolus is directed into the oesophagus."
-      },
-      {
-        "id": "flat_villi",
-        "question": "A disease flattens the villi of the small intestine. What is the main result?",
-        "options": [
-          {
-            "id": "absorb",
-            "label": "Less absorption of nutrients, because the surface area is much smaller"
-          },
-          {
-            "id": "bile",
-            "label": "More bile is made"
-          },
-          {
-            "id": "saliva",
-            "label": "Saliva becomes acidic"
-          },
-          {
-            "id": "pepsin",
-            "label": "Pepsin is destroyed in the stomach"
-          }
-        ],
-        "answer": "absorb",
-        "explanation": "Villi give the small intestine a huge surface area. If they are flattened, far fewer nutrients can be absorbed into the blood."
-      },
-      {
-        "id": "no_lactase",
-        "question": "A person makes very little lactase. Which sugar can they not digest properly?",
-        "options": [
-          {
-            "id": "lactose",
-            "label": "Lactose (milk sugar)"
-          },
-          {
-            "id": "maltose",
-            "label": "Maltose"
-          },
-          {
-            "id": "sucrose",
-            "label": "Sucrose (table sugar)"
-          },
-          {
-            "id": "glucose",
-            "label": "Glucose"
-          }
-        ],
-        "answer": "lactose",
-        "explanation": "Lactase in intestinal juice breaks lactose into glucose and galactose. Without it, lactose passes on undigested, which causes lactose intolerance."
-      }
-    ]
-  },
   "uiSchema": {
     "hasAudioRecordButton": true,
     "show3DHighlightOnReveal": true
-  }
+  },
+  "finalExplain": {
+    "prompt": "You are back at the mouth. In your own words, follow a piece of bread from the mouth to the large intestine: say which juices and enzymes work on it, and how its nutrients reach the blood.",
+    "minWords": 25,
+    "expectedKeywords": [
+      "saliva",
+      "amylase",
+      "stomach",
+      "pepsin",
+      "bile",
+      "pancreas",
+      "small intestine",
+      "villi",
+      "glucose",
+      "blood"
+    ],
+    "keywordSynonyms": {
+      "saliva": [
+        "salivary"
+      ],
+      "amylase": [
+        "ptyalin"
+      ],
+      "stomach": [
+        "gastric",
+        "hcl",
+        "acid"
+      ],
+      "pepsin": [
+        "protease"
+      ],
+      "bile": [
+        "gallbladder",
+        "liver",
+        "emulsify"
+      ],
+      "pancreas": [
+        "pancreatic",
+        "lipase",
+        "trypsin"
+      ],
+      "small intestine": [
+        "duodenum",
+        "ileum",
+        "intestinal"
+      ],
+      "villi": [
+        "villus",
+        "surface area"
+      ],
+      "glucose": [
+        "sugar",
+        "maltose",
+        "amino acids"
+      ],
+      "blood": [
+        "capillaries",
+        "capillary",
+        "bloodstream"
+      ]
+    },
+    "modelAnswer": "Chewing breaks the bread up while saliva with amylase starts turning starch into maltose. Peristalsis pushes the bolus down the oesophagus to the stomach, where acid and pepsin start on proteins and the food becomes chyme. In the duodenum, bile from the liver emulsifies fats and pancreatic juice (amylase, trypsin, lipase) continues the digestion, and intestinal enzymes finish it, so starch ends as glucose, proteins as amino acids and fats as fatty acids and glycerol. The villi, one cell thick with capillaries and a lacteal, absorb these into the blood and lymph. The large intestine absorbs water and the rest leaves as faeces."
+  },
+  "revealTimerLabel": "Watch the enzymes at work"
 }

@@ -47,21 +47,16 @@ export const isKind = (v: unknown): v is Kind => v === 'metal' || v === 'non-met
  * Draw the samples for one session: at least `minAnomalies` exceptions, and a mix that is never all one type
  * (2 to count-2 metals), so a student cannot guess the whole table from one rule.
  */
+import { shuffle } from './questionEngine';
+
 export function pickMaterials(pool: Material[], count: number, minAnomalies: number, rand: () => number = Math.random): Material[] {
-  const shuffle = <T>(xs: T[]) => {
-    const a = [...xs];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  };
+  const shuf = <T>(xs: T[]) => shuffle(xs, rand);
   const anomalies = pool.filter((m) => m.anomalyFlag);
   const rest = pool.filter((m) => !m.anomalyFlag);
   for (let attempt = 0; attempt < 300; attempt++) {
-    const chosen = [...shuffle(anomalies).slice(0, Math.min(minAnomalies, anomalies.length))];
+    const chosen = [...shuf(anomalies).slice(0, Math.min(minAnomalies, anomalies.length))];
     const ids = new Set(chosen.map((m) => m.id));
-    for (const m of shuffle(pool)) {
+    for (const m of shuf(pool)) {
       if (chosen.length >= count) break;
       if (!ids.has(m.id)) {
         chosen.push(m);
@@ -69,9 +64,9 @@ export function pickMaterials(pool: Material[], count: number, minAnomalies: num
       }
     }
     const metals = chosen.filter((m) => m.trueType === 'metal').length;
-    if (chosen.length === count && metals >= 2 && metals <= count - 2) return shuffle(chosen);
+    if (chosen.length === count && metals >= 2 && metals <= count - 2) return shuf(chosen);
   }
-  return shuffle(pool).slice(0, count); // pool too small to satisfy the mix; still valid
+  return shuf(pool).slice(0, count); // pool too small to satisfy the mix; still valid
 }
 
 export interface TestOutcome {
