@@ -674,3 +674,130 @@ export interface MissionsSummary {
   correct: number;
   total: number;
 }
+
+// ---------- Rewards: card packs, collection, Learning Rings (rewards service, /rewards/*) ----------
+
+export type CardRarity = "common" | "rare" | "epic" | "legendary";
+export type CardSubject = "chemistry" | "physics" | "mathematics" | "biology";
+export type CardSetId =
+  | "elements" | "compounds"
+  | "fundamental-quantities" | "derived-quantities"
+  | "symbols" | "powers" | "formulas"
+  | "cells" | "systems" | "nomenclature";
+
+export interface CardMicroQuestion {
+  prompt: string;
+  choices: string[];
+  answerIndex: number;
+}
+
+export interface RewardCard {
+  id: string;
+  subject: CardSubject;
+  set: CardSetId;
+  rarity: CardRarity;
+  title: string;
+  /** A symbol, formula, unit or Latin name. */
+  subtitle: string;
+  order: number;
+  data: Record<string, string | number | boolean | string[]>;
+  funFact: string;
+  question: CardMicroQuestion | null;
+}
+
+/** A collection entry: full card when owned, only the slot outline when not. */
+export type CollectionCard =
+  | (RewardCard & { owned: true; count: number; foil: boolean; firstObtainedAt: string })
+  | (Pick<RewardCard, "id" | "subject" | "set" | "rarity" | "title" | "subtitle" | "order"> & { owned: false });
+
+export interface RewardPack {
+  id: string;
+  source: "session" | "weekly";
+  sessionId: string | null;
+  lessonId: string | null;
+  week: string | null;
+  scorePercent: number | null;
+  tier: "standard" | "mastery" | "weekly";
+  firstCompletion: boolean;
+  cardCount: number;
+  createdAt: string;
+  openedAt: string | null;
+}
+
+export interface PersonalBestUpdate {
+  lessonId: string;
+  newBestScore: boolean;
+  newFastestTime: boolean;
+  bestPercent: number | null;
+  previousBestPercent: number | null;
+  fastestMs: number | null;
+  previousFastestMs: number | null;
+  masteryLevel: number;
+  levelUp: boolean;
+  completions: number;
+}
+
+/** POST /rewards/sessions/:sessionId/claim → 201 (new) or 200 (already claimed). 409 when left early or unfinished. */
+export interface ClaimPackResponse {
+  created: boolean;
+  pack: RewardPack;
+  personalBest: PersonalBestUpdate | null;
+}
+
+/** POST /rewards/packs/:packId/open */
+export interface OpenPackResponse {
+  pack: RewardPack;
+  alreadyOpened: boolean;
+  cards: { slot: number; isNew: boolean; guaranteed: "mastery" | "pity" | null; shardsAwarded: number; card: RewardCard }[];
+}
+
+/** GET /rewards/collection?subject=&set= */
+export interface CollectionResponse {
+  shards: number;
+  totals: { owned: number; total: number };
+  sets: { subject: CardSubject; set: CardSetId; title: string; owned: number; total: number; complete: boolean }[];
+  cards: CollectionCard[];
+}
+
+export type RingGoalLevel = "light" | "standard" | "stretch";
+
+export interface LearningRing {
+  value: number;
+  goal: number;
+  percent: number;
+  closed: boolean;
+}
+
+/** GET /rewards/rings/current?week= */
+export interface RingsResponse {
+  week: string;
+  level: RingGoalLevel;
+  explore: LearningRing;
+  master: LearningRing;
+  complete: LearningRing;
+  allClosed: boolean;
+  completedLessons: string[];
+  masteredLessons: string[];
+  bonusPackId: string | null;
+}
+
+/** GET /rewards/sessions/:sessionId/progress, for the leave-lab popup. */
+export interface SessionProgressResponse {
+  sessionId: string;
+  lessonId: string | null;
+  status: "completed" | "left" | "in_progress";
+  progressPercent: number | null;
+  reward: { pack: boolean; firstCompletionBonus: boolean };
+  rings: { explore: LearningRing; master: LearningRing; complete: LearningRing; allClosed: boolean };
+  ifFinished: { completeRingValue: number; closesCompleteRing: boolean };
+  message: string;
+}
+
+export interface PersonalBest {
+  lessonId: string;
+  bestPercent: number | null;
+  fastestMs: number | null;
+  completions: number;
+  masteryLevel: number;
+  lastCompletedAt: string;
+}

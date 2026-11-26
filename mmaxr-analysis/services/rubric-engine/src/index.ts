@@ -186,6 +186,37 @@ app.get('/analyze/:sessionId', requireInstructor, async (req, res) => {
   }
 });
 
+// Service-to-service: the rewards service reads a session's score here to roll a card pack. Never exposed to browsers.
+app.get('/internal/score/:sessionId', async (req, res) => {
+  if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  const { sessionId } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT id, verb, object_data, timestamp, device, student_id FROM xapi_events WHERE session_id = $1 ORDER BY timestamp ASC, id ASC`,
+      [sessionId],
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Session not found' });
+    const events: EventRow[] = result.rows.map((r) => ({ id: Number(r.id), verb: r.verb, object_data: r.object_data, timestamp: Number(r.timestamp), device: r.device }));
+    const finished = events.some((e) => e.object_data?.action === 'submit_analysis');
+    const left = !finished && events.some((e) => e.object_data?.action === 'leave_lab');
+    const [sensor, truth] = await Promise.all([getSensorData(sessionId), getTruth(sessionId)]);
+    const report = analyze(events, sensor, truth);
+    res.json({
+      sessionId,
+      studentId: result.rows[0].student_id,
+      status: finished ? 'completed' : left ? 'left' : 'in_progress',
+      lessonType: report.lessonType,
+      rubricVersion: report.rubricVersion,
+      percent: report.overall.percent,
+      points: report.overall.points,
+      max: report.overall.max,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Scoring failed' });
+  }
+});
+
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`📊 Rubric Engine running on http://localhost:${PORT}`);

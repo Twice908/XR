@@ -1,4 +1,4 @@
-# Whole backend (8 services + Redis + gateway) as ONE container, ~175 MB RAM idle.
+# Whole backend (9 services + Redis + gateway) as ONE container, ~175 MB RAM idle.
 # Runs on your spare laptop, or any host that accepts a Docker image (e.g. Back4app Containers).
 #   cp deploy/.env.example deploy/.env  (fill DATABASE_URL, S3_*, secrets)
 #   docker compose -f deploy/docker-compose.single.yml up -d --build
@@ -14,4 +14,5 @@ services:
       OBJECT_STORE_URL: http://127.0.0.1:3006
       SESSION_AUTH_URL: http://127.0.0.1:3004
       LESSON_LOADER_URL: http://127.0.0.1:3007
+      RUBRIC_ENGINE_URL: http://127.0.0.1:3002
     ports: ["127.0.0.1:${HOST_PORT:-8080}:8080"]

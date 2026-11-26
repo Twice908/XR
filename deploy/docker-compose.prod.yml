@@ -35,6 +35,10 @@ services:
     <<: *common
     build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/user-auth } }
     environment: { PORT: "3008" }
+  rewards:
+    <<: *common
+    build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-platform/services/rewards } }
+    environment: { PORT: "3009", RUBRIC_ENGINE_URL: "http://rubric-engine:3002", LESSON_LOADER_URL: "http://lesson-loader:3007" }
   rubric-engine:
     <<: *common
     build: { context: .., dockerfile: deploy/Dockerfile, args: { SERVICE_DIR: mmaxr-analysis/services/rubric-engine } }

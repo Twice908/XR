@@ -24,6 +24,9 @@
 	handle_path /user-auth/* {
 		reverse_proxy 127.0.0.1:3008
 	}
+	handle_path /rewards/* {
+		reverse_proxy 127.0.0.1:3009
+	}
 	handle_path /rubric-engine/* {
 		reverse_proxy 127.0.0.1:3002
 	}

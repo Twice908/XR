@@ -4,6 +4,7 @@
     { "name": "lesson-loader", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/lesson-loader", "dev"], "port": 3007 },
     { "name": "session-auth", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/session-auth", "dev"], "port": 3004 },
     { "name": "user-auth", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/user-auth", "dev"], "port": 3008 },
+    { "name": "rewards", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/rewards", "dev"], "port": 3009 },
     { "name": "xapi-emitter", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/xapi-emitter", "dev"], "port": 3001 },
     { "name": "webxr-client", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-webxr-client", "dev"], "port": 5173 },
     { "name": "narration-generator", "runtimeExecutable": "pnpm", "runtimeArgs": ["--dir", "mmaxr-cell-explorer", "narration"], "port": 5180 }

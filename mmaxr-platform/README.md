@@ -12,7 +12,8 @@ mmaxr-platform/
 │   ├── xapi-emitter/
 │   ├── sensor-stream/
 │   ├── lrs/
-│   └── object-store/
+│   ├── object-store/
+│   └── rewards/          # card packs, collection, Learning Rings, personal bests
 └── README.md
 ```
 
