@@ -1,4 +1,6 @@
 import { XapiVerb } from '@mmaxr/schema'
+import { GAMIFICATION } from '../config'
+import { leaveProgress } from '../gamification/leaveProgress'
 import { telemetry } from '../services/telemetry'
 import { button, dialog } from '../ui/components'
 import { h } from '../ui/dom'
@@ -19,6 +21,8 @@ export function askLeave(): Promise<boolean> {
       onClose: () => done(false),
     })
     const stay = button('No, continue', { variant: 'primary', onClick: () => done(false) })
+    // What finishing would still earn. The dialog never waits for it: it appears if the server answers in time.
+    if (GAMIFICATION && telemetry.sessionId) d.body.append(leaveProgress(telemetry.sessionId))
     d.body.append(h('div', { class: 'dialog-actions' }, button('Yes, leave', { variant: 'destructive', onClick: () => done(true) }), stay))
     stay.focus()
   })

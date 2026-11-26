@@ -20,6 +20,8 @@ import {
 import { transitionFor, viewOf } from '../stage/transitions.js'
 import { GAMIFICATION } from '../config'
 import { packsButton } from '../gamification/packsButton'
+import { celebrateIfClosed, ringsButton, ringsNudge } from '../gamification/ringsUi'
+import { ringsStore } from '../services/rewards'
 
 /** Labs the WebXR client can run today. Others are listed, but not launchable yet. */
 const SUPPORTED = new Set(['chemistry_indicators', 'chemistry_metals', 'biology_digestive_system', 'biology_respiratory_system', 'physics_optics', 'physics_waves_sound', 'physics_mechanics_sandbox', 'physics_electromagnetism', 'physics_circuits', 'physics_simple_machines', 'physics_fundamentals_sandbox', 'science_matter_properties', 'chemistry_atom_builder', 'chemistry_ionic_bonding', 'biology_cell_explorer'])
@@ -67,6 +69,8 @@ export function experimentsPage(context: RouteContext): Page {
   )
   const soundToggle = createSoundToggle(sound)
   const packs = GAMIFICATION ? packsButton((cue) => sound.cue(cue)) : null
+  const rings = GAMIFICATION ? ringsButton((cue) => sound.cue(cue)) : null
+  const nudge = GAMIFICATION ? ringsNudge() : null
   const settingsButton = h('button', { type: 'button', class: 'ghost-button' }, 'Settings')
   const signOutButton = h('button', { type: 'button', class: 'ghost-button' }, 'Sign out')
   const topbar = h(
@@ -78,6 +82,7 @@ export function experimentsPage(context: RouteContext): Page {
       'div',
       { id: 'sky-topbar-menu', class: 'topbar-actions' },
       h('span', { class: 'user-chip' }, h('span', { class: 'sky-avatar', 'aria-hidden': 'true' }, username.slice(0, 1).toUpperCase()), h('span', { class: 'user-name' }, username)),
+      rings?.button,
       packs?.button,
       soundToggle.element,
       settingsButton,
@@ -90,12 +95,13 @@ export function experimentsPage(context: RouteContext): Page {
     h('p', { class: 'shell-eyebrow' }, 'YOUR UNIVERSE'),
     h('h1', { id: 'dashboard-title' }, `Hi, ${username}`),
     h('p', { class: 'lede' }, 'Choose a planet to start an experiment. You will predict, test and explain: how you think matters more than the final answer.'),
+    nudge?.el,
   )
   const status = h('div', { class: 'galaxy-status', role: 'status' })
   const galaxy = h('div', { class: 'galaxy' })
   const main = h('main', { class: 'dashboard-main', 'aria-labelledby': 'dashboard-title' }, welcome, status, galaxy)
   const settings = buildSettingsDialog(() => soundToggle.sync())
-  const el = h('div', { class: 'dashboard' }, topbar, main, settings.dialog, packs?.dialog)
+  const el = h('div', { class: 'dashboard' }, topbar, main, settings.dialog, packs?.dialog, rings?.dialog)
 
   const planets = new Map<string, PlanetEntry>()
   const stars: CelestialBody[] = []
@@ -328,6 +334,12 @@ export function experimentsPage(context: RouteContext): Page {
           void revealIn(intro, { delayMs: entry.kind === 'open' ? 300 : 120, staggerMs: 90, reducedMotion: stage.reducedMotion })
       }
       void load()
+      if (GAMIFICATION) {
+        void ringsStore.refresh().then((r) => {
+          // Let the page settle first, so the celebration is the one thing moving.
+          if (!destroyed) window.setTimeout(() => !destroyed && celebrateIfClosed(r, { reducedMotion: stage.reducedMotion, onCue: (cue) => sound.cue(cue) }), stage.time(1200))
+        })
+      }
     },
     async leave(to) {
       window.clearTimeout(unfocusTimer)
@@ -385,6 +397,8 @@ export function experimentsPage(context: RouteContext): Page {
       document.removeEventListener('keydown', onDocumentKeydown)
       settings.dispose()
       packs?.dispose()
+      rings?.dispose()
+      nudge?.dispose()
       soundToggle.dispose()
       cosmos.focus(null)
       for (const orbit of orbits) orbit.remove()

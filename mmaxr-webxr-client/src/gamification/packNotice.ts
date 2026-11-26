@@ -28,7 +28,7 @@ export function bestLines(best: ClaimPackResponse['personalBest']): string[] {
  * The quiet "you earned a pack" card that slides in over the lab's results. It never covers the results themselves
  * and never opens the pack on its own: reading the feedback comes first, the reward second.
  */
-export function showPackNotice(claim: ClaimPackResponse) {
+export function showPackNotice(claim: ClaimPackResponse, opts: { ringsClosed?: boolean } = {}) {
   current?.remove()
   const { pack } = claim
   const close = () => {
@@ -56,6 +56,7 @@ export function showPackNotice(claim: ClaimPackResponse) {
       h('h2', { class: 'mx-notice-title' }, `${tierLabel(pack)} earned`),
       h('p', { class: 'mx-notice-sub' }, `${lessonTitle(pack.lessonId)} · ${pack.cardCount} cards`),
       bests.length ? h('ul', { class: 'mx-notice-bests' }, ...bests.map((b) => h('li', null, b))) : null,
+      opts.ringsClosed ? h('p', { class: 'mx-notice-rings' }, 'All three rings closed: a bonus pack is waiting too.') : null,
       perks.length ? h('div', { class: 'mx-notice-perks' }, ...perks.map((p) => h('span', { class: 'mx-chip' }, p))) : null,
       h('div', { class: 'mx-notice-actions' }, later, open),
     ),

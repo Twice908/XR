@@ -1,4 +1,4 @@
-import type { ClaimPackResponse, OpenPackResponse, RewardPack } from '@mmaxr/schema'
+import type { ClaimPackResponse, OpenPackResponse, RewardPack, RingGoalLevel, RingsResponse, SessionProgressResponse } from '@mmaxr/schema'
 import { CONFIG } from '../config'
 import { userAuth } from './userAuth'
 
@@ -58,6 +58,16 @@ export async function claimPack(sessionId: string, opts: { attempts?: number; de
 export const listPacks = (unopened = false) => call<{ packs: RewardPack[] }>(`/packs${unopened ? '?unopened=true' : ''}`)
 export const openPack = (packId: string) => call<OpenPackResponse>(`/packs/${encodeURIComponent(packId)}/open`, { method: 'POST' })
 
+export const getRings = () => call<RingsResponse>('/rings/current')
+export const setGoalLevel = (level: RingGoalLevel) => call<{ level: RingGoalLevel }>('/rings/goal-level', { method: 'PUT', body: JSON.stringify({ level }) })
+
+/** For the leave-lab popup. Gives up quickly: the popup must never wait on it. */
+export async function sessionProgress(sessionId: string, timeoutMs = 1500): Promise<SessionProgressResponse | null> {
+  const timeout = new Promise<null>((done) => setTimeout(() => done(null), timeoutMs))
+  const request = call<SessionProgressResponse>(`/sessions/${encodeURIComponent(sessionId)}/progress`).catch(() => null)
+  return Promise.race([request, timeout])
+}
+
 // ---------- a tiny shared store, so the top bar badge follows packs earned anywhere in the app ----------
 
 type Listener = (count: number) => void
@@ -83,5 +93,30 @@ export const packStore = {
     listeners.add(listener)
     listener(unopened)
     return () => listeners.delete(listener)
+  },
+}
+
+type RingsListener = (rings: RingsResponse | null) => void
+const ringsListeners = new Set<RingsListener>()
+let rings: RingsResponse | null = null
+
+/** The student's rings for this week, shared by the top bar, the nudge line and the celebration. */
+export const ringsStore = {
+  get current() {
+    return rings
+  },
+  async refresh(): Promise<RingsResponse | null> {
+    try {
+      rings = await getRings()
+      for (const l of ringsListeners) l(rings)
+    } catch {
+      /* keep what we had */
+    }
+    return rings
+  },
+  subscribe(listener: RingsListener): () => void {
+    ringsListeners.add(listener)
+    listener(rings)
+    return () => ringsListeners.delete(listener)
   },
 }

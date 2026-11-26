@@ -1,5 +1,5 @@
 import { GAMIFICATION } from '../config'
-import { claimPack, packStore, RewardsError } from '../services/rewards'
+import { claimPack, packStore, ringsStore, RewardsError } from '../services/rewards'
 import { telemetry } from '../services/telemetry'
 import { userAuth } from '../services/userAuth'
 import { showPackNotice } from './packNotice'
@@ -18,9 +18,14 @@ export function initGamification() {
     if (claimed.has(sessionId) || !userAuth.current()) return
     claimed.add(sessionId)
     claimPack(sessionId)
-      .then((claim) => {
+      .then(async (claim) => {
         if (claim.created) packStore.set(packStore.unopened + 1)
-        showPackNotice(claim)
+        // Reading the rings also lets the server award the weekly bonus pack if this lab closed the last ring.
+        const before = ringsStore.current
+        const rings = await ringsStore.refresh()
+        const justClosed = !!rings?.allClosed && !!rings.bonusPackId && !(before?.allClosed && before.week === rings.week)
+        if (justClosed) void packStore.refresh()
+        showPackNotice(claim, { ringsClosed: justClosed })
       })
       .catch((err) => {
         claimed.delete(sessionId)
@@ -28,5 +33,8 @@ export function initGamification() {
         if (!(err instanceof RewardsError && err.status === 409)) console.warn('[rewards] claim failed', err)
       })
   })
-  if (userAuth.current()) void packStore.refresh()
+  if (userAuth.current()) {
+    void packStore.refresh()
+    void ringsStore.refresh()
+  }
 }

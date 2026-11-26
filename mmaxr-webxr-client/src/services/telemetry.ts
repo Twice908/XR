@@ -51,6 +51,11 @@ export class TelemetryClient {
     return event
   }
 
+  /** The running session's id, or null outside a lab. */
+  get sessionId(): string | null {
+    return this.ctx?.sessionId ?? null
+  }
+
   /** A lab session is running and has been neither submitted nor left. */
   get inProgress() {
     return this.ctx !== null && !this.ended
