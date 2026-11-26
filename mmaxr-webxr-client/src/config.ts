@@ -8,7 +8,14 @@ export const CONFIG = {
   TELEMETRY_URL: env.VITE_TELEMETRY_URL ?? 'http://localhost:3001/events',
   SENSOR_UPLOAD_URL: env.VITE_SENSOR_UPLOAD_URL ?? 'http://localhost:3005/upload',
   AI_COACH_WS: env.VITE_AI_COACH_WS ?? 'ws://localhost:3003',
+  REWARDS_URL: env.VITE_REWARDS_URL ?? 'http://localhost:3009',
 } as const
+
+/**
+ * Card packs, rings and the collection. On by default on the gamification branch; set VITE_GAMIFICATION=false to
+ * build the plain client from the same code.
+ */
+export const GAMIFICATION = env.VITE_GAMIFICATION !== 'false'
 
 /** This client runs in a browser. The headset client reports `vr`. */
 export const DEVICE = 'web' as const

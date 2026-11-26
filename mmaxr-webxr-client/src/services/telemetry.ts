@@ -19,6 +19,7 @@ export class TelemetryClient {
   private flushing = false
   private retryTimer: number | null = null
   private ended = false
+  private submittedListeners = new Set<(sessionId: string) => void>()
 
   configure(ctx: SessionContext) {
     this.ctx = ctx
@@ -64,6 +65,15 @@ export class TelemetryClient {
     this.queue = []
   }
 
+  /**
+   * Called once the server has accepted a session's `submit_analysis`, so anything that reads the xAPI log (such as
+   * claiming a card pack) sees the lab as finished. Returns an unsubscribe function.
+   */
+  onSubmitted(listener: (sessionId: string) => void): () => void {
+    this.submittedListeners.add(listener)
+    return () => this.submittedListeners.delete(listener)
+  }
+
   get pending() {
     return this.queue.length
   }
@@ -81,6 +91,16 @@ export class TelemetryClient {
         })
         if (!res.ok) throw new Error(`Telemetry ${res.status}`)
         this.queue.splice(0, batch.length)
+        for (const e of batch) {
+          if (e.object.action !== 'submit_analysis') continue
+          for (const listener of this.submittedListeners) {
+            try {
+              listener(e.sessionId)
+            } catch (err) {
+              console.warn('[telemetry] submitted listener failed', err)
+            }
+          }
+        }
       }
     } catch (err) {
       console.warn('[telemetry] flush failed, retrying in 2s', err)

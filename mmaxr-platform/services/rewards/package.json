@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "demo": "tsx scripts/demo-server.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

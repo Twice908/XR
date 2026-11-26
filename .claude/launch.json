@@ -5,6 +5,8 @@
     { "name": "session-auth", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/session-auth", "dev"], "port": 3004 },
     { "name": "user-auth", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/user-auth", "dev"], "port": 3008 },
     { "name": "rewards", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/rewards", "dev"], "port": 3009 },
+    { "name": "rewards-demo", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/rewards", "demo"], "port": 3009 },
+    { "name": "webxr-client-rewards-demo", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-webxr-client", "dev", "--port", "5174"], "port": 5174, "env": { "VITE_TELEMETRY_URL": "http://localhost:3009/events" } },
     { "name": "xapi-emitter", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/xapi-emitter", "dev"], "port": 3001 },
     { "name": "webxr-client", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-webxr-client", "dev"], "port": 5173 },
     { "name": "narration-generator", "runtimeExecutable": "pnpm", "runtimeArgs": ["--dir", "mmaxr-cell-explorer", "narration"], "port": 5180 }

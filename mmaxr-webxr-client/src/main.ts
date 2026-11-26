@@ -3,12 +3,15 @@ import './styles/ui.css'
 import './styles/lab.css'
 import './styles/missions.css'
 import './styles/cosmic.css'
+import './styles/rewards.css'
 import { userAuth } from './services/userAuth'
 import { startRouter, type Page, type RouteTable } from './router'
 import { forgotPage, loginPage, registerPage } from './pages/auth'
 import { experimentsPage } from './pages/experiments'
 import { getStage } from './stage/index.js'
 import { lessonPalette } from './stage/theme.js'
+import { GAMIFICATION } from './config'
+import { initGamification } from './gamification/index'
 
 const PUBLIC = new Set(['/login', '/register', '/forgot'])
 
@@ -46,6 +49,7 @@ const routes: RouteTable = {
   '/experiments': (_, context) => experimentsPage(context),
   '/lab/:lessonId': ([lessonId]) => labRoute(lessonId),
 }
+if (GAMIFICATION) routes['/packs/:packId'] = async ([packId]) => (await import('./pages/packOpen')).packOpenPage(packId)
 
 async function boot() {
   const root = document.getElementById('app')
@@ -54,6 +58,7 @@ async function boot() {
 
   // Validate any remembered session before the first route renders.
   await userAuth.refresh()
+  initGamification()
 
   startRouter(root, routes, (path) => {
     const signedIn = !!userAuth.current()
