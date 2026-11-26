@@ -100,14 +100,20 @@ const SESSION_COLUMNS = `
   MAX(timestamp) AS last_update,
   MAX(device) AS device,
   MAX(CASE WHEN object_data->>'action' = 'enter_lab' THEN object_data->>'target' END) AS lesson_id,
-  BOOL_OR(object_data->>'action' IN ('submit_analysis')) AS completed`;
+  BOOL_OR(object_data->>'action' = 'submit_analysis') AS completed,
+  CASE WHEN BOOL_OR(object_data->>'action' = 'submit_analysis') THEN 'completed' ELSE 'left' END AS status,
+  MIN(CASE WHEN object_data->>'action' IN ('submit_analysis', 'leave_lab') THEN timestamp END) AS ended_at`;
+
+/** Only sessions the student has finished or left appear to instructors: nothing while a lab is still in use. */
+const ENDED = `HAVING BOOL_OR(object_data->>'action' IN ('submit_analysis', 'leave_lab'))`;
+const ENDED_SESSIONS = `SELECT session_id FROM xapi_events GROUP BY session_id ${ENDED}`;
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // Recent sessions across all students.
 app.get('/sessions', requireInstructor, async (_req, res) => {
   try {
-    const result = await pool.query(`SELECT ${SESSION_COLUMNS} FROM xapi_events GROUP BY session_id ORDER BY last_update DESC LIMIT 50`);
+    const result = await pool.query(`SELECT ${SESSION_COLUMNS} FROM xapi_events GROUP BY session_id ${ENDED} ORDER BY last_update DESC LIMIT 50`);
     res.json(result.rows);
   } catch (err) {
     console.error('Failed to fetch sessions', err);
@@ -126,6 +132,7 @@ app.get('/students/summary', requireInstructor, async (_req, res) => {
              BOOL_OR(device = 'web') AS used_web,
              BOOL_OR(device = 'vr') AS used_vr
         FROM xapi_events
+       WHERE session_id IN (${ENDED_SESSIONS})
        GROUP BY student_id
        ORDER BY last_update DESC`);
     res.json(result.rows);
@@ -137,7 +144,7 @@ app.get('/students/summary', requireInstructor, async (_req, res) => {
 
 app.get('/students/:studentId/sessions', requireInstructor, async (req, res) => {
   try {
-    const result = await pool.query(`SELECT ${SESSION_COLUMNS} FROM xapi_events WHERE student_id = $1 GROUP BY session_id ORDER BY last_update DESC`, [req.params.studentId]);
+    const result = await pool.query(`SELECT ${SESSION_COLUMNS} FROM xapi_events WHERE student_id = $1 GROUP BY session_id ${ENDED} ORDER BY last_update DESC`, [req.params.studentId]);
     res.json(result.rows);
   } catch (err) {
     console.error('Failed to fetch student sessions', err);
@@ -157,6 +164,9 @@ app.get('/analyze/:sessionId', requireInstructor, async (req, res) => {
     const events: EventRow[] = result.rows.map((r) => ({ id: Number(r.id), verb: r.verb, object_data: r.object_data, timestamp: Number(r.timestamp), device: r.device }));
     const [sensor, truth] = await Promise.all([getSensorData(sessionId), getTruth(sessionId)]);
     const report = analyze(events, sensor, truth);
+    const finished = events.some((e) => e.object_data?.action === 'submit_analysis');
+    const left = !finished && events.some((e) => e.object_data?.action === 'leave_lab');
+    if (!finished && !left) return res.status(404).json({ error: 'This session is still in progress' });
 
     // Legacy flat score map, kept for scripts that read `scores.<dimension>`.
     const scores = Object.fromEntries(report.dimensions.map((d) => [d.key, d.score ?? 0]));
@@ -166,6 +176,7 @@ app.get('/analyze/:sessionId', requireInstructor, async (req, res) => {
       studentId: result.rows[0].student_id,
       timestamp: new Date().toISOString(),
       ...report,
+      status: finished ? 'completed' : 'left',
       scores,
       trace: events,
     });

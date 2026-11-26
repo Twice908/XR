@@ -131,6 +131,8 @@ export function describeEvent(e: TraceEvent): string {
       return `Completed ${str(o.target).replace('mission:', '')}`
     case 'hint':
       return `Asked for a hint (${str(o.value)}) on ${str(o.target).replace('mission:', '')}`
+    case 'leave_lab':
+      return (o.data as { via?: string } | undefined)?.via === 'closed' ? 'Closed the lab before finishing' : 'Left the lab before finishing'
     case 'submit_analysis':
       return 'Submitted the analysis'
     default:

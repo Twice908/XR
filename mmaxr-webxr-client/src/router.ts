@@ -6,6 +6,8 @@ export interface Page {
   leave?: (to: string) => Promise<void>
   /** Called once `el` is in the document, for work that needs layout. */
   mounted?: () => void
+  /** Asked before navigating away. Resolve false to stay on this page. */
+  confirmLeave?: (to: string) => Promise<boolean>
 }
 
 export interface RouteContext {
@@ -58,6 +60,11 @@ export function startRouter(root: HTMLElement, routes: RouteTable, guard: (path:
     if (!match) return go('/experiments')
 
     const from = currentPath
+    if (current?.confirmLeave && currentPath !== null && !(await current.confirmLeave(path))) {
+      // Stay: put the address back without firing another hashchange.
+      history.replaceState(history.state, '', `#${currentPath}`)
+      return
+    }
     if (current) {
       root.inert = true
       try {

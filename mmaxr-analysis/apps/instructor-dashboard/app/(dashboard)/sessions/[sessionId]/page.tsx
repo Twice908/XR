@@ -56,7 +56,7 @@ export default function SessionPage() {
             {lessonLabel(lesson ? String(lesson) : null)}
           </Heading>
           <DeviceTag device={data.device} />
-          {data.complete ? <Badge label="Completed" variant="success" /> : <Badge label="In progress" variant="warning" />}
+          {data.status === 'left' ? <Badge label="Left early · partial score" variant="warning" /> : <Badge label="Completed" variant="success" />}
         </HStack>
         <Text type="supporting">
           <span className="vc-mono">{data.sessionId}</span> · {formatDateTime(t0)} · {data.trace.length} events over {formatClock(tEnd - t0)}
@@ -74,7 +74,7 @@ export default function SessionPage() {
                 : `${data.overall.points} of ${data.overall.max} rubric points across ${assessed.length} assessed dimension${assessed.length === 1 ? '' : 's'}.`}
             </Text>
             <Text type="supporting" size="sm">
-              Scored on {deviceName} stats. {data.complete ? '' : 'The student has not submitted yet, so some dimensions are still pending.'}
+              Scored on {deviceName} stats. {data.status === 'left' ? 'The student left the lab before finishing. This is a partial score: dimensions they never reached are counted against the full maximum.' : ''}
             </Text>
           </VStack>
         </HStack>

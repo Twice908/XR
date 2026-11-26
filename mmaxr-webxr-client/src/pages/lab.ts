@@ -24,6 +24,7 @@ import { startAtomBuilderLab, startIonicBondingLab } from './missionsLab'
 import { startCellLab } from './cellLab'
 import type { MissionsLessonContract } from '@mmaxr/schema'
 import { LabScene } from '../lab/labScene'
+import { leaveGuard } from '../lab/leaveGuard'
 import { h } from '../ui/dom'
 import { banner, button, toast } from '../ui/components'
 
@@ -334,11 +335,14 @@ export function labPage(lessonId: string): Page {
 
   const onPageHide = () => telemetry.flushBeacon()
   window.addEventListener('pagehide', onPageHide)
+  const exitGuard = leaveGuard()
 
   return {
     el: root,
+    confirmLeave: () => exitGuard.confirmLeave(),
     destroy() {
       destroyed = true
+      exitGuard.dispose()
       window.removeEventListener('pagehide', onPageHide)
       sensorTracker.stop()
       telemetry.flushBeacon()

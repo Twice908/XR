@@ -18,15 +18,18 @@ export class TelemetryClient {
   private queue: TelemetryEvent[] = []
   private flushing = false
   private retryTimer: number | null = null
+  private ended = false
 
   configure(ctx: SessionContext) {
     this.ctx = ctx
     this.queue = []
+    this.ended = false
   }
 
   reset() {
     this.ctx = null
     this.queue = []
+    this.ended = false
     if (this.retryTimer) window.clearTimeout(this.retryTimer)
   }
 
@@ -42,8 +45,14 @@ export class TelemetryClient {
       object,
     }
     this.queue.push(event)
+    if (object.action === 'submit_analysis' || object.action === 'leave_lab') this.ended = true
     void this.flush()
     return event
+  }
+
+  /** A lab session is running and has been neither submitted nor left. */
+  get inProgress() {
+    return this.ctx !== null && !this.ended
   }
 
   /** Best-effort delivery on page close. */

@@ -83,7 +83,7 @@ export default function StudentPage() {
                   <TableCell>
                     <Text hasTabularNumbers>{String(s.event_count)}</Text>
                   </TableCell>
-                  <TableCell>{s.completed ? <Badge label="Completed" variant="success" /> : <Badge label="In progress" variant="warning" />}</TableCell>
+                  <TableCell>{s.status === 'left' ? <Badge label="Left early" variant="warning" /> : <Badge label="Completed" variant="success" />}</TableCell>
                   <TableCell>
                     <Link href={`/sessions/${encodeURIComponent(s.session_id)}`}>Open →</Link>
                   </TableCell>
