@@ -2,6 +2,7 @@
 """
 Build the mission-lab lessons (Atom Builder, Ionic Bonding, Plant vs Animal Cell) from the MMAXR
 modules they were ported from: missions, hints, checkpoint questions and narration, word for word.
+The cell lab is read from XR's own copy (mmaxr-cell-explorer), which adds organelle chapters.
 Narration audio is copied into mmaxr-assets/audio/<lab>/ and served by the lesson loader.
 
 Usage: python3 scripts/gen-missions.py /path/to/MMAXR
@@ -53,6 +54,8 @@ LABS = [
         "invalid": None,
         "audio": False,
         "bundleUrl": "/cell-explorer/index.html",
+        # XR extends this lab (more organelle chapters), so its source is XR's own copy, not MMAXR.
+        "root": HERE.parents[3] / "mmaxr-cell-explorer" / "modules" / "bio-cell-explorer",
     },
 ]
 
@@ -86,7 +89,7 @@ def question(item: dict) -> dict:
 
 
 def build(mmaxr: Path, lab: dict) -> dict:
-    root = mmaxr / "modules" / lab["module"]
+    root = lab.get("root") or mmaxr / "modules" / lab["module"]
     manifest = json.loads((root / "module.json").read_text())
     items = {}
     for f in sorted((root / "assessments").glob("*.json")):

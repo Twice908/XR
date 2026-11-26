@@ -98,6 +98,8 @@ export function experimentsPage(context: RouteContext): Page {
   const orbits: Orbit[] = []
   const planetListeners: (() => void)[] = []
   let destroyed = false
+  /** Pending "raise the cover" during a dive; cleared if the page is closed before it fires. */
+  let veilDelay = 0
   let ready = false
   let pendingSurface: string | null = null
 
@@ -340,7 +342,9 @@ export function experimentsPage(context: RouteContext): Page {
           cosmos.setPalette(palette, 900)
           for (const [id, other] of planets) if (id !== exit.experimentId) other.body.setHighlight(false)
           target.body.setHighlight(true)
-          const veilDelay = window.setTimeout(() => void veil.show(palette, 520), 980)
+          veilDelay = window.setTimeout(() => {
+            if (!destroyed) void veil.show(palette, 520)
+          }, 980)
           await Promise.all([
             target.body.travel(1, 1450),
             cosmos.warpTo(0.32, 1300, ease.inCubic),
@@ -348,7 +352,9 @@ export function experimentsPage(context: RouteContext): Page {
             departOut(topbar, { lift: -10, durationMs: 420 }),
           ])
           window.clearTimeout(veilDelay)
-          await veil.show(palette, 260)
+          // In a background tab the dive pauses, and the router may already have opened the lab (and
+          // lifted the cover) without waiting for it: a page that is gone must not raise the cover again.
+          if (!destroyed) await veil.show(palette, 260)
           return
         }
         await veil.show(palette, stage.time(420))
@@ -368,6 +374,7 @@ export function experimentsPage(context: RouteContext): Page {
     },
     destroy() {
       destroyed = true
+      window.clearTimeout(veilDelay)
       window.clearTimeout(unfocusTimer)
       for (const remove of planetListeners) remove()
       document.removeEventListener('click', onDocumentClick)

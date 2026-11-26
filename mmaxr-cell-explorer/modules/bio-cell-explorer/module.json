@@ -11,7 +11,15 @@
     "sci.bio.cell.structure",
     "sci.bio.cell.plant-vs-animal",
     "sci.bio.cell.mitochondria",
-    "sci.bio.cell.chloroplast"
+    "sci.bio.cell.chloroplast",
+    "sci.bio.cell.wall",
+    "sci.bio.cell.membrane",
+    "sci.bio.cell.nucleus",
+    "sci.bio.cell.ribosome",
+    "sci.bio.cell.endoplasmic-reticulum",
+    "sci.bio.cell.golgi",
+    "sci.bio.cell.lysosome",
+    "sci.bio.cell.vacuole"
   ],
   "boards": [
     "CBSE",
@@ -29,7 +37,15 @@
       "features": [
         "plant-vs-animal",
         "mitochondria",
-        "chloroplasts"
+        "chloroplasts",
+        "cell-wall",
+        "cell-membrane",
+        "nucleus",
+        "ribosomes",
+        "endoplasmic-reticulum",
+        "golgi-apparatus",
+        "lysosomes",
+        "vacuoles"
       ]
     }
   ],
@@ -38,7 +54,7 @@
     "ar",
     "vr"
   ],
-  "estimatedMinutes": 8,
+  "estimatedMinutes": 20,
   "assets": [],
   "interactions": {
     "manipulate": [
@@ -51,11 +67,35 @@
     ],
     "missions": [
       "cx-two-cells",
+      "cx-cell-wall",
+      "cx-cell-membrane",
+      "cx-nucleus",
+      "cx-ribosomes",
+      "cx-er",
+      "cx-golgi",
+      "cx-lysosomes",
+      "cx-vacuoles",
       "cx-mitochondria",
       "cx-chloroplasts",
       "cx-recap"
     ],
     "check": [
+      "assess.cell.wall.01",
+      "assess.cell.wall.02",
+      "assess.cell.membrane.01",
+      "assess.cell.membrane.02",
+      "assess.cell.nucleus.01",
+      "assess.cell.nucleus.02",
+      "assess.cell.ribosome.01",
+      "assess.cell.ribosome.02",
+      "assess.cell.er.01",
+      "assess.cell.er.02",
+      "assess.cell.golgi.01",
+      "assess.cell.golgi.02",
+      "assess.cell.lysosome.01",
+      "assess.cell.lysosome.02",
+      "assess.cell.vacuole.01",
+      "assess.cell.vacuole.02",
       "assess.cell.mito.01",
       "assess.cell.mito.02",
       "assess.cell.chloro.01",
@@ -76,6 +116,150 @@
         "One cell has a thick wall around it.",
         "The plant cell is the box-shaped one."
       ]
+    },
+    {
+      "id": "cx-cell-wall",
+      "title": "Cell wall",
+      "goalText": "Find what the cell wall is made of.",
+      "goal": {
+        "chapter": "cell-wall"
+      },
+      "hints": [
+        "The fibres are long strands that cross over each other.",
+        "Cellulose fibres make up the thick wall itself."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.wall.01",
+          "assess.cell.wall.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-cell-membrane",
+      "title": "Cell membrane",
+      "goalText": "Find what controls what enters and leaves the cell.",
+      "goal": {
+        "chapter": "cell-membrane"
+      },
+      "hints": [
+        "Proteins are the larger shapes sitting across the membrane.",
+        "Look for the shape with a passage through its middle."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.membrane.01",
+          "assess.cell.membrane.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-nucleus",
+      "title": "Nucleus",
+      "goalText": "Find the parts of the nucleus.",
+      "goal": {
+        "chapter": "nucleus"
+      },
+      "hints": [
+        "The nucleolus is the dark ball inside the nucleus.",
+        "Look through the open wedge of the envelope."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.nucleus.01",
+          "assess.cell.nucleus.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-ribosomes",
+      "title": "Ribosomes",
+      "goalText": "Find what ribosomes make.",
+      "goal": {
+        "chapter": "ribosomes"
+      },
+      "hints": [
+        "The protein chain comes out of the large subunit.",
+        "It is the beaded strand leaving the top of the ribosome."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.ribosome.01",
+          "assess.cell.ribosome.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-er",
+      "title": "Endoplasmic reticulum",
+      "goalText": "Tell rough ER from smooth ER.",
+      "goal": {
+        "chapter": "endoplasmic-reticulum"
+      },
+      "hints": [
+        "Smooth ER has no dots on it.",
+        "It looks like a tangle of smooth tubes."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.er.01",
+          "assess.cell.er.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-golgi",
+      "title": "Golgi apparatus",
+      "goalText": "Find out what the Golgi apparatus does.",
+      "goal": {
+        "chapter": "golgi"
+      },
+      "hints": [
+        "Think of a post office.",
+        "Vesicles carry its packages away."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.golgi.01",
+          "assess.cell.golgi.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-lysosomes",
+      "title": "Lysosomes",
+      "goalText": "Find what is inside a lysosome.",
+      "goal": {
+        "chapter": "lysosomes"
+      },
+      "hints": [
+        "The enzymes are the small particles inside.",
+        "Look inside the open bag."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.lysosome.01",
+          "assess.cell.lysosome.02"
+        ]
+      }
+    },
+    {
+      "id": "cx-vacuoles",
+      "title": "Vacuoles",
+      "goalText": "Find the large central vacuole.",
+      "goal": {
+        "chapter": "vacuoles"
+      },
+      "hints": [
+        "It is the big, clear, pale blue sac.",
+        "Look in the plant cell."
+      ],
+      "onComplete": {
+        "triggerAssessments": [
+          "assess.cell.vacuole.01",
+          "assess.cell.vacuole.02"
+        ]
+      }
     },
     {
       "id": "cx-mitochondria",
@@ -361,6 +545,528 @@
         "captions": "narration/en/generated/answer-assess-cell-recap-02.vtt",
         "captionText": "The correct answer is: To make food using sunlight. Chloroplasts use sunlight to make food. Mitochondria release energy from that food.",
         "interruptible": true
+      },
+      {
+        "id": "wall-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/wall-spot.json",
+        "audio": "narration/en/generated/wall-spot.mp3",
+        "captions": "narration/en/generated/wall-spot.vtt",
+        "captionText": "Only the plant cell has this thick outer layer. It is the cell wall.",
+        "interruptible": true
+      },
+      {
+        "id": "wall-cellulose",
+        "trigger": "journey_beat",
+        "script": "narration/en/wall-cellulose.json",
+        "audio": "narration/en/generated/wall-cellulose.mp3",
+        "captions": "narration/en/generated/wall-cellulose.vtt",
+        "captionText": "The wall is made mostly of cellulose. Long cellulose fibres cross over each other, like threads in cloth.",
+        "interruptible": true
+      },
+      {
+        "id": "wall-lamella",
+        "trigger": "journey_beat",
+        "script": "narration/en/wall-lamella.json",
+        "audio": "narration/en/generated/wall-lamella.mp3",
+        "captions": "narration/en/generated/wall-lamella.vtt",
+        "captionText": "Between two neighbouring plant cells is the middle lamella. It glues the cells together.",
+        "interruptible": true
+      },
+      {
+        "id": "wall-channels",
+        "trigger": "journey_beat",
+        "script": "narration/en/wall-channels.json",
+        "audio": "narration/en/generated/wall-channels.mp3",
+        "captions": "narration/en/generated/wall-channels.vtt",
+        "captionText": "Tiny channels called plasmodesmata pass through the walls, so neighbouring cells can share materials.",
+        "interruptible": true
+      },
+      {
+        "id": "wall-job",
+        "trigger": "journey_beat",
+        "script": "narration/en/wall-job.json",
+        "audio": "narration/en/generated/wall-job.mp3",
+        "captions": "narration/en/generated/wall-job.vtt",
+        "captionText": "The wall gives the plant cell its shape and strength, and protects it. Water and dissolved substances pass through it freely.",
+        "interruptible": true
+      },
+      {
+        "id": "mem-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/mem-spot.json",
+        "audio": "narration/en/generated/mem-spot.mp3",
+        "captions": "narration/en/generated/mem-spot.vtt",
+        "captionText": "Every cell has a cell membrane. In the animal cell it is the outer boundary.",
+        "interruptible": true
+      },
+      {
+        "id": "mem-plant",
+        "trigger": "journey_beat",
+        "script": "narration/en/mem-plant.json",
+        "audio": "narration/en/generated/mem-plant.mp3",
+        "captions": "narration/en/generated/mem-plant.vtt",
+        "captionText": "In the plant cell, the membrane lies just inside the cell wall.",
+        "interruptible": true
+      },
+      {
+        "id": "mem-bilayer",
+        "trigger": "journey_beat",
+        "script": "narration/en/mem-bilayer.json",
+        "audio": "narration/en/generated/mem-bilayer.mp3",
+        "captions": "narration/en/generated/mem-bilayer.vtt",
+        "captionText": "Up close, the membrane is two layers of phospholipids, called a lipid bilayer.",
+        "interruptible": true
+      },
+      {
+        "id": "mem-tails",
+        "trigger": "journey_beat",
+        "script": "narration/en/mem-tails.json",
+        "audio": "narration/en/generated/mem-tails.mp3",
+        "captions": "narration/en/generated/mem-tails.vtt",
+        "captionText": "Their water-loving heads face outwards. Their water-hating fatty tails point into the middle.",
+        "interruptible": true
+      },
+      {
+        "id": "mem-proteins",
+        "trigger": "journey_beat",
+        "script": "narration/en/mem-proteins.json",
+        "audio": "narration/en/generated/mem-proteins.mp3",
+        "captions": "narration/en/generated/mem-proteins.vtt",
+        "captionText": "Proteins sit in the membrane. Some form channels that let chosen substances in and out.",
+        "interruptible": true
+      },
+      {
+        "id": "mem-job",
+        "trigger": "journey_beat",
+        "script": "narration/en/mem-job.json",
+        "audio": "narration/en/generated/mem-job.mp3",
+        "captions": "narration/en/generated/mem-job.vtt",
+        "captionText": "So the membrane is selectively permeable. It lets some substances through and keeps others out.",
+        "interruptible": true
+      },
+      {
+        "id": "nuc-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/nuc-spot.json",
+        "audio": "narration/en/generated/nuc-spot.mp3",
+        "captions": "narration/en/generated/nuc-spot.vtt",
+        "captionText": "This large, round organelle is the nucleus. It is the control centre of the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "nuc-plant",
+        "trigger": "journey_beat",
+        "script": "narration/en/nuc-plant.json",
+        "audio": "narration/en/generated/nuc-plant.mp3",
+        "captions": "narration/en/generated/nuc-plant.vtt",
+        "captionText": "The plant cell has a nucleus too, pushed to one side by its big vacuole.",
+        "interruptible": true
+      },
+      {
+        "id": "nuc-envelope",
+        "trigger": "journey_beat",
+        "script": "narration/en/nuc-envelope.json",
+        "audio": "narration/en/generated/nuc-envelope.mp3",
+        "captions": "narration/en/generated/nuc-envelope.vtt",
+        "captionText": "The nucleus is wrapped in a double membrane called the nuclear envelope.",
+        "interruptible": true
+      },
+      {
+        "id": "nuc-pores",
+        "trigger": "journey_beat",
+        "script": "narration/en/nuc-pores.json",
+        "audio": "narration/en/generated/nuc-pores.mp3",
+        "captions": "narration/en/generated/nuc-pores.vtt",
+        "captionText": "Pores in the envelope let messages and materials pass between the nucleus and the cytoplasm.",
+        "interruptible": true
+      },
+      {
+        "id": "nuc-chromatin",
+        "trigger": "journey_beat",
+        "script": "narration/en/nuc-chromatin.json",
+        "audio": "narration/en/generated/nuc-chromatin.mp3",
+        "captions": "narration/en/generated/nuc-chromatin.vtt",
+        "captionText": "Inside is chromatin, made of DNA. DNA carries the instructions for building and running the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "nuc-nucleolus",
+        "trigger": "journey_beat",
+        "script": "narration/en/nuc-nucleolus.json",
+        "audio": "narration/en/generated/nuc-nucleolus.mp3",
+        "captions": "narration/en/generated/nuc-nucleolus.vtt",
+        "captionText": "The dark, dense body is the nucleolus. It makes ribosomes.",
+        "interruptible": true
+      },
+      {
+        "id": "ribo-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/ribo-spot.json",
+        "audio": "narration/en/generated/ribo-spot.mp3",
+        "captions": "narration/en/generated/ribo-spot.vtt",
+        "captionText": "These tiny dark dots are ribosomes. There are thousands in every cell.",
+        "interruptible": true
+      },
+      {
+        "id": "ribo-where",
+        "trigger": "journey_beat",
+        "script": "narration/en/ribo-where.json",
+        "audio": "narration/en/generated/ribo-where.mp3",
+        "captions": "narration/en/generated/ribo-where.vtt",
+        "captionText": "Plant cells are full of them too. Some float free in the cytoplasm, and others sit on the endoplasmic reticulum.",
+        "interruptible": true
+      },
+      {
+        "id": "ribo-parts",
+        "trigger": "journey_beat",
+        "script": "narration/en/ribo-parts.json",
+        "audio": "narration/en/generated/ribo-parts.mp3",
+        "captions": "narration/en/generated/ribo-parts.vtt",
+        "captionText": "A ribosome has two parts: a large subunit and a small subunit.",
+        "interruptible": true
+      },
+      {
+        "id": "ribo-message",
+        "trigger": "journey_beat",
+        "script": "narration/en/ribo-message.json",
+        "audio": "narration/en/generated/ribo-message.mp3",
+        "captions": "narration/en/generated/ribo-message.vtt",
+        "captionText": "Between them runs a message from the nucleus, called messenger RNA.",
+        "interruptible": true
+      },
+      {
+        "id": "ribo-protein",
+        "trigger": "journey_beat",
+        "script": "narration/en/ribo-protein.json",
+        "audio": "narration/en/generated/ribo-protein.mp3",
+        "captions": "narration/en/generated/ribo-protein.vtt",
+        "captionText": "The ribosome reads the message and joins building blocks into a chain. That chain becomes a protein.",
+        "interruptible": true
+      },
+      {
+        "id": "er-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/er-spot.json",
+        "audio": "narration/en/generated/er-spot.mp3",
+        "captions": "narration/en/generated/er-spot.vtt",
+        "captionText": "Around the nucleus is a folded network of membranes: the endoplasmic reticulum, or ER.",
+        "interruptible": true
+      },
+      {
+        "id": "er-rough",
+        "trigger": "journey_beat",
+        "script": "narration/en/er-rough.json",
+        "audio": "narration/en/generated/er-rough.mp3",
+        "captions": "narration/en/generated/er-rough.vtt",
+        "captionText": "Rough ER is covered in ribosomes. It carries the proteins they make through the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "er-smooth",
+        "trigger": "journey_beat",
+        "script": "narration/en/er-smooth.json",
+        "audio": "narration/en/generated/er-smooth.mp3",
+        "captions": "narration/en/generated/er-smooth.vtt",
+        "captionText": "Smooth ER has no ribosomes. It makes fats, called lipids, and helps remove harmful substances.",
+        "interruptible": true
+      },
+      {
+        "id": "er-network",
+        "trigger": "journey_beat",
+        "script": "narration/en/er-network.json",
+        "audio": "narration/en/generated/er-network.mp3",
+        "captions": "narration/en/generated/er-network.vtt",
+        "captionText": "Together they form a network of channels, a transport system inside the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "golgi-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/golgi-spot.json",
+        "audio": "narration/en/generated/golgi-spot.mp3",
+        "captions": "narration/en/generated/golgi-spot.vtt",
+        "captionText": "This stack of flattened sacs is the Golgi apparatus.",
+        "interruptible": true
+      },
+      {
+        "id": "golgi-sacs",
+        "trigger": "journey_beat",
+        "script": "narration/en/golgi-sacs.json",
+        "audio": "narration/en/generated/golgi-sacs.mp3",
+        "captions": "narration/en/generated/golgi-sacs.vtt",
+        "captionText": "Each flat sac is called a cisterna. Proteins from the ER arrive at one side of the stack.",
+        "interruptible": true
+      },
+      {
+        "id": "golgi-pack",
+        "trigger": "journey_beat",
+        "script": "narration/en/golgi-pack.json",
+        "audio": "narration/en/generated/golgi-pack.mp3",
+        "captions": "narration/en/generated/golgi-pack.vtt",
+        "captionText": "The Golgi changes, sorts and packs them, like the post office of the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "golgi-vesicles",
+        "trigger": "journey_beat",
+        "script": "narration/en/golgi-vesicles.json",
+        "audio": "narration/en/generated/golgi-vesicles.mp3",
+        "captions": "narration/en/generated/golgi-vesicles.vtt",
+        "captionText": "Packed materials leave in small bubbles called vesicles, to be sent inside or outside the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "lyso-spot",
+        "trigger": "journey_beat",
+        "script": "narration/en/lyso-spot.json",
+        "audio": "narration/en/generated/lyso-spot.mp3",
+        "captions": "narration/en/generated/lyso-spot.vtt",
+        "captionText": "These small round sacs are lysosomes. They are made by the Golgi apparatus.",
+        "interruptible": true
+      },
+      {
+        "id": "lyso-enzymes",
+        "trigger": "journey_beat",
+        "script": "narration/en/lyso-enzymes.json",
+        "audio": "narration/en/generated/lyso-enzymes.mp3",
+        "captions": "narration/en/generated/lyso-enzymes.vtt",
+        "captionText": "A lysosome is a membrane bag full of digestive enzymes.",
+        "interruptible": true
+      },
+      {
+        "id": "lyso-job",
+        "trigger": "journey_beat",
+        "script": "narration/en/lyso-job.json",
+        "audio": "narration/en/generated/lyso-job.mp3",
+        "captions": "narration/en/generated/lyso-job.vtt",
+        "captionText": "The enzymes break down waste, worn-out parts of the cell, and germs that get in.",
+        "interruptible": true
+      },
+      {
+        "id": "lyso-membrane",
+        "trigger": "journey_beat",
+        "script": "narration/en/lyso-membrane.json",
+        "audio": "narration/en/generated/lyso-membrane.mp3",
+        "captions": "narration/en/generated/lyso-membrane.vtt",
+        "captionText": "Its membrane keeps the enzymes inside, so they do not digest the rest of the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "lyso-suicide",
+        "trigger": "journey_beat",
+        "script": "narration/en/lyso-suicide.json",
+        "audio": "narration/en/generated/lyso-suicide.mp3",
+        "captions": "narration/en/generated/lyso-suicide.vtt",
+        "captionText": "If the cell is badly damaged, lysosomes may burst and digest it. So they are called suicide bags.",
+        "interruptible": true
+      },
+      {
+        "id": "vac-plant",
+        "trigger": "journey_beat",
+        "script": "narration/en/vac-plant.json",
+        "audio": "narration/en/generated/vac-plant.mp3",
+        "captions": "narration/en/generated/vac-plant.vtt",
+        "captionText": "The plant cell has one large central vacuole. It can fill most of the cell.",
+        "interruptible": true
+      },
+      {
+        "id": "vac-animal",
+        "trigger": "journey_beat",
+        "script": "narration/en/vac-animal.json",
+        "audio": "narration/en/generated/vac-animal.mp3",
+        "captions": "narration/en/generated/vac-animal.vtt",
+        "captionText": "Animal cells have small vacuoles, and only a few.",
+        "interruptible": true
+      },
+      {
+        "id": "vac-sap",
+        "trigger": "journey_beat",
+        "script": "narration/en/vac-sap.json",
+        "audio": "narration/en/generated/vac-sap.mp3",
+        "captions": "narration/en/generated/vac-sap.vtt",
+        "captionText": "The vacuole is filled with cell sap: water with dissolved sugars, salts and other substances.",
+        "interruptible": true
+      },
+      {
+        "id": "vac-tonoplast",
+        "trigger": "journey_beat",
+        "script": "narration/en/vac-tonoplast.json",
+        "audio": "narration/en/generated/vac-tonoplast.mp3",
+        "captions": "narration/en/generated/vac-tonoplast.vtt",
+        "captionText": "Its membrane is called the tonoplast.",
+        "interruptible": true
+      },
+      {
+        "id": "vac-firm",
+        "trigger": "journey_beat",
+        "script": "narration/en/vac-firm.json",
+        "audio": "narration/en/generated/vac-firm.mp3",
+        "captions": "narration/en/generated/vac-firm.vtt",
+        "captionText": "A full vacuole presses outwards against the wall. That keeps the plant cell firm, so plants stand upright.",
+        "interruptible": true
+      },
+      {
+        "id": "vac-back",
+        "trigger": "journey_beat",
+        "script": "narration/en/vac-back.json",
+        "audio": "narration/en/generated/vac-back.mp3",
+        "captions": "narration/en/generated/vac-back.vtt",
+        "captionText": "Now look at both cells again.",
+        "interruptible": true
+      },
+      {
+        "id": "recap-list",
+        "trigger": "journey_beat",
+        "script": "narration/en/recap-list.json",
+        "audio": "narration/en/generated/recap-list.mp3",
+        "captions": "narration/en/generated/recap-list.vtt",
+        "captionText": "Both cells have a membrane, a nucleus, ribosomes, ER, a Golgi apparatus, lysosomes and mitochondria. Only the plant cell has a cell wall, chloroplasts and a large central vacuole.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-wall-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-wall-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-wall-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-wall-01.vtt",
+        "captionText": "The correct answer is: Cellulose. The plant cell wall is made mainly of cellulose. Its long fibres make the wall strong.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-wall-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-wall-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-wall-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-wall-02.vtt",
+        "captionText": "The correct answer is: Its rigid cell wall supports it. The rigid cell wall supports the plant cell and gives it a fixed, box-like shape.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-membrane-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-membrane-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-membrane-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-membrane-01.vtt",
+        "captionText": "The correct answer is: It lets some substances pass and stops others. The cell membrane lets some substances pass and keeps others out, so it is selectively permeable.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-membrane-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-membrane-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-membrane-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-membrane-02.vtt",
+        "captionText": "The correct answer is: Lipids and proteins. The cell membrane is a double layer of lipids (phospholipids) with proteins set into it.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-nucleus-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-nucleus-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-nucleus-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-nucleus-01.vtt",
+        "captionText": "The correct answer is: It holds the DNA that directs the cell's work. The nucleus holds the DNA, the instructions that direct everything the cell does.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-nucleus-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-nucleus-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-nucleus-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-nucleus-02.vtt",
+        "captionText": "The correct answer is: Let materials pass in and out of the nucleus. Nuclear pores are openings in the envelope that let materials and messages pass in and out of the nucleus.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-ribosome-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-ribosome-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-ribosome-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-ribosome-01.vtt",
+        "captionText": "The correct answer is: Proteins. Ribosomes read the message from the nucleus and build proteins.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-ribosome-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-ribosome-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-ribosome-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-ribosome-02.vtt",
+        "captionText": "The correct answer is: The nucleolus. The nucleolus, inside the nucleus, makes ribosomes.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-er-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-er-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-er-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-er-01.vtt",
+        "captionText": "The correct answer is: Ribosomes attached to it. Rough ER is studded with ribosomes, which make it look rough.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-er-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-er-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-er-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-er-02.vtt",
+        "captionText": "The correct answer is: Making lipids (fats). Smooth ER makes lipids (fats) and helps remove harmful substances.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-golgi-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-golgi-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-golgi-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-golgi-01.vtt",
+        "captionText": "The correct answer is: Vesicles. Vesicles are small membrane bubbles that carry the packed materials away.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-golgi-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-golgi-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-golgi-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-golgi-02.vtt",
+        "captionText": "The correct answer is: The rough ER. Proteins made on the rough ER travel to the Golgi apparatus to be packed.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-lysosome-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-lysosome-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-lysosome-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-lysosome-01.vtt",
+        "captionText": "The correct answer is: Their enzymes can digest the cell itself. If the cell is damaged, lysosomes can burst and their enzymes digest the cell itself.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-lysosome-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-lysosome-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-lysosome-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-lysosome-02.vtt",
+        "captionText": "The correct answer is: Its membrane. The lysosome's membrane keeps its digestive enzymes inside.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-vacuole-01",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-vacuole-01.json",
+        "audio": "narration/en/generated/answer-assess-cell-vacuole-01.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-vacuole-01.vtt",
+        "captionText": "The correct answer is: Cell sap. The central vacuole is filled with cell sap: water with dissolved sugars and salts.",
+        "interruptible": true
+      },
+      {
+        "id": "answer-assess-cell-vacuole-02",
+        "trigger": "journey_beat",
+        "script": "narration/en/answer-assess-cell-vacuole-02.json",
+        "audio": "narration/en/generated/answer-assess-cell-vacuole-02.mp3",
+        "captions": "narration/en/generated/answer-assess-cell-vacuole-02.vtt",
+        "captionText": "The correct answer is: It keeps the cell firm, so the plant stands upright. A full vacuole presses against the cell wall and keeps the cell firm, so the plant stands upright.",
+        "interruptible": true
       }
     ],
     "guide": {
@@ -426,6 +1132,507 @@
             "cell:plant:ribosome"
           ],
           "wrongFeedback": {}
+        }
+      },
+      {
+        "id": "cell-wall",
+        "title": "Cell wall",
+        "missionId": "cx-cell-wall",
+        "beats": [
+          {
+            "id": "wall-spot",
+            "cueId": "wall-spot",
+            "captionText": "Only the plant cell has this thick outer layer. It is the cell wall.",
+            "shot": "plant",
+            "durationMs": 5320,
+            "highlight": "cell:plant:cell-wall"
+          },
+          {
+            "id": "wall-cellulose",
+            "cueId": "wall-cellulose",
+            "captionText": "The wall is made mostly of cellulose. Long cellulose fibres cross over each other, like threads in cloth.",
+            "shot": "wall-detail",
+            "durationMs": 6840,
+            "highlight": "detail:cell-wall:cellulose-fibres"
+          },
+          {
+            "id": "wall-lamella",
+            "cueId": "wall-lamella",
+            "captionText": "Between two neighbouring plant cells is the middle lamella. It glues the cells together.",
+            "shot": "wall-detail",
+            "durationMs": 5320,
+            "highlight": "detail:cell-wall:middle-lamella"
+          },
+          {
+            "id": "wall-channels",
+            "cueId": "wall-channels",
+            "captionText": "Tiny channels called plasmodesmata pass through the walls, so neighbouring cells can share materials.",
+            "shot": "wall-detail",
+            "durationMs": 5320,
+            "highlight": "detail:cell-wall:plasmodesmata"
+          },
+          {
+            "id": "wall-job",
+            "cueId": "wall-job",
+            "captionText": "The wall gives the plant cell its shape and strength, and protects it. Water and dissolved substances pass through it freely.",
+            "shot": "wall-detail",
+            "durationMs": 7980
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-cellulose",
+          "prompt": "Tap the cellulose fibres.",
+          "explanation": "Yes. Criss-crossing cellulose fibres make the cell wall strong.",
+          "defaultFeedback": "Look for the long strands that cross over each other.",
+          "correctTargets": [
+            "detail:cell-wall:cellulose-fibres"
+          ],
+          "wrongFeedback": {
+            "detail:cell-wall:middle-lamella": "That is the middle lamella, the layer that glues two cells together.",
+            "detail:cell-wall:plasmodesmata": "That is a plasmodesma, a channel through the wall."
+          }
+        }
+      },
+      {
+        "id": "cell-membrane",
+        "title": "Membrane",
+        "missionId": "cx-cell-membrane",
+        "beats": [
+          {
+            "id": "mem-spot",
+            "cueId": "mem-spot",
+            "captionText": "Every cell has a cell membrane. In the animal cell it is the outer boundary.",
+            "shot": "animal",
+            "durationMs": 5700,
+            "highlight": "cell:animal:cell-membrane"
+          },
+          {
+            "id": "mem-plant",
+            "cueId": "mem-plant",
+            "captionText": "In the plant cell, the membrane lies just inside the cell wall.",
+            "shot": "plant",
+            "durationMs": 4560,
+            "highlight": "cell:plant:cell-membrane"
+          },
+          {
+            "id": "mem-bilayer",
+            "cueId": "mem-bilayer",
+            "captionText": "Up close, the membrane is two layers of phospholipids, called a lipid bilayer.",
+            "shot": "membrane-detail",
+            "durationMs": 4940,
+            "highlight": "detail:cell-membrane:phospholipid-heads"
+          },
+          {
+            "id": "mem-tails",
+            "cueId": "mem-tails",
+            "captionText": "Their water-loving heads face outwards. Their water-hating fatty tails point into the middle.",
+            "shot": "membrane-detail",
+            "durationMs": 4940,
+            "highlight": "detail:cell-membrane:lipid-tails"
+          },
+          {
+            "id": "mem-proteins",
+            "cueId": "mem-proteins",
+            "captionText": "Proteins sit in the membrane. Some form channels that let chosen substances in and out.",
+            "shot": "membrane-detail",
+            "durationMs": 5700,
+            "highlight": "detail:cell-membrane:membrane-protein"
+          },
+          {
+            "id": "mem-job",
+            "cueId": "mem-job",
+            "captionText": "So the membrane is selectively permeable. It lets some substances through and keeps others out.",
+            "shot": "membrane-detail",
+            "durationMs": 5700
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-protein-channel",
+          "prompt": "Tap a protein channel.",
+          "explanation": "Yes. Protein channels let chosen substances cross the membrane.",
+          "defaultFeedback": "Look for the larger shapes that cross the whole membrane.",
+          "correctTargets": [
+            "detail:cell-membrane:membrane-protein"
+          ],
+          "wrongFeedback": {
+            "detail:cell-membrane:phospholipid-heads": "Those are phospholipid heads. The protein channels cross the whole membrane.",
+            "detail:cell-membrane:lipid-tails": "Those are the fatty tails in the middle of the bilayer."
+          }
+        }
+      },
+      {
+        "id": "nucleus",
+        "title": "Nucleus",
+        "missionId": "cx-nucleus",
+        "beats": [
+          {
+            "id": "nuc-spot",
+            "cueId": "nuc-spot",
+            "captionText": "This large, round organelle is the nucleus. It is the control centre of the cell.",
+            "shot": "animal",
+            "durationMs": 5700,
+            "highlight": "cell:animal:nucleus"
+          },
+          {
+            "id": "nuc-plant",
+            "cueId": "nuc-plant",
+            "captionText": "The plant cell has a nucleus too, pushed to one side by its big vacuole.",
+            "shot": "plant",
+            "durationMs": 5700,
+            "highlight": "cell:plant:nucleus"
+          },
+          {
+            "id": "nuc-envelope",
+            "cueId": "nuc-envelope",
+            "captionText": "The nucleus is wrapped in a double membrane called the nuclear envelope.",
+            "shot": "nucleus-detail",
+            "durationMs": 4560,
+            "highlight": "detail:nucleus:nuclear-envelope"
+          },
+          {
+            "id": "nuc-pores",
+            "cueId": "nuc-pores",
+            "captionText": "Pores in the envelope let messages and materials pass between the nucleus and the cytoplasm.",
+            "shot": "nucleus-detail",
+            "durationMs": 5700,
+            "highlight": "detail:nucleus:nuclear-pore"
+          },
+          {
+            "id": "nuc-chromatin",
+            "cueId": "nuc-chromatin",
+            "captionText": "Inside is chromatin, made of DNA. DNA carries the instructions for building and running the cell.",
+            "shot": "nucleus-detail",
+            "durationMs": 6080,
+            "highlight": "detail:nucleus:chromatin"
+          },
+          {
+            "id": "nuc-nucleolus",
+            "cueId": "nuc-nucleolus",
+            "captionText": "The dark, dense body is the nucleolus. It makes ribosomes.",
+            "shot": "nucleus-detail",
+            "durationMs": 4500,
+            "highlight": "detail:nucleus:nucleolus"
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-nucleolus",
+          "prompt": "Tap the nucleolus.",
+          "explanation": "Yes. The nucleolus is the dense body inside the nucleus that makes ribosomes.",
+          "defaultFeedback": "The nucleolus is the dark ball inside the nucleus.",
+          "correctTargets": [
+            "detail:nucleus:nucleolus"
+          ],
+          "wrongFeedback": {
+            "detail:nucleus:chromatin": "That is chromatin, the DNA. The nucleolus is the dark ball.",
+            "detail:nucleus:nuclear-envelope": "That is the nuclear envelope around the nucleus.",
+            "detail:nucleus:nuclear-pore": "That is a nuclear pore, an opening in the envelope."
+          }
+        }
+      },
+      {
+        "id": "ribosomes",
+        "title": "Ribosomes",
+        "missionId": "cx-ribosomes",
+        "beats": [
+          {
+            "id": "ribo-spot",
+            "cueId": "ribo-spot",
+            "captionText": "These tiny dark dots are ribosomes. There are thousands in every cell.",
+            "shot": "animal",
+            "durationMs": 4560,
+            "highlight": "cell:animal:ribosome"
+          },
+          {
+            "id": "ribo-where",
+            "cueId": "ribo-where",
+            "captionText": "Plant cells are full of them too. Some float free in the cytoplasm, and others sit on the endoplasmic reticulum.",
+            "shot": "plant",
+            "durationMs": 7600,
+            "highlight": "cell:plant:ribosome"
+          },
+          {
+            "id": "ribo-parts",
+            "cueId": "ribo-parts",
+            "captionText": "A ribosome has two parts: a large subunit and a small subunit.",
+            "shot": "ribosome-detail",
+            "durationMs": 4560,
+            "highlight": "detail:ribosome:large-subunit"
+          },
+          {
+            "id": "ribo-message",
+            "cueId": "ribo-message",
+            "captionText": "Between them runs a message from the nucleus, called messenger RNA.",
+            "shot": "ribosome-detail",
+            "durationMs": 4500,
+            "highlight": "detail:ribosome:mrna"
+          },
+          {
+            "id": "ribo-protein",
+            "cueId": "ribo-protein",
+            "captionText": "The ribosome reads the message and joins building blocks into a chain. That chain becomes a protein.",
+            "shot": "ribosome-detail",
+            "durationMs": 6460,
+            "highlight": "detail:ribosome:protein-chain"
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-protein-chain",
+          "prompt": "Tap the growing protein chain.",
+          "explanation": "Yes. Ribosomes build proteins, one link at a time.",
+          "defaultFeedback": "Look for the beaded strand coming out of the ribosome.",
+          "correctTargets": [
+            "detail:ribosome:protein-chain"
+          ],
+          "wrongFeedback": {
+            "detail:ribosome:mrna": "That is the messenger RNA, the message being read.",
+            "detail:ribosome:large-subunit": "That is the large subunit. The chain comes out of it.",
+            "detail:ribosome:small-subunit": "That is the small subunit, which holds the message."
+          }
+        }
+      },
+      {
+        "id": "endoplasmic-reticulum",
+        "title": "ER",
+        "missionId": "cx-er",
+        "beats": [
+          {
+            "id": "er-spot",
+            "cueId": "er-spot",
+            "captionText": "Around the nucleus is a folded network of membranes: the endoplasmic reticulum, or ER.",
+            "shot": "animal",
+            "durationMs": 5320,
+            "highlight": "cell:animal:endoplasmic-reticulum"
+          },
+          {
+            "id": "er-rough",
+            "cueId": "er-rough",
+            "captionText": "Rough ER is covered in ribosomes. It carries the proteins they make through the cell.",
+            "shot": "er-detail",
+            "durationMs": 5700,
+            "highlight": "detail:endoplasmic-reticulum:rough-er"
+          },
+          {
+            "id": "er-smooth",
+            "cueId": "er-smooth",
+            "captionText": "Smooth ER has no ribosomes. It makes fats, called lipids, and helps remove harmful substances.",
+            "shot": "er-detail",
+            "durationMs": 5700,
+            "highlight": "detail:endoplasmic-reticulum:smooth-er"
+          },
+          {
+            "id": "er-network",
+            "cueId": "er-network",
+            "captionText": "Together they form a network of channels, a transport system inside the cell.",
+            "shot": "er-detail",
+            "durationMs": 4940
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-smooth-er",
+          "prompt": "Tap the smooth ER.",
+          "explanation": "Yes. Smooth ER has no ribosomes on it.",
+          "defaultFeedback": "Smooth ER is the tangle of tubes with no dots on it.",
+          "correctTargets": [
+            "detail:endoplasmic-reticulum:smooth-er"
+          ],
+          "wrongFeedback": {
+            "detail:endoplasmic-reticulum:rough-er": "That is rough ER. Look for the tubes with no ribosomes."
+          }
+        }
+      },
+      {
+        "id": "golgi",
+        "title": "Golgi",
+        "missionId": "cx-golgi",
+        "beats": [
+          {
+            "id": "golgi-spot",
+            "cueId": "golgi-spot",
+            "captionText": "This stack of flattened sacs is the Golgi apparatus.",
+            "shot": "animal",
+            "durationMs": 4500,
+            "highlight": "cell:animal:golgi-apparatus"
+          },
+          {
+            "id": "golgi-sacs",
+            "cueId": "golgi-sacs",
+            "captionText": "Each flat sac is called a cisterna. Proteins from the ER arrive at one side of the stack.",
+            "shot": "golgi-detail",
+            "durationMs": 6840,
+            "highlight": "detail:golgi-apparatus:cisternae"
+          },
+          {
+            "id": "golgi-pack",
+            "cueId": "golgi-pack",
+            "captionText": "The Golgi changes, sorts and packs them, like the post office of the cell.",
+            "shot": "golgi-detail",
+            "durationMs": 5320
+          },
+          {
+            "id": "golgi-vesicles",
+            "cueId": "golgi-vesicles",
+            "captionText": "Packed materials leave in small bubbles called vesicles, to be sent inside or outside the cell.",
+            "shot": "golgi-detail",
+            "durationMs": 6080,
+            "highlight": "detail:golgi-apparatus:vesicles"
+          }
+        ],
+        "checkpoint": {
+          "kind": "choice",
+          "id": "golgi-job",
+          "prompt": "What does the Golgi apparatus do?",
+          "explanation": "Yes. The Golgi apparatus packs materials and sends them where they are needed.",
+          "defaultFeedback": "Think of a post office.",
+          "options": [
+            {
+              "id": "energy",
+              "text": "Releases energy from food"
+            },
+            {
+              "id": "pack",
+              "text": "Packs and sends materials"
+            },
+            {
+              "id": "food",
+              "text": "Makes food from sunlight"
+            }
+          ],
+          "correctOptionId": "pack",
+          "wrongFeedback": {
+            "energy": "Mitochondria release energy from food.",
+            "food": "Chloroplasts make food from sunlight."
+          }
+        }
+      },
+      {
+        "id": "lysosomes",
+        "title": "Lysosomes",
+        "missionId": "cx-lysosomes",
+        "beats": [
+          {
+            "id": "lyso-spot",
+            "cueId": "lyso-spot",
+            "captionText": "These small round sacs are lysosomes. They are made by the Golgi apparatus.",
+            "shot": "animal",
+            "durationMs": 4940,
+            "highlight": "cell:animal:lysosome"
+          },
+          {
+            "id": "lyso-enzymes",
+            "cueId": "lyso-enzymes",
+            "captionText": "A lysosome is a membrane bag full of digestive enzymes.",
+            "shot": "lysosome-detail",
+            "durationMs": 4500,
+            "highlight": "detail:lysosome:enzymes"
+          },
+          {
+            "id": "lyso-job",
+            "cueId": "lyso-job",
+            "captionText": "The enzymes break down waste, worn-out parts of the cell, and germs that get in.",
+            "shot": "lysosome-detail",
+            "durationMs": 5700
+          },
+          {
+            "id": "lyso-membrane",
+            "cueId": "lyso-membrane",
+            "captionText": "Its membrane keeps the enzymes inside, so they do not digest the rest of the cell.",
+            "shot": "lysosome-detail",
+            "durationMs": 6080,
+            "highlight": "detail:lysosome:lysosome-membrane"
+          },
+          {
+            "id": "lyso-suicide",
+            "cueId": "lyso-suicide",
+            "captionText": "If the cell is badly damaged, lysosomes may burst and digest it. So they are called suicide bags.",
+            "shot": "lysosome-detail",
+            "durationMs": 6840
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-enzymes",
+          "prompt": "Tap the digestive enzymes.",
+          "explanation": "Yes. The enzymes inside a lysosome break things down.",
+          "defaultFeedback": "The enzymes are the small particles inside the bag.",
+          "correctTargets": [
+            "detail:lysosome:enzymes"
+          ],
+          "wrongFeedback": {
+            "detail:lysosome:lysosome-membrane": "That is the membrane that keeps the enzymes in. Look inside it."
+          }
+        }
+      },
+      {
+        "id": "vacuoles",
+        "title": "Vacuoles",
+        "missionId": "cx-vacuoles",
+        "beats": [
+          {
+            "id": "vac-plant",
+            "cueId": "vac-plant",
+            "captionText": "The plant cell has one large central vacuole. It can fill most of the cell.",
+            "shot": "plant",
+            "durationMs": 5700,
+            "highlight": "cell:plant:vacuole"
+          },
+          {
+            "id": "vac-animal",
+            "cueId": "vac-animal",
+            "captionText": "Animal cells have small vacuoles, and only a few.",
+            "shot": "animal",
+            "durationMs": 4500,
+            "highlight": "cell:animal:vacuole"
+          },
+          {
+            "id": "vac-sap",
+            "cueId": "vac-sap",
+            "captionText": "The vacuole is filled with cell sap: water with dissolved sugars, salts and other substances.",
+            "shot": "vacuole-detail",
+            "durationMs": 5700,
+            "highlight": "detail:vacuole:cell-sap"
+          },
+          {
+            "id": "vac-tonoplast",
+            "cueId": "vac-tonoplast",
+            "captionText": "Its membrane is called the tonoplast.",
+            "shot": "vacuole-detail",
+            "durationMs": 4500,
+            "highlight": "detail:vacuole:tonoplast"
+          },
+          {
+            "id": "vac-firm",
+            "cueId": "vac-firm",
+            "captionText": "A full vacuole presses outwards against the wall. That keeps the plant cell firm, so plants stand upright.",
+            "shot": "vacuole-detail",
+            "durationMs": 6840
+          },
+          {
+            "id": "vac-back",
+            "cueId": "vac-back",
+            "captionText": "Now look at the plant cell again.",
+            "shot": "plant",
+            "durationMs": 3500
+          }
+        ],
+        "checkpoint": {
+          "kind": "tap",
+          "id": "tap-central-vacuole",
+          "prompt": "Tap the large central vacuole.",
+          "explanation": "Yes. The plant cell's large central vacuole is full of cell sap.",
+          "defaultFeedback": "It is the big, clear, pale blue sac.",
+          "correctTargets": [
+            "cell:plant:vacuole"
+          ],
+          "wrongFeedback": {
+            "cell:plant:chloroplast": "That is a chloroplast. The vacuole is the large, clear sac in the middle.",
+            "cell:plant:mitochondrion": "That is a mitochondrion. The vacuole is the large, clear sac in the middle.",
+            "cell:plant:nucleus": "That is the nucleus. The vacuole is the large, clear sac beside it."
+          }
         }
       },
       {
@@ -576,6 +1783,13 @@
         "title": "Recap",
         "missionId": "cx-recap",
         "beats": [
+          {
+            "id": "recap-list",
+            "cueId": "recap-list",
+            "captionText": "Both cells have a membrane, a nucleus, ribosomes, ER, a Golgi apparatus, lysosomes and mitochondria. Only the plant cell has a cell wall, chloroplasts and a large central vacuole.",
+            "shot": "wide",
+            "durationMs": 11020
+          },
           {
             "id": "recap-compare",
             "cueId": "recap-compare",

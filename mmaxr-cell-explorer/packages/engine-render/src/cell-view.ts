@@ -1,17 +1,56 @@
 import { seededRandom } from "@mma/engine-core";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Position3 } from "./atom-view.js";
 import type { SceneContent } from "./molecule-view.js";
 
 /** Organelles scattered through a cell's cytoplasm. */
 export type CellSceneOrganelleKind = "mitochondrion" | "chloroplast" | "lysosome" | "ribosome";
 
-/** Organelles that have a large, cut-open detail model. */
-export type OrganelleDetailKind = "mitochondrion" | "chloroplast";
+/** Organelles that have a large, cut-open (or magnified) detail model. */
+export type OrganelleDetailKind =
+  | "mitochondrion"
+  | "chloroplast"
+  | "cell-wall"
+  | "cell-membrane"
+  | "nucleus"
+  | "ribosome"
+  | "endoplasmic-reticulum"
+  | "golgi-apparatus"
+  | "lysosome"
+  | "vacuole";
 
 /** Parts of a detail model that can be picked and highlighted. */
-export type OrganelleDetailPart = "outer-membrane" | "inner-membrane" | "cristae" | "matrix" | "grana" | "stroma";
+export type OrganelleDetailPart =
+  | "outer-membrane"
+  | "inner-membrane"
+  | "cristae"
+  | "matrix"
+  | "grana"
+  | "stroma"
+  | "cellulose-fibres"
+  | "middle-lamella"
+  | "plasmodesmata"
+  | "phospholipid-heads"
+  | "lipid-tails"
+  | "membrane-protein"
+  | "nuclear-envelope"
+  | "nuclear-pore"
+  | "chromatin"
+  | "nucleolus"
+  | "large-subunit"
+  | "small-subunit"
+  | "mrna"
+  | "protein-chain"
+  | "rough-er"
+  | "smooth-er"
+  | "cisternae"
+  | "vesicles"
+  | "lysosome-membrane"
+  | "enzymes"
+  | "tonoplast"
+  | "cell-sap";
 
 /** One organelle placed in a cell, relative to the cell centre. */
 export interface CellSceneOrganelle {
@@ -59,6 +98,11 @@ export interface CellSceneDetail {
   readonly yaw: number;
   /** Cut a wedge out of the front so the inside parts show. */
   readonly cutaway: boolean;
+  /**
+   * A magnified view floating in front of the cells (rather than an organelle opened in place): the
+   * cells behind fade back so the close-up reads clearly.
+   */
+  readonly magnified?: boolean;
 }
 
 /** Everything a {@link CellView} draws. */
@@ -108,24 +152,59 @@ export function parseCellTarget(target: string): CellPick | null {
   return null;
 }
 
-const DETAIL_PARTS: readonly OrganelleDetailPart[] = ["outer-membrane", "inner-membrane", "cristae", "matrix", "grana", "stroma"];
+const DETAIL_PARTS: readonly OrganelleDetailPart[] = [
+  "outer-membrane", "inner-membrane", "cristae", "matrix", "grana", "stroma",
+  "cellulose-fibres", "middle-lamella", "plasmodesmata",
+  "phospholipid-heads", "lipid-tails", "membrane-protein",
+  "nuclear-envelope", "nuclear-pore", "chromatin", "nucleolus",
+  "large-subunit", "small-subunit", "mrna", "protein-chain",
+  "rough-er", "smooth-er", "cisternae", "vesicles",
+  "lysosome-membrane", "enzymes", "tonoplast", "cell-sap",
+];
 
-/** Light, natural colours, close to stained micrographs and textbook models. */
+/**
+ * Natural colours after realistic textbook renders (and micrograph stains): a green, fibrous plant wall, pink
+ * and mauve membrane systems, a deep purple nucleus, orange mitochondria and clear, pale blue vacuoles.
+ */
 const COLOR = {
-  wall: 0xc9e2a0,
-  plantMembrane: 0x8cc77a,
-  plantCytoplasm: 0xeef7e2,
-  animalMembrane: 0xf0b9a8,
-  animalCytoplasm: 0xfcebe4,
-  nucleus: 0xb48fd8,
-  nucleolus: 0x6a3d9a,
-  vacuole: 0xcde9f6,
-  reticulum: 0xa8c6ec,
-  golgi: 0xf2b84b,
-  mitochondrion: 0xe7845c,
-  chloroplast: 0x4f9e36,
-  lysosome: 0xc99a3e,
-  ribosome: 0x6e4f86,
+  wall: 0x9ccc74,
+  plantMembrane: 0xcde8a8,
+  plantCytoplasm: 0xe4f2d2,
+  animalMembrane: 0xe9a9a0,
+  animalCytoplasm: 0xfbe5dd,
+  nucleus: 0x8d5bc4,
+  nucleusInner: 0xa77ad6,
+  nucleoplasm: 0xc9a6ea,
+  nucleolus: 0x4a2272,
+  chromatin: 0xb07ee0,
+  pore: 0x3a1f55,
+  vacuole: 0xa6d6f0,
+  tonoplast: 0xa9d6ee,
+  cellSap: 0xdcf1fa,
+  sugar: 0xffffff,
+  salt: 0xf6e7a8,
+  reticulum: 0xd99ab8,
+  smoothReticulum: 0xe9b6cc,
+  golgi: 0xb882a6,
+  golgiCis: 0xd3a4c2,
+  golgiTrans: 0x9c6a8e,
+  vesicle: 0xc996b8,
+  mitochondrion: 0xef8a3c,
+  chloroplast: 0x4fa236,
+  lysosome: 0xc9a24d,
+  lysosomeFluid: 0xf6e6b8,
+  enzymeA: 0x9a5a2b,
+  enzymeB: 0xd4693f,
+  ribosome: 0x2b2233,
+  ribosomeLarge: 0x6a5a9c,
+  ribosomeSmall: 0xa595cf,
+  mrna: 0xe9a23a,
+  cellulose: 0xe4f0c8,
+  lamella2: 0xd8c27c,
+  plasmodesma: 0x6e9a45,
+  lipidHead: 0xd9785a,
+  lipidTail: 0xf3dda2,
+  protein: 0x6f7fd1,
   mitoOuter: 0xec8d66,
   mitoInner: 0xf4a582,
   cristae: 0xd2643f,
@@ -209,7 +288,7 @@ interface Highlightable {
  * mitochondria, chloroplasts, lysosomes and ribosomes. It can also draw large detail
  * models of a mitochondrion or chloroplast, cut open to show their parts. Every structure
  * is a pick target ({@link cellOrganelleTarget}, {@link organelleDetailTarget}); the see-
- * through shells (wall, membrane, vacuole) yield to anything picked inside them.
+ * through shells (wall, membrane) yield to anything picked inside them.
  *
  * The highlighted structure gets a pulsing magenta outline and glow while the rest fades
  * back. The cells look alive: organelles sway, cells breathe and opened models float, a
@@ -226,6 +305,12 @@ export class CellView implements SceneContent {
   private frame: CellSceneFrame | null = null;
   private highlightTarget: string | null = null;
   private unitSphere: THREE.BufferGeometry | null = null;
+  /** Materials of the cells themselves (not of close-ups), faded while a magnified view shows. */
+  private cellMaterials: THREE.MeshPhysicalMaterial[] = [];
+  private collectingCell = false;
+  private backdrop = false;
+  /** Procedural surface textures, made once per view and kept across redraws. */
+  private readonly textures = new Map<string, THREE.Texture | null>();
   private readonly lowQuality: boolean;
   private readonly reducedMotion: boolean;
   private readonly now: () => number;
@@ -294,11 +379,11 @@ export class CellView implements SceneContent {
     this.frame = frame;
     this.clear();
     const hidden = new Set(frame.hiddenOrganelles ?? []);
+    this.backdrop = frame.details.some((detail) => detail.magnified === true);
+    this.collectingCell = true;
     for (const cell of frame.cells) this.drawCell(cell, hidden);
-    for (const detail of frame.details) {
-      if (detail.organelle === "mitochondrion") this.drawMitochondrionDetail(detail);
-      else this.drawChloroplastDetail(detail);
-    }
+    this.collectingCell = false;
+    for (const detail of frame.details) this.drawDetail(detail);
     this.root.add(this.driver);
     this.applyHighlight();
     this.animate(this.lastAnimated ?? 0);
@@ -360,6 +445,8 @@ export class CellView implements SceneContent {
 
   dispose(): void {
     this.clear();
+    for (const texture of this.textures.values()) texture?.dispose();
+    this.textures.clear();
     this.outlineMaterial.dispose();
     this.driver.geometry.dispose();
     (this.driver.material as THREE.Material).dispose();
@@ -384,7 +471,7 @@ export class CellView implements SceneContent {
       if (wallThickness > 0) {
         const wall = this.mesh(
           this.own(new RoundedBoxGeometry(size.x, size.y, size.z, 5, cornerRadius)),
-          this.shell(COLOR.wall, 0.3, { roughness: 0.75 }),
+          this.shell(COLOR.wall, 0.3, { roughness: 0.8, map: this.texture("fibres") }),
           target("cell-wall"),
           true,
         );
@@ -401,7 +488,7 @@ export class CellView implements SceneContent {
       membrane.renderOrder = 2;
       const cytoplasm = this.mesh(
         this.own(new RoundedBoxGeometry(size.x - inset * 2 - 0.04, size.y - inset * 2 - 0.04, size.z - inset * 2 - 0.04, 5, cornerRadius * 0.8)),
-        this.shell(COLOR.plantCytoplasm, 0.55, { side: THREE.BackSide, roughness: 0.9 }),
+        this.shell(COLOR.plantCytoplasm, 0.6, { side: THREE.BackSide, roughness: 0.9, map: this.texture("speckle") }),
         null,
       );
       group.add(membrane, cytoplasm);
@@ -409,7 +496,7 @@ export class CellView implements SceneContent {
       const blob = this.blobGeometry(size, cell.body.wobble, cell.body.seed);
       const membrane = this.mesh(blob, this.shell(COLOR.animalMembrane, 0.32, { clearcoat: 1, roughness: 0.35, sheen: 0.6 }), target("cell-membrane"), true);
       membrane.renderOrder = 2;
-      const cytoplasm = this.mesh(blob, this.shell(COLOR.animalCytoplasm, 0.6, { side: THREE.BackSide, roughness: 0.9 }), null);
+      const cytoplasm = this.mesh(blob, this.shell(COLOR.animalCytoplasm, 0.62, { side: THREE.BackSide, roughness: 0.9, map: this.texture("speckle") }), null);
       cytoplasm.scale.setScalar(0.985);
       group.add(membrane, cytoplasm);
     }
@@ -418,11 +505,12 @@ export class CellView implements SceneContent {
     this.drawReticulum(group, cell, target("endoplasmic-reticulum"));
     for (const stack of cell.golgi) this.drawGolgi(group, stack, target("golgi-apparatus"));
     for (const vacuole of cell.vacuoles) {
+      // Not a pick backdrop like the wall and membrane: the vacuole is a body you can tap, and the nearest
+      // thing along the tap wins, so it is picked wherever it is in front (XR: the central vacuole checkpoint).
       const mesh = this.mesh(
         this.sphere(),
-        this.shell(COLOR.vacuole, 0.38, { clearcoat: 1, roughness: 0.12 }),
+        this.shell(COLOR.vacuole, 0.55, { clearcoat: 1, roughness: 0.12, map: this.texture("mottle") }),
         target("vacuole"),
-        true,
       );
       mesh.name = `cell-${cell.id}-${vacuole.id}`;
       mesh.position.set(vacuole.position.x, vacuole.position.y, vacuole.position.z);
@@ -435,16 +523,19 @@ export class CellView implements SceneContent {
 
   private drawNucleus(group: THREE.Group, cell: CellSceneCell, target: string): void {
     const { position, radius, nucleolusRadius } = cell.nucleus;
-    const envelope = this.mesh(this.sphere(), this.shell(COLOR.nucleus, 0.62, { clearcoat: 0.8, roughness: 0.4 }), target);
+    // Cut open towards the viewer, as in a textbook model, so the nucleolus shows inside.
+    const envelope = this.mesh(this.ellipsoidLathe(CUTAWAY_GAP * 0.55), this.solid(COLOR.nucleus, { side: THREE.DoubleSide, clearcoat: 0.7, roughness: 0.4, map: this.texture("mottle") }), target);
     envelope.name = `cell-${cell.id}-nucleus`;
-    envelope.scale.setScalar(radius * 2);
-    envelope.renderOrder = 1;
-    const nucleolus = this.mesh(this.sphere(), this.solid(COLOR.nucleolus, { roughness: 0.6 }), target);
+    envelope.scale.setScalar(radius);
+    envelope.rotation.x = -0.3;
+    const inside = this.mesh(this.ellipsoidLathe(0), this.solid(COLOR.nucleoplasm, { side: THREE.BackSide, roughness: 0.9, map: this.texture("mottle") }), target);
+    inside.scale.setScalar(radius * 0.96);
+    const nucleolus = this.mesh(this.sphere(), this.solid(COLOR.nucleolus, { roughness: 0.6, map: this.texture("mottle") }), target);
     nucleolus.scale.setScalar(nucleolusRadius * 2);
-    nucleolus.position.set(radius * 0.25, radius * 0.15, radius * 0.1);
+    nucleolus.position.set(radius * 0.1, radius * 0.05, radius * 0.2);
     const holder = new THREE.Group();
     holder.position.set(position.x, position.y, position.z);
-    holder.add(nucleolus, envelope);
+    holder.add(nucleolus, inside, envelope);
     group.add(holder);
     this.floating.push({ object: holder, base: holder.position.clone(), rise: radius * 0.03, phase: cell.body.seed % 5 });
   }
@@ -456,7 +547,7 @@ export class CellView implements SceneContent {
     holder.position.set(cell.nucleus.position.x, cell.nucleus.position.y, cell.nucleus.position.z);
     holder.quaternion.setFromUnitVectors(UP, new THREE.Vector3(facing.x, facing.y, facing.z).normalize());
     group.add(holder);
-    const material = this.solid(COLOR.reticulum, { side: THREE.DoubleSide, roughness: 0.45, clearcoat: 0.5, transparent: true, opacity: 0.6, depthWrite: false });
+    const material = this.solid(COLOR.reticulum, { side: THREE.DoubleSide, roughness: 0.45, clearcoat: 0.5, transparent: true, opacity: 0.85, map: this.texture("mottle") });
     const sheets = 4;
     const studs: THREE.Vector3[] = [];
     const random = seededRandom(cell.body.seed + 11);
@@ -479,6 +570,17 @@ export class CellView implements SceneContent {
       ribosomes.setMatrixAt(index, new THREE.Matrix4().compose(point, new THREE.Quaternion(), new THREE.Vector3().setScalar(0.022)));
     });
     holder.add(ribosomes);
+    // Smooth ER: bare tubes branching off beyond the rough sheets.
+    const smooth = this.solid(COLOR.smoothReticulum, { roughness: 0.4, clearcoat: 0.6 });
+    for (let index = 0; index < 5; index += 1) {
+      const points: THREE.Vector3[] = [];
+      let point = new THREE.Vector3().setFromSphericalCoords(outerRadius + 0.02, 0.35 + random() * 0.4, random() * Math.PI * 2);
+      for (let step = 0; step < 5; step += 1) {
+        points.push(point.clone());
+        point = point.add(new THREE.Vector3(random() - 0.5, random() * 0.6, random() - 0.5).multiplyScalar(0.12));
+      }
+      holder.add(this.mesh(this.own(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 24, 0.022, 6)), smooth, target));
+    }
   }
 
   /** A stack of curved, flattened sacs with a few budding vesicles. */
@@ -487,7 +589,7 @@ export class CellView implements SceneContent {
     holder.position.set(stack.position.x, stack.position.y, stack.position.z);
     holder.quaternion.setFromUnitVectors(UP, new THREE.Vector3(stack.axis.x, stack.axis.y, stack.axis.z).normalize());
     group.add(holder);
-    const material = this.solid(COLOR.golgi, { roughness: 0.5, clearcoat: 0.4 });
+    const material = this.solid(COLOR.golgi, { roughness: 0.5, clearcoat: 0.4, map: this.texture("mottle") });
     const sacs = 5;
     const spacing = stack.size * 0.11;
     for (let index = 0; index < sacs; index += 1) {
@@ -554,15 +656,15 @@ export class CellView implements SceneContent {
         const geometry = this.own(new THREE.CapsuleGeometry(0.5, 1, 6, Math.round(this.segments / 2)));
         geometry.rotateZ(-Math.PI / 2);
         geometry.scale(0.5, 1, 1);
-        return { geometry, material: this.solid(COLOR.mitochondrion, { roughness: 0.45, clearcoat: 0.5 }) };
+        return { geometry, material: this.solid(COLOR.mitochondrion, { roughness: 0.45, clearcoat: 0.5, map: this.texture("cristae") }) };
       }
       case "chloroplast":
         return {
           geometry: this.sphere(),
-          material: this.solid(COLOR.chloroplast, { roughness: 0.5, clearcoat: 0.35, transparent: true, opacity: 0.88 }),
+          material: this.solid(COLOR.chloroplast, { roughness: 0.5, clearcoat: 0.35, transparent: true, opacity: 0.88, map: this.texture("mottle") }),
         };
       case "lysosome":
-        return { geometry: this.sphere(), material: this.solid(COLOR.lysosome, { roughness: 0.4, clearcoat: 0.6 }) };
+        return { geometry: this.sphere(), material: this.solid(COLOR.lysosome, { roughness: 0.4, clearcoat: 0.6, map: this.texture("speckle") }) };
       case "ribosome":
         // Detail 1 keeps them round when the camera zooms right into a cell.
         return { geometry: this.own(new THREE.IcosahedronGeometry(0.5, 1)), material: this.solid(COLOR.ribosome, { roughness: 0.7 }) };
@@ -683,6 +785,484 @@ export class CellView implements SceneContent {
     }
   }
 
+  private drawDetail(detail: CellSceneDetail): void {
+    switch (detail.organelle) {
+      case "mitochondrion":
+        return this.drawMitochondrionDetail(detail);
+      case "chloroplast":
+        return this.drawChloroplastDetail(detail);
+      case "cell-wall":
+        return this.drawWallDetail(detail);
+      case "cell-membrane":
+        return this.drawMembraneDetail(detail);
+      case "nucleus":
+        return this.drawNucleusDetail(detail);
+      case "ribosome":
+        return this.drawRibosomeDetail(detail);
+      case "endoplasmic-reticulum":
+        return this.drawReticulumDetail(detail);
+      case "golgi-apparatus":
+        return this.drawGolgiDetail(detail);
+      case "lysosome":
+        return this.drawLysosomeDetail(detail);
+      case "vacuole":
+        return this.drawVacuoleDetail(detail);
+    }
+  }
+
+  /**
+   * A section through the walls of two neighbouring plant cells: criss-crossing cellulose fibres in each
+   * wall, the middle lamella gluing them together, and plasmodesmata running through both.
+   */
+  private drawWallDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const height = L * 0.55;
+    const depth = L * 0.34;
+    const lamella = L * 0.05;
+    const slabWidth = L / 2 - lamella / 2;
+    // The wall matrix: a pale, see-through green so the fibres inside show.
+    const slabMaterial = this.solid(COLOR.wall, { roughness: 0.8, transparent: true, opacity: 0.32, depthWrite: false, map: this.texture("fibres") });
+    for (const side of [-1, 1]) {
+      const slab = this.mesh(this.own(new RoundedBoxGeometry(slabWidth, height, depth, 3, L * 0.015)), slabMaterial, target("cellulose-fibres"));
+      slab.position.x = side * (lamella / 2 + slabWidth / 2);
+      holder.add(slab);
+    }
+    const middle = this.mesh(this.own(new RoundedBoxGeometry(lamella, height * 1.01, depth * 1.01, 2, lamella * 0.3)), this.solid(COLOR.lamella2, { roughness: 0.7, map: this.texture("speckle") }), target("middle-lamella"));
+    holder.add(middle);
+    // Cellulose fibres: thin rods lying flat in the wall's plane (y-z), in layers across its thickness, each
+    // layer at the opposite angle to the last, like plywood. Each rod is trimmed to the wall's edges.
+    const fibre = this.own(new THREE.CylinderGeometry(0.5, 0.5, 1, 6));
+    fibre.rotateZ(Math.PI / 2);
+    const placements: THREE.Matrix4[] = [];
+    const random = seededRandom(31);
+    const layers = 4;
+    const halfY = height / 2 - L * 0.02;
+    const halfZ = depth / 2 - L * 0.02;
+    const spacing = L * 0.045;
+    for (const side of [-1, 1]) {
+      const cx = side * (lamella / 2 + slabWidth / 2);
+      for (let layer = 0; layer < layers; layer += 1) {
+        const x = cx + ((layer + 0.5) / layers - 0.5) * slabWidth * 0.8;
+        const angle = (layer % 2 === 0 ? 1 : -1) * 0.7 + (random() - 0.5) * 0.12;
+        const along = new THREE.Vector3(0, Math.sin(angle), Math.cos(angle));
+        const across = new THREE.Vector3(0, Math.cos(angle), -Math.sin(angle));
+        const rotation = new THREE.Quaternion().setFromUnitVectors(ALONG, along);
+        for (let k = -14; k <= 14; k += 1) {
+          const centre = across.clone().multiplyScalar(k * spacing + (random() - 0.5) * spacing * 0.3);
+          // Where the line through `centre` along `along` enters and leaves the wall's face.
+          let t0 = Number.NEGATIVE_INFINITY;
+          let t1 = Number.POSITIVE_INFINITY;
+          for (const [c, d, half] of [[centre.y, along.y, halfY], [centre.z, along.z, halfZ]] as const) {
+            if (Math.abs(d) < 1e-6) {
+              if (Math.abs(c) > half) t0 = Number.POSITIVE_INFINITY;
+              continue;
+            }
+            const a = (-half - c) / d;
+            const b = (half - c) / d;
+            t0 = Math.max(t0, Math.min(a, b));
+            t1 = Math.min(t1, Math.max(a, b));
+          }
+          if (!(t1 - t0 > L * 0.05)) continue;
+          const middle = centre.clone().addScaledVector(along, (t0 + t1) / 2);
+          middle.x = x;
+          placements.push(new THREE.Matrix4().compose(middle, rotation, new THREE.Vector3(t1 - t0, L * 0.011, L * 0.011)));
+        }
+      }
+    }
+    const fibres = this.instanced(fibre, this.solid(COLOR.cellulose, { roughness: 0.55, clearcoat: 0.3 }), placements.length, target("cellulose-fibres"));
+    placements.forEach((matrix, index) => fibres.setMatrixAt(index, matrix));
+    holder.add(fibres);
+    // Plasmodesmata: channels through both walls, lined with membrane.
+    const channel = this.own(new THREE.CylinderGeometry(1, 1, 1, this.segments, 1, true));
+    channel.rotateZ(Math.PI / 2);
+    const channelMaterial = this.solid(COLOR.plasmodesma, { roughness: 0.45, clearcoat: 0.5, side: THREE.DoubleSide });
+    for (const [y, z] of [[0.16, 0.05], [-0.12, -0.08], [0.02, 0.12]] as const) {
+      const tube = this.mesh(channel, channelMaterial, target("plasmodesmata"));
+      tube.position.set(0, y * L, z * L);
+      tube.scale.set(L * 1.01, L * 0.018, L * 0.018);
+      holder.add(tube);
+      const core = this.mesh(channel, channelMaterial, target("plasmodesmata"));
+      core.position.copy(tube.position);
+      core.scale.set(L * 1.012, L * 0.007, L * 0.007);
+      holder.add(core);
+    }
+  }
+
+  /**
+   * A patch of cell membrane: a phospholipid bilayer (heads outwards, two fatty tails each pointing in)
+   * with proteins set across it, one of them an open channel.
+   */
+  private drawMembraneDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const thickness = L * 0.22;
+    const headRadius = L * 0.026;
+    const columns = 16;
+    const rows = 7;
+    const width = L;
+    const depth = L * 0.45;
+    const proteins = [
+      { x: -0.22, z: 0.04, r: 0.085, channel: true },
+      { x: 0.24, z: -0.06, r: 0.075, channel: false },
+      { x: 0.02, z: -0.14, r: 0.06, channel: false },
+    ];
+    const clear = (x: number, z: number) => proteins.every((p) => Math.hypot(x - p.x * L, z - p.z * L) > p.r * L + headRadius);
+    const heads: THREE.Matrix4[] = [];
+    const tails: THREE.Matrix4[] = [];
+    const random = seededRandom(57);
+    const tailLength = thickness / 2 - headRadius * 1.1;
+    for (const side of [1, -1]) {
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          const x = ((column + 0.5 + (row % 2) * 0.5) / columns - 0.5) * width;
+          const z = ((row + 0.5) / rows - 0.5) * depth;
+          if (Math.abs(x) > width / 2 || !clear(x, z)) continue;
+          const y = side * (thickness / 2) + (random() - 0.5) * headRadius * 0.3;
+          heads.push(new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion(), new THREE.Vector3().setScalar(headRadius * 2)));
+          for (const offset of [-0.35, 0.35]) {
+            const tilt = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), (random() - 0.5) * 0.25);
+            tails.push(new THREE.Matrix4().compose(new THREE.Vector3(x + offset * headRadius, y - side * (headRadius + tailLength / 2), z), tilt, new THREE.Vector3(headRadius * 0.32, tailLength, headRadius * 0.32)));
+          }
+        }
+      }
+    }
+    const headMesh = this.instanced(this.sphere(), this.solid(COLOR.lipidHead, { roughness: 0.35, clearcoat: 0.6 }), heads.length, target("phospholipid-heads"));
+    heads.forEach((matrix, index) => headMesh.setMatrixAt(index, matrix));
+    const tail = this.own(new THREE.CylinderGeometry(0.5, 0.5, 1, 6));
+    const tailMesh = this.instanced(tail, this.solid(COLOR.lipidTail, { roughness: 0.6 }), tails.length, target("lipid-tails"));
+    tails.forEach((matrix, index) => tailMesh.setMatrixAt(index, matrix));
+    holder.add(headMesh, tailMesh);
+    // Proteins: lumpy, rounded bodies spanning the bilayer; the channel is an open barrel.
+    const proteinMaterial = this.solid(COLOR.protein, { roughness: 0.45, clearcoat: 0.5, map: this.texture("mottle") });
+    for (const protein of proteins) {
+      const radius = protein.r * L;
+      if (protein.channel) {
+        const profile: THREE.Vector2[] = [];
+        for (let step = 0; step <= 12; step += 1) {
+          const t = step / 12;
+          const y = (t - 0.5) * thickness * 1.5;
+          profile.push(new THREE.Vector2(radius * (0.42 + 0.58 * Math.sin(Math.PI * t) ** 0.6), y));
+        }
+        for (let step = 12; step >= 0; step -= 1) {
+          const t = step / 12;
+          profile.push(new THREE.Vector2(radius * 0.36, (t - 0.5) * thickness * 1.5));
+        }
+        const barrel = this.mesh(this.own(new THREE.LatheGeometry(profile, this.segments)), proteinMaterial, target("membrane-protein"));
+        barrel.position.set(protein.x * L, 0, protein.z * L);
+        holder.add(barrel);
+      } else {
+        const body = this.mesh(this.blobGeometry({ x: radius * 2, y: thickness * 1.35, z: radius * 1.8 }, radius * 0.25, Math.round(protein.x * 100) + 7), proteinMaterial, target("membrane-protein"));
+        body.position.set(protein.x * L, 0, protein.z * L);
+        holder.add(body);
+      }
+    }
+  }
+
+  /** A nucleus cut open: the double envelope with its pores, chromatin threads, and the dense nucleolus. */
+  private drawNucleusDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const radius = L * 0.46;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const gap = detail.cutaway ? CUTAWAY_GAP * 0.8 : 0;
+    const shell = (scale: number, color: number, part: OrganelleDetailPart, side: THREE.Side, cut: number, extra: THREE.MeshPhysicalMaterialParameters = {}) => {
+      const mesh = this.mesh(this.ellipsoidLathe(cut), this.solid(color, { side, roughness: 0.5, clearcoat: 0.5, ...extra }), target(part));
+      mesh.scale.setScalar(radius * scale);
+      // Open the wedge towards the viewer's upper side, where the camera looks from.
+      mesh.rotation.x = -0.35;
+      return mesh;
+    };
+    holder.add(
+      shell(1, COLOR.nucleus, "nuclear-envelope", THREE.DoubleSide, gap, { map: this.texture("mottle") }),
+      shell(0.95, COLOR.nucleusInner, "nuclear-envelope", THREE.DoubleSide, gap),
+      shell(0.93, COLOR.nucleoplasm, "chromatin", THREE.BackSide, 0, { roughness: 0.9, map: this.texture("mottle") }),
+    );
+    // Pores: small rings set into the envelope, away from the open wedge.
+    const pores: THREE.Matrix4[] = [];
+    const random = seededRandom(73);
+    const open = new THREE.Vector3(0, Math.sin(0.35), Math.cos(0.35));
+    for (let attempt = 0; attempt < 400 && pores.length < 46; attempt += 1) {
+      const direction = new THREE.Vector3(random() * 2 - 1, random() * 2 - 1, random() * 2 - 1);
+      if (direction.lengthSq() > 1 || direction.lengthSq() < 0.05) continue;
+      direction.normalize();
+      if (detail.cutaway && direction.dot(open) > Math.cos(gap / 2 + 0.12)) continue;
+      const rotation = new THREE.Quaternion().setFromUnitVectors(UP, direction);
+      pores.push(new THREE.Matrix4().compose(direction.clone().multiplyScalar(radius * 1.005), rotation, new THREE.Vector3(radius * 0.07, radius * 0.07, radius * 0.07)));
+    }
+    const ring = this.own(new THREE.TorusGeometry(0.5, 0.22, 8, 16));
+    ring.rotateX(Math.PI / 2);
+    const poreMesh = this.instanced(ring, this.solid(COLOR.pore, { roughness: 0.4 }), pores.length, target("nuclear-pore"));
+    pores.forEach((matrix, index) => poreMesh.setMatrixAt(index, matrix));
+    holder.add(poreMesh);
+    // Chromatin: loose, coiled threads.
+    const threadMaterial = this.solid(COLOR.chromatin, { roughness: 0.55, clearcoat: 0.3 });
+    for (let index = 0; index < 12; index += 1) {
+      const points: THREE.Vector3[] = [];
+      let point = new THREE.Vector3((random() - 0.5) * radius, (random() - 0.5) * radius, (random() - 0.5) * radius);
+      for (let step = 0; step < 9; step += 1) {
+        points.push(point.clone());
+        point = point.add(new THREE.Vector3(random() - 0.5, random() - 0.5, random() - 0.5).multiplyScalar(radius * 0.38));
+        if (point.length() > radius * 0.78) point.multiplyScalar(0.6);
+      }
+      const thread = this.mesh(this.own(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 48, radius * 0.013, 6)), threadMaterial, target("chromatin"));
+      holder.add(thread);
+    }
+    const nucleolus = this.mesh(this.blobGeometry({ x: radius * 0.64, y: radius * 0.6, z: radius * 0.62 }, radius * 0.05, 19), this.solid(COLOR.nucleolus, { roughness: 0.55, clearcoat: 0.3, map: this.texture("mottle") }), target("nucleolus"));
+    nucleolus.position.set(radius * 0.08, radius * 0.05, radius * 0.18);
+    holder.add(nucleolus);
+  }
+
+  /** A ribosome at work: large and small subunits with messenger RNA running between them and a protein chain coming out. */
+  private drawRibosomeDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const large = this.mesh(this.blobGeometry({ x: L * 0.52, y: L * 0.36, z: L * 0.42 }, L * 0.03, 41), this.solid(COLOR.ribosomeLarge, { roughness: 0.6, map: this.texture("mottle") }), target("large-subunit"));
+    large.position.y = L * 0.12;
+    const small = this.mesh(this.blobGeometry({ x: L * 0.46, y: L * 0.2, z: L * 0.36 }, L * 0.025, 43), this.solid(COLOR.ribosomeSmall, { roughness: 0.6, map: this.texture("mottle") }), target("small-subunit"));
+    small.position.y = -L * 0.14;
+    holder.add(large, small);
+    // mRNA: a strand threading through the gap between the subunits.
+    const strand: THREE.Vector3[] = [];
+    for (let step = 0; step <= 16; step += 1) {
+      const x = (step / 16 - 0.5) * L * 1.2;
+      strand.push(new THREE.Vector3(x, -L * 0.03 + Math.sin(step * 0.9) * L * 0.015, Math.cos(step * 0.7) * L * 0.02));
+    }
+    holder.add(this.mesh(this.own(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(strand), 80, L * 0.014, 8)), this.solid(COLOR.mrna, { roughness: 0.4, clearcoat: 0.5 }), target("mrna")));
+    // The growing protein: a curling chain of beads in many colours (different building blocks).
+    const beads: THREE.Matrix4[] = [];
+    const tones = [0xe85d75, 0xf2a541, 0x5cb85c, 0x4fa3e0, 0xb57fe0, 0xf06fb0];
+    const colors: THREE.Color[] = [];
+    for (let index = 0; index < 12; index += 1) {
+      const t = index / 11;
+      const position = new THREE.Vector3(Math.sin(t * 5) * L * 0.1 + t * L * 0.16, L * 0.3 + t * L * 0.24, Math.cos(t * 5) * L * 0.09);
+      beads.push(new THREE.Matrix4().compose(position, new THREE.Quaternion(), new THREE.Vector3().setScalar(L * 0.068)));
+      colors.push(new THREE.Color(tones[index % tones.length] as number));
+    }
+    const chain = this.instanced(this.sphere(), this.solid(0xffffff, { roughness: 0.35, clearcoat: 0.6 }), beads.length, target("protein-chain"));
+    beads.forEach((matrix, index) => {
+      chain.setMatrixAt(index, matrix);
+      chain.setColorAt(index, colors[index] as THREE.Color);
+    });
+    holder.add(chain);
+  }
+
+  /** Rough ER (folded sheets studded with ribosomes) beside smooth ER (a tangle of bare tubes). */
+  private drawReticulumDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const roughMaterial = this.solid(COLOR.reticulum, { roughness: 0.45, clearcoat: 0.5, side: THREE.DoubleSide, map: this.texture("mottle") });
+    const studs: THREE.Matrix4[] = [];
+    const random = seededRandom(97);
+    for (let index = 0; index < 4; index += 1) {
+      const sheet = this.own(new THREE.BoxGeometry(L * 0.5, L * 0.035, L * 0.5, 24, 1, 24));
+      const position = sheet.getAttribute("position") as THREE.BufferAttribute;
+      for (let vertex = 0; vertex < position.count; vertex += 1) {
+        const x = position.getX(vertex);
+        const z = position.getZ(vertex);
+        position.setY(vertex, position.getY(vertex) + Math.sin(x / L * 14 + index) * L * 0.035 + Math.sin(z / L * 9) * L * 0.02);
+      }
+      sheet.computeVertexNormals();
+      const mesh = this.mesh(sheet, roughMaterial, target("rough-er"));
+      mesh.position.set(-L * 0.25, (index - 1.5) * L * 0.12, 0);
+      holder.add(mesh);
+      for (let stud = 0; stud < 70; stud += 1) {
+        const x = (random() - 0.5) * L * 0.48;
+        const z = (random() - 0.5) * L * 0.48;
+        const y = (index - 1.5) * L * 0.12 + Math.sin(x / L * 14 + index) * L * 0.035 + Math.sin(z / L * 9) * L * 0.02 + (random() < 0.5 ? 1 : -1) * L * 0.028;
+        studs.push(new THREE.Matrix4().compose(new THREE.Vector3(x - L * 0.25, y, z), new THREE.Quaternion(), new THREE.Vector3().setScalar(L * 0.022)));
+      }
+    }
+    const ribosomes = this.instanced(this.sphere(), this.solid(COLOR.ribosome, { roughness: 0.6 }), studs.length, target("rough-er"));
+    studs.forEach((matrix, index) => ribosomes.setMatrixAt(index, matrix));
+    holder.add(ribosomes);
+    // Smooth ER: branching tubes with no ribosomes.
+    const smoothMaterial = this.solid(COLOR.smoothReticulum, { roughness: 0.4, clearcoat: 0.6, map: this.texture("mottle") });
+    for (let index = 0; index < 7; index += 1) {
+      const points: THREE.Vector3[] = [];
+      let point = new THREE.Vector3(L * (0.08 + random() * 0.1), (random() - 0.5) * L * 0.4, (random() - 0.5) * L * 0.4);
+      for (let step = 0; step < 6; step += 1) {
+        points.push(point.clone());
+        point = point.add(new THREE.Vector3(random() * 0.6, random() - 0.5, random() - 0.5).multiplyScalar(L * 0.12));
+        point.x = Math.min(point.x, L * 0.5);
+      }
+      holder.add(this.mesh(this.own(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 40, L * 0.028, 10)), smoothMaterial, target("smooth-er")));
+    }
+  }
+
+  /** A Golgi stack up close: curved cisternae, lighter on the receiving side, with vesicles budding off the rims. */
+  private drawGolgiDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const sacs = 6;
+    const spacing = L * 0.075;
+    const shades = [COLOR.golgiCis, COLOR.golgi, COLOR.golgi, COLOR.golgiTrans, COLOR.golgiTrans, COLOR.golgiTrans];
+    for (let index = 0; index < sacs; index += 1) {
+      const middle = (sacs - 1) / 2;
+      const width = L * (0.86 - Math.abs(index - middle) * 0.09);
+      const geometry = this.own(new THREE.CylinderGeometry(width / 2, width / 2, spacing * 0.5, this.segments, 1));
+      bend(geometry, 2.3 / L);
+      const sac = this.mesh(geometry, this.solid(shades[index] as number, { roughness: 0.45, clearcoat: 0.5, map: this.texture("mottle") }), target("cisternae"));
+      sac.position.y = (index - middle) * spacing;
+      sac.scale.z = 0.55;
+      holder.add(sac);
+    }
+    const vesicles: THREE.Matrix4[] = [];
+    const random = seededRandom(23);
+    for (let index = 0; index < 14; index += 1) {
+      const side = index % 2 === 0 ? 1 : -1;
+      const reach = L * (0.46 + random() * 0.14);
+      const point = new THREE.Vector3(side * reach, (random() - 0.5) * L * 0.4, (random() - 0.5) * L * 0.3);
+      vesicles.push(new THREE.Matrix4().compose(point, new THREE.Quaternion(), new THREE.Vector3().setScalar(L * (0.05 + random() * 0.03))));
+    }
+    const batch = this.instanced(this.sphere(), this.solid(COLOR.vesicle, { roughness: 0.3, clearcoat: 0.8, transparent: true, opacity: 0.92 }), vesicles.length, target("vesicles"));
+    vesicles.forEach((matrix, index) => batch.setMatrixAt(index, matrix));
+    holder.add(batch);
+  }
+
+  /** A lysosome cut open: its membrane and the digestive enzymes packed inside. */
+  private drawLysosomeDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const radius = L * 0.45;
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const gap = detail.cutaway ? CUTAWAY_GAP * 0.8 : 0;
+    const membrane = this.mesh(this.ellipsoidLathe(gap), this.solid(COLOR.lysosome, { side: THREE.DoubleSide, roughness: 0.4, clearcoat: 0.6, map: this.texture("speckle") }), target("lysosome-membrane"));
+    membrane.scale.setScalar(radius);
+    membrane.rotation.x = -0.35;
+    const fluid = this.mesh(this.ellipsoidLathe(0), this.solid(COLOR.lysosomeFluid, { side: THREE.BackSide, roughness: 0.9 }), target("enzymes"));
+    fluid.scale.setScalar(radius * 0.95);
+    holder.add(membrane, fluid);
+    const enzymes: THREE.Matrix4[] = [];
+    const colors: THREE.Color[] = [];
+    const random = seededRandom(61);
+    while (enzymes.length < 70) {
+      const point = new THREE.Vector3(random() * 2 - 1, random() * 2 - 1, random() * 2 - 1);
+      if (point.length() > 0.85) continue;
+      const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(random() * 3, random() * 3, random() * 3));
+      enzymes.push(new THREE.Matrix4().compose(point.multiplyScalar(radius), rotation, new THREE.Vector3(1, 0.7 + random() * 0.4, 0.8).multiplyScalar(L * (0.045 + random() * 0.03))));
+      colors.push(new THREE.Color(random() < 0.5 ? COLOR.enzymeA : COLOR.enzymeB));
+    }
+    const batch = this.instanced(this.own(new THREE.IcosahedronGeometry(0.5, 0)), this.solid(0xffffff, { roughness: 0.5, flatShading: true }), enzymes.length, target("enzymes"));
+    enzymes.forEach((matrix, index) => {
+      batch.setMatrixAt(index, matrix);
+      batch.setColorAt(index, colors[index] as THREE.Color);
+    });
+    holder.add(batch);
+  }
+
+  /** A central vacuole cut open: the tonoplast around clear cell sap with dissolved sugars and salts. */
+  private drawVacuoleDetail(detail: CellSceneDetail): void {
+    const holder = this.detailHolder(detail);
+    const L = detail.length;
+    const radii = new THREE.Vector3(L * 0.5, L * 0.32, L * 0.36);
+    const target = (part: OrganelleDetailPart) => organelleDetailTarget(detail.id, part);
+    const gap = detail.cutaway ? CUTAWAY_GAP * 0.8 : 0;
+    const tonoplast = this.mesh(this.ellipsoidLathe(gap), this.solid(COLOR.tonoplast, { side: THREE.DoubleSide, roughness: 0.15, clearcoat: 1, transparent: true, opacity: 0.62, map: this.texture("mottle") }), target("tonoplast"));
+    tonoplast.scale.copy(radii);
+    tonoplast.rotation.x = -0.3;
+    const sap = this.mesh(this.ellipsoidLathe(0), this.solid(COLOR.cellSap, { side: THREE.BackSide, roughness: 0.2, transparent: true, opacity: 0.85 }), target("cell-sap"));
+    sap.scale.copy(radii).multiplyScalar(0.96);
+    holder.add(tonoplast, sap);
+    const particles: THREE.Matrix4[] = [];
+    const colors: THREE.Color[] = [];
+    const random = seededRandom(83);
+    while (particles.length < 90) {
+      const point = new THREE.Vector3(random() * 2 - 1, random() * 2 - 1, random() * 2 - 1);
+      if (point.length() > 0.85) continue;
+      point.multiply(radii);
+      particles.push(new THREE.Matrix4().compose(point, new THREE.Quaternion(), new THREE.Vector3().setScalar(L * (0.012 + random() * 0.014))));
+      colors.push(new THREE.Color(random() < 0.5 ? COLOR.sugar : COLOR.salt));
+    }
+    const batch = this.instanced(this.sphere(), this.solid(0xffffff, { roughness: 0.3, clearcoat: 0.6 }), particles.length, target("cell-sap"));
+    particles.forEach((matrix, index) => {
+      batch.setMatrixAt(index, matrix);
+      batch.setColorAt(index, colors[index] as THREE.Color);
+    });
+    holder.add(batch);
+  }
+
+  /**
+   * Small procedural textures that give surfaces a natural, slightly uneven finish (no image files): `mottle` for
+   * soft blotches, `speckle` for fine grains, `fibres` for the wall's woven strands, `cristae` for the folded
+   * inner membrane showing through a mitochondrion.
+   */
+  private texture(kind: "mottle" | "speckle" | "fibres" | "cristae"): THREE.Texture | null {
+    const cached = this.textures.get(kind);
+    if (cached !== undefined) return cached;
+    if (typeof document === "undefined") {
+      this.textures.set(kind, null);
+      return null;
+    }
+    const size = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      this.textures.set(kind, null);
+      return null;
+    }
+    const random = seededRandom(kind.length * 977);
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, size, size);
+    if (kind === "mottle") {
+      for (let index = 0; index < 140; index += 1) {
+        const r = 6 + random() * 26;
+        const shade = Math.round(205 + random() * 50);
+        context.fillStyle = `rgba(${shade},${shade},${shade},${0.25 + random() * 0.35})`;
+        context.beginPath();
+        context.arc(random() * size, random() * size, r, 0, Math.PI * 2);
+        context.fill();
+      }
+    } else if (kind === "speckle") {
+      for (let index = 0; index < 900; index += 1) {
+        const shade = Math.round(170 + random() * 70);
+        context.fillStyle = `rgba(${shade},${shade},${shade},0.7)`;
+        context.fillRect(random() * size, random() * size, 1 + random() * 2, 1 + random() * 2);
+      }
+    } else if (kind === "fibres") {
+      context.lineCap = "round";
+      for (let index = 0; index < 160; index += 1) {
+        const shade = Math.round(200 + random() * 50);
+        context.strokeStyle = `rgba(${shade},${shade},${shade},0.8)`;
+        context.lineWidth = 1 + random() * 2.5;
+        const angle = (random() < 0.5 ? 0.35 : -0.35) + (random() - 0.5) * 0.2;
+        const x = random() * size;
+        const y = random() * size;
+        context.beginPath();
+        context.moveTo(x - Math.cos(angle) * 140, y - Math.sin(angle) * 140);
+        context.lineTo(x + Math.cos(angle) * 140, y + Math.sin(angle) * 140);
+        context.stroke();
+      }
+    } else {
+      // Cristae: wavy folds across the width of the capsule.
+      context.strokeStyle = "rgba(150,150,150,0.85)";
+      context.lineWidth = 5;
+      for (let index = 0; index < 9; index += 1) {
+        const x = 14 + index * 28;
+        context.beginPath();
+        for (let y = 0; y <= size; y += 8) {
+          const wobble = Math.sin(y / 18 + index) * 6;
+          if (y === 0) context.moveTo(x + wobble, y);
+          else context.lineTo(x + wobble, y);
+        }
+        context.stroke();
+      }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    this.textures.set(kind, texture);
+    return texture;
+  }
+
   private detailHolder(detail: CellSceneDetail): THREE.Group {
     // The floating part moves; the holder keeps the model's place and turn.
     const anchor = new THREE.Group();
@@ -761,7 +1341,8 @@ export class CellView implements SceneContent {
 
   /** An ellipsoid of the given full size with a gently irregular surface. */
   private blobGeometry(size: Position3, wobble: number, seed: number): THREE.BufferGeometry {
-    const geometry = this.own(new THREE.IcosahedronGeometry(1, this.segments > 24 ? 6 : 4));
+    // Welded, so the normals are shared and the surface shades smoothly rather than in facets.
+    const geometry = this.own(mergeVertices(new THREE.IcosahedronGeometry(1, this.segments > 24 ? 6 : 4)));
     const random = seededRandom(seed);
     const waves = Array.from({ length: 4 }, () => ({
       direction: new THREE.Vector3(random() * 2 - 1, random() * 2 - 1, random() * 2 - 1).normalize(),
@@ -792,7 +1373,7 @@ export class CellView implements SceneContent {
   private shell(
     color: number,
     opacity: number,
-    extra: { side?: THREE.Side; roughness?: number; clearcoat?: number; sheen?: number } = {},
+    extra: { side?: THREE.Side; roughness?: number; clearcoat?: number; sheen?: number; map?: THREE.Texture | null } = {},
   ): THREE.MeshPhysicalMaterial {
     return this.solid(color, { roughness: 0.5, ...extra, transparent: true, opacity, depthWrite: false });
   }
@@ -800,7 +1381,10 @@ export class CellView implements SceneContent {
   private solid(color: number, params: THREE.MeshPhysicalMaterialParameters = {}): THREE.MeshPhysicalMaterial {
     const material = new THREE.MeshPhysicalMaterial({ color, roughness: 0.5, ...params });
     if (params.sheen) material.sheenColor = new THREE.Color(0xffffff);
+    material.userData.baseOpacity = material.opacity;
+    material.userData.baseDepthWrite = material.depthWrite;
     this.materials.push(material);
+    if (this.collectingCell) this.cellMaterials.push(material);
     return material;
   }
 
@@ -863,6 +1447,7 @@ export class CellView implements SceneContent {
         if (entry.shell) material.depthWrite = on;
       }
     }
+    this.fadeBackdrop();
     if (!active) return;
     for (const object of this.targetObjects.get(this.highlightTarget as string) ?? []) {
       const outline = object instanceof THREE.InstancedMesh
@@ -875,6 +1460,25 @@ export class CellView implements SceneContent {
       outline.renderOrder = 4;
       object.add(outline);
       this.outlines.push(outline);
+    }
+  }
+
+  /** While a magnified view shows, the cells behind it fade to a pale ghost; otherwise they look as drawn. */
+  private fadeBackdrop(): void {
+    const registered = new Set<THREE.Material>();
+    for (const entries of this.targets.values()) for (const entry of entries) registered.add(entry.material);
+    for (const material of this.cellMaterials) {
+      // Registered materials were just reset by the highlight; the rest start from how they were made.
+      const opacity = registered.has(material) ? material.opacity : (material.userData.baseOpacity as number);
+      if (this.backdrop) {
+        material.transparent = true;
+        material.opacity = opacity * 0.22;
+        material.depthWrite = false;
+      } else if (!registered.has(material)) {
+        material.opacity = opacity;
+        material.depthWrite = material.userData.baseDepthWrite as boolean;
+      }
+      material.needsUpdate = true;
     }
   }
 
@@ -896,6 +1500,7 @@ export class CellView implements SceneContent {
     this.geometries.length = 0;
     this.unitSphere = null;
     this.materials.length = 0;
+    this.cellMaterials = [];
     this.picks.length = 0;
     this.targets.clear();
   }

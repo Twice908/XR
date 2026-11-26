@@ -19,7 +19,35 @@ export type OrganelleId =
   | "vacuole";
 
 /** Named parts inside an organelle that can be labelled and picked. */
-export type OrganellePartId = "outer-membrane" | "inner-membrane" | "cristae" | "matrix" | "grana" | "stroma";
+export type OrganellePartId =
+  | "outer-membrane"
+  | "inner-membrane"
+  | "cristae"
+  | "matrix"
+  | "grana"
+  | "stroma"
+  | "cellulose-fibres"
+  | "middle-lamella"
+  | "plasmodesmata"
+  | "phospholipid-heads"
+  | "lipid-tails"
+  | "membrane-protein"
+  | "nuclear-envelope"
+  | "nuclear-pore"
+  | "chromatin"
+  | "nucleolus"
+  | "large-subunit"
+  | "small-subunit"
+  | "mrna"
+  | "protein-chain"
+  | "rough-er"
+  | "smooth-er"
+  | "cisternae"
+  | "vesicles"
+  | "lysosome-membrane"
+  | "enzymes"
+  | "tonoplast"
+  | "cell-sap";
 
 /** Whether the teacher has checked a piece of content. */
 export type ReviewStatus = "pending" | "verified";
@@ -61,8 +89,8 @@ const absent = { present: false, note: null } as const;
 
 /**
  * The major organelles taught in school biology, with which cell kinds contain them.
- * Only mitochondria and chloroplasts are teachable so far; the rest are drawn so the
- * cells look complete. Every entry awaits the teacher's review.
+ * Every one but the cytoplasm has a journey chapter (XR adds the eight beyond mitochondria
+ * and chloroplasts). Every entry awaits the teacher's review.
  */
 export const ORGANELLES: readonly Organelle[] = [
   {
@@ -70,9 +98,14 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Cell wall",
     pluralName: "Cell walls",
     presence: { plant: both, animal: absent },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "cellulose-fibres", name: "Cellulose fibres", note: "long strands that make the wall strong" },
+      { id: "middle-lamella", name: "Middle lamella", note: "glues neighbouring cells together" },
+      { id: "plasmodesmata", name: "Plasmodesmata", note: "channels linking neighbouring cells" },
+    ],
+    summary:
+      "A tough layer of cellulose outside the membrane. It gives the plant cell its shape and strength.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -80,9 +113,14 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Cell membrane",
     pluralName: "Cell membranes",
     presence: { plant: both, animal: both },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "phospholipid-heads", name: "Phospholipid heads", note: "water-loving, facing outwards" },
+      { id: "lipid-tails", name: "Fatty tails", note: "water-hating, in the middle" },
+      { id: "membrane-protein", name: "Protein channel", note: "lets chosen substances through" },
+    ],
+    summary:
+      "A thin, flexible double layer of lipids with proteins in it. It controls what enters and leaves the cell.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -100,9 +138,15 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Nucleus",
     pluralName: "Nuclei",
     presence: { plant: both, animal: both },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "nuclear-envelope", name: "Nuclear envelope", note: "a double membrane" },
+      { id: "nuclear-pore", name: "Nuclear pore", note: "an opening in the envelope" },
+      { id: "chromatin", name: "Chromatin", note: "DNA, the cell's instructions" },
+      { id: "nucleolus", name: "Nucleolus", note: "makes ribosomes" },
+    ],
+    summary:
+      "The control centre of the cell. It holds the DNA that directs the cell's work.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -110,9 +154,13 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Endoplasmic reticulum",
     pluralName: "Endoplasmic reticulum",
     presence: { plant: both, animal: both },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "rough-er", name: "Rough ER", note: "studded with ribosomes" },
+      { id: "smooth-er", name: "Smooth ER", note: "no ribosomes; makes lipids" },
+    ],
+    summary:
+      "A network of membrane channels. Rough ER carries proteins; smooth ER makes lipids.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -120,9 +168,15 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Ribosome",
     pluralName: "Ribosomes",
     presence: { plant: both, animal: both },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "large-subunit", name: "Large subunit", note: null },
+      { id: "small-subunit", name: "Small subunit", note: null },
+      { id: "mrna", name: "Messenger RNA", note: "the message from the nucleus" },
+      { id: "protein-chain", name: "Protein chain", note: "built link by link" },
+    ],
+    summary:
+      "A tiny particle that reads the message from the nucleus and builds proteins.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -130,9 +184,13 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Golgi apparatus",
     pluralName: "Golgi apparatus",
     presence: { plant: both, animal: both },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "cisternae", name: "Cisternae", note: "flattened sacs" },
+      { id: "vesicles", name: "Vesicles", note: "carry packed materials away" },
+    ],
+    summary:
+      "A stack of flattened sacs that changes, sorts and packs materials and sends them on.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -140,9 +198,13 @@ export const ORGANELLES: readonly Organelle[] = [
     name: "Lysosome",
     pluralName: "Lysosomes",
     presence: { plant: both, animal: both },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "lysosome-membrane", name: "Membrane", note: "keeps the enzymes inside" },
+      { id: "enzymes", name: "Digestive enzymes", note: "break down waste and germs" },
+    ],
+    summary:
+      "A small bag of digestive enzymes that breaks down waste, worn-out parts and germs.",
+    teachable: true,
     reviewStatus: "pending",
   },
   {
@@ -185,9 +247,13 @@ export const ORGANELLES: readonly Organelle[] = [
       plant: { present: true, note: "one large central vacuole" },
       animal: { present: true, note: "small and few" },
     },
-    parts: [],
-    summary: null,
-    teachable: false,
+    parts: [
+      { id: "tonoplast", name: "Tonoplast", note: "the vacuole's membrane" },
+      { id: "cell-sap", name: "Cell sap", note: "water with dissolved sugars and salts" },
+    ],
+    summary:
+      "A sac filled with cell sap. In plant cells one large central vacuole keeps the cell firm.",
+    teachable: true,
     reviewStatus: "pending",
   },
 ];

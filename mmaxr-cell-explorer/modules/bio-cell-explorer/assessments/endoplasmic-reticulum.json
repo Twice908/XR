@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.er.01",
+    "prompt": "What makes rough ER look rough?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Small vacuoles"
+      },
+      {
+        "id": "b",
+        "text": "Ribosomes attached to it"
+      },
+      {
+        "id": "c",
+        "text": "Cellulose fibres"
+      },
+      {
+        "id": "d",
+        "text": "Chromatin"
+      }
+    ],
+    "correctOptionIndex": 1,
+    "explanation": "Rough ER is studded with ribosomes, which make it look rough.",
+    "conceptIds": [
+      "sci.bio.cell.endoplasmic-reticulum",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.er.02",
+    "prompt": "Which job belongs to the smooth ER?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Making food using sunlight"
+      },
+      {
+        "id": "b",
+        "text": "Releasing energy from food"
+      },
+      {
+        "id": "c",
+        "text": "Controlling the cell"
+      },
+      {
+        "id": "d",
+        "text": "Making lipids (fats)"
+      }
+    ],
+    "correctOptionIndex": 3,
+    "explanation": "Smooth ER makes lipids (fats) and helps remove harmful substances.",
+    "conceptIds": [
+      "sci.bio.cell.endoplasmic-reticulum",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]

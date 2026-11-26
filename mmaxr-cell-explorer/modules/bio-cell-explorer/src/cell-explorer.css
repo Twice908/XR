@@ -49,12 +49,28 @@
 }
 
 .cx-tints [data-tint="two-cells"] { background: radial-gradient(80% 60% at 50% 40%, rgb(190 240 170 / 0%) 30%, rgb(150 220 130 / 35%) 100%); }
+.cx-tints [data-tint="cell-wall"] { background: radial-gradient(80% 60% at 50% 40%, rgb(200 235 160 / 0%) 25%, rgb(160 210 110 / 36%) 100%); }
+.cx-tints [data-tint="cell-membrane"] { background: radial-gradient(80% 60% at 50% 40%, rgb(255 215 205 / 0%) 25%, rgb(240 170 160 / 36%) 100%); }
+.cx-tints [data-tint="nucleus"] { background: radial-gradient(80% 60% at 50% 40%, rgb(220 200 245 / 0%) 25%, rgb(180 140 225 / 36%) 100%); }
+.cx-tints [data-tint="ribosomes"] { background: radial-gradient(80% 60% at 50% 40%, rgb(215 210 235 / 0%) 25%, rgb(170 160 210 / 36%) 100%); }
+.cx-tints [data-tint="endoplasmic-reticulum"] { background: radial-gradient(80% 60% at 50% 40%, rgb(250 210 225 / 0%) 25%, rgb(230 160 195 / 36%) 100%); }
+.cx-tints [data-tint="golgi"] { background: radial-gradient(80% 60% at 50% 40%, rgb(235 205 225 / 0%) 25%, rgb(200 150 190 / 36%) 100%); }
+.cx-tints [data-tint="lysosomes"] { background: radial-gradient(80% 60% at 50% 40%, rgb(250 230 180 / 0%) 25%, rgb(225 190 110 / 36%) 100%); }
+.cx-tints [data-tint="vacuoles"] { background: radial-gradient(80% 60% at 50% 40%, rgb(205 235 250 / 0%) 25%, rgb(150 205 240 / 36%) 100%); }
 .cx-tints [data-tint="mitochondria"] { background: radial-gradient(80% 60% at 50% 40%, rgb(255 210 180 / 0%) 25%, rgb(255 190 150 / 40%) 100%); }
 .cx-tints [data-tint="chloroplasts"] { background: radial-gradient(80% 60% at 50% 40%, rgb(120 200 100 / 0%) 25%, rgb(90 180 80 / 38%) 100%); }
 .cx-tints [data-tint="recap"] { background: radial-gradient(80% 60% at 50% 40%, rgb(255 230 150 / 0%) 25%, rgb(250 215 110 / 38%) 100%); }
 .cx-tints [data-tint="finished"] { background: radial-gradient(80% 60% at 50% 40%, rgb(255 240 190 / 0%) 20%, rgb(240 220 120 / 42%) 100%); }
 
 .cell-explorer[data-chapter="two-cells"] [data-tint="two-cells"],
+.cell-explorer[data-chapter="cell-wall"] [data-tint="cell-wall"],
+.cell-explorer[data-chapter="cell-membrane"] [data-tint="cell-membrane"],
+.cell-explorer[data-chapter="nucleus"] [data-tint="nucleus"],
+.cell-explorer[data-chapter="ribosomes"] [data-tint="ribosomes"],
+.cell-explorer[data-chapter="endoplasmic-reticulum"] [data-tint="endoplasmic-reticulum"],
+.cell-explorer[data-chapter="golgi"] [data-tint="golgi"],
+.cell-explorer[data-chapter="lysosomes"] [data-tint="lysosomes"],
+.cell-explorer[data-chapter="vacuoles"] [data-tint="vacuoles"],
 .cell-explorer[data-chapter="mitochondria"] [data-tint="mitochondria"],
 .cell-explorer[data-chapter="chloroplasts"] [data-tint="chloroplasts"],
 .cell-explorer[data-chapter="recap"] [data-tint="recap"],
@@ -628,6 +644,28 @@
   20% { transform: translateX(-6px); }
   45% { transform: translateX(5px); }
   70% { transform: translateX(-3px); }
+}
+
+/* XR: twelve chapters fit on one line. Only the current chapter shows its name; the others are dots
+   (their names show on hover and are read out by screen readers). */
+.cx-path li + li::before {
+  width: 18px;
+}
+
+.cx-path .cx-node {
+  min-width: 26px;
+}
+
+.cx-path li[data-state="current"] .cx-node {
+  min-width: 104px;
+}
+
+.cx-path li:not([data-state="current"]) .cx-node-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }
 
 /* --- phones -------------------------------------------------------------------------- */

@@ -38,9 +38,8 @@ import {
   type NarrationViewState,
 } from "@mma/engine-voice";
 import { layoutCell, organelleById, organellePart, type CellLayout, type OrganelleId, type OrganellePartId } from "@mma/kit-biology";
-import chloroplastItems from "../assessments/chloroplasts.json";
-import mitochondriaItems from "../assessments/mitochondria.json";
-import recapItems from "../assessments/recap.json";
+/** Every chapter's scored questions (one file per chapter); missions pick theirs by id. */
+const assessmentFiles = import.meta.glob<readonly unknown[]>("../assessments/*.json", { eager: true, import: "default" });
 import { manifest } from "./manifest.js";
 import {
   INTRO_SHOT,
@@ -74,7 +73,7 @@ export { manifest };
 const narrationAudioUrls = import.meta.glob<string>("../narration/en/generated/*.mp3", { eager: true, import: "default" });
 const narrationCaptionFiles = import.meta.glob<string>("../narration/en/generated/*.vtt", { eager: true, query: "?raw", import: "default" });
 
-const rawAssessmentItems: readonly unknown[] = [...mitochondriaItems, ...chloroplastItems, ...recapItems];
+const rawAssessmentItems: readonly unknown[] = Object.values(assessmentFiles).flat();
 const assessmentItems: readonly AssessmentItem[] = rawAssessmentItems.map((item) => assessmentItemSchema.parse(item));
 const journey = manifest.journey!;
 const ZOOM: ScreenZoomDistances = { minDistance: 0.4, maxDistance: 80, defaultDistance: 14 };
@@ -115,7 +114,7 @@ export interface CellExplorerOptions {
 export function mountCellExplorer(root: HTMLElement, options: CellExplorerOptions = {}): () => void {
   root.innerHTML = `
     <section class="cell-explorer" aria-label="Plant vs Animal Cell" data-status="intro" data-chapter="intro">
-      <div class="cx-tints" aria-hidden="true"><i data-tint="two-cells"></i><i data-tint="mitochondria"></i><i data-tint="chloroplasts"></i><i data-tint="recap"></i><i data-tint="finished"></i></div>
+      <div class="cx-tints" aria-hidden="true"><i data-tint="two-cells"></i><i data-tint="cell-wall"></i><i data-tint="cell-membrane"></i><i data-tint="nucleus"></i><i data-tint="ribosomes"></i><i data-tint="endoplasmic-reticulum"></i><i data-tint="golgi"></i><i data-tint="lysosomes"></i><i data-tint="vacuoles"></i><i data-tint="mitochondria"></i><i data-tint="chloroplasts"></i><i data-tint="recap"></i><i data-tint="finished"></i></div>
       <div class="cx-motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="cx-stage"></div>
       <div class="cx-labels" aria-hidden="true"></div>
@@ -422,6 +421,7 @@ export function mountCellExplorer(root: HTMLElement, options: CellExplorerOption
       if (chapter.state === "current") button.setAttribute("aria-current", "step");
       button.innerHTML = `<span class="cx-node-dot" aria-hidden="true"></span><span class="cx-node-title"></span>`;
       button.querySelector(".cx-node-title")!.textContent = chapter.title;
+      button.title = chapter.title;
       item.append(button);
       return item;
     }));

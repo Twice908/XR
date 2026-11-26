@@ -58,5 +58,37 @@
   "sci.bio.cell.chloroplast": {
     "classes": [8, 9, 10],
     "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.wall": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.membrane": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.nucleus": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.ribosome": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.endoplasmic-reticulum": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.golgi": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.lysosome": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.vacuole": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
   }
 }

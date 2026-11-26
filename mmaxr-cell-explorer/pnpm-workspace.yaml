@@ -7,8 +7,12 @@ packages:
   - "packages/*"
   - "packages/kits/*"
   - "modules/*"
+  - "tools/*"
 allowBuilds:
   esbuild: true
+  onnxruntime-node: false
+  protobufjs: false
+  sharp: false
 overrides:
   three: npm:super-three@0.181.0
   '@types/three': 0.181.0

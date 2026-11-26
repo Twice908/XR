@@ -46,7 +46,7 @@ describe('mission lesson files', () => {
   it.each([
     [atom, 'chemistry_atom_builder', ['build-carbon-12', 'make-na-plus', 'build-carbon-14', 'make-cl-minus'], 8],
     [ionic, 'chemistry_ionic_bonding', ['give-electron', 'join-ions'], 4],
-    [cell, 'biology_cell_explorer', ['cx-two-cells', 'cx-mitochondria', 'cx-chloroplasts', 'cx-recap'], 6],
+    [cell, 'biology_cell_explorer', ['cx-two-cells', 'cx-cell-wall', 'cx-cell-membrane', 'cx-nucleus', 'cx-ribosomes', 'cx-er', 'cx-golgi', 'cx-lysosomes', 'cx-vacuoles', 'cx-mitochondria', 'cx-chloroplasts', 'cx-recap'], 22],
   ] as const)('%#: keeps MMAXR missions and questions in order', (lesson, type, ids, questions) => {
     expect(lesson.type).toBe(type);
     expect(isMissionsLesson(lesson)).toBe(true);
@@ -156,8 +156,8 @@ describe('the cell explorer run', () => {
     const a = newAssignment(cell, 'stu', seededRand(9));
     for (const m of cell.missions) for (const q of m.questions) expect(a.order[q.id]).toEqual(q.options.map((o) => o.id));
     expect(checkMission(cell, a, 'cx-two-cells', { chapter: 'two-cells' }, NOW)).toMatchObject({ met: true, questions: [] });
-    expect(checkMission(cell, a, 'cx-mitochondria', { chapter: 'chloroplasts' }, NOW)).toMatchObject({ met: false });
-    expect(checkMission(cell, a, 'cx-mitochondria', { chapter: 'mitochondria' }, NOW)).toMatchObject({ met: true });
+    expect(checkMission(cell, a, 'cx-cell-wall', { chapter: 'nucleus' }, NOW)).toMatchObject({ met: false });
+    expect(checkMission(cell, a, 'cx-cell-wall', { chapter: 'cell-wall' }, NOW)).toMatchObject({ met: true, questions: [{ id: 'assess.cell.wall.01' }, { id: 'assess.cell.wall.02' }] });
   });
 
   it('tells the coach which questions are still open without their answers leaking to the browser', () => {

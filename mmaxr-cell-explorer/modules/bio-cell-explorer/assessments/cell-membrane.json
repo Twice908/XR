@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.membrane.01",
+    "prompt": "Why is the cell membrane called selectively permeable?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It lets some substances pass and stops others"
+      },
+      {
+        "id": "b",
+        "text": "It lets every substance pass"
+      },
+      {
+        "id": "c",
+        "text": "It lets nothing pass"
+      },
+      {
+        "id": "d",
+        "text": "It is found only in plant cells"
+      }
+    ],
+    "correctOptionIndex": 0,
+    "explanation": "The cell membrane lets some substances pass and keeps others out, so it is selectively permeable.",
+    "conceptIds": [
+      "sci.bio.cell.membrane",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.membrane.02",
+    "prompt": "What is the cell membrane mainly made of?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Cellulose"
+      },
+      {
+        "id": "b",
+        "text": "Starch and sugar"
+      },
+      {
+        "id": "c",
+        "text": "DNA"
+      },
+      {
+        "id": "d",
+        "text": "Lipids and proteins"
+      }
+    ],
+    "correctOptionIndex": 3,
+    "explanation": "The cell membrane is a double layer of lipids (phospholipids) with proteins set into it.",
+    "conceptIds": [
+      "sci.bio.cell.membrane",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]

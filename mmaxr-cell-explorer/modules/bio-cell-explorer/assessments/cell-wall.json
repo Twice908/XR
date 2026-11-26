@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.wall.01",
+    "prompt": "What is the plant cell wall mainly made of?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Starch"
+      },
+      {
+        "id": "b",
+        "text": "Cellulose"
+      },
+      {
+        "id": "c",
+        "text": "Fat (lipid)"
+      },
+      {
+        "id": "d",
+        "text": "Protein"
+      }
+    ],
+    "correctOptionIndex": 1,
+    "explanation": "The plant cell wall is made mainly of cellulose. Its long fibres make the wall strong.",
+    "conceptIds": [
+      "sci.bio.cell.wall",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.wall.02",
+    "prompt": "Why does a plant cell keep a box-like shape?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Its nucleus holds it in shape"
+      },
+      {
+        "id": "b",
+        "text": "It has no cell membrane"
+      },
+      {
+        "id": "c",
+        "text": "Its rigid cell wall supports it"
+      },
+      {
+        "id": "d",
+        "text": "Its vacuole is always empty"
+      }
+    ],
+    "correctOptionIndex": 2,
+    "explanation": "The rigid cell wall supports the plant cell and gives it a fixed, box-like shape.",
+    "conceptIds": [
+      "sci.bio.cell.wall",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]

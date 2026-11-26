@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.nucleus.01",
+    "prompt": "Why is the nucleus called the control centre of the cell?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It makes energy from food"
+      },
+      {
+        "id": "b",
+        "text": "It holds the DNA that directs the cell's work"
+      },
+      {
+        "id": "c",
+        "text": "It makes food from sunlight"
+      },
+      {
+        "id": "d",
+        "text": "It stores water"
+      }
+    ],
+    "correctOptionIndex": 1,
+    "explanation": "The nucleus holds the DNA, the instructions that direct everything the cell does.",
+    "conceptIds": [
+      "sci.bio.cell.nucleus",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.nucleus.02",
+    "prompt": "What do nuclear pores do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Make ribosomes"
+      },
+      {
+        "id": "b",
+        "text": "Break down waste"
+      },
+      {
+        "id": "c",
+        "text": "Let materials pass in and out of the nucleus"
+      },
+      {
+        "id": "d",
+        "text": "Store food"
+      }
+    ],
+    "correctOptionIndex": 2,
+    "explanation": "Nuclear pores are openings in the envelope that let materials and messages pass in and out of the nucleus.",
+    "conceptIds": [
+      "sci.bio.cell.nucleus",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]

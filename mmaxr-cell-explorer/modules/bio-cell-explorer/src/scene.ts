@@ -13,14 +13,15 @@ export interface StagePlan {
 }
 
 /**
- * The organelle a close-up opens: one real mitochondrion in the animal cell, or one real
- * chloroplast in the plant cell. The camera zooms into it and the opened model takes its place.
+ * The organelle a close-up opens. A mitochondrion or chloroplast is opened in place: the camera zooms
+ * into one real organelle and the opened model takes its place. The other organelles are shown
+ * magnified, floating just in front of their cell, so their small parts are big enough to see.
  */
 export interface OrganelleSpot {
   readonly organelle: OrganelleDetailKind;
   readonly cellId: string;
-  /** Id of the placed organelle the close-up replaces. */
-  readonly instanceId: string;
+  /** Id of the placed organelle the close-up replaces, or null for a magnified view that replaces nothing. */
+  readonly instanceId: string | null;
   /** Centre, in content units. */
   readonly position: Vec3;
   /** Length of the opened model, a little larger than the organelle so it covers it. */
@@ -32,7 +33,44 @@ export const TALL_BELOW_ASPECT = 0.9;
 /** The opened model is this much longer than the organelle it replaces. */
 export const DETAIL_GROWTH = 1.15;
 /** Which cell each close-up zooms into. */
-export const DETAIL_CELL: Readonly<Record<OrganelleDetailKind, "plant" | "animal">> = { mitochondrion: "animal", chloroplast: "plant" };
+export const DETAIL_CELL: Readonly<Record<OrganelleDetailKind, "plant" | "animal">> = {
+  mitochondrion: "animal",
+  chloroplast: "plant",
+  "cell-wall": "plant",
+  "cell-membrane": "animal",
+  nucleus: "animal",
+  ribosome: "animal",
+  "endoplasmic-reticulum": "animal",
+  "golgi-apparatus": "animal",
+  lysosome: "animal",
+  vacuole: "plant",
+};
+
+/** Size (content units) of each magnified view; the opened-in-place ones take their organelle's size. */
+const MAGNIFIED_LENGTH: Partial<Record<OrganelleDetailKind, number>> = {
+  "cell-wall": 1.7,
+  "cell-membrane": 1.7,
+  nucleus: 1.5,
+  ribosome: 1.1,
+  "endoplasmic-reticulum": 1.6,
+  "golgi-apparatus": 1.4,
+  lysosome: 1.1,
+  vacuole: 1.6,
+};
+
+/** Shot id of each close-up. */
+const DETAIL_SHOTS: Readonly<Record<string, OrganelleDetailKind>> = {
+  "mito-detail": "mitochondrion",
+  "chloro-detail": "chloroplast",
+  "wall-detail": "cell-wall",
+  "membrane-detail": "cell-membrane",
+  "nucleus-detail": "nucleus",
+  "ribosome-detail": "ribosome",
+  "er-detail": "endoplasmic-reticulum",
+  "golgi-detail": "golgi-apparatus",
+  "lysosome-detail": "lysosome",
+  "vacuole-detail": "vacuole",
+};
 /** Shot shown before the journey starts: the cells far away in empty space. */
 export const INTRO_SHOT = "space";
 
@@ -50,6 +88,17 @@ export function stagePlan(aspect: number): StagePlan {
 export function organelleSpot(organelle: OrganelleDetailKind, cells: readonly CellLayout[]): OrganelleSpot | null {
   const cell = cells.find((item) => item.kind === DETAIL_CELL[organelle]);
   if (!cell) return null;
+  const magnified = MAGNIFIED_LENGTH[organelle];
+  if (magnified !== undefined) {
+    // Float the magnified view in front of its cell (towards the viewer), a little above its middle.
+    return {
+      organelle,
+      cellId: cell.id,
+      instanceId: null,
+      position: add(cell.position, { x: 0, y: 0.1, z: cell.body.size.z / 2 + magnified * 0.75 }),
+      length: magnified,
+    };
+  }
   let best: CellLayout["organelles"][number] | null = null;
   let bestScore = Number.NEGATIVE_INFINITY;
   for (const placed of cell.organelles) {
@@ -90,19 +139,21 @@ export function shotArea(shotId: string, plan: StagePlan, cells: readonly CellLa
       return { focus: plan.plant, width: 5.6, height: 4, yaw: -0.35, pitch: 0.3 };
     case "animal":
       return { focus: plan.animal, width: 4.8, height: 4, yaw: 0.3, pitch: 0.3 };
-    case "mito-detail":
-    case "chloro-detail": {
-      const kind = detailForShot(shotId) as OrganelleDetailKind;
-      const spot = organelleSpot(kind, cells);
-      const cell = DETAIL_CELL[kind] === "plant" ? plan.plant : plan.animal;
-      return spot
-        ? { focus: spot.position, width: spot.length * 1.3, height: spot.length * 0.9, yaw: -0.45, pitch: 0.35 }
-        : { focus: cell, width: 4.8, height: 4, yaw: 0.3, pitch: 0.3 };
-    }
-    default:
+    default: {
+      const kind = detailForShot(shotId);
+      if (kind) {
+        const spot = organelleSpot(kind, cells);
+        const cell = DETAIL_CELL[kind] === "plant" ? plan.plant : plan.animal;
+        // Magnified views are seen more from the front, so their layers read clearly.
+        const magnified = spot?.instanceId === null;
+        return spot
+          ? { focus: spot.position, width: spot.length * 1.3, height: spot.length * (magnified ? 1 : 0.9), yaw: magnified ? -0.3 : -0.45, pitch: magnified ? 0.3 : 0.35 }
+          : { focus: cell, width: 4.8, height: 4, yaw: 0.3, pitch: 0.3 };
+      }
       return tall
         ? { focus: middle, width: 5, height: 7.8, yaw: -0.2, pitch: 0.2 }
         : { focus: middle, width: 10.4, height: 4, yaw: -0.2, pitch: 0.25 };
+    }
   }
 }
 
@@ -138,9 +189,7 @@ export function cameraShot(shotId: string, plan: StagePlan, aspect: number, fovD
 
 /** The close-up model a shot id shows, if any. */
 export function detailForShot(shotId: string | null): OrganelleDetailKind | null {
-  if (shotId === "mito-detail") return "mitochondrion";
-  if (shotId === "chloro-detail") return "chloroplast";
-  return null;
+  return (shotId && DETAIL_SHOTS[shotId]) || null;
 }
 
 /** Close-up models a chapter uses (for checks that its targets exist). */
@@ -167,8 +216,9 @@ export function buildSceneFrame(cells: readonly CellLayout[], spots: readonly Or
       length: spot.length,
       yaw: 0,
       cutaway: true,
+      magnified: spot.instanceId === null,
     })),
-    hiddenOrganelles: spots.map((spot) => `${spot.cellId}:${spot.instanceId}`),
+    hiddenOrganelles: spots.flatMap((spot) => (spot.instanceId ? [`${spot.cellId}:${spot.instanceId}`] : [])),
   };
 }
 
@@ -187,6 +237,44 @@ export interface StageLabel {
 
 /** Where each part label points on a close-up model, as fractions of its length. */
 const PART_ANCHORS: Readonly<Record<OrganelleDetailKind, Partial<Record<OrganellePartId, Vec3>>>> = {
+  "cell-wall": {
+    "cellulose-fibres": { x: -0.3, y: 0.22, z: 0.12 },
+    "middle-lamella": { x: 0, y: 0.27, z: 0.1 },
+    plasmodesmata: { x: 0.32, y: 0.16, z: 0.05 },
+  },
+  "cell-membrane": {
+    "phospholipid-heads": { x: 0.4, y: 0.11, z: 0.12 },
+    "lipid-tails": { x: -0.42, y: 0.03, z: 0.2 },
+    "membrane-protein": { x: -0.22, y: 0.16, z: 0.04 },
+  },
+  nucleus: {
+    "nuclear-envelope": { x: -0.4, y: 0.18, z: 0.05 },
+    "nuclear-pore": { x: 0.3, y: 0.32, z: -0.05 },
+    chromatin: { x: -0.16, y: -0.12, z: 0.25 },
+    nucleolus: { x: 0.04, y: 0.02, z: 0.08 },
+  },
+  ribosome: {
+    "large-subunit": { x: 0.2, y: 0.22, z: 0.12 },
+    "small-subunit": { x: -0.18, y: -0.2, z: 0.12 },
+    mrna: { x: 0.52, y: -0.03, z: 0 },
+    "protein-chain": { x: 0.1, y: 0.62, z: 0 },
+  },
+  "endoplasmic-reticulum": {
+    "rough-er": { x: -0.28, y: 0.2, z: 0.1 },
+    "smooth-er": { x: 0.3, y: 0.1, z: 0.05 },
+  },
+  "golgi-apparatus": {
+    cisternae: { x: 0, y: 0.17, z: 0.1 },
+    vesicles: { x: 0.52, y: 0.12, z: 0 },
+  },
+  lysosome: {
+    "lysosome-membrane": { x: -0.36, y: 0.2, z: 0.05 },
+    enzymes: { x: 0.05, y: 0, z: 0.15 },
+  },
+  vacuole: {
+    tonoplast: { x: -0.42, y: 0.16, z: 0.05 },
+    "cell-sap": { x: 0.05, y: -0.02, z: 0.12 },
+  },
   mitochondrion: {
     "outer-membrane": { x: 0.12, y: 0.22, z: 0 },
     "inner-membrane": { x: -0.36, y: 0.15, z: 0.04 },

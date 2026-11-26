@@ -14,6 +14,14 @@ export const INTRO_MOOD: SoundMood = { rootMidi: 40, intervals: [0, 7, 14, 16, 2
 /** Each chapter has its own chord, getting brighter as the journey goes on. */
 const CHAPTER_MOODS: Readonly<Record<string, SoundMood>> = {
   "two-cells": { rootMidi: 40, intervals: [0, 7, 14, 16, 21], brightness: 0.42 },
+  "cell-wall": { rootMidi: 40, intervals: [0, 7, 12, 14, 19], brightness: 0.44 },
+  "cell-membrane": { rootMidi: 42, intervals: [0, 7, 14, 17, 21], brightness: 0.45 },
+  nucleus: { rootMidi: 38, intervals: [0, 7, 10, 14, 19], brightness: 0.42 },
+  ribosomes: { rootMidi: 43, intervals: [0, 7, 12, 16, 21], brightness: 0.47 },
+  "endoplasmic-reticulum": { rootMidi: 45, intervals: [0, 5, 7, 12, 17], brightness: 0.46 },
+  golgi: { rootMidi: 41, intervals: [0, 7, 11, 14, 19], brightness: 0.48 },
+  lysosomes: { rootMidi: 40, intervals: [0, 3, 7, 10, 15], brightness: 0.42 },
+  vacuoles: { rootMidi: 43, intervals: [0, 7, 14, 16, 23], brightness: 0.5 },
   mitochondria: { rootMidi: 45, intervals: [0, 7, 12, 16, 19], brightness: 0.48 },
   chloroplasts: { rootMidi: 43, intervals: [0, 7, 14, 18, 21], brightness: 0.54 },
   recap: { rootMidi: 47, intervals: [0, 4, 7, 11, 14], brightness: 0.6 },

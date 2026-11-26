@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.ribosome.01",
+    "prompt": "What do ribosomes make?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Energy"
+      },
+      {
+        "id": "b",
+        "text": "Food"
+      },
+      {
+        "id": "c",
+        "text": "Proteins"
+      },
+      {
+        "id": "d",
+        "text": "Cellulose"
+      }
+    ],
+    "correctOptionIndex": 2,
+    "explanation": "Ribosomes read the message from the nucleus and build proteins.",
+    "conceptIds": [
+      "sci.bio.cell.ribosome",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.ribosome.02",
+    "prompt": "Which part of the cell makes ribosomes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The nucleolus"
+      },
+      {
+        "id": "b",
+        "text": "The Golgi apparatus"
+      },
+      {
+        "id": "c",
+        "text": "The lysosome"
+      },
+      {
+        "id": "d",
+        "text": "The vacuole"
+      }
+    ],
+    "correctOptionIndex": 0,
+    "explanation": "The nucleolus, inside the nucleus, makes ribosomes.",
+    "conceptIds": [
+      "sci.bio.cell.ribosome",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]

@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "narration": "MMA_NARRATION=1 vite",
     "build": "tsc -p tsconfig.json && vite build"
   },
   "dependencies": {
@@ -16,6 +17,9 @@
   },
   "devDependencies": {
     "@iwsdk/vite-plugin-dev": "1.0.1",
-    "vite": "7.3.7"
+    "vite": "7.3.7",
+    "@mma/generate-narration": "workspace:*",
+    "piper-tts-web": "1.1.2",
+    "wasm-media-encoders": "0.7.0"
   }
 }

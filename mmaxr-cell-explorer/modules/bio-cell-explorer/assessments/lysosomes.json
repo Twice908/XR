@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.lysosome.01",
+    "prompt": "Why are lysosomes called suicide bags?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They store the cell's DNA"
+      },
+      {
+        "id": "b",
+        "text": "They make the cell's energy"
+      },
+      {
+        "id": "c",
+        "text": "Their enzymes can digest the cell itself"
+      },
+      {
+        "id": "d",
+        "text": "They push water out of the cell"
+      }
+    ],
+    "correctOptionIndex": 2,
+    "explanation": "If the cell is damaged, lysosomes can burst and their enzymes digest the cell itself.",
+    "conceptIds": [
+      "sci.bio.cell.lysosome",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.lysosome.02",
+    "prompt": "What keeps a lysosome's enzymes from digesting the rest of the cell?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Its membrane"
+      },
+      {
+        "id": "b",
+        "text": "The cell wall"
+      },
+      {
+        "id": "c",
+        "text": "The nucleolus"
+      },
+      {
+        "id": "d",
+        "text": "Chlorophyll"
+      }
+    ],
+    "correctOptionIndex": 0,
+    "explanation": "The lysosome's membrane keeps its digestive enzymes inside.",
+    "conceptIds": [
+      "sci.bio.cell.lysosome",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]
