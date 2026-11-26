@@ -302,5 +302,14 @@ export function missionsInternal(lesson: MissionsLesson, a: MissionsAssignment) 
     // For the coach's guard: each question, with whether it is still open.
     tubes: questions.map(({ m, q }, i) => ({ tube: i + 1, id: q.id, name: m.title, formula: '', type: '', ph: 0, facts: q.explanation, terms: [q.options.find((o) => o.id === q.answer)?.label ?? ''].filter((t) => t.length >= 3), open: !a.answers[q.id] })),
     missions: { ...summaryOf(lesson, a), progress: progressOf(lesson, a) },
+    // For the rubric engine: per mission, how it was reached and how its questions went. Never sent to browsers.
+    missionDetail: lesson.missions.map((m) => ({
+      id: m.id,
+      attempts: a.progress[m.id]?.attempts ?? 0,
+      hintsUsed: a.progress[m.id]?.hintsUsed ?? 0,
+      hintsAvailable: m.hints.length,
+      met: a.progress[m.id]?.metAt != null,
+      questions: m.questions.map((q) => ({ id: q.id, answered: !!a.answers[q.id], correct: a.answers[q.id]?.correct ?? false, thinkMs: a.answers[q.id]?.thinkMs ?? 0 })),
+    })),
   };
 }

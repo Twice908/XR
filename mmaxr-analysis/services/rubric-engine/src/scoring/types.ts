@@ -71,8 +71,17 @@ export interface SoundTruth {
   submitted: boolean;
 }
 
+/** Atom Builder, Ionic Bonding and Plant vs Animal Cell: per-mission results held by the lesson service. */
+export type MissionsLabType = 'chemistry_atom_builder' | 'chemistry_ionic_bonding' | 'biology_cell_explorer';
+export interface MissionsTruth {
+  labType: MissionsLabType;
+  missions: { id: string; attempts: number; hintsUsed: number; hintsAvailable: number; met: boolean; questions: { id: string; answered: boolean; correct: boolean; thinkMs: number }[] }[];
+  submitted: boolean;
+}
+
 export interface TruthInfo {
   sound?: SoundTruth;
+  missions?: MissionsTruth;
   /** What the student said about their own conclusions (indicators and metals labs). */
   reasoning?: ReasoningTruth | null;
   optics?: OpticsTruth;
@@ -114,7 +123,7 @@ export interface StatItem {
 
 export interface Report {
   rubricVersion: string;
-  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'biology_respiratory_system' | 'physics_optics' | 'physics_waves_sound' | 'physics_motion' | 'physics_bohr' | 'unknown';
+  lessonType: 'chemistry_indicators' | 'chemistry_metals' | 'biology_digestive_system' | 'biology_respiratory_system' | 'physics_optics' | 'physics_waves_sound' | 'physics_motion' | 'physics_bohr' | MissionsLabType | 'unknown';
   device: Device;
   complete: boolean;
   dimensions: DimensionResult[];

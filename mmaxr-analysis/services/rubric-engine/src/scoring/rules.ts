@@ -8,6 +8,9 @@ import type { DimensionKey, DimensionResult } from './types';
  *  - Biology tours have no predictions or confidence ratings, so prediction discipline, retrieval effort, revision and
  *    calibration are not assessed there.
  *  - Chemistry and Metals have no transfer task.
+ *  - Mission labs (Atom Builder, Ionic Bonding, Plant vs Animal Cell) map the six dimensions onto checks, hints and
+ *    checkpoint questions (see missions.ts). The cell lab has no checks, so only retrieval effort, causal coherence
+ *    and transfer are assessed there.
  *  - The Bohr stub (physics-101) keeps its legacy scorer until the lab is built.
  */
 

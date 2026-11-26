@@ -117,6 +117,12 @@ describe('a full Atom Builder run', () => {
     }
     expect(currentMission(atom, a)).toBeNull();
     expect(finish(atom, a, NOW)).toEqual({ missions: 4, hintsUsed: 0, attempts: 5, correct: 8, total: 8 });
+
+    // What the rubric engine scores from.
+    const detail = missionsInternal(atom, a).missionDetail;
+    expect(detail.map((m) => m.id)).toEqual(atom.missions.map((m) => m.id));
+    expect(detail[0]).toMatchObject({ attempts: 2, hintsUsed: 0, hintsAvailable: 3, met: true });
+    expect(detail.flatMap((m) => m.questions).every((q) => q.answered && q.correct)).toBe(true);
   });
 
   it('hands out hints one at a time, in order, and counts them', () => {
