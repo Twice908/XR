@@ -36,8 +36,8 @@ export interface SessionSummary {
   device: 'web' | 'vr' | null
   lesson_id: string | null
   completed: boolean | null
-  /** Only finished or left sessions are listed. */
-  status: 'completed' | 'left'
+  /** Only finished or left sessions are listed. Missing from older backends: fall back to `completed`. */
+  status?: 'completed' | 'left'
   ended_at: string | number | null
 }
 
@@ -78,7 +78,7 @@ export interface SessionDetail {
   lessonType: 'chemistry_indicators' | 'physics_bohr' | 'unknown'
   device: Device
   complete: boolean
-  status: 'completed' | 'left'
+  status?: 'completed' | 'left'
   dimensions: DimensionResult[]
   overall: { points: number; max: number; percent: number | null }
   deviceStats: { kind: Device; items: StatItem[] }
