@@ -91,12 +91,16 @@ interface Engine {
   readonly voices: readonly { readonly oscillators: readonly OscillatorNode[] }[];
   readonly sub: OscillatorNode;
   readonly air: readonly OscillatorNode[];
+  /** Level of the air layer, which feeds the reverb directly and so must follow the bed by hand. */
+  readonly airGain: GainNode;
   readonly padFilter: BiquadFilterNode;
   readonly sources: readonly AudioScheduledSourceNode[];
 }
 
 const MASTER_LEVEL = 0.9;
 const BED_LEVEL = 0.62;
+/** Resting level of the air layer at full bed level. */
+const AIR_LEVEL = 0.0035;
 
 /**
  * Build the soundscape. Nothing is created until {@link Soundscape.unlock} runs, because browsers
@@ -161,7 +165,10 @@ export function createSoundscape(options: SoundscapeOptions): Soundscape {
       const now = ctx.currentTime;
       master.gain.cancelScheduledValues(now);
       master.gain.setValueAtTime(master.gain.value, now);
-      if (on) {
+      if (on && suspended) {
+        // Stay paused; the level is ready for when the app resumes.
+        master.gain.setValueAtTime(MASTER_LEVEL, now);
+      } else if (on) {
         void ctx.resume().then(() => {
           master.gain.setTargetAtTime(MASTER_LEVEL, ctx.currentTime, 0.25);
         });
@@ -177,11 +184,14 @@ export function createSoundscape(options: SoundscapeOptions): Soundscape {
         applyMood(0);
         engine.bed.gain.setValueAtTime(0, engine.ctx.currentTime);
         engine.bed.gain.setTargetAtTime(BED_LEVEL * bedLevel, engine.ctx.currentTime + 0.1, 1.2);
+        engine.airGain.gain.setTargetAtTime(AIR_LEVEL * bedLevel, engine.ctx.currentTime + 0.1, 1.2);
         engine.master.gain.setValueAtTime(enabled ? MASTER_LEVEL : 0, engine.ctx.currentTime);
         engine.duck.gain.setValueAtTime(1 - duckAmount * 0.8, engine.ctx.currentTime);
         scheduleShimmer();
       }
-      if (enabled && !suspended && engine.ctx.state !== "running") void engine.ctx.resume();
+      // A context made during a gesture starts running; keep it paused if the app asked for quiet.
+      if (suspended) void engine.ctx.suspend();
+      else if (enabled && engine.ctx.state !== "running") void engine.ctx.resume();
     },
     listenForUnlock(target) {
       const handler = (): void => {
@@ -203,7 +213,9 @@ export function createSoundscape(options: SoundscapeOptions): Soundscape {
     setBedLevel(level, seconds = 1.5) {
       bedLevel = Math.min(1, Math.max(0, level));
       if (!engine) return;
-      engine.bed.gain.setTargetAtTime(BED_LEVEL * bedLevel, engine.ctx.currentTime, Math.max(0.01, seconds / 3));
+      const constant = Math.max(0.01, seconds / 3);
+      engine.bed.gain.setTargetAtTime(BED_LEVEL * bedLevel, engine.ctx.currentTime, constant);
+      engine.airGain.gain.setTargetAtTime(AIR_LEVEL * bedLevel, engine.ctx.currentTime, constant);
     },
     setSuspended(next) {
       suspended = next;
@@ -393,7 +405,7 @@ function buildEngine(random: () => number): Engine | null {
 
   // Air: high sines heard only through the reverb, the "glow" above the pad.
   const airGain = ctx.createGain();
-  airGain.gain.value = 0.0035;
+  airGain.gain.value = 0;
   airGain.connect(reverbIn);
   const air: OscillatorNode[] = [];
   for (let index = 0; index < 3; index += 1) {
@@ -423,7 +435,7 @@ function buildEngine(random: () => number): Engine | null {
   wind.start();
   sources.push(wind);
 
-  return { ctx, master, duck, bed, cues, reverbIn, echoIn, noise, voices, sub, air, padFilter, sources };
+  return { ctx, master, duck, bed, cues, reverbIn, echoIn, noise, voices, sub, air, airGain, padFilter, sources };
 }
 
 /** A stereo impulse response: decaying noise that loses high frequencies as it fades. */

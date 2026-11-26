@@ -18,7 +18,8 @@ const PUBLIC = new Set(['/login', '/register', '/forgot'])
 async function labRoute(lessonId: string): Promise<Page> {
   const stage = getStage()
   const palette = lessonPalette(lessonId)
-  stage.sound.setBedLevel(0, 1.5)
+  // No space music inside a lab: labs bring their own sound.
+  stage.setQuiet(true)
   if (!stage.veil.showing) await stage.veil.show(palette, stage.time(300))
   const page = (await import('./pages/lab')).labPage(lessonId)
   return {
@@ -30,6 +31,7 @@ async function labRoute(lessonId: string): Promise<Page> {
       void stage.veil.hide(stage.time(650))
     },
     async leave() {
+      stage.setQuiet(false)
       stage.veil.setLabel('')
       await stage.veil.show(palette, stage.time(380))
     },

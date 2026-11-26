@@ -21,6 +21,11 @@ export interface Stage {
   readonly reducedMotion: boolean;
   /** A duration, shortened when the student prefers reduced motion. */
   time(ms: number): number;
+  /**
+   * Silence the shell's music while a lab runs (labs have their own sound), and bring it back
+   * afterwards. The bed fades first, then the audio pauses completely.
+   */
+  setQuiet(on: boolean): void;
   /** Show the cosmos (sign-in pages, experiments) or hand the screen to a lesson. */
   setCosmic(on: boolean): void;
   /** Lift the cosmos above the page for a descent, so a lesson can mount unseen underneath. */
@@ -55,7 +60,10 @@ export function createStage(doc: Document): Stage {
     onEnabledChange: (on) => preference.set(on),
   });
   const removeUnlock = sound.listenForUnlock(doc);
-  const onVisibility = (): void => sound.setSuspended(doc.hidden);
+  let quiet = false;
+  let quietTimer = 0;
+  const applySuspended = (): void => sound.setSuspended(doc.hidden || quiet);
+  const onVisibility = applySuspended;
   doc.addEventListener("visibilitychange", onVisibility);
 
   const veil = createVeil(doc.body, "#000000");
@@ -73,6 +81,14 @@ export function createStage(doc: Document): Stage {
     reducedMotion,
     time: (ms) => (reducedMotion ? Math.min(ms, 220) : ms),
     setCosmic,
+    setQuiet(on) {
+      window.clearTimeout(quietTimer);
+      quiet = on;
+      if (on) {
+        sound.setBedLevel(0, 1);
+        quietTimer = window.setTimeout(applySuspended, 1200);
+      } else applySuspended();
+    },
     beginJourney() {
       setCosmic(true);
       doc.body.classList.add("is-journey");
@@ -94,6 +110,7 @@ export function createStage(doc: Document): Stage {
       setCosmic(false);
     },
     dispose() {
+      window.clearTimeout(quietTimer);
       removeUnlock();
       doc.removeEventListener("visibilitychange", onVisibility);
       cosmos.dispose();
