@@ -39,7 +39,9 @@ describe('card catalog', () => {
       expect(c.question, c.id).not.toBeNull();
       const q = c.question!;
       expect(new Set(q.choices).size, c.id).toBe(q.choices.length);
-      expect(q.choices.length, c.id).toBeGreaterThanOrEqual(3);
+      expect(q.choices.length, c.id).toBeGreaterThanOrEqual(2);
+      // The answer must never be printed on the card's face.
+      expect([c.title, c.subtitle], c.id).not.toContain(q.choices[q.answerIndex]);
       expect(q.answerIndex, c.id).toBeGreaterThanOrEqual(0);
       const v = c.data[c.quizField];
       expect(q.choices[q.answerIndex], c.id).toBe(Array.isArray(v) ? v.join(' → ') : String(v));

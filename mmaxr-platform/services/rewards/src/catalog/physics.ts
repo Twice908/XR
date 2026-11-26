@@ -23,7 +23,7 @@ export const FUNDAMENTAL_CARDS: CardSeed[] = BASE.map(([id, q, unitName, unit, r
   order: i + 1,
   data: { unit, unitName, kind: 'SI base quantity' },
   funFact: fact,
-  quizField: 'unit',
+  quizField: 'unitName',
   lessons,
 }));
 
@@ -61,6 +61,6 @@ export const DERIVED_CARDS: CardSeed[] = DERIVED.map(([id, q, unit, unitName, de
   order: i + 1,
   data: { unit, unitName, definedAs, baseUnits, kind: 'SI derived quantity' },
   funFact: `${q} is ${definedAs}, so in base units it is ${baseUnits}.`,
-  quizField: 'unit',
+  quizField: 'definedAs',
   lessons,
 }));

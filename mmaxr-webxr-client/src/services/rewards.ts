@@ -1,4 +1,4 @@
-import type { ClaimPackResponse, OpenPackResponse, RewardPack, RingGoalLevel, RingsResponse, SessionProgressResponse } from '@mmaxr/schema'
+import type { CardSubject, ClaimPackResponse, CollectionCard, CollectionResponse, OpenPackResponse, PersonalBest, RewardPack, RingGoalLevel, RingsResponse, SessionProgressResponse } from '@mmaxr/schema'
 import { CONFIG } from '../config'
 import { userAuth } from './userAuth'
 
@@ -57,6 +57,11 @@ export async function claimPack(sessionId: string, opts: { attempts?: number; de
 
 export const listPacks = (unopened = false) => call<{ packs: RewardPack[] }>(`/packs${unopened ? '?unopened=true' : ''}`)
 export const openPack = (packId: string) => call<OpenPackResponse>(`/packs/${encodeURIComponent(packId)}/open`, { method: 'POST' })
+
+export const getCollection = (subject?: CardSubject) => call<CollectionResponse>(`/collection${subject ? `?subject=${subject}` : ''}`)
+export const getCard = (cardId: string) => call<{ card: CollectionCard }>(`/cards/${encodeURIComponent(cardId)}`)
+export const upgradeFoil = (cardId: string) => call<{ cardId: string; foil: true; cost: number; shards: number }>('/shards/upgrade', { method: 'POST', body: JSON.stringify({ cardId }) })
+export const personalBests = () => call<{ personalBests: PersonalBest[] }>('/personal-bests')
 
 export const getRings = () => call<RingsResponse>('/rings/current')
 export const setGoalLevel = (level: RingGoalLevel) => call<{ level: RingGoalLevel }>('/rings/goal-level', { method: 'PUT', body: JSON.stringify({ level }) })

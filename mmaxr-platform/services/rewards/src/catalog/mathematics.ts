@@ -59,7 +59,7 @@ export const POWER_CARDS: CardSeed[] = POWERS.map(([id, name, rule, example, rar
   order: i + 1,
   data: { rule, example },
   funFact: `Example: ${example}.`,
-  quizField: 'rule',
+  quizField: 'example',
   lessons,
 }));
 
@@ -98,6 +98,6 @@ export const FORMULA_CARDS: CardSeed[] = FORMULAS.map(([id, name, formula, gives
   order: i + 1,
   data: { formula, gives },
   funFact: `${formula} gives ${gives}.`,
-  quizField: 'formula',
+  quizField: 'gives',
   lessons,
 }));

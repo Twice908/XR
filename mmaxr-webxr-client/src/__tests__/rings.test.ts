@@ -36,3 +36,25 @@ describe('rings', () => {
     expect(arc(-5, r).dash.split(' ')[0]).toBe('0.00')
   })
 })
+
+import { elementPosition } from '../gamification/periodic'
+describe('periodic table layout', () => {
+  it('places elements where the table has them', () => {
+    expect(elementPosition(1)).toEqual({ row: 1, col: 1 })
+    expect(elementPosition(2)).toEqual({ row: 1, col: 18 })
+    expect(elementPosition(5)).toEqual({ row: 2, col: 13 })
+    expect(elementPosition(26)).toEqual({ row: 4, col: 8 })
+    expect(elementPosition(56)).toEqual({ row: 6, col: 2 })
+    expect(elementPosition(57)).toEqual({ row: 9, col: 3 })
+    expect(elementPosition(71)).toEqual({ row: 9, col: 17 })
+    expect(elementPosition(72)).toEqual({ row: 6, col: 4 })
+    expect(elementPosition(79)).toEqual({ row: 6, col: 11 })
+    expect(elementPosition(88)).toEqual({ row: 7, col: 2 })
+    expect(elementPosition(103)).toEqual({ row: 10, col: 17 })
+    expect(elementPosition(118)).toEqual({ row: 7, col: 18 })
+  })
+  it('never puts two elements in one cell', () => {
+    const cells = new Set(Array.from({ length: 118 }, (_, i) => { const p = elementPosition(i + 1); return `${p.row}:${p.col}` }))
+    expect(cells.size).toBe(118)
+  })
+})

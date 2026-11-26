@@ -21,7 +21,8 @@ import { transitionFor, viewOf } from '../stage/transitions.js'
 import { GAMIFICATION } from '../config'
 import { packsButton } from '../gamification/packsButton'
 import { celebrateIfClosed, ringsButton, ringsNudge } from '../gamification/ringsUi'
-import { ringsStore } from '../services/rewards'
+import { personalBests, ringsStore } from '../services/rewards'
+import { masteryBadge } from '../gamification/mastery'
 
 /** Labs the WebXR client can run today. Others are listed, but not launchable yet. */
 const SUPPORTED = new Set(['chemistry_indicators', 'chemistry_metals', 'biology_digestive_system', 'biology_respiratory_system', 'physics_optics', 'physics_waves_sound', 'physics_mechanics_sandbox', 'physics_electromagnetism', 'physics_circuits', 'physics_simple_machines', 'physics_fundamentals_sandbox', 'science_matter_properties', 'chemistry_atom_builder', 'chemistry_ionic_bonding', 'biology_cell_explorer'])
@@ -71,6 +72,8 @@ export function experimentsPage(context: RouteContext): Page {
   const packs = GAMIFICATION ? packsButton((cue) => sound.cue(cue)) : null
   const rings = GAMIFICATION ? ringsButton((cue) => sound.cue(cue)) : null
   const nudge = GAMIFICATION ? ringsNudge() : null
+  const collectionButton = GAMIFICATION ? h('button', { type: 'button', class: 'ghost-button mx-collection-button' }, h('span', { class: 'mx-collection-icon', 'aria-hidden': 'true' }), 'Collection') : null
+  collectionButton?.addEventListener('click', () => go('/collection'))
   const settingsButton = h('button', { type: 'button', class: 'ghost-button' }, 'Settings')
   const signOutButton = h('button', { type: 'button', class: 'ghost-button' }, 'Sign out')
   const topbar = h(
@@ -84,6 +87,7 @@ export function experimentsPage(context: RouteContext): Page {
       h('span', { class: 'user-chip' }, h('span', { class: 'sky-avatar', 'aria-hidden': 'true' }, username.slice(0, 1).toUpperCase()), h('span', { class: 'user-name' }, username)),
       rings?.button,
       packs?.button,
+      collectionButton,
       soundToggle.element,
       settingsButton,
       signOutButton,
@@ -268,6 +272,7 @@ export function experimentsPage(context: RouteContext): Page {
       status.replaceChildren()
       if (!lessons.length) status.append(h('p', { class: 'galaxy-loading' }, 'No experiments are published yet.'))
       renderSystems(lessons)
+      if (GAMIFICATION) void showMastery()
     } catch (err) {
       if (destroyed) return
       if (pendingSurface) void veil.hide(stage.time(400))
@@ -275,6 +280,20 @@ export function experimentsPage(context: RouteContext): Page {
       const retry = h('button', { type: 'button', class: 'ghost-button', onclick: () => void load() }, 'Try again')
       status.replaceChildren(h('p', { class: 'form-error' }, `${(err as Error).message}. Make sure the lesson service is running.`), retry)
       sound.cue('deny')
+    }
+  }
+
+  // Mastery level and personal best on each planet you have finished: evidence of skill, not of time spent.
+  const showMastery = async () => {
+    try {
+      const { personalBests: bests } = await personalBests()
+      if (destroyed) return
+      for (const best of bests) {
+        const meta = planets.get(best.lessonId)?.link.querySelector('.card-meta')
+        if (meta && !meta.querySelector('.mx-mastery')) meta.append(masteryBadge(best))
+      }
+    } catch {
+      /* planets simply show no mastery */
     }
   }
 

@@ -72,7 +72,9 @@ Response types are in `@mmaxr/schema` (`ClaimPackResponse`, `OpenPackResponse`, 
 
 263 cards in ten sets. Chemistry: all 118 elements and compounds. Physics: the 7 SI base quantities and
 derived quantities. Mathematics: symbols, powers and formulas. Biology: cells, body systems and nomenclature.
-Each card has its data, a fun fact and a one-tap question built from other cards in its set. Cards list the
+Each card has its data, a fun fact and a one-tap question built from other cards in its set. The question always
+asks about something not printed on the card's face (an element's family, a quantity's definition, a cell's job),
+so answering is recall, not reading. Cards list the
 lessons that make them more likely. Change cards in the TypeScript files and bump `CATALOG_VERSION`; the
 database copy (`card_catalog`) is refreshed on the next start.
 

@@ -49,7 +49,10 @@ const routes: RouteTable = {
   '/experiments': (_, context) => experimentsPage(context),
   '/lab/:lessonId': ([lessonId]) => labRoute(lessonId),
 }
-if (GAMIFICATION) routes['/packs/:packId'] = async ([packId]) => (await import('./pages/packOpen')).packOpenPage(packId)
+if (GAMIFICATION) {
+  routes['/packs/:packId'] = async ([packId]) => (await import('./pages/packOpen')).packOpenPage(packId)
+  routes['/collection'] = async () => (await import('./pages/collection')).collectionPage()
+}
 
 async function boot() {
   const root = document.getElementById('app')

@@ -171,7 +171,9 @@ export function packOpenPage(packId: string): Page {
     )
     const done = h('button', { type: 'button', class: 'mx-btn mx-btn-ghost' }, 'Back to labs')
     done.addEventListener('click', () => go('/experiments'))
-    controls.replaceChildren(stats, h('div', { class: 'mx-open-actions' }, done))
+    const book = h('button', { type: 'button', class: 'mx-btn mx-btn-ghost' }, 'View collection')
+    book.addEventListener('click', () => go('/collection'))
+    controls.replaceChildren(stats, h('div', { class: 'mx-open-actions' }, done, book))
     try {
       const { packs } = await listPacks(true)
       packStore.set(packs.length)

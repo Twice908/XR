@@ -118,7 +118,7 @@ export const ELEMENT_CARDS: CardSeed[] = ELEMENTS.map(([z, sym, name, mass, code
     order: z,
     data: { symbol: sym, atomicNumber: z, atomicMass: mass, category, group: groupOf(z), period: periodOf(z), protons: z, electrons: z },
     funFact: FUN_FACTS[sym] ?? `${name} has ${z} proton${z === 1 ? '' : 's'} in its nucleus and sits in period ${periodOf(z)}.`,
-    quizField: 'symbol',
+    quizField: 'category',
     lessons: elementLessons(z, sym, category),
   };
 });
@@ -167,6 +167,6 @@ export const COMPOUND_CARDS: CardSeed[] = COMPOUNDS.map(([id, name, formula, kin
   order: i + 1,
   data: { formula, bondType: kind },
   funFact: use,
-  quizField: 'formula',
+  quizField: 'bondType',
   lessons,
 }));

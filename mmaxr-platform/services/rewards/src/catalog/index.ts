@@ -7,7 +7,7 @@ import type { Card, CardSeed, MicroQuestion, Subject } from './types';
 export * from './types';
 
 /** Bump when card content changes so the database copy is refreshed on the next start. */
-export const CATALOG_VERSION = 'catalog-1';
+export const CATALOG_VERSION = 'catalog-2';
 
 export const SETS: { subject: Subject; set: string; title: string }[] = [
   { subject: 'chemistry', set: 'elements', title: 'Elements' },
@@ -29,8 +29,21 @@ const SEEDS: CardSeed[] = [
   ...CELL_CARDS, ...SYSTEM_CARDS, ...NOMENCLATURE_CARDS,
 ];
 
-const FIELD_LABEL: Record<string, string> = {
-  symbol: 'symbol', formula: 'formula', unit: 'SI unit', meaning: 'meaning', rule: 'rule', job: 'main job', binomial: 'scientific name', ranks: 'correct order of ranks',
+/**
+ * The one-tap question for each kind of card. It always asks about something that is NOT printed on the card's
+ * face (the title and subtitle), so answering is real recall, not reading.
+ */
+const PROMPT: Record<string, (title: string) => string> = {
+  category: (t) => `Which family of elements does ${t} belong to?`,
+  bondType: (t) => `How is ${t} held together?`,
+  unitName: (t) => `What is the SI unit of ${t}?`,
+  definedAs: (t) => `How is ${t} defined?`,
+  meaning: (t) => `What does the ${t} symbol mean?`,
+  example: (t) => `Which is an example of the ${t.toLowerCase()} rule?`,
+  gives: (t) => `What does the ${t.toLowerCase()} formula give you?`,
+  job: (t) => `What is the main job of the ${t.toLowerCase()}?`,
+  kingdom: (t) => `Which kingdom does the ${t.toLowerCase()} belong to?`,
+  ranks: () => 'Which is the correct order of ranks, from broadest to narrowest?',
 };
 
 const show = (v: unknown) => (Array.isArray(v) ? v.join(' → ') : String(v));
@@ -46,7 +59,7 @@ function questionFor(card: CardSeed, siblings: CardSeed[]): MicroQuestion | null
   const answer = card.data[card.quizField];
   if (answer === undefined) return null;
   const right = show(answer);
-  const label = FIELD_LABEL[card.quizField] ?? card.quizField;
+  const prompt = (PROMPT[card.quizField] ?? ((t: string) => `What is the ${card.quizField} of ${t}?`))(card.title);
   if (card.quizField === 'ranks' && Array.isArray(answer)) {
     // A single card in its kind: the wrong choices are shuffled orders of the same ranks.
     const swaps = [[1, 2], [4, 5], [6, 7]].map(([a, b]) => {
@@ -54,14 +67,15 @@ function questionFor(card: CardSeed, siblings: CardSeed[]): MicroQuestion | null
       [x[a], x[b]] = [x[b], x[a]];
       return show(x);
     });
-    return arrange(card.id, `Which is the ${label}, from broadest to narrowest?`, right, swaps);
+    return arrange(card.id, prompt, right, swaps);
   }
   const wrong = [...new Set(siblings.filter((s) => s.id !== card.id && s.quizField === card.quizField).map((s) => show(s.data[s.quizField])))]
     .filter((v) => v !== right)
     .sort((a, b) => hash(card.id + a) - hash(card.id + b))
     .slice(0, 3);
-  if (wrong.length < 2) return null;
-  return arrange(card.id, `What is the ${label} of ${card.title}?`, right, wrong);
+  // Two choices are enough for a yes-or-no kind of fact (ionic or covalent); otherwise up to four.
+  if (wrong.length < 1) return null;
+  return arrange(card.id, prompt, right, wrong);
 }
 
 function arrange(id: string, prompt: string, right: string, wrong: string[]): MicroQuestion {

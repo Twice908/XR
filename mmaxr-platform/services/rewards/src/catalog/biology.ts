@@ -90,7 +90,7 @@ export const NOMENCLATURE_CARDS: CardSeed[] = [
     order: i + 1,
     data: { binomial, genus: binomial.split(' ')[0], species: binomial.split(' ')[1], kingdom },
     funFact: fact,
-    quizField: 'binomial',
+    quizField: 'kingdom',
     lessons,
   })),
   {
