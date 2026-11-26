@@ -1,0 +1,169 @@
+{
+  "lessonId": "ionic-bonding",
+  "type": "chemistry_ionic_bonding",
+  "title": "Ionic Bonding",
+  "subject": "Chemistry",
+  "summary": "Move an electron from sodium to chlorine, then join the ions to make sodium chloride.",
+  "durationMinutes": 6,
+  "difficulty": "Core",
+  "intro": {
+    "text": "Welcome to Ionic Bonding. You will see how sodium and chlorine join to make sodium chloride.",
+    "audioUrl": "http://localhost:3007/assets/audio/ionic-bonding/module-started.mp3"
+  },
+  "invalid": {
+    "text": "That move does not work. Read the message to see why, then try again.",
+    "audioUrl": "http://localhost:3007/assets/audio/ionic-bonding/invalid-transfer.mp3"
+  },
+  "missions": [
+    {
+      "id": "give-electron",
+      "title": "Move an electron",
+      "goalText": "Give sodium's outer electron to chlorine, so both end with a complete outer shell (an octet).",
+      "goal": {
+        "compound": "nacl",
+        "ions": [
+          "Na+",
+          "Cl-"
+        ],
+        "allOuterShellsComplete": true
+      },
+      "hints": [
+        "Look at the outer shells. Sodium has 1 outer electron. Chlorine has 7.",
+        "Sodium is the metal, so it gives. Chlorine is the non-metal, so it takes.",
+        "Drag sodium's outer electron onto chlorine, or tap sodium and then tap chlorine. Then press Check."
+      ],
+      "start": {
+        "text": "Sodium has 1 electron in its outer shell. Chlorine has 7. Move sodium's outer electron to chlorine.",
+        "audioUrl": "http://localhost:3007/assets/audio/ionic-bonding/give-electron-start.mp3"
+      },
+      "complete": {
+        "text": "Well done. Sodium lost one electron and became Na+. Chlorine gained it and became Cl-. Both now have a complete outer shell, an octet.",
+        "audioUrl": "http://localhost:3007/assets/audio/ionic-bonding/give-electron-complete.mp3"
+      },
+      "questions": [
+        {
+          "id": "assess.ionic.transfer.01",
+          "prompt": "Sodium (2,8,1) gives one electron to chlorine. What does sodium become?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Na+, with configuration 2,8"
+            },
+            {
+              "id": "b",
+              "label": "Na-, with configuration 2,8,2"
+            },
+            {
+              "id": "c",
+              "label": "Na+, with configuration 2,8,1"
+            },
+            {
+              "id": "d",
+              "label": "Na2+, with configuration 2,8"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Sodium loses its one outer electron, so it has 11 protons and 10 electrons. That is a charge of +1, and the electrons fill 2,8, a complete outer shell (an octet)."
+        },
+        {
+          "id": "assess.ionic.transfer.02",
+          "prompt": "Why does chlorine take an electron instead of giving its electrons away?",
+          "options": [
+            {
+              "id": "a",
+              "label": "It has 1 outer electron, which is easy to lose"
+            },
+            {
+              "id": "b",
+              "label": "It has 7 outer electrons, so gaining 1 completes its octet"
+            },
+            {
+              "id": "c",
+              "label": "It has no outer electrons at all"
+            },
+            {
+              "id": "d",
+              "label": "Its outer shell is already complete"
+            }
+          ],
+          "answer": "b",
+          "explanation": "Chlorine is 2,8,7. Gaining one electron gives 2,8,8, a complete outer shell (an octet). Losing seven electrons would take much more."
+        }
+      ]
+    },
+    {
+      "id": "join-ions",
+      "title": "Join the ions",
+      "goalText": "Join Na+ and Cl- to make sodium chloride, NaCl.",
+      "goal": {
+        "compound": "nacl",
+        "bonded": true,
+        "formula": "NaCl"
+      },
+      "hints": [
+        "Na+ is positive and Cl- is negative. Opposite charges attract.",
+        "Both ions already have a complete outer shell, so they are ready to join.",
+        "Press Join the ions, then press Check."
+      ],
+      "start": {
+        "text": "Na+ and Cl- have opposite charges, so they attract each other. Join the ions to make sodium chloride.",
+        "audioUrl": "http://localhost:3007/assets/audio/ionic-bonding/join-ions-start.mp3"
+      },
+      "complete": {
+        "text": "This attraction between oppositely charged ions is an ionic bond. You made sodium chloride, NaCl.",
+        "audioUrl": "http://localhost:3007/assets/audio/ionic-bonding/join-ions-complete.mp3"
+      },
+      "questions": [
+        {
+          "id": "assess.ionic.bond.01",
+          "prompt": "What holds Na+ and Cl- together in sodium chloride?",
+          "options": [
+            {
+              "id": "a",
+              "label": "A pair of electrons shared between them"
+            },
+            {
+              "id": "b",
+              "label": "The nucleus of one atom moving into the other"
+            },
+            {
+              "id": "c",
+              "label": "The attraction between opposite charges"
+            },
+            {
+              "id": "d",
+              "label": "Nothing; the ions only sit next to each other"
+            }
+          ],
+          "answer": "c",
+          "explanation": "Na+ is positive and Cl- is negative. Opposite charges attract. This attraction between ions is an ionic bond. Sharing electrons is a different kind of bond."
+        },
+        {
+          "id": "assess.ionic.bond.02",
+          "prompt": "What is the total charge of one unit of sodium chloride, NaCl?",
+          "options": [
+            {
+              "id": "a",
+              "label": "+1"
+            },
+            {
+              "id": "b",
+              "label": "-1"
+            },
+            {
+              "id": "c",
+              "label": "+2"
+            },
+            {
+              "id": "d",
+              "label": "0"
+            }
+          ],
+          "answer": "d",
+          "explanation": "The +1 charge of Na+ and the -1 charge of Cl- cancel out, so NaCl has no overall charge. The electron moved from sodium to chlorine; none were made or lost."
+        }
+      ]
+    }
+  ],
+  "modelUrl": "http://localhost:3007/assets/models/chemistry_lab_bench.glb"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@mma/engine-ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lesson-ui.css": "./src/lesson-ui.css",
+    "./lesson-cosmic.css": "./src/lesson-cosmic.css",
+    "./moment-banner.css": "./src/moment-banner.css",
+    "./xr-hud.css": "./src/xr-hud.css"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@mma/engine-core": "workspace:*",
+    "@mma/engine-lesson": "workspace:*",
+    "@mma/engine-voice": "workspace:*",
+    "@mma/engine-xr": "workspace:*",
+    "@mma/schema": "workspace:*"
+  }
+}

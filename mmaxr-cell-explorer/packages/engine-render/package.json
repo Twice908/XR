@@ -1,0 +1,23 @@
+{
+  "name": "@mma/engine-render",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@iwsdk/core": "1.0.1",
+    "@mma/engine-core": "workspace:*",
+    "@mma/engine-input": "workspace:*",
+    "@pmndrs/uikit": "1.0.78",
+    "@pmndrs/uikit-horizon": "1.0.78",
+    "three": "npm:super-three@0.181.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.181.0"
+  }
+}

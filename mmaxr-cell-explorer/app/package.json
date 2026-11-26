@@ -1,0 +1,25 @@
+{
+  "name": "@mmaxr/cell-explorer-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "narration": "MMA_NARRATION=1 vite",
+    "build": "tsc -p tsconfig.json && vite build"
+  },
+  "dependencies": {
+    "@iwsdk/core": "1.0.1",
+    "@mma/bio-cell-explorer": "workspace:*",
+    "@mma/engine-ambience": "workspace:*",
+    "@pmndrs/uikit": "1.0.78",
+    "@pmndrs/uikit-horizon": "1.0.78",
+    "three": "npm:super-three@0.181.0"
+  },
+  "devDependencies": {
+    "@iwsdk/vite-plugin-dev": "1.0.1",
+    "vite": "7.3.7",
+    "@mma/generate-narration": "workspace:*",
+    "piper-tts-web": "1.1.2",
+    "wasm-media-encoders": "0.7.0"
+  }
+}

@@ -1,0 +1,732 @@
+{
+  "lessonId": "cell-explorer",
+  "type": "biology_cell_explorer",
+  "title": "Plant vs Animal Cell",
+  "subject": "Biology",
+  "summary": "Fly in close to a plant cell and an animal cell and find out what makes them different.",
+  "durationMinutes": 20,
+  "difficulty": "Core",
+  "intro": null,
+  "invalid": null,
+  "missions": [
+    {
+      "id": "cx-two-cells",
+      "title": "Two cells",
+      "goalText": "Meet the plant cell and the animal cell.",
+      "goal": {
+        "chapter": "two-cells"
+      },
+      "hints": [
+        "One cell has a thick wall around it.",
+        "The plant cell is the box-shaped one."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": []
+    },
+    {
+      "id": "cx-cell-wall",
+      "title": "Cell wall",
+      "goalText": "Find what the cell wall is made of.",
+      "goal": {
+        "chapter": "cell-wall"
+      },
+      "hints": [
+        "The fibres are long strands that cross over each other.",
+        "Cellulose fibres make up the thick wall itself."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.wall.01",
+          "prompt": "What is the plant cell wall mainly made of?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Starch"
+            },
+            {
+              "id": "b",
+              "label": "Cellulose"
+            },
+            {
+              "id": "c",
+              "label": "Fat (lipid)"
+            },
+            {
+              "id": "d",
+              "label": "Protein"
+            }
+          ],
+          "answer": "b",
+          "explanation": "The plant cell wall is made mainly of cellulose. Its long fibres make the wall strong."
+        },
+        {
+          "id": "assess.cell.wall.02",
+          "prompt": "Why does a plant cell keep a box-like shape?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Its nucleus holds it in shape"
+            },
+            {
+              "id": "b",
+              "label": "It has no cell membrane"
+            },
+            {
+              "id": "c",
+              "label": "Its rigid cell wall supports it"
+            },
+            {
+              "id": "d",
+              "label": "Its vacuole is always empty"
+            }
+          ],
+          "answer": "c",
+          "explanation": "The rigid cell wall supports the plant cell and gives it a fixed, box-like shape."
+        }
+      ]
+    },
+    {
+      "id": "cx-cell-membrane",
+      "title": "Cell membrane",
+      "goalText": "Find what controls what enters and leaves the cell.",
+      "goal": {
+        "chapter": "cell-membrane"
+      },
+      "hints": [
+        "Proteins are the larger shapes sitting across the membrane.",
+        "Look for the shape with a passage through its middle."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.membrane.01",
+          "prompt": "Why is the cell membrane called selectively permeable?",
+          "options": [
+            {
+              "id": "a",
+              "label": "It lets some substances pass and stops others"
+            },
+            {
+              "id": "b",
+              "label": "It lets every substance pass"
+            },
+            {
+              "id": "c",
+              "label": "It lets nothing pass"
+            },
+            {
+              "id": "d",
+              "label": "It is found only in plant cells"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The cell membrane lets some substances pass and keeps others out, so it is selectively permeable."
+        },
+        {
+          "id": "assess.cell.membrane.02",
+          "prompt": "What is the cell membrane mainly made of?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Cellulose"
+            },
+            {
+              "id": "b",
+              "label": "Starch and sugar"
+            },
+            {
+              "id": "c",
+              "label": "DNA"
+            },
+            {
+              "id": "d",
+              "label": "Lipids and proteins"
+            }
+          ],
+          "answer": "d",
+          "explanation": "The cell membrane is a double layer of lipids (phospholipids) with proteins set into it."
+        }
+      ]
+    },
+    {
+      "id": "cx-nucleus",
+      "title": "Nucleus",
+      "goalText": "Find the parts of the nucleus.",
+      "goal": {
+        "chapter": "nucleus"
+      },
+      "hints": [
+        "The nucleolus is the dark ball inside the nucleus.",
+        "Look through the open wedge of the envelope."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.nucleus.01",
+          "prompt": "Why is the nucleus called the control centre of the cell?",
+          "options": [
+            {
+              "id": "a",
+              "label": "It makes energy from food"
+            },
+            {
+              "id": "b",
+              "label": "It holds the DNA that directs the cell's work"
+            },
+            {
+              "id": "c",
+              "label": "It makes food from sunlight"
+            },
+            {
+              "id": "d",
+              "label": "It stores water"
+            }
+          ],
+          "answer": "b",
+          "explanation": "The nucleus holds the DNA, the instructions that direct everything the cell does."
+        },
+        {
+          "id": "assess.cell.nucleus.02",
+          "prompt": "What do nuclear pores do?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Make ribosomes"
+            },
+            {
+              "id": "b",
+              "label": "Break down waste"
+            },
+            {
+              "id": "c",
+              "label": "Let materials pass in and out of the nucleus"
+            },
+            {
+              "id": "d",
+              "label": "Store food"
+            }
+          ],
+          "answer": "c",
+          "explanation": "Nuclear pores are openings in the envelope that let materials and messages pass in and out of the nucleus."
+        }
+      ]
+    },
+    {
+      "id": "cx-ribosomes",
+      "title": "Ribosomes",
+      "goalText": "Find what ribosomes make.",
+      "goal": {
+        "chapter": "ribosomes"
+      },
+      "hints": [
+        "The protein chain comes out of the large subunit.",
+        "It is the beaded strand leaving the top of the ribosome."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.ribosome.01",
+          "prompt": "What do ribosomes make?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Energy"
+            },
+            {
+              "id": "b",
+              "label": "Food"
+            },
+            {
+              "id": "c",
+              "label": "Proteins"
+            },
+            {
+              "id": "d",
+              "label": "Cellulose"
+            }
+          ],
+          "answer": "c",
+          "explanation": "Ribosomes read the message from the nucleus and build proteins."
+        },
+        {
+          "id": "assess.cell.ribosome.02",
+          "prompt": "Which part of the cell makes ribosomes?",
+          "options": [
+            {
+              "id": "a",
+              "label": "The nucleolus"
+            },
+            {
+              "id": "b",
+              "label": "The Golgi apparatus"
+            },
+            {
+              "id": "c",
+              "label": "The lysosome"
+            },
+            {
+              "id": "d",
+              "label": "The vacuole"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The nucleolus, inside the nucleus, makes ribosomes."
+        }
+      ]
+    },
+    {
+      "id": "cx-er",
+      "title": "Endoplasmic reticulum",
+      "goalText": "Tell rough ER from smooth ER.",
+      "goal": {
+        "chapter": "endoplasmic-reticulum"
+      },
+      "hints": [
+        "Smooth ER has no dots on it.",
+        "It looks like a tangle of smooth tubes."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.er.01",
+          "prompt": "What makes rough ER look rough?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Small vacuoles"
+            },
+            {
+              "id": "b",
+              "label": "Ribosomes attached to it"
+            },
+            {
+              "id": "c",
+              "label": "Cellulose fibres"
+            },
+            {
+              "id": "d",
+              "label": "Chromatin"
+            }
+          ],
+          "answer": "b",
+          "explanation": "Rough ER is studded with ribosomes, which make it look rough."
+        },
+        {
+          "id": "assess.cell.er.02",
+          "prompt": "Which job belongs to the smooth ER?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Making food using sunlight"
+            },
+            {
+              "id": "b",
+              "label": "Releasing energy from food"
+            },
+            {
+              "id": "c",
+              "label": "Controlling the cell"
+            },
+            {
+              "id": "d",
+              "label": "Making lipids (fats)"
+            }
+          ],
+          "answer": "d",
+          "explanation": "Smooth ER makes lipids (fats) and helps remove harmful substances."
+        }
+      ]
+    },
+    {
+      "id": "cx-golgi",
+      "title": "Golgi apparatus",
+      "goalText": "Find out what the Golgi apparatus does.",
+      "goal": {
+        "chapter": "golgi"
+      },
+      "hints": [
+        "Think of a post office.",
+        "Vesicles carry its packages away."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.golgi.01",
+          "prompt": "What are the small bubbles that bud off the Golgi apparatus called?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Vesicles"
+            },
+            {
+              "id": "b",
+              "label": "Cristae"
+            },
+            {
+              "id": "c",
+              "label": "Grana"
+            },
+            {
+              "id": "d",
+              "label": "Chromosomes"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Vesicles are small membrane bubbles that carry the packed materials away."
+        },
+        {
+          "id": "assess.cell.golgi.02",
+          "prompt": "Where do most proteins reach the Golgi apparatus from?",
+          "options": [
+            {
+              "id": "a",
+              "label": "The cell wall"
+            },
+            {
+              "id": "b",
+              "label": "The rough ER"
+            },
+            {
+              "id": "c",
+              "label": "The vacuole"
+            },
+            {
+              "id": "d",
+              "label": "The chloroplast"
+            }
+          ],
+          "answer": "b",
+          "explanation": "Proteins made on the rough ER travel to the Golgi apparatus to be packed."
+        }
+      ]
+    },
+    {
+      "id": "cx-lysosomes",
+      "title": "Lysosomes",
+      "goalText": "Find what is inside a lysosome.",
+      "goal": {
+        "chapter": "lysosomes"
+      },
+      "hints": [
+        "The enzymes are the small particles inside.",
+        "Look inside the open bag."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.lysosome.01",
+          "prompt": "Why are lysosomes called suicide bags?",
+          "options": [
+            {
+              "id": "a",
+              "label": "They store the cell's DNA"
+            },
+            {
+              "id": "b",
+              "label": "They make the cell's energy"
+            },
+            {
+              "id": "c",
+              "label": "Their enzymes can digest the cell itself"
+            },
+            {
+              "id": "d",
+              "label": "They push water out of the cell"
+            }
+          ],
+          "answer": "c",
+          "explanation": "If the cell is damaged, lysosomes can burst and their enzymes digest the cell itself."
+        },
+        {
+          "id": "assess.cell.lysosome.02",
+          "prompt": "What keeps a lysosome's enzymes from digesting the rest of the cell?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Its membrane"
+            },
+            {
+              "id": "b",
+              "label": "The cell wall"
+            },
+            {
+              "id": "c",
+              "label": "The nucleolus"
+            },
+            {
+              "id": "d",
+              "label": "Chlorophyll"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The lysosome's membrane keeps its digestive enzymes inside."
+        }
+      ]
+    },
+    {
+      "id": "cx-vacuoles",
+      "title": "Vacuoles",
+      "goalText": "Find the large central vacuole.",
+      "goal": {
+        "chapter": "vacuoles"
+      },
+      "hints": [
+        "It is the big, clear, pale blue sac.",
+        "Look in the plant cell."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.vacuole.01",
+          "prompt": "What fills a plant cell's central vacuole?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Air"
+            },
+            {
+              "id": "b",
+              "label": "Cell sap"
+            },
+            {
+              "id": "c",
+              "label": "Chlorophyll"
+            },
+            {
+              "id": "d",
+              "label": "Cytoplasm only"
+            }
+          ],
+          "answer": "b",
+          "explanation": "The central vacuole is filled with cell sap: water with dissolved sugars and salts."
+        },
+        {
+          "id": "assess.cell.vacuole.02",
+          "prompt": "How does a full vacuole help a plant?",
+          "options": [
+            {
+              "id": "a",
+              "label": "It makes food from sunlight"
+            },
+            {
+              "id": "b",
+              "label": "It releases energy from food"
+            },
+            {
+              "id": "c",
+              "label": "It makes proteins"
+            },
+            {
+              "id": "d",
+              "label": "It keeps the cell firm, so the plant stands upright"
+            }
+          ],
+          "answer": "d",
+          "explanation": "A full vacuole presses against the cell wall and keeps the cell firm, so the plant stands upright."
+        }
+      ]
+    },
+    {
+      "id": "cx-mitochondria",
+      "title": "Mitochondria",
+      "goalText": "Find the parts of a mitochondrion.",
+      "goal": {
+        "chapter": "mitochondria"
+      },
+      "hints": [
+        "Look inside the opened mitochondrion.",
+        "The cristae are the shelves that fold in from the inner membrane."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.mito.01",
+          "prompt": "Which organelle is called the powerhouse of the cell?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Mitochondrion"
+            },
+            {
+              "id": "b",
+              "label": "Chloroplast"
+            },
+            {
+              "id": "c",
+              "label": "Nucleus"
+            },
+            {
+              "id": "d",
+              "label": "Vacuole"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Mitochondria release energy from food, so they are called the powerhouse of the cell."
+        },
+        {
+          "id": "assess.cell.mito.02",
+          "prompt": "What are cristae?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Folds of the inner membrane of a mitochondrion"
+            },
+            {
+              "id": "b",
+              "label": "Stacks of discs inside a chloroplast"
+            },
+            {
+              "id": "c",
+              "label": "The fluid inside a mitochondrion"
+            },
+            {
+              "id": "d",
+              "label": "The outer covering of a cell"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Cristae are the folds of a mitochondrion's inner membrane. The fluid inside is the matrix."
+        }
+      ]
+    },
+    {
+      "id": "cx-chloroplasts",
+      "title": "Chloroplasts",
+      "goalText": "Find a chloroplast.",
+      "goal": {
+        "chapter": "chloroplasts"
+      },
+      "hints": [
+        "Chloroplasts are green.",
+        "Look in the box-shaped plant cell."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.chloro.01",
+          "prompt": "Which cells have chloroplasts?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Plant cells only"
+            },
+            {
+              "id": "b",
+              "label": "Animal cells only"
+            },
+            {
+              "id": "c",
+              "label": "Both plant and animal cells"
+            },
+            {
+              "id": "d",
+              "label": "Neither"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Chloroplasts are found in plant cells. Animal cells do not have them."
+        },
+        {
+          "id": "assess.cell.chloro.02",
+          "prompt": "In a chloroplast, what are the grana?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Stacks of thylakoids"
+            },
+            {
+              "id": "b",
+              "label": "The fluid around the stacks"
+            },
+            {
+              "id": "c",
+              "label": "Folds of the inner membrane"
+            },
+            {
+              "id": "d",
+              "label": "The outer membrane"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The grana are stacks of thylakoids. The fluid around them is the stroma."
+        }
+      ]
+    },
+    {
+      "id": "cx-recap",
+      "title": "Recap",
+      "goalText": "Compare the two cells.",
+      "goal": {
+        "chapter": "recap"
+      },
+      "hints": [
+        "Chloroplasts are only in plant cells."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.recap.01",
+          "prompt": "A cell has mitochondria, but no cell wall and no chloroplasts. Which kind of cell is it?",
+          "options": [
+            {
+              "id": "a",
+              "label": "An animal cell"
+            },
+            {
+              "id": "b",
+              "label": "A plant cell"
+            },
+            {
+              "id": "c",
+              "label": "A cell from a green leaf"
+            },
+            {
+              "id": "d",
+              "label": "We cannot tell"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Plant cells have a cell wall, and green plant cells have chloroplasts. A cell with neither is an animal cell."
+        },
+        {
+          "id": "assess.cell.recap.02",
+          "prompt": "Why do plant cells need chloroplasts?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To make food using sunlight"
+            },
+            {
+              "id": "b",
+              "label": "To release energy from food"
+            },
+            {
+              "id": "c",
+              "label": "To store water"
+            },
+            {
+              "id": "d",
+              "label": "To give the cell its shape"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Chloroplasts use sunlight to make food. Mitochondria release energy from that food."
+        }
+      ]
+    }
+  ],
+  "bundleUrl": "/cell-explorer/index.html"
+}

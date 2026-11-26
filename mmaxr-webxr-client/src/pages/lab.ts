@@ -20,6 +20,9 @@ import { askReasoning } from '../lab/reasoningDialog'
 import { sendReasoning } from '../services/reasoningApi'
 import { wordsIn } from '../lab/voiceBox'
 import { startMotionLab } from './motionLab'
+import { startAtomBuilderLab, startIonicBondingLab } from './missionsLab'
+import { startCellLab } from './cellLab'
+import type { MissionsLessonContract } from '@mmaxr/schema'
 import { LabScene } from '../lab/labScene'
 import { h } from '../ui/dom'
 import { banner, button, toast } from '../ui/components'
@@ -71,6 +74,14 @@ export function labPage(lessonId: string): Page {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startSoundLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        return
+      }
+      if (raw.type === 'chemistry_atom_builder' || raw.type === 'chemistry_ionic_bonding' || raw.type === 'biology_cell_explorer') {
+        telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
+        telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
+        const lesson = raw as MissionsLessonContract
+        const start = raw.type === 'chemistry_atom_builder' ? startAtomBuilderLab : raw.type === 'chemistry_ionic_bonding' ? startIonicBondingLab : startCellLab
+        metalsCleanup = await start({ root, canvas, status, session, lesson, isDestroyed: () => destroyed })
         return
       }
       if (raw.type === 'physics_optics') {

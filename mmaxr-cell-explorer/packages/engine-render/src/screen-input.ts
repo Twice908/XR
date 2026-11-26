@@ -1,0 +1,49 @@
+import type { EngineAction } from "@mma/engine-core";
+import { InputManager, type TouchInputOptions } from "@mma/engine-input";
+import type { ScreenPickFunction } from "@mma/engine-input";
+
+/** Configuration for translating browser pointer events into engine actions. */
+export interface ScreenInputOptions {
+  readonly root: HTMLElement;
+  readonly dispatch: (action: EngineAction) => void;
+  readonly pickTarget: ScreenPickFunction;
+  readonly onDragEnd?: () => void;
+  readonly touch?: Omit<TouchInputOptions, "root" | "dispatch" | "pickTarget" | "events">;
+}
+
+/**
+ * Adapt mouse, pen, and touch pointer events to the device-independent action
+ * vocabulary. Modules receive actions and never inspect browser events.
+ */
+export class ScreenInputAdapter {
+  private readonly manager: InputManager;
+  private readonly dispatch: ScreenInputOptions["dispatch"];
+  private readonly onDragEnd: (() => void) | undefined;
+
+  /** Attach delegated screen input listeners to a module root. */
+  constructor(options: ScreenInputOptions) {
+    this.dispatch = options.dispatch;
+    this.onDragEnd = options.onDragEnd;
+    this.manager = new InputManager({
+      root: options.root,
+      dispatch: (action) => {
+        this.dispatch(action as EngineAction);
+        if (action.type === "release") {
+          this.onDragEnd?.();
+        }
+      },
+      pickScreenTarget: options.pickTarget,
+      ...(options.touch === undefined ? {} : { touch: options.touch }),
+    });
+  }
+
+  /** Remove all browser listeners owned by this adapter. */
+  dispose(): void {
+    this.manager.dispose();
+  }
+
+  /** Suspend screen pointer handlers without affecting XR controller/hand input. */
+  setEnabled(enabled: boolean): void {
+    this.manager.setScreenInputEnabled(enabled);
+  }
+}

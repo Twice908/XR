@@ -1,0 +1,60 @@
+[
+  {
+    "id": "assess.cell.vacuole.01",
+    "prompt": "What fills a plant cell's central vacuole?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Air"
+      },
+      {
+        "id": "b",
+        "text": "Cell sap"
+      },
+      {
+        "id": "c",
+        "text": "Chlorophyll"
+      },
+      {
+        "id": "d",
+        "text": "Cytoplasm only"
+      }
+    ],
+    "correctOptionIndex": 1,
+    "explanation": "The central vacuole is filled with cell sap: water with dissolved sugars and salts.",
+    "conceptIds": [
+      "sci.bio.cell.vacuole",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  },
+  {
+    "id": "assess.cell.vacuole.02",
+    "prompt": "How does a full vacuole help a plant?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It makes food from sunlight"
+      },
+      {
+        "id": "b",
+        "text": "It releases energy from food"
+      },
+      {
+        "id": "c",
+        "text": "It makes proteins"
+      },
+      {
+        "id": "d",
+        "text": "It keeps the cell firm, so the plant stands upright"
+      }
+    ],
+    "correctOptionIndex": 3,
+    "explanation": "A full vacuole presses against the cell wall and keeps the cell firm, so the plant stands upright.",
+    "conceptIds": [
+      "sci.bio.cell.vacuole",
+      "sci.bio.cell.structure"
+    ],
+    "reviewStatus": "pending"
+  }
+]
