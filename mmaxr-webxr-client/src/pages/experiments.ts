@@ -20,7 +20,7 @@ import {
 import { transitionFor, viewOf } from '../stage/transitions.js'
 
 /** Labs the WebXR client can run today. Others are listed, but not launchable yet. */
-const SUPPORTED = new Set(['chemistry_indicators', 'chemistry_metals', 'biology_digestive_system', 'biology_respiratory_system', 'physics_optics', 'physics_waves_sound', 'physics_mechanics_sandbox', 'physics_electromagnetism', 'physics_circuits', 'physics_simple_machines', 'physics_fundamentals_sandbox', 'science_matter_properties'])
+const SUPPORTED = new Set(['chemistry_indicators', 'chemistry_metals', 'biology_digestive_system', 'biology_respiratory_system', 'physics_optics', 'physics_waves_sound', 'physics_mechanics_sandbox', 'physics_electromagnetism', 'physics_circuits', 'physics_simple_machines', 'physics_fundamentals_sandbox', 'science_matter_properties', 'chemistry_atom_builder', 'chemistry_ionic_bonding', 'biology_cell_explorer'])
 
 /** The subject a lab belongs to: its `subject` field, or the prefix of its type. */
 function subjectOf(lesson: LessonSummary): string {

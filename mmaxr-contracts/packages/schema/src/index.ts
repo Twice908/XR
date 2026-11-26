@@ -55,7 +55,7 @@ export interface SensorDataRow {
 }
 // 6. chemistry lesson contract
 
-export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract | OpticsLessonContract | SoundLessonContract | MotionLessonContract;
+export type LessonContract = PhysicsLessonContract | ChemistryLessonContract | MetalsLessonContract | BiologyLessonContract | OpticsLessonContract | SoundLessonContract | MotionLessonContract | MissionsLessonContract;
 
 export interface PhysicsLessonContract {
   lessonId: string;
@@ -127,7 +127,7 @@ export interface ChemistryLessonContract {
 // 7. Experiment catalog entry (GET /lessons on lesson-loader)
 export interface LessonSummary {
   lessonId: string;
-  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_simple_machines" | "physics_fundamentals_sandbox" | "physics_waves_sound" | "science_matter_properties";
+  type: "biology_respiratory_system" | "physics_bohr" | "chemistry_indicators" | "chemistry_metals" | "biology_digestive_system" | "physics_optics" | "physics_mechanics_sandbox" | "physics_electromagnetism" | "physics_circuits" | "physics_simple_machines" | "physics_fundamentals_sandbox" | "physics_waves_sound" | "science_matter_properties" | MissionsLabType;
   title: string;
   subject: string | null;
   summary: string | null;
@@ -577,4 +577,100 @@ export interface SoundReveal {
   total: number;
   calcAttempts: number;
   uses: { topic: string; examples: string[]; why: string }[];
+}
+
+// 9. Mission labs (ported from MMAXR): Atom Builder, Ionic Bonding, Plant vs Animal Cell.
+// Each lab is a run of missions. A mission is met when the build matches its goal (checked on the
+// server); meeting it unlocks its checkpoint questions. Goals, right answers and hints stay on the
+// server until earned.
+
+export type MissionsLabType = "chemistry_atom_builder" | "chemistry_ionic_bonding" | "biology_cell_explorer";
+
+/** A narrated line: the caption, and the recorded voice for it when there is one. */
+export interface MissionsNarration {
+  text: string;
+  audioUrl: string | null;
+}
+
+export interface MissionsQuestionOption {
+  /** Opaque, per-session id (`p0`..`p3`), in the order dealt to this session. */
+  id: string;
+  label: string;
+}
+
+export interface MissionsQuestion {
+  id: string;
+  prompt: string;
+  options: MissionsQuestionOption[];
+}
+
+export interface MissionsMission {
+  id: string;
+  title: string;
+  goalText: string;
+  hintCount: number;
+  /** Spoken as the mission starts and when it is met. */
+  start: MissionsNarration | null;
+  complete: MissionsNarration | null;
+}
+
+export interface MissionsLessonContract {
+  lessonId: string;
+  type: MissionsLabType;
+  title: string;
+  subject?: string;
+  summary?: string;
+  durationMinutes?: number;
+  difficulty?: string;
+  intro: MissionsNarration | null;
+  /** Spoken when a move is refused. */
+  invalid: MissionsNarration | null;
+  missions: MissionsMission[];
+  /** The lab bench model, for the labs built on a bench. */
+  modelUrl?: string;
+  /** The isolated bundle that runs this lab, when it is not built into the client (the cell explorer). */
+  bundleUrl?: string;
+}
+
+/** Where the student is, as the server keeps it. */
+export interface MissionsProgress {
+  /** The mission to work on next, or null when all are met. */
+  current: string | null;
+  missions: Record<string, { attempts: number; hintsUsed: number; met: boolean }>;
+  /** Question ids answered so far. */
+  answered: string[];
+  finished: boolean;
+}
+
+export interface MissionsCheckResult {
+  met: boolean;
+  attempts: number;
+  /** Why the build is not there yet, when the server can say. */
+  feedback: string | null;
+  /** The questions this mission unlocked, when it was just met. */
+  questions: MissionsQuestion[];
+  progress: MissionsProgress;
+}
+
+export interface MissionsHintResult {
+  hint: string;
+  level: "nudge" | "clue" | "explanation";
+  used: number;
+  total: number;
+}
+
+export interface MissionsAnswerResult {
+  correct: boolean;
+  /** The opaque id of the right option. */
+  answer: string;
+  explanation: string;
+  progress: MissionsProgress;
+}
+
+export interface MissionsSummary {
+  missions: number;
+  hintsUsed: number;
+  attempts: number;
+  correct: number;
+  total: number;
 }

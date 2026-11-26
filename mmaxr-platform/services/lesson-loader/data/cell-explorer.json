@@ -1,0 +1,220 @@
+{
+  "lessonId": "cell-explorer",
+  "type": "biology_cell_explorer",
+  "title": "Plant vs Animal Cell",
+  "subject": "Biology",
+  "summary": "Fly in close to a plant cell and an animal cell and find out what makes them different.",
+  "durationMinutes": 8,
+  "difficulty": "Core",
+  "intro": null,
+  "invalid": null,
+  "missions": [
+    {
+      "id": "cx-two-cells",
+      "title": "Two cells",
+      "goalText": "Meet the plant cell and the animal cell.",
+      "goal": {
+        "chapter": "two-cells"
+      },
+      "hints": [
+        "One cell has a thick wall around it.",
+        "The plant cell is the box-shaped one."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": []
+    },
+    {
+      "id": "cx-mitochondria",
+      "title": "Mitochondria",
+      "goalText": "Find the parts of a mitochondrion.",
+      "goal": {
+        "chapter": "mitochondria"
+      },
+      "hints": [
+        "Look inside the opened mitochondrion.",
+        "The cristae are the shelves that fold in from the inner membrane."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.mito.01",
+          "prompt": "Which organelle is called the powerhouse of the cell?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Mitochondrion"
+            },
+            {
+              "id": "b",
+              "label": "Chloroplast"
+            },
+            {
+              "id": "c",
+              "label": "Nucleus"
+            },
+            {
+              "id": "d",
+              "label": "Vacuole"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Mitochondria release energy from food, so they are called the powerhouse of the cell."
+        },
+        {
+          "id": "assess.cell.mito.02",
+          "prompt": "What are cristae?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Folds of the inner membrane of a mitochondrion"
+            },
+            {
+              "id": "b",
+              "label": "Stacks of discs inside a chloroplast"
+            },
+            {
+              "id": "c",
+              "label": "The fluid inside a mitochondrion"
+            },
+            {
+              "id": "d",
+              "label": "The outer covering of a cell"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Cristae are the folds of a mitochondrion's inner membrane. The fluid inside is the matrix."
+        }
+      ]
+    },
+    {
+      "id": "cx-chloroplasts",
+      "title": "Chloroplasts",
+      "goalText": "Find a chloroplast.",
+      "goal": {
+        "chapter": "chloroplasts"
+      },
+      "hints": [
+        "Chloroplasts are green.",
+        "Look in the box-shaped plant cell."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.chloro.01",
+          "prompt": "Which cells have chloroplasts?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Plant cells only"
+            },
+            {
+              "id": "b",
+              "label": "Animal cells only"
+            },
+            {
+              "id": "c",
+              "label": "Both plant and animal cells"
+            },
+            {
+              "id": "d",
+              "label": "Neither"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Chloroplasts are found in plant cells. Animal cells do not have them."
+        },
+        {
+          "id": "assess.cell.chloro.02",
+          "prompt": "In a chloroplast, what are the grana?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Stacks of thylakoids"
+            },
+            {
+              "id": "b",
+              "label": "The fluid around the stacks"
+            },
+            {
+              "id": "c",
+              "label": "Folds of the inner membrane"
+            },
+            {
+              "id": "d",
+              "label": "The outer membrane"
+            }
+          ],
+          "answer": "a",
+          "explanation": "The grana are stacks of thylakoids. The fluid around them is the stroma."
+        }
+      ]
+    },
+    {
+      "id": "cx-recap",
+      "title": "Recap",
+      "goalText": "Compare the two cells.",
+      "goal": {
+        "chapter": "recap"
+      },
+      "hints": [
+        "Chloroplasts are only in plant cells."
+      ],
+      "start": null,
+      "complete": null,
+      "questions": [
+        {
+          "id": "assess.cell.recap.01",
+          "prompt": "A cell has mitochondria, but no cell wall and no chloroplasts. Which kind of cell is it?",
+          "options": [
+            {
+              "id": "a",
+              "label": "An animal cell"
+            },
+            {
+              "id": "b",
+              "label": "A plant cell"
+            },
+            {
+              "id": "c",
+              "label": "A cell from a green leaf"
+            },
+            {
+              "id": "d",
+              "label": "We cannot tell"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Plant cells have a cell wall, and green plant cells have chloroplasts. A cell with neither is an animal cell."
+        },
+        {
+          "id": "assess.cell.recap.02",
+          "prompt": "Why do plant cells need chloroplasts?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To make food using sunlight"
+            },
+            {
+              "id": "b",
+              "label": "To release energy from food"
+            },
+            {
+              "id": "c",
+              "label": "To store water"
+            },
+            {
+              "id": "d",
+              "label": "To give the cell its shape"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Chloroplasts use sunlight to make food. Mitochondria release energy from that food."
+        }
+      ]
+    }
+  ],
+  "bundleUrl": "/cell-explorer/index.html"
+}

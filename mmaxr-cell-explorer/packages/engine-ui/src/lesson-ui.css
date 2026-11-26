@@ -1,0 +1,195 @@
+/*
+ * Shared screen-mode lesson UI. Plain UX rules: 44px minimum targets (48px on touch),
+ * one primary action per group, visible focus, AA contrast, no colour-only meaning,
+ * and reduced motion when requested. Colours match the dashboard palette.
+ */
+.mma-ui {
+  --mma-ink: #1e292d;
+  --mma-muted: #56656b;
+  --mma-line: #d7dfdb;
+  --mma-paper: #f4f4ee;
+  --mma-panel: #ffffff;
+  --mma-teal: #287f83;
+  --mma-teal-dark: #1f6669;
+  --mma-teal-soft: #e5f1f1;
+  --mma-coral: #b9412d;
+  --mma-coral-soft: #fbe9e5;
+  --mma-gold: #f0b323;
+  --mma-good: #1f7a46;
+  --mma-good-soft: #e3f3e9;
+  --mma-focus: #1a5fb4;
+  --mma-radius: 12px;
+  --mma-target: 44px;
+  color: var(--mma-ink);
+  font-family: "Avenir Next", "Trebuchet MS", system-ui, sans-serif;
+  line-height: 1.45;
+}
+
+@media (pointer: coarse) {
+  .mma-ui { --mma-target: 48px; }
+}
+
+.mma-ui *, .mma-ui *::before, .mma-ui *::after { box-sizing: border-box; }
+.mma-ui [hidden] { display: none !important; }
+
+.mma-visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.mma-eyebrow {
+  margin: 0 0 4px;
+  color: var(--mma-teal-dark);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mma-card {
+  padding: 16px;
+  border: 1px solid var(--mma-line);
+  border-radius: var(--mma-radius);
+  background: var(--mma-panel);
+}
+
+/* Buttons */
+.mma-button {
+  min-height: var(--mma-target);
+  min-width: var(--mma-target);
+  padding: 0 16px;
+  border: 1px solid var(--mma-line);
+  border-radius: 10px;
+  color: var(--mma-ink);
+  background: var(--mma-panel);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.mma-button:hover:not(:disabled) { border-color: var(--mma-teal); background: var(--mma-teal-soft); }
+.mma-button--primary { border-color: var(--mma-teal); color: #fff; background: var(--mma-teal); }
+.mma-button--primary:hover:not(:disabled) { border-color: var(--mma-teal-dark); background: var(--mma-teal-dark); }
+.mma-button--quiet { border-color: transparent; background: transparent; color: var(--mma-teal-dark); }
+.mma-button:disabled { cursor: not-allowed; opacity: 0.55; }
+.mma-ui :focus-visible { outline: 3px solid var(--mma-focus); outline-offset: 2px; }
+
+/* Lesson panel */
+.mma-lesson { display: grid; gap: 12px; }
+.mma-lesson__mission, .mma-question { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--mma-line); border-radius: var(--mma-radius); background: var(--mma-panel); }
+.mma-lesson__title, .mma-question__prompt { margin: 0; font-size: 20px; line-height: 1.3; }
+.mma-question__prompt { font-size: 18px; }
+.mma-question__prompt:focus { outline: none; }
+.mma-question__prompt:focus-visible { outline: 3px solid var(--mma-focus); }
+.mma-lesson__body { margin: 0; font-size: 16px; }
+.mma-progress { height: 8px; border-radius: 999px; background: var(--mma-line); overflow: hidden; }
+.mma-progress__fill { display: block; height: 100%; background: var(--mma-teal); transition: width 240ms ease; }
+.mma-lesson__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.mma-feedback { margin: 0; padding: 10px 12px; border-left: 4px solid var(--mma-gold); border-radius: 6px; background: #fdf6e3; font-size: 15px; }
+.mma-question { border-color: var(--mma-teal); }
+.mma-question__options { display: grid; gap: 8px; }
+.mma-option {
+  min-height: var(--mma-target);
+  padding: 10px 14px;
+  border: 2px solid var(--mma-line);
+  border-radius: 10px;
+  color: var(--mma-ink);
+  background: var(--mma-panel);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+.mma-option:hover:not(:disabled) { border-color: var(--mma-teal); }
+.mma-option:disabled { cursor: default; }
+.mma-option--correct, .mma-option--answer { border-color: var(--mma-good); background: var(--mma-good-soft); }
+.mma-option--correct::before, .mma-option--answer::before { content: "✓ "; color: var(--mma-good); font-weight: 700; }
+.mma-option--incorrect { border-color: var(--mma-coral); background: var(--mma-coral-soft); }
+.mma-option--incorrect::before { content: "✗ "; color: var(--mma-coral); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mma-ui *, .mma-ui *::before, .mma-ui *::after { transition: none !important; animation: none !important; }
+}
+
+/* Narration */
+.mma-select {
+  min-height: var(--mma-target);
+  margin-left: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--mma-line);
+  border-radius: 10px;
+  color: var(--mma-ink);
+  background: var(--mma-panel);
+  font: inherit;
+}
+.mma-narration { display: grid; gap: 6px; }
+.mma-narration__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.mma-narration__speed { display: inline-flex; align-items: center; font-size: 14px; font-weight: 700; }
+.mma-narration__status { color: var(--mma-muted); font-size: 14px; }
+.mma-narration__caption {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #fff;
+  background: rgba(30, 41, 45, 0.92);
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Data table (readings). Scrolls sideways on narrow screens instead of squeezing columns. */
+.mma-table { overflow-x: auto; }
+.mma-table__table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.mma-table__table th, .mma-table__table td { padding: 8px 10px; border-bottom: 1px solid var(--mma-line); text-align: left; white-space: nowrap; }
+.mma-table__table th { color: var(--mma-muted); font-size: 13px; font-weight: 700; }
+.mma-table__table .is-numeric { text-align: right; font-variant-numeric: tabular-nums; }
+.mma-table__empty, .mma-graph__empty { margin: 0; color: var(--mma-muted); font-size: 15px; }
+
+/* XY graph. Series differ by colour and marker shape, and are named in the legend. */
+.mma-graph { display: grid; gap: 6px; margin: 0; }
+.mma-graph__title { font-size: 15px; font-weight: 700; }
+.mma-graph__plot { width: 100%; max-width: 520px; height: auto; }
+.mma-graph__grid { stroke: var(--mma-line); stroke-width: 1; }
+.mma-graph__axis { stroke: var(--mma-ink); stroke-width: 1.5; }
+.mma-graph__tick { fill: var(--mma-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.mma-graph__axis-title { fill: var(--mma-ink); font-size: 12px; font-weight: 700; }
+.mma-graph__line { fill: none; stroke-width: 2; }
+.mma-graph__marker { stroke: #fff; stroke-width: 1.5; }
+.mma-graph__series--0 { --mma-series: var(--mma-teal); }
+.mma-graph__series--1 { --mma-series: var(--mma-coral); }
+.mma-graph__series--2 { --mma-series: #6b4fa0; }
+.mma-graph__series--3 { --mma-series: #a87400; }
+.mma-graph__line.mma-graph__series--0, .mma-graph__line.mma-graph__series--1,
+.mma-graph__line.mma-graph__series--2, .mma-graph__line.mma-graph__series--3 { stroke: var(--mma-series); }
+.mma-graph__marker.mma-graph__series--0, .mma-graph__marker.mma-graph__series--1,
+.mma-graph__marker.mma-graph__series--2, .mma-graph__marker.mma-graph__series--3 { fill: var(--mma-series); }
+.mma-graph__legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.mma-graph__key { display: inline-flex; align-items: center; gap: 6px; }
+.mma-graph__swatch { width: 16px; height: 16px; overflow: visible; }
+
+/*
+ * Narration bar in a web view, opt-in: put `mma-narration-web` on the element that holds
+ * the bar (and its caption slot). Matches the Ionic Bonding web view.
+ */
+.mma-narration-web .narration-hud { display: grid; gap: 8px; margin-top: 12px; padding: 12px 16px; border: 1px solid var(--mma-line); border-radius: var(--mma-radius); background: var(--mma-panel); }
+.mma-narration-web .narration-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.mma-narration-web .narration-controls button, .mma-narration-web .narration-controls select {
+  min-height: var(--mma-target);
+  padding: 0 12px;
+  border: 1px solid var(--mma-line);
+  border-radius: 10px;
+  color: var(--mma-ink);
+  background: var(--mma-panel);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mma-narration-web .narration-controls [data-narration-action="enable"] { border-color: var(--mma-teal); color: #fff; background: var(--mma-teal); }
+.mma-narration-web .narration-controls label { display: inline-flex; align-items: center; gap: 6px; color: var(--mma-muted); font-size: 14px; font-weight: 700; }
+.mma-narration-web .narration-audio-status { flex-basis: 100%; color: var(--mma-muted); font-size: 14px; }
+.mma-narration-web .narration-caption { margin: 0; padding: 10px 14px; border-radius: 10px; color: #fff; background: rgba(30, 41, 45, 0.92); font-size: 16px; text-align: center; }

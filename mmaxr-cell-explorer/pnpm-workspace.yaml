@@ -1,0 +1,14 @@
+# The Plant vs Animal Cell lab, copied as it is from MMAXR, with exactly the MMAXR packages it uses.
+# It is its own workspace on purpose: IWSDK needs one three.js (Meta's super-three fork) for every package,
+# and that must not reach the XR client's labs. `pnpm build` writes the static bundle into the XR client
+# (mmaxr-webxr-client/public/cell-explorer), which opens it in a frame.
+packages:
+  - "app"
+  - "packages/*"
+  - "packages/kits/*"
+  - "modules/*"
+allowBuilds:
+  esbuild: true
+overrides:
+  three: npm:super-three@0.181.0
+  '@types/three': 0.181.0

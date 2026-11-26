@@ -1,6 +1,7 @@
 import './styles/tokens.css'
 import './styles/ui.css'
 import './styles/lab.css'
+import './styles/missions.css'
 import './styles/cosmic.css'
 import { userAuth } from './services/userAuth'
 import { startRouter, type Page, type RouteTable } from './router'

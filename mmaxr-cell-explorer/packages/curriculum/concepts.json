@@ -1,0 +1,62 @@
+{
+  "sci.chem.atom.structure": {
+    "classes": [9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.chem.atom.shells": {
+    "classes": [9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.chem.atom.ions": {
+    "classes": [9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.chem.atom.isotopes": {
+    "classes": [9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.chem.bonding.ionic": {
+    "classes": [9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.phys.electricity.current": {
+    "classes": [10, 12],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.phys.electricity.potential-difference": {
+    "classes": [10, 12],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.phys.electricity.resistance": {
+    "classes": [10, 12],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.phys.electricity.ohms-law": {
+    "classes": [10, 12],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.phys.electricity.meters": {
+    "classes": [10, 12],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.phys.electricity.non-ohmic": {
+    "classes": [10, 12],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.structure": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.plant-vs-animal": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.mitochondria": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  },
+  "sci.bio.cell.chloroplast": {
+    "classes": [8, 9, 10],
+    "boards": ["CBSE", "ICSE", "STATE"]
+  }
+}

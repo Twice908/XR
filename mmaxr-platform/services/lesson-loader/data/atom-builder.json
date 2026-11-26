@@ -1,0 +1,332 @@
+{
+  "lessonId": "atom-builder",
+  "type": "chemistry_atom_builder",
+  "title": "Atom Builder",
+  "subject": "Chemistry",
+  "summary": "Build atoms and ions particle by particle on the bench, then check your model.",
+  "durationMinutes": 8,
+  "difficulty": "Core",
+  "intro": {
+    "text": "Welcome to Atom Builder. Add particles to build each atom or ion, then check your model. You can follow the captions with sound off.",
+    "audioUrl": "http://localhost:3007/assets/audio/atom-builder/module-started.mp3"
+  },
+  "invalid": {
+    "text": "That spot does not work for this particle or shell. Check the feedback and try another position.",
+    "audioUrl": "http://localhost:3007/assets/audio/atom-builder/invalid-placement.mp3"
+  },
+  "missions": [
+    {
+      "id": "build-carbon-12",
+      "title": "Build carbon-12",
+      "goalText": "Build a neutral carbon atom with 6 protons, 6 neutrons, and 6 electrons.",
+      "goal": {
+        "symbol": "C",
+        "protons": 6,
+        "neutrons": 6,
+        "electrons": 6,
+        "massNumber": 12,
+        "charge": 0
+      },
+      "hints": [
+        "Start with the proton count.",
+        "Carbon is C. Set 6 protons and 6 neutrons.",
+        "Carbon-12 needs 6 protons and 6 neutrons. Neutral means 6 electrons too."
+      ],
+      "start": {
+        "text": "Build carbon-12. Start with six protons and six neutrons. Add six electrons too, because the atom is neutral.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/build-carbon-12-start.mp3"
+      },
+      "complete": {
+        "text": "Carbon-12 is ready: six protons, six neutrons, and six electrons. Continue to the questions when you are ready.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/build-carbon-12-complete.mp3"
+      },
+      "questions": [
+        {
+          "id": "assess.atom.carbon12.01",
+          "prompt": "In the carbon-12 build, how many protons should the atom have?",
+          "options": [
+            {
+              "id": "a",
+              "label": "12"
+            },
+            {
+              "id": "b",
+              "label": "6"
+            },
+            {
+              "id": "c",
+              "label": "0"
+            },
+            {
+              "id": "d",
+              "label": "14"
+            }
+          ],
+          "answer": "b",
+          "explanation": "Carbon-12 has 6 protons. You may have mixed up the mass number 12 with the proton count, or swapped protons and neutrons."
+        },
+        {
+          "id": "assess.atom.carbon12.02",
+          "prompt": "A neutral carbon-12 atom has 6 protons. How many electrons does it have?",
+          "options": [
+            {
+              "id": "a",
+              "label": "12"
+            },
+            {
+              "id": "b",
+              "label": "0"
+            },
+            {
+              "id": "c",
+              "label": "8"
+            },
+            {
+              "id": "d",
+              "label": "6"
+            }
+          ],
+          "answer": "d",
+          "explanation": "A neutral carbon-12 atom has 6 electrons. You may have used the mass number or neutron count instead of matching the electron count to the proton count."
+        }
+      ]
+    },
+    {
+      "id": "make-na-plus",
+      "title": "Make Na+",
+      "goalText": "Build Na+ with 11 protons, 12 neutrons, 10 electrons, and configuration 2,8.",
+      "goal": {
+        "symbol": "Na",
+        "protons": 11,
+        "neutrons": 12,
+        "electrons": 10,
+        "charge": 1,
+        "electronConfiguration": [
+          2,
+          8
+        ]
+      },
+      "hints": [
+        "Check what Na+ says about charge.",
+        "Sodium has 11 protons; +1 means one fewer electron.",
+        "Use 11 protons, 12 neutrons, and 10 electrons. Those electrons fill 2,8."
+      ],
+      "start": {
+        "text": "Now make Na+. Sodium has eleven protons. A +1 charge means it has lost one electron.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/make-na-plus-start.mp3"
+      },
+      "complete": {
+        "text": "Na+ has eleven protons, twelve neutrons, and ten electrons. Its electron configuration is two, eight.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/make-na-plus-complete.mp3"
+      },
+      "questions": [
+        {
+          "id": "assess.atom.sodium-ion.01",
+          "prompt": "The Na+ build has 11 protons. How many electrons should it have?",
+          "options": [
+            {
+              "id": "a",
+              "label": "10"
+            },
+            {
+              "id": "b",
+              "label": "11"
+            },
+            {
+              "id": "c",
+              "label": "12"
+            },
+            {
+              "id": "d",
+              "label": "1"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Na+ has 10 electrons. You may have treated +1 as one electron, or kept the 11 electrons of a neutral atom; here the positive charge means one fewer electron than protons."
+        },
+        {
+          "id": "assess.atom.sodium-ion.02",
+          "prompt": "Which electron configuration matches the Na+ build?",
+          "options": [
+            {
+              "id": "a",
+              "label": "2,8,1"
+            },
+            {
+              "id": "b",
+              "label": "10"
+            },
+            {
+              "id": "c",
+              "label": "2,8"
+            },
+            {
+              "id": "d",
+              "label": "2,8,8"
+            }
+          ],
+          "answer": "c",
+          "explanation": "The Na+ build has configuration 2,8. You may have used the proton count to add a third-shell electron, instead of accounting for the +1 charge and 10 electrons."
+        }
+      ]
+    },
+    {
+      "id": "build-carbon-14",
+      "title": "Build carbon-14",
+      "goalText": "Build carbon-14 with 6 protons, 8 neutrons, 6 electrons, and charge 0.",
+      "goal": {
+        "symbol": "C",
+        "massNumber": 14,
+        "charge": 0,
+        "protons": 6,
+        "neutrons": 8,
+        "electrons": 6
+      },
+      "hints": [
+        "Compare the mass number with the proton count.",
+        "Carbon has 6 protons. Use mass number 14 to find its neutrons.",
+        "14 - 6 = 8 neutrons. Charge 0 means 6 electrons."
+      ],
+      "start": {
+        "text": "Build C-14. It has six protons. Compare mass number fourteen with the proton count to find its neutrons.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/build-carbon-14-start.mp3"
+      },
+      "complete": {
+        "text": "C-14 has six protons, eight neutrons, and six electrons. Its charge is zero.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/build-carbon-14-complete.mp3"
+      },
+      "questions": [
+        {
+          "id": "assess.atom.carbon14.01",
+          "prompt": "Carbon-14 has a mass number of 14 and 6 protons. How many neutrons does it have?",
+          "options": [
+            {
+              "id": "a",
+              "label": "6"
+            },
+            {
+              "id": "b",
+              "label": "14"
+            },
+            {
+              "id": "c",
+              "label": "20"
+            },
+            {
+              "id": "d",
+              "label": "8"
+            }
+          ],
+          "answer": "d",
+          "explanation": "Carbon-14 has 8 neutrons. You may have mistaken the mass number 14 for the neutron count, or carried over carbon-12's 6 neutrons."
+        },
+        {
+          "id": "assess.atom.carbon14.02",
+          "prompt": "The carbon-14 build has charge 0 and 6 protons. How many electrons should it have?",
+          "options": [
+            {
+              "id": "a",
+              "label": "14"
+            },
+            {
+              "id": "b",
+              "label": "6"
+            },
+            {
+              "id": "c",
+              "label": "8"
+            },
+            {
+              "id": "d",
+              "label": "0"
+            }
+          ],
+          "answer": "b",
+          "explanation": "With charge 0, this carbon-14 build has 6 electrons. You may have used the mass number or neutron count instead of matching electrons to protons for a neutral atom."
+        }
+      ]
+    },
+    {
+      "id": "make-cl-minus",
+      "title": "Make Cl-",
+      "goalText": "Build Cl- with 17 protons, 18 neutrons, 18 electrons, and a complete outer shell.",
+      "goal": {
+        "symbol": "Cl",
+        "charge": -1,
+        "protons": 17,
+        "neutrons": 18,
+        "electrons": 18,
+        "electronConfiguration": [
+          2,
+          8,
+          8
+        ],
+        "outerShellComplete": true
+      },
+      "hints": [
+        "A negative charge means an extra electron.",
+        "Chlorine has 17 protons; add one electron for -1.",
+        "Use 17 protons, 18 neutrons, and 18 electrons. Shells 2,8,8 make a complete outer shell."
+      ],
+      "start": {
+        "text": "Make Cl-. Chlorine has seventeen protons. A negative charge means one extra electron.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/make-cl-minus-start.mp3"
+      },
+      "complete": {
+        "text": "Cl- has seventeen protons, eighteen neutrons, and electron configuration two, eight, eight, with a complete outer shell.",
+        "audioUrl": "http://localhost:3007/assets/audio/atom-builder/make-cl-minus-complete.mp3"
+      },
+      "questions": [
+        {
+          "id": "assess.atom.chloride-ion.01",
+          "prompt": "The Cl- build has 17 protons. How many electrons should it have?",
+          "options": [
+            {
+              "id": "a",
+              "label": "17"
+            },
+            {
+              "id": "b",
+              "label": "1"
+            },
+            {
+              "id": "c",
+              "label": "18"
+            },
+            {
+              "id": "d",
+              "label": "16"
+            }
+          ],
+          "answer": "c",
+          "explanation": "Cl- has 18 electrons. You may have confused the 17 protons with the electron count; the -1 charge means one extra electron."
+        },
+        {
+          "id": "assess.atom.chloride-ion.02",
+          "prompt": "Which description matches the Cl- build?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Configuration 2,8,8; complete outer shell"
+            },
+            {
+              "id": "b",
+              "label": "Configuration 2,8; complete outer shell"
+            },
+            {
+              "id": "c",
+              "label": "Configuration 2,8,8; incomplete outer shell"
+            },
+            {
+              "id": "d",
+              "label": "Configuration 17,18; complete outer shell"
+            }
+          ],
+          "answer": "a",
+          "explanation": "Cl- has configuration 2,8,8 and a complete outer shell. You may have stopped at 17 electrons or counted the total without checking how the electrons are arranged in shells."
+        }
+      ]
+    }
+  ],
+  "modelUrl": "http://localhost:3007/assets/models/chemistry_lab_bench.glb"
+}

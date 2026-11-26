@@ -12,6 +12,8 @@ import { drawVariants, redactMotion, type MotionAssignment } from './motion';
 import { motionInternal, registerMotion } from './motionRoutes';
 import { reasoningSummary, registerReasoning } from './reasoningRoutes';
 import { rngFor } from './questionEngine';
+import { isMissionsLesson, missionsInternal, type MissionsAssignment } from './missions';
+import { missionsLessonFor, registerMissions } from './missionsRoutes';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -72,7 +74,7 @@ async function loadAny(sessionId: string): Promise<(Assignment & { kind?: 'indic
 async function loadAssignment(sessionId: string): Promise<Assignment | null> {
   const a = await loadAny(sessionId);
   const k = (a as { kind?: string } | null)?.kind;
-  return a && k !== 'metals' && k !== 'biology' && k !== 'optics' && k !== 'motion' && k !== 'sound' ? (a as Assignment) : null;
+  return a && k !== 'metals' && k !== 'biology' && k !== 'optics' && k !== 'motion' && k !== 'sound' && k !== 'missions' ? (a as Assignment) : null;
 }
 async function loadBiology(sessionId: string): Promise<BiologyAssignment | null> {
   const a = await loadAny(sessionId);
@@ -94,6 +96,10 @@ async function loadSound(sessionId: string): Promise<SoundAssignment | null> {
   const a = await loadAny(sessionId);
   return a && (a as { kind?: string }).kind === 'sound' ? (a as unknown as SoundAssignment) : null;
 }
+async function loadMissions(sessionId: string): Promise<MissionsAssignment | null> {
+  const a = await loadAny(sessionId);
+  return a && (a as { kind?: string }).kind === 'missions' ? (a as unknown as MissionsAssignment) : null;
+}
 async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
   const a = await loadAny(sessionId);
   if (!a || (a as OpticsAssignment).kind !== 'optics') return null;
@@ -104,7 +110,7 @@ async function loadOptics(sessionId: string): Promise<OpticsAssignment | null> {
 }
 /** This session's own run of the optics lab: values drawn, everything in its shuffled order. */
 const opticsLesson = (a: OpticsAssignment) => personalize(readLesson(a.lessonId), a.plan);
-const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment | OpticsAssignment | MotionAssignment | SoundAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
+const saveAssignment = (sessionId: string, a: Assignment | MetalsAssignment | BiologyAssignment | OpticsAssignment | MotionAssignment | SoundAssignment | MissionsAssignment) => redis.setEx(key(sessionId), ASSIGNMENT_TTL, JSON.stringify(a));
 
 /** Is this bearer token the one session-auth issued for this session? */
 async function sessionFor(req: express.Request, sessionId: string): Promise<{ studentId: string; lessonId: string } | null> {
@@ -217,6 +223,16 @@ app.get(
         return res.json(redactMotion(lesson, mo));
       }
       return res.json(redactMotion(lesson));
+    }
+    if (isMissionsLesson(lesson)) {
+      const sessionId = String(req.query.sessionId ?? '');
+      let studentId: string | null = null;
+      if (sessionId) {
+        const who = await sessionFor(req, sessionId);
+        if (!who) return res.status(401).json({ error: 'Invalid session' });
+        studentId = who.studentId;
+      }
+      return res.json(await missionsLessonFor(missionsDeps, lesson, sessionId, studentId));
     }
     if (lesson.type === 'physics_waves_sound') {
       const sessionId = String(req.query.sessionId ?? '');
@@ -509,6 +525,8 @@ app.post(
 registerMotion(app, { wrap, sessionFor, readLesson, load: loadMotion, save: saveAssignment });
 const soundDeps = { wrap, sessionFor, readLesson, load: loadSound, save: saveAssignment as never };
 registerSound(app, soundDeps);
+const missionsDeps = { wrap, sessionFor, readLesson, load: loadMissions, save: saveAssignment as never };
+registerMissions(app, missionsDeps);
 registerReasoning(app, { wrap, sessionFor, load: loadAny as never, save: saveAssignment as never });
 
 // ---------------- Human Digestive System ----------------
@@ -671,6 +689,8 @@ app.get(
   '/internal/assignments/:sessionId',
   wrap(async (req, res) => {
     if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+    const mi = await loadMissions(req.params.sessionId);
+    if (mi) return res.json(missionsInternal(readLesson(mi.lessonId), mi));
     const so = await loadSound(req.params.sessionId);
     if (so) return res.json(soundInternal(so, readLesson(so.lessonId)));
     const mo = await loadMotion(req.params.sessionId);

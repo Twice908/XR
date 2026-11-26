@@ -207,6 +207,43 @@ const PLANETS: Readonly<Record<string, PlanetLook>> = {
     palette: { deep: "#05031a", mid: "#1d0f56", glow: "#6a3cff", accent: "#3ee6ff" },
     note: 79,
   },
+  // Atom Builder (MMAXR's look): a violet gas giant circled by electron-shell rings.
+  chemistry_atom_builder: {
+    planet: { style: "banded", colors: ["#2a1670", "#7a5cff", "#bff4ff"], atmosphere: "#8f7bff", rings: { count: 3, color: "#6ff3ff" }, spin: 0.1, tilt: 0.4, seed: 1.7 },
+    size: 116,
+    palette: { deep: "#05031a", mid: "#1d0f56", glow: "#6a3cff", accent: "#3ee6ff" },
+    note: 79,
+  },
+  // Ionic Bonding (MMAXR's look): a crystal world in two alternating colours, with a bonded companion moon.
+  chemistry_ionic_bonding: {
+    planet: {
+      style: "crystal",
+      colors: ["#0b5566", "#a7fff0", "#ff6fd8"],
+      atmosphere: "#5ff0e0",
+      moon: { colors: ["#5a1a6e", "#ffb3ec", "#ffffff"], atmosphere: "#ff8fe0", size: 0.27 },
+      spin: 0.07,
+      tilt: 0.25,
+      seed: 4.2,
+    },
+    size: 100,
+    palette: { deep: "#021113", mid: "#073c48", glow: "#12b5a6", accent: "#ff5cc8" },
+    note: 86,
+  },
+  // Plant vs Animal Cell (MMAXR's look): a living green world, with a soft pink moon for the animal cell.
+  biology_cell_explorer: {
+    planet: {
+      style: "ocean",
+      colors: ["#0f4a2a", "#4fae5c", "#f2fff0"],
+      atmosphere: "#9df0b4",
+      moon: { colors: ["#7a3b46", "#f0b9a8", "#fff4ef"], atmosphere: "#ffc9bd", size: 0.3 },
+      spin: 0.06,
+      tilt: 0.3,
+      seed: 3.3,
+    },
+    size: 108,
+    palette: { deep: "#03110a", mid: "#0d3b22", glow: "#2fb57a", accent: "#b8ff8a" },
+    note: 84,
+  },
   // Properties of matter: a lilac crystal with golden highlights.
   science_matter_properties: {
     planet: { style: "crystal", colors: ["#20103a", "#9a7bff", "#fff0c4"], atmosphere: "#d6c4ff", spin: 0.07, tilt: 0.3, seed: 2.9 },
