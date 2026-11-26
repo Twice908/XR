@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Avatar } from '@astryxdesign/core/Avatar'
 import { Badge } from '@astryxdesign/core/Badge'
@@ -14,7 +15,11 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import { Text } from '@astryxdesign/core/Text'
 import { VStack } from '@astryxdesign/core/VStack'
 import { DeviceTag } from '@/components/DeviceTag'
-import { useStudentSessions, useStudents } from '@/hooks/useSessionData'
+import { StudentCollection } from '@/components/StudentCollection'
+import { RING_META, WeekRings } from '@/components/WeekRings'
+import { Tab, TabList } from '@astryxdesign/core/TabList'
+import { useClassRings, useStudentSessions, useStudents } from '@/hooks/useSessionData'
+import { weekKey } from '@/lib/weeks'
 import { formatDateTime, lessonLabel, relativeTime } from '@/lib/trace'
 
 export default function StudentPage() {
@@ -26,6 +31,9 @@ export default function StudentPage() {
   const student = students.data?.find((s) => s.id === id)
   const name = student?.username ?? 'Student'
   const rows = sessions.data ?? []
+  const [tab, setTab] = useState<'sessions' | 'collection'>('sessions')
+  const week = useClassRings(weekKey())
+  const rings = week.data?.students.find((s) => s.studentId === id)
 
   return (
     <VStack gap={8}>
@@ -43,11 +51,27 @@ export default function StudentPage() {
             </Text>
           </VStack>
         </HStack>
+        {rings ? (
+          <HStack gap={3} vAlign="center">
+            <WeekRings rings={rings} size={44} />
+            <Text type="supporting" size="sm">
+              This week: {RING_META.map((m) => `${rings[m.key].value}/${rings[m.key].goal} ${m.unit}`).join(' · ')}
+              {rings.stalled ? ' · stalled' : rings.allClosed ? ' · all rings closed' : ''}
+            </Text>
+          </HStack>
+        ) : null}
       </VStack>
 
-      {sessions.error ? <Banner status="error" title="Could not load sessions" description={(sessions.error as Error).message} collapsible={false} /> : null}
+      <TabList value={tab} onChange={(v) => setTab(v as 'sessions' | 'collection')} hasDivider>
+        <Tab value="sessions" label="Sessions" />
+        <Tab value="collection" label="Collection" />
+      </TabList>
 
-      {sessions.isLoading ? (
+      {tab === 'collection' ? <StudentCollection studentId={id} /> : null}
+
+      {tab !== 'sessions' ? null : sessions.error ? <Banner status="error" title="Could not load sessions" description={(sessions.error as Error).message} collapsible={false} /> : null}
+
+      {tab !== 'sessions' ? null : sessions.isLoading ? (
         <VStack hAlign="center" padding={10}>
           <Spinner label="Loading sessions" />
         </VStack>

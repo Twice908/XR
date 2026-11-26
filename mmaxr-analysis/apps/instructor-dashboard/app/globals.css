@@ -54,3 +54,18 @@ body {
 .vc-link-row:hover {
   background: #ffffff08;
 }
+.vc-nav {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: #a1a1a1;
+  font-size: 14px;
+  text-decoration: none;
+}
+.vc-nav:hover {
+  color: #ededed;
+  background: #ffffff0d;
+}
+.vc-nav.is-active {
+  color: #ededed;
+  background: #ffffff14;
+}

@@ -58,8 +58,17 @@ Free-tier numbers are from vendor pages / blogs checked Nov 2026 — **re-check 
    VITE_TELEMETRY_URL=https://API_HOST/xapi-emitter/events
    VITE_SENSOR_UPLOAD_URL=https://API_HOST/sensor-stream/upload
    VITE_AI_COACH_WS=wss://API_HOST/coach
+   VITE_REWARDS_URL=https://API_HOST/rewards
    ```
    then set `AI_COACH_ALLOWED_ORIGINS` to the Pages URL.
+
+   **Gamification (branch `gamification`).** Card packs, Learning Rings and the collection live on this branch;
+   `main` stays the plain client. Turn on preview builds for `gamification` (Pages → `mmaxr` → Settings → Builds →
+   Branch control), copy the `VITE_*` variables above into the **Preview** environment, and add the preview URL
+   (`https://gamification.mmaxr.pages.dev`) to `AI_COACH_ALLOWED_ORIGINS`. `VITE_GAMIFICATION=false` builds the
+   plain client from the same code. The dashboard preview is `deploy/deploy-frontends.sh <backend-url> gamification`
+   (→ `https://gamification.mmaxr-dashboard.pages.dev`). The backend serves both clients: the rewards service only
+   adds `/rewards/*`.
 6. Vercel: import `mmaxr-analysis/apps/instructor-dashboard`, point its API URLs at `API_HOST`.
 7. Last: LRS on the laptop, then set `LRS_URL`.
 

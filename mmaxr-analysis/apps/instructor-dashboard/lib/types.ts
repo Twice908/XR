@@ -85,3 +85,62 @@ export interface SessionDetail {
   metrics: Record<string, number | boolean | string | null>
   trace: TraceEvent[]
 }
+
+// ---------- rewards service (/rewards/*) ----------
+
+export interface LearningRing {
+  value: number
+  goal: number
+  percent: number
+  closed: boolean
+}
+
+export type RingGoalLevel = 'light' | 'standard' | 'stretch'
+
+export interface RingGoals {
+  exploreMinutes: number
+  masterCount: number
+  completeCount: number
+  masteryPercent: number
+}
+
+export interface StudentRings {
+  studentId: string
+  level: RingGoalLevel
+  explore: LearningRing
+  master: LearningRing
+  complete: LearningRing
+  allClosed: boolean
+  /** Finished nothing this week or last week. */
+  stalled: boolean
+}
+
+export interface ClassRings {
+  week: string
+  goals: RingGoals
+  summary: { students: number; allClosed: number; stalled: number }
+  students: StudentRings[]
+}
+
+export type CardRarity = 'common' | 'rare' | 'epic' | 'legendary'
+
+export interface CollectionEntry {
+  id: string
+  subject: string
+  set: string
+  rarity: CardRarity
+  title: string
+  subtitle: string
+  order: number
+  owned: boolean
+  count?: number
+  foil?: boolean
+  firstObtainedAt?: string
+}
+
+export interface StudentCollection {
+  shards: number
+  totals: { owned: number; total: number }
+  sets: { subject: string; set: string; title: string; owned: number; total: number; complete: boolean }[]
+  cards: CollectionEntry[]
+}

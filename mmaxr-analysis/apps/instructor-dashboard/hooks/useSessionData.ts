@@ -25,3 +25,18 @@ export function useSessionData(sessionId: string) {
     revalidateOnFocus: true,
   })
 }
+
+export function useClassRings(week: string) {
+  const { token } = useAuth()
+  return useSWR(token ? ['class-rings', week, token] : null, ([, w, t]) => api.classRings(w, t), { refreshInterval: 15000 })
+}
+
+export function useRingGoals() {
+  const { token } = useAuth()
+  return useSWR(token ? ['ring-goals', token] : null, ([, t]) => api.ringGoals(t))
+}
+
+export function useStudentCollection(studentId: string) {
+  const { token } = useAuth()
+  return useSWR(token ? ['student-collection', studentId, token] : null, ([, id, t]) => api.studentCollection(id, t), { refreshInterval: 30000 })
+}

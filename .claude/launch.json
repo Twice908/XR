@@ -7,6 +7,7 @@
     { "name": "rewards", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/rewards", "dev"], "port": 3009 },
     { "name": "rewards-demo", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/rewards", "demo"], "port": 3009 },
     { "name": "webxr-client-rewards-demo", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-webxr-client", "dev", "--port", "5174"], "port": 5174, "env": { "VITE_TELEMETRY_URL": "http://localhost:3009/events" } },
+    { "name": "instructor-dashboard", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-analysis/apps/instructor-dashboard", "dev", "--port", "3100"], "port": 3100 },
     { "name": "xapi-emitter", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-platform/services/xapi-emitter", "dev"], "port": 3001 },
     { "name": "webxr-client", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "./mmaxr-webxr-client", "dev"], "port": 5173 },
     { "name": "narration-generator", "runtimeExecutable": "pnpm", "runtimeArgs": ["--dir", "mmaxr-cell-explorer", "narration"], "port": 5180 }
