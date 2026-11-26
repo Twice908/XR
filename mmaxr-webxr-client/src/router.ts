@@ -21,6 +21,9 @@ export interface RouteTable {
 
 let forceNext = false
 
+/** Longest a page's exit animation may hold up the next page. */
+const LEAVE_TIMEOUT_MS = 4000
+
 export const go = (path: string) => {
   if (location.hash === `#${path}`) {
     forceNext = true
@@ -58,7 +61,8 @@ export function startRouter(root: HTMLElement, routes: RouteTable, guard: (path:
     if (current) {
       root.inert = true
       try {
-        await current.leave?.(path)
+        // Animations wait on animation frames, which stop in a hidden tab: never let one block navigation.
+        if (current.leave) await Promise.race([current.leave(path), new Promise((done) => setTimeout(done, LEAVE_TIMEOUT_MS))])
       } catch (err) {
         console.warn('[router] exit animation failed', err)
       }

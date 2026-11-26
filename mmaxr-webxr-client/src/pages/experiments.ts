@@ -150,7 +150,6 @@ export function experimentsPage(context: RouteContext): Page {
           anchor,
           h('h3', { class: 'planet-name' }, lesson.title),
           meta,
-          h('span', { class: 'planet-cta', 'aria-hidden': 'true' }, 'Open'),
         )
       : h(
           'div',
