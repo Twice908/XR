@@ -123,6 +123,14 @@ export function describeEvent(e: TraceEvent): string {
       return `Tried it freely: ${str(o.value).replace(/_/g, ' ')}`
     case 'submit_final':
       return 'Submitted the “what if?” challenge'
+    case 'start_mission':
+      return `Started mission ${str(o.target).replace('mission:', '')}`
+    case 'check_mission':
+      return `Checked their build for ${str(o.target).replace('mission:', '')}: ${o.value === 'met' ? 'goal met' : 'not yet'}`
+    case 'mission_complete':
+      return `Completed ${str(o.target).replace('mission:', '')}`
+    case 'hint':
+      return `Asked for a hint (${str(o.value)}) on ${str(o.target).replace('mission:', '')}`
     case 'submit_analysis':
       return 'Submitted the analysis'
     default:
@@ -132,6 +140,9 @@ export function describeEvent(e: TraceEvent): string {
 
 export function lessonLabel(id: string | null): string {
   if (!id) return 'Unknown lab'
+  if (id === 'atom-builder') return 'Atom Builder'
+  if (id === 'ionic-bonding') return 'Ionic Bonding'
+  if (id === 'cell-explorer') return 'Plant vs Animal Cell'
   if (id.startsWith('simple-machines')) return 'Simple Machines'
   if (id.startsWith('physics-fundamentals')) return 'Fundamental Physics'
   if (id.startsWith('physics-electricity')) return 'Electricity & Circuits'

@@ -5,6 +5,7 @@ import { scoreMotion } from './motion';
 import { scorePhysics } from './physics';
 import { scoreOptics } from './optics';
 import { scoreSound } from './sound';
+import { MISSION_LESSON_IDS, scoreMissions } from './missions';
 import type { Device, EventRow, Report, SensorData, TruthInfo } from './types';
 
 export * from './types';
@@ -21,6 +22,8 @@ export function detectDevice(events: EventRow[], sensor: SensorData | null): Dev
 export function detectLesson(events: EventRow[]): Report['lessonType'] {
   const entered = events.find((e) => e.object_data?.action === 'enter_lab');
   const target = String(entered?.object_data?.target ?? '');
+  // Mission labs first: they also emit quiz_answer, which would otherwise read as the digestive-system tour.
+  if (MISSION_LESSON_IDS[target]) return MISSION_LESSON_IDS[target];
   if (target.startsWith('physics-light') || events.some((e) => e.object_data?.action === 'predict_image')) return 'physics_optics';
   if (target.startsWith('physics-sound') || events.some((e) => e.object_data?.action === 'predict_sound')) return 'physics_waves_sound';
   if (target.startsWith('physics-motion') || target.startsWith('physics-magnetism') || target.startsWith('physics-electricity') || target.startsWith('simple-machines') || target.startsWith('physics-fundamentals') || target.startsWith('matter-') || events.some((e) => e.object_data?.action === 'predict_trial')) return 'physics_motion';
@@ -35,7 +38,8 @@ export function detectLesson(events: EventRow[]): Report['lessonType'] {
 export function analyze(events: EventRow[], sensor: SensorData | null, truth: TruthInfo | null = null): Report {
   const ordered = [...events].sort((a, b) => a.timestamp - b.timestamp || a.id - b.id);
   const device = detectDevice(ordered, sensor);
-  const lesson = detectLesson(ordered);
+  const lesson = truth?.missions?.labType ?? detectLesson(ordered);
+  if (lesson === 'chemistry_atom_builder' || lesson === 'chemistry_ionic_bonding' || lesson === 'biology_cell_explorer') return scoreMissions(ordered, sensor, device, truth, lesson);
   if (lesson === 'physics_optics') return scoreOptics(ordered, sensor, device, truth);
   if (lesson === 'physics_waves_sound') return scoreSound(ordered, sensor, device, truth);
   if (lesson === 'physics_bohr') return scorePhysics(ordered, sensor, device);
