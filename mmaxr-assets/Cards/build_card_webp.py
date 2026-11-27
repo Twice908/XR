@@ -1,16 +1,33 @@
-"""Split each element card PNG (front | back side by side) into two transparent WebPs of one fixed size."""
-import sys, json, os
+"""Split each card PNG (front | info side, side by side) into transparent WebPs of one fixed size (620 x 900).
+
+    python build_card_webp.py elements Element_Cards_Complete/Cards ../../mmaxr-webxr-client/public/cards/elements
+    python build_card_webp.py physics Physics_Cards_Collectible_Edition/Cards ../../mmaxr-webxr-client/public/cards/physics
+
+Writes {name}-front.webp, {name}-front-sm.webp (half size, for grids) and {name}-back.webp, where name is the
+element symbol (H, He, ...) or the physics quantity key (length, force, ...). Needs Pillow and numpy.
+"""
+import sys, json, os, glob
 from PIL import Image, ImageFilter
 import numpy as np
-src, out = sys.argv[1], sys.argv[2]
-only = set(sys.argv[3:])
+kind, src, out = sys.argv[1], sys.argv[2], sys.argv[3]
+only = set(sys.argv[4:])
 W, H = 620, 900
 os.makedirs(out, exist_ok=True)
-man = json.load(open(os.path.join(src, '..', 'manifest.json')))['elements']
+if kind == 'elements':
+    entries = [(e['symbol'], e['png']) for e in json.load(open(os.path.join(src, '..', 'manifest.json')))['elements']]
+elif kind == 'physics':
+    cards = json.load(open(os.path.join(src, '..', 'physics_catalog.json')))['cards']
+    entries = []
+    for c in cards:
+        files = glob.glob(os.path.join(src, f"*_{c['key']}_Card.png"))
+        assert len(files) == 1, (c['key'], files)
+        entries.append((c['key'], os.path.basename(files[0])))
+else:
+    sys.exit(f'unknown set {kind}')
 total = 0
-for e in man:
-    if only and e['symbol'] not in only: continue
-    img = Image.open(os.path.join(src, e['png'])).convert('RGB')
+for name, png in entries:
+    if only and name not in only: continue
+    img = Image.open(os.path.join(src, png)).convert('RGB')
     im = np.asarray(img).astype(int)
     h, w, _ = im.shape
     bg = np.median(np.concatenate([im[0], im[-1], im[:, 0], im[:, -1]]), axis=0)
@@ -24,7 +41,7 @@ for e in man:
         if not v and start is not None: runs.append((start, x)); start = None
     if start is not None: runs.append((start, w))
     runs = [r for r in runs if r[1] - r[0] > 200]
-    assert len(runs) == 2, (e['png'], runs)
+    assert len(runs) == 2, (png, runs)
     # background = pixels near bg colour connected to the border
     near = dist < 75
     seed = np.zeros_like(near); seed[0, :] = seed[-1, :] = seed[:, 0] = seed[:, -1] = True
@@ -45,11 +62,11 @@ for e in man:
         part = part.resize((round(part.width * s), round(part.height * s)), Image.LANCZOS)
         canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
         canvas.paste(part, ((W - part.width) // 2, (H - part.height) // 2))
-        p = os.path.join(out, f"{e['symbol']}-{side}.webp")
+        p = os.path.join(out, f"{name}-{side}.webp")
         canvas.save(p, 'WEBP', quality=80, method=6, alpha_quality=80)
         total += os.path.getsize(p)
         if side == 'front':
-            p = os.path.join(out, f"{e['symbol']}-front-sm.webp")
+            p = os.path.join(out, f"{name}-front-sm.webp")
             canvas.resize((W // 2, H // 2), Image.LANCZOS).save(p, 'WEBP', quality=78, method=6, alpha_quality=80)
             total += os.path.getsize(p)
 print('bytes', total)

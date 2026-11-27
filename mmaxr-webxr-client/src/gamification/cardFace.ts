@@ -16,7 +16,7 @@ export function placeholderGlyph(card: Pick<RewardCard, 'set' | 'title' | 'subti
     .join('')
 }
 
-/** Illustrated art for a card, when the designers have drawn it. Today: all 118 elements (front and info side). */
+/** Illustrated art for a card, when the designers have drawn it: the 118 elements and the 27 physics quantities. */
 export interface CardArt {
   front: string
   frontSmall: string
@@ -25,10 +25,21 @@ export interface CardArt {
 
 const ART_ROOT = `${import.meta.env.BASE_URL ?? '/'}cards`
 
-export function cardArt(card: Pick<RewardCard, 'set' | 'subtitle'>): CardArt | null {
-  if (card.set !== 'elements' || !/^[A-Z][a-z]?$/.test(card.subtitle)) return null
-  const base = `${ART_ROOT}/elements/${card.subtitle}`
-  return { front: `${base}-front.webp`, frontSmall: `${base}-front-sm.webp`, back: `${base}-back.webp` }
+/** Physics quantities with drawn art (the key in `phys-base-<key>` / `phys-der-<key>`). */
+const PHYSICS_ART = new Set([
+  'length', 'mass', 'time', 'current', 'temperature', 'amount', 'luminous',
+  'area', 'volume', 'density', 'speed', 'acceleration', 'frequency', 'force', 'momentum', 'pressure', 'energy', 'power',
+  'charge', 'voltage', 'resistance', 'torque', 'capacitance', 'flux-density', 'flux', 'inductance', 'power-of-lens',
+])
+
+const artAt = (base: string): CardArt => ({ front: `${base}-front.webp`, frontSmall: `${base}-front-sm.webp`, back: `${base}-back.webp` })
+
+export function cardArt(card: Pick<RewardCard, 'id'>): CardArt | null {
+  const el = /^chem-el-([A-Z][a-z]?)$/.exec(card.id)
+  if (el) return artAt(`${ART_ROOT}/elements/${el[1]}`)
+  const phys = /^phys-(?:base|der)-([a-z-]+)$/.exec(card.id)
+  if (phys && PHYSICS_ART.has(phys[1])) return artAt(`${ART_ROOT}/physics/${phys[1]}`)
+  return null
 }
 
 export interface CardFaceOptions {
@@ -110,7 +121,7 @@ export function cardFace(card: RewardCard, opts: CardFaceOptions = {}): CardFace
       'data-subject': card.subject,
       'data-set': card.set,
       role: 'group',
-      'aria-label': `${RARITY_LABEL[card.rarity]} card: ${card.title}${art ? `, ${card.subtitle}` : ''}`,
+      'aria-label': `${RARITY_LABEL[card.rarity]} card: ${card.title}, ${card.subtitle}`,
     },
     h('div', { class: 'mx-card-rays', 'aria-hidden': 'true' }),
     h('div', { class: 'mx-card-tilt' }, inner),

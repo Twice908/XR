@@ -6,7 +6,7 @@ designs arrive; no page needs to.
 
 ## Card
 
-- **Ratio 31:45** (620 × 900, the element art). Shown at 200 px wide on desktop (210 px on the pack-opening page) and 140 px on phones. Element art lives in `public/cards/elements/{Symbol}-front.webp`, `-front-sm.webp` and `-back.webp`, built by `mmaxr-assets/Cards/build_card_webp.py`.
+- **Ratio 31:45** (620 × 900, the element art). Shown at 200 px wide on desktop (210 px on the pack-opening page) and 140 px on phones. Art lives in `public/cards/elements/{Symbol}-*.webp` and `public/cards/physics/{quantity key}-*.webp` (`-front`, `-front-sm`, `-back`), built by `mmaxr-assets/Cards/build_card_webp.py`; `cardArt()` maps card ids to it. Physics faces are 5:7 and sit centred in the 31:45 box.
 - Corner radius 16 px at 200 px wide (8% of the width).
 - Two faces, flipped in 3D around the vertical axis:
   - **Back (cover):** one design for every card. Shown face-down before a reveal.
