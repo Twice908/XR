@@ -176,6 +176,7 @@ export function labPage(lessonId: string): Page {
           refresh()
           return
         }
+        const phaseBefore = exp.phase
         const r = guard(() => exp.act(observed))
         if (!r) {
           busy = false
@@ -187,10 +188,14 @@ export function labPage(lessonId: string): Page {
         busy = false
         scene!.focusTube(null)
         if (!r.match) coach?.event('prediction_mismatch', say.mismatch(r.tube + 1, tool === PH_TOOL ? 'the pH paper' : exp.indicator(tool)!.name, r.predicted, r.actual), buildSnapshot(exp))
+        const unlocked = phaseBefore === 'testing' && exp.phase === 'ph'
+        if (unlocked) coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
         refresh({
-          text: r.match
-            ? `Tube ${r.tube + 1} turned ${r.actual}. Write what you see in your notebook.`
-            : `Tube ${r.tube + 1} turned ${r.actual}: not what you predicted. Record it, then ask yourself why.`,
+          text: unlocked
+            ? `Tube ${r.tube + 1} turned ${r.actual}. That was your last indicator test: pH paper is unlocked, find each exact pH.`
+            : r.match
+              ? `Tube ${r.tube + 1} turned ${r.actual}. Write what you see in your notebook.`
+              : `Tube ${r.tube + 1} turned ${r.actual}: not what you predicted. Record it, then ask yourself why.`,
         })
         hud!.openNotebook()
       }
@@ -260,7 +265,14 @@ export function labPage(lessonId: string): Page {
             if (ok) hud!.closeNotebookSoon()
             if (ok && history > 0 && prior) coach?.event('revision', say.revision(tube + 1, prior, c), buildSnapshot(exp))
             else if (ok && before === 'testing' && exp.phase === 'ph') coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
-            refresh(before === 'testing' && exp.phase === 'ph' ? { text: 'Every tube has a conclusion. pH paper is unlocked: find each exact pH.' } : undefined)
+            const { done, total } = exp.indicatorTests
+            refresh(
+              before === 'testing' && exp.phase === 'ph'
+                ? { text: 'Every tube is tested and concluded. pH paper is unlocked: find each exact pH.' }
+                : ok && exp.phase === 'testing' && exp.allConcluded && done < total
+                  ? { text: `Every tube has a conclusion. Test the rest with your other indicators (${total - done} tests left) to unlock the pH paper.` }
+                  : undefined,
+            )
           },
           onRecordPh: (tube, value) => {
             const ok = guard(() => (exp.recordPh(tube, value), true))

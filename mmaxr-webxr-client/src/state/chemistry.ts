@@ -101,6 +101,15 @@ export class ChemistryExperiment {
   get allConcluded(): boolean {
     return this.tubes.every((t) => t.conclusion !== null)
   }
+  /** Indicator tests run so far, out of every chosen indicator on every tube (pH paper not counted). */
+  get indicatorTests(): { done: number; total: number } {
+    const done = this.tubes.reduce((n, t) => n + this.chosen.filter((id) => t.results[id]).length, 0)
+    return { done, total: this.tubes.length * this.chosen.length }
+  }
+  /** Every tube has been tested with every indicator the student chose. */
+  get allIndicatorsTested(): boolean {
+    return this.chosen.length > 0 && this.tubes.every((t) => this.chosen.every((id) => t.results[id]))
+  }
   get allPhRecorded(): boolean {
     return this.tubes.every((t) => t.recordedPh !== null)
   }
@@ -210,6 +219,8 @@ export class ChemistryExperiment {
       value: observed,
       data: { tube: p.tube + 1, tool: p.tool, predicted: p.predicted, match },
     })
+    // The last indicator test can be what unlocks the pH paper, when every tube is already concluded.
+    this.maybeUnlockPh()
     return { tube: p.tube, tool: p.tool, actual: observed, predicted: p.predicted, match }
   }
 
@@ -251,8 +262,13 @@ export class ChemistryExperiment {
     this.maybeUnlockPh()
   }
 
+  /**
+   * The pH paper is the last step: it unlocks only once every tube has been tested with every chosen indicator and
+   * every tube has a conclusion. Concluding early is allowed (and changing your mind is scored), but it must not end
+   * the indicator testing before the other indicators have been tried.
+   */
   private maybeUnlockPh() {
-    if (this.phase === 'testing' && this.allConcluded && !this.pending) {
+    if (this.phase === 'testing' && this.allIndicatorsTested && this.allConcluded && !this.pending) {
       this.phase = 'ph'
       this.activeTool = PH_TOOL
       this.emit(XapiVerb.INVESTIGATED, { action: 'unlock_ph_paper' })

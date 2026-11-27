@@ -31,7 +31,7 @@ export function buildSnapshot(exp: ChemistryExperiment): Snapshot {
 export const describe = {
   mismatch: (tube: number, tool: string, predicted: string, observed: string) => `On tube ${tube} the student predicted ${predicted} with ${tool}, but it turned ${observed}.`,
   revision: (tube: number, from: string, to: string) => `The student changed their conclusion for tube ${tube} from ${from} to ${to}.`,
-  phUnlocked: 'Every tube now has a conclusion, so the pH paper is unlocked.',
+  phUnlocked: 'Every tube is tested with all your indicators and has a conclusion, so the pH paper is unlocked.',
   ready: 'Everything is filled in and the student can submit.',
   idle: 'The student has not done anything for a while.',
 }
