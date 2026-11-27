@@ -7,6 +7,66 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the sound lab. There are three benches to explore: a ripple tank, an echo bench, and a ship's sonar. Predict, play with the controls, measure, and explain what you see.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "task-wave-1",
+      "trigger": "task_selected",
+      "text": "This is the ripple tank, wired to an oscilloscope. You are about to change the frequency. First, predict what will happen to the wavelength.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "task-wave-2",
+      "trigger": "task_selected",
+      "text": "Now for the amplitude. Before you turn it up, predict what would happen to the loudness if this were a sound wave.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "task-echo-1",
+      "trigger": "task_selected",
+      "text": "Welcome to the echo bench. You will clap in the open field and then in the small room. Predict how the two will sound different.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "task-echo-2",
+      "trigger": "task_selected",
+      "text": "Time for the cliff. Predict how far away it is. Then shout, and time the echo yourself with the stopwatch.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "task-sonar-1",
+      "trigger": "task_selected",
+      "text": "This is the ship's sonar. Predict the depth, send a pulse and read the timer. Then work out the depth from your own reading.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "task-ultrasound-1",
+      "trigger": "task_selected",
+      "text": "Last, the ultrasound scanner. You will compare a scan made with ordinary sound and one made with ultrasound. Predict why ordinary sound cannot be used for this.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now do what the checklist asks on the bench, then press run.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Look closely, then explain what you saw.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "ready-to-finish",
+      "trigger": "ready_to_finish",
+      "text": "Every task is run and explained. When you are ready, press finish to see your summary.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "reveal",
+      "trigger": "revealed",
+      "text": "Here is your summary. Look back at any prediction that surprised you, and think about why it turned out that way.",
+      "reviewStatus": "pending"
     }
   ]
 }

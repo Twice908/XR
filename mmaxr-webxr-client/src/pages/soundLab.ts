@@ -21,6 +21,8 @@ interface Ctx {
   session: LabSession
   lesson: SoundLessonContract
   isDestroyed: () => boolean
+  /** Speaks a recorded narration line once (mmaxr-assets/narration/physics-sound.json). */
+  narrate?: (cueId: string) => void
 }
 
 const num = (v: unknown, d: number) => (Number.isFinite(Number(v)) ? Number(v) : d)
@@ -28,6 +30,7 @@ const num = (v: unknown, d: number) => (Number.isFinite(Number(v)) ? Number(v) :
 /** Runs the Sound & Waves sandbox. Returns a cleanup function. */
 export async function startSoundLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
+  const narrate = ctx.narrate ?? (() => undefined)
   const exp = new SoundExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let busy = false
   let submitting = false
@@ -48,6 +51,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
   }
   const refresh = (hint?: { text: string; action?: { label: string; run: () => void } | null }) => {
     hud!.update()
+    if (exp.phase === 'finish') narrate('ready-to-finish')
     const d = hint ?? defaultHint()
     hud!.hint(d.text, d.action ?? null)
   }
@@ -65,6 +69,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
 
   /** Set the benches up for a task: the generator at its starting frequency, the right place, a clean checklist. */
   const stageFor = (t: Trial) => {
+    narrate(`task-${t.id.replace(/_/g, '-')}`)
     exp.tab = t.tab
     scene!.setStage(t.tab)
     const p = t.task.params
@@ -148,6 +153,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
     busy = false
     const trial = guard(() => exp.act(result, clickedAt))
     if (!trial) return
+    if (!result.match) narrate('surprise')
     if (!result.match) coach?.event('prediction_mismatch', result.anomaly ? say.anomaly : say.mismatch(trial.task.prompt), buildSoundSnapshot(exp))
     hud!.show(trial.id)
     refresh(afterRun(trial))
@@ -182,6 +188,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
       refresh()
       hud!.closeCard()
       hud!.showReveal(summary, reveal, () => go('/experiments'), () => undefined)
+      narrate('reveal')
       coach?.reveal(buildSoundSnapshot(exp))
     } catch (err) {
       toast((err as Error).message, 'error')
@@ -211,6 +218,7 @@ export async function startSoundLab(ctx: Ctx): Promise<() => void> {
     onSelect: select,
     onLock: (id, option, confidence, decisionMs) => {
       if (!guard(() => exp.predict(id, option, confidence, decisionMs))) return
+      narrate('prediction-locked')
       hud!.show(id)
       refresh()
     },

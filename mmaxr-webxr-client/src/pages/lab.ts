@@ -56,12 +56,16 @@ export function labPage(lessonId: string): Page {
       const session = await openSession(account.token, lessonId)
       const raw = await fetchLesson(lessonId, session)
       // Spoken lines load beside the lab; the welcome plays once the lab is on screen.
-      const narrationReady = loadLabNarration(lessonId, root)
+      // Labs reach it through `narrate`, which is silent until it has loaded.
+      const narrationReady = loadLabNarration(lessonId, root).then((n) => {
+        if (destroyed) n.dispose()
+        else narration = n
+        return n
+      })
+      const narrate = (cueId: string) => narration?.once(cueId)
       const startNarration = async () => {
-        const n = await narrationReady
-        if (destroyed) return n.dispose()
-        narration = n
-        n.say('intro')
+        await narrationReady
+        if (!destroyed) narration?.say('intro')
       }
       if (raw.type === 'chemistry_metals') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
@@ -87,7 +91,7 @@ export function labPage(lessonId: string): Page {
       if (raw.type === 'physics_waves_sound') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
-        metalsCleanup = await startSoundLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        metalsCleanup = await startSoundLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed, narrate })
         await startNarration()
         return
       }
