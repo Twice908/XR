@@ -28,6 +28,9 @@ const ALLOWED_ORIGINS = (process.env.AI_COACH_ALLOWED_ORIGINS || '').split(',').
 const ASKS_PER_MINUTE = Math.max(1, Number(process.env.AI_COACH_ASKS_PER_MINUTE) || 5);
 // Everything else (hello, mode, voice, lab events) only guards against a runaway client.
 const MESSAGES_PER_MINUTE = 40;
+// Floor and cancel messages cost nothing and come with every narration line and talk-button press; their own cap
+// keeps them from crowding out (or being crowded out by) the rest.
+const FLOOR_PER_MINUTE = 120;
 
 const registry = new ProviderRegistry(process.env);
 const tts = createTts(process.env);
@@ -99,17 +102,18 @@ wss.on('connection', async (ws: WebSocket, req) => {
 
   const messages = new RateWindow(MESSAGES_PER_MINUTE);
   const asks = new RateWindow(ASKS_PER_MINUTE);
+  const floorMessages = new RateWindow(FLOOR_PER_MINUTE);
 
   ws.on('message', (data) => {
-    if (!messages.take()) return send({ type: 'error', message: 'Slow down a little.' });
-
     let msg: ClientMessage;
     try {
       msg = JSON.parse(data.toString());
     } catch {
-      return send({ type: 'error', message: 'Messages must be JSON.' });
+      return messages.take() ? send({ type: 'error', message: 'Messages must be JSON.' }) : undefined;
     }
-    if (!msg || typeof msg !== 'object' || typeof (msg as { type?: unknown }).type !== 'string') return;
+    if (!msg || typeof msg !== 'object' || typeof (msg as { type?: unknown }).type !== 'string') return void messages.take();
+    const cheap = msg.type === 'floor' || msg.type === 'cancel';
+    if (!(cheap ? floorMessages : messages).take()) return send({ type: 'error', message: 'Slow down a little.' });
     if (msg.type === 'mode' && !(MODES as string[]).includes(msg.mode)) return;
     if (msg.type === 'ask' && (typeof msg.text !== 'string' || !msg.text.trim())) return;
     if (msg.type === 'ask' && !asks.take()) {

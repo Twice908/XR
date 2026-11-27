@@ -60,7 +60,8 @@ export const REQUEST_TIMEOUT_MS = 15000;
 export async function postJson(fetchImpl: FetchLike, url: string, headers: Record<string, string>, body: unknown, outer?: AbortSignal): Promise<any> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
-  outer?.addEventListener('abort', () => ctrl.abort());
+  if (outer?.aborted) ctrl.abort();
+  else outer?.addEventListener('abort', () => ctrl.abort(), { once: true });
   try {
     const res = await fetchImpl(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body), signal: ctrl.signal });
     if (!res.ok) {

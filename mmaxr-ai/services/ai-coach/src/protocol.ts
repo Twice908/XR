@@ -62,6 +62,14 @@ export type ClientMessage =
   /** `inputMode` says whether the student typed the question or spoke it (transcribed in the browser). */
   | { type: 'ask'; text: string; snapshot?: Snapshot; inputMode?: 'typed' | 'voice' }
   | { type: 'event'; kind: EventKind; detail?: string; snapshot?: Snapshot }
+  /**
+   * Who has the floor, as the browser sees it. `narrating`: a recorded narration line is playing. `talking`: the
+   * student is holding the talk button. Send each field when it changes; omitted fields keep their last value.
+   * Talking stops any coach reply in progress. Nudges wait for a quiet moment and are dropped otherwise.
+   */
+  | { type: 'floor'; narrating?: boolean; talking?: boolean }
+  /** Stop the coach reply in progress (`id`, or whichever is current): no more text or audio for it. */
+  | { type: 'cancel'; id?: string }
   | { type: 'reveal'; snapshot?: Snapshot };
 
 export type CoachReason = 'reply' | 'nudge' | 'wrapup';
@@ -69,7 +77,8 @@ export type CoachReason = 'reply' | 'nudge' | 'wrapup';
 export type ServerMessage =
   /** `voiceAvailable`: the server can speak (a TTS engine is set up). `voice`: this session has spoken replies on. */
   | { type: 'ready'; mode: Mode; provider: string; model: string; configured: boolean; voiceAvailable: boolean; voice: boolean }
-  | { type: 'thinking' }
+  /** A reply has started; `id` is the id its `coach` and `coach_audio` messages will carry. */
+  | { type: 'thinking'; id: string }
   /** The reply text, always sent first. `voice` is true when audio for this `id` will follow as `coach_audio`. */
   | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean; voice: boolean }
   /**
@@ -78,6 +87,13 @@ export type ServerMessage =
    */
   | { type: 'coach_audio'; id: string; seq: number; last: boolean; format: 'mp3'; data: string; text: string; error?: boolean }
   | { type: 'voice'; on: boolean; available: boolean }
+  /**
+   * A reply was stopped: the browser should drop it (stop its audio, discard pieces still to come). `superseded`: the
+   * student asked something new. `talking`: the student started talking. `narration`: a narration line started over a
+   * nudge (a reply to a question is never cancelled by narration; the browser plays it after the line). `cancelled`:
+   * the browser asked.
+   */
+  | { type: 'coach_cancelled'; id: string; reason: 'superseded' | 'talking' | 'narration' | 'cancelled' }
   | { type: 'mode'; mode: Mode }
   | { type: 'coach_off' }
   | { type: 'error'; message: string };

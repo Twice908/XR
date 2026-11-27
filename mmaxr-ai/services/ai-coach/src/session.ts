@@ -4,6 +4,7 @@ import { buildSystemPrompt, describeSnapshot } from './prompt';
 import type { ProviderRegistry } from './providers';
 import { ProviderError, type ChatTurn } from './providers/types';
 import type { Assignment, ClientMessage, CoachReason, EventKind, Hello, Mode, ServerMessage, Snapshot, TruthTube } from './protocol';
+import { Floor } from './floor';
 import { splitSentences } from './voice/sentences';
 import { noTts, type TtsEngine } from './voice/tts';
 
@@ -34,14 +35,14 @@ export class CoachSession {
   private history: ChatTurn[] = [];
   private truth: TruthTube[] | null = null;
   private lastNudgeAt = 0;
-  private busy = false;
   private counter = 0;
+  /** The reply in progress, from "thinking" until its last sentence has been sent. At most one at a time. */
+  private current: { id: string; reason: CoachReason; ctrl: AbortController } | null = null;
+  private readonly floor: Floor;
   private voice = false;
   /** The lab's public context, once loaded. It joins the system prompt and stays there for the rest of the session. */
   private context: string | null = null;
   private contextLoad: Promise<void> | null = null;
-  /** The reply currently being spoken; a newer reply stops it. */
-  private speaking: AbortController | null = null;
   private readonly tts: TtsEngine;
   private readonly now: () => number;
   private readonly log: (line: string) => void;
@@ -50,6 +51,7 @@ export class CoachSession {
     this.now = deps.now ?? Date.now;
     this.log = deps.log ?? (() => {});
     this.tts = deps.tts ?? noTts;
+    this.floor = new Floor(this.now);
   }
 
   get voiceOn(): boolean {
@@ -87,6 +89,15 @@ export class CoachSession {
         return this.respond('reply', `The student says: “${String(msg.text).slice(0, MAX_TEXT)}”`, 'ask', msg.snapshot, String(msg.text).slice(0, MAX_TEXT));
       case 'event':
         return this.nudge(msg.kind, msg.detail, msg.snapshot);
+      case 'floor': {
+        const change = { narrating: typeof msg.narrating === 'boolean' ? msg.narrating : undefined, talking: typeof msg.talking === 'boolean' ? msg.talking : undefined };
+        if (this.floor.update(change)) this.cancel('talking');
+        // Narration outranks a nudge: the nudge stops. A reply to a question carries on; the browser queues it.
+        else if (change.narrating === true && this.current?.reason === 'nudge') this.cancel('narration');
+        return;
+      }
+      case 'cancel':
+        return this.cancel('cancelled', typeof msg.id === 'string' ? msg.id : undefined);
       case 'reveal':
         return this.wrapUp(msg.snapshot);
     }
@@ -95,8 +106,8 @@ export class CoachSession {
   private assignment: Assignment | null = null;
 
   private setVoice(on: boolean) {
+    // Turning voice off stops the audio of the reply in progress (its text is already out), not the reply itself.
     this.voice = on && this.voiceAvailable;
-    if (!this.voice) this.stopSpeaking();
     this.deps.send({ type: 'voice', on: this.voice, available: this.voiceAvailable });
   }
 
@@ -115,31 +126,33 @@ export class CoachSession {
     return this.contextLoad ?? Promise.resolve();
   }
 
-  private stopSpeaking() {
-    this.speaking?.abort();
-    this.speaking = null;
+  /** Stops the reply in progress (or only reply `id`) and tells the browser to drop it. */
+  private cancel(reason: 'superseded' | 'talking' | 'narration' | 'cancelled', id?: string) {
+    const c = this.current;
+    if (!c || (id && id !== c.id)) return;
+    c.ctrl.abort();
+    this.current = null;
+    this.log(`reply ${c.id} cancelled (${reason})`);
+    this.deps.send({ type: 'coach_cancelled', id: c.id, reason });
   }
 
-  /** Sends the reply as audio, one sentence at a time, after its text. A newer reply cancels what is left. */
-  private async speak(id: string, text: string) {
-    this.stopSpeaking();
-    const ctrl = new AbortController();
-    this.speaking = ctrl;
+  /** Sends the reply as audio, one sentence at a time, after its text. Stops when the reply is cancelled or voice goes off. */
+  private async speak(id: string, text: string, signal: AbortSignal) {
     const sentences = splitSentences(text);
     for (const [seq, sentence] of sentences.entries()) {
+      if (signal.aborted || !this.voice) return;
       const last = seq === sentences.length - 1;
       try {
-        const audio = await this.tts.synthesize(sentence, ctrl.signal);
-        if (ctrl.signal.aborted) return;
+        const audio = await this.tts.synthesize(sentence, signal);
+        if (signal.aborted || !this.voice) return;
         this.deps.send({ type: 'coach_audio', id, seq, last, format: 'mp3', data: Buffer.from(audio).toString('base64'), text: sentence });
       } catch (err) {
-        if (ctrl.signal.aborted) return;
+        if (signal.aborted) return;
         this.log(`speech failed: ${(err as Error).message.slice(0, 120)}`);
         this.deps.send({ type: 'coach_audio', id, seq, last: true, format: 'mp3', data: '', text: sentence, error: true });
-        break;
+        return;
       }
     }
-    if (this.speaking === ctrl) this.speaking = null;
   }
 
   private async refreshAssignment(): Promise<Assignment | null> {
@@ -154,7 +167,13 @@ export class CoachSession {
   private async nudge(kind: EventKind, detail: string | undefined, snapshot: Snapshot | undefined) {
     if (this.mode !== 'proactive') return;
     const t = this.now();
-    if (t - this.lastNudgeAt < MIN_NUDGE_GAP_MS || this.busy) return;
+    if (t - this.lastNudgeAt < MIN_NUDGE_GAP_MS) return;
+    // A nudge never waits for its turn: if someone has the floor, it is dropped.
+    const held = this.floor.canNudge(this.current !== null);
+    if (held) {
+      this.log(`nudge (${kind}) dropped: ${held}`);
+      return;
+    }
     this.lastNudgeAt = t;
     const what = (detail ?? kind).slice(0, 300);
     await this.respond('nudge', `[lab event] ${what} Say one short coaching question about it.`, kind, snapshot, `[lab event] ${what}`);
@@ -177,13 +196,21 @@ export class CoachSession {
       this.deps.send({ type: 'coach_off' });
       return;
     }
-    if (this.busy && reason === 'reply') return; // one answer at a time
-    this.busy = true;
-    this.deps.send({ type: 'thinking' });
+    // One reply at a time. A new question replaces the reply in progress; the wrap-up replaces anything.
+    if (this.current) {
+      if (reason === 'nudge') return;
+      this.cancel('superseded');
+    }
+    const id = `c${++this.counter}`;
+    const ctrl = new AbortController();
+    const mine = { id, reason, ctrl };
+    this.current = mine;
+    this.deps.send({ type: 'thinking', id });
 
     const provider = this.deps.registry.active;
     const hello: Hello = this.hello ?? { lessonId: 'unknown', title: 'a science lab', labType: 'unknown' };
     if (this.truth === null && this.assignment === null) await this.refreshAssignment();
+    if (ctrl.signal.aborted) return; // cancelled before the model was asked
     const state = describeSnapshot(snapshot);
     const turns: ChatTurn[] = [...this.history, { role: 'user', text: state ? `${userTurn}\n\n${state}` : userTurn }];
 
@@ -191,7 +218,7 @@ export class CoachSession {
     let degraded = false;
     let blocked = false;
     try {
-      text = await provider.complete({ system: buildSystemPrompt(hello, this.truth, this.context), turns, maxTokens });
+      text = await provider.complete({ system: buildSystemPrompt(hello, this.truth, this.context), turns, maxTokens, signal: ctrl.signal });
       const revealed = this.truth !== null;
       const verdicts = snapshot?.claims?.map((c) => ({ tube: c.n, verdict: c.verdict })) ?? (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
       const phs = (snapshot?.tubes ?? []).map((t) => t.recordedPh).filter((n): n is number => n !== null);
@@ -201,19 +228,19 @@ export class CoachSession {
       text = guarded.safeResponse;
       blocked = guarded.wasBlocked;
     } catch (err) {
+      if (ctrl.signal.aborted) return;
       degraded = true;
       const kindName = err instanceof ProviderError ? err.kind : 'error';
       this.log(`provider ${provider.name} unavailable (${kindName}): ${(err as Error).message.slice(0, 160)}`);
       text = fallbackReply(kind);
-    } finally {
-      this.busy = false;
     }
+    if (ctrl.signal.aborted) return; // cancelled while thinking: nothing is sent, and it is not remembered
 
     this.history.push({ role: 'user', text: historyText }, { role: 'assistant', text });
     if (this.history.length > MAX_HISTORY_TURNS * 2) this.history.splice(0, this.history.length - MAX_HISTORY_TURNS * 2);
-    const id = `c${++this.counter}`;
     const voice = this.voice && this.voiceAvailable;
     this.deps.send({ type: 'coach', id, text, reason, provider: provider.name, blocked, degraded, voice });
-    if (voice) await this.speak(id, text);
+    if (voice) await this.speak(id, text, ctrl.signal);
+    if (this.current === mine) this.current = null;
   }
 }

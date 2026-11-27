@@ -83,3 +83,20 @@ Implemented for the chemistry indicators lab:
 - The lab's public context (benches, concept ideas, tool and stop names, narration lines; never answers) is read once
   per session from the lesson loader (`/internal/lessons/:lessonId/context`), on the first question, and kept in the
   system prompt, which is prompt-cached (Anthropic) so later questions read it from the cache.
+
+## Voice (phase 2: who speaks when)
+
+One voice at a time, in this order (`src/floor.ts`):
+
+1. **The student**, holding the talk button (`{type:'floor', talking:true}`): the coach reply in progress stops
+   (`coach_cancelled`, reason `talking`), whether it is still thinking or part-way through being spoken.
+2. **Narration** (`{type:'floor', narrating:true|false}`), played by the browser: never interrupted. It stops a nudge
+   in progress (reason `narration`) but never a reply to a question; the browser plays that after the line.
+3. **A reply to a question**: always answered. A new question replaces the one still being answered (reason
+   `superseded`). A reply cancelled before it is sent is not kept in the conversation history.
+4. **Nudges** (proactive mode): only in a quiet moment, not while the student talks, narration plays, the 8 s after a
+   line ends, or while another reply is in progress. Otherwise they are dropped, not delayed.
+
+The browser can stop a reply with `{type:'cancel', id}`. `thinking` now carries the reply's `id`. A narrating or
+talking state the browser never clears expires (30 s and 60 s). Floor and cancel messages have their own cap
+(120 a minute), apart from the 40 a minute for other messages and the 5 questions a minute.
