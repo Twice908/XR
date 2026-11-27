@@ -232,7 +232,7 @@ export class CoachSession {
       degraded = true;
       const kindName = err instanceof ProviderError ? err.kind : 'error';
       this.log(`provider ${provider.name} unavailable (${kindName}): ${(err as Error).message.slice(0, 160)}`);
-      text = fallbackReply(kind);
+      text = fallbackReply(kind, hello.labType);
     }
     if (ctrl.signal.aborted) return; // cancelled while thinking: nothing is sent, and it is not remembered
 
