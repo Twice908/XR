@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-motion",
+  "title": "Motion, Forces & Gravitation Sandbox",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the motion sandbox. You will drive a car around a loop, test Newton's laws with crates and balls, and drop things in air and in a vacuum. Predict first, then watch what really happens.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

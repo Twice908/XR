@@ -1,0 +1,12 @@
+{
+  "lessonId": "simple-machines",
+  "title": "Simple Machines Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the simple machines lab. You will try levers, pulleys, a wheel and axle and a ramp. Change each machine, read the force meter, and find out what you gain and what it costs you.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

@@ -22,6 +22,15 @@ interface NarrationModule {
   readonly cues: readonly Cue[];
   /** Scripts by their manifest path, such as `narration/en/module-started.json`. */
   readonly scripts: Readonly<Record<string, Script>>;
+  /** Set for an XR lab: each generated file is saved straight to mmaxr-assets/audio/<lessonId>/. */
+  readonly saveToLesson?: string;
+}
+
+/** An XR lab's narration script, `mmaxr-assets/narration/<lessonId>.json`. */
+interface LabNarrationDoc {
+  readonly lessonId: string;
+  readonly title: string;
+  readonly cues: readonly { readonly id: string; readonly trigger: string; readonly text: string; readonly spokenText?: string; readonly reviewStatus: string }[];
 }
 
 interface RawManifest {
@@ -33,6 +42,20 @@ interface RawManifest {
 // Every module's manifest and narration scripts, so one tool serves all modules.
 const manifestFiles = import.meta.glob<RawManifest>("../../modules/*/module.json", { eager: true, import: "default" });
 const scriptFiles = import.meta.glob<Script>("../../modules/*/narration/en/*.json", { eager: true, import: "default" });
+const labNarrationFiles = import.meta.glob<LabNarrationDoc>("../../../mmaxr-assets/narration/*.json", { eager: true, import: "default" });
+
+/** The XR labs' narration, one entry per lab; listed after the MMAXR modules. */
+const labNarrationModules: readonly NarrationModule[] = Object.values(labNarrationFiles)
+  .filter((doc) => doc.cues.length > 0)
+  .map((doc) => ({
+    id: `lab.${doc.lessonId}`,
+    title: `XR lab: ${doc.title}`,
+    folder: doc.lessonId,
+    cues: doc.cues.map((cue) => ({ id: cue.id, trigger: cue.trigger, script: cue.id })),
+    scripts: Object.fromEntries(doc.cues.map((cue) => [cue.id, asScript(cue)])),
+    saveToLesson: doc.lessonId,
+  }))
+  .sort((left, right) => left.id.localeCompare(right.id));
 
 /** Modules with narration, Atom Builder first (the default). */
 export const narrationModules: readonly NarrationModule[] = Object.entries(manifestFiles)
@@ -45,7 +68,8 @@ export const narrationModules: readonly NarrationModule[] = Object.entries(manif
       .map(([scriptPath, script]) => [scriptPath.slice(`../../modules/${folder}/`.length), asScript(script)]));
     return [{ id: manifest.id, title: manifest.title.en ?? manifest.id, folder, cues, scripts }];
   })
-  .sort((left, right) => Number(right.id === "chem.atom-builder") - Number(left.id === "chem.atom-builder") || left.id.localeCompare(right.id));
+  .sort((left, right) => Number(right.id === "chem.atom-builder") - Number(left.id === "chem.atom-builder") || left.id.localeCompare(right.id))
+  .concat(labNarrationModules);
 
 const lessonAudioBudgetBytes = 5 * 1024 * 1024;
 
@@ -100,7 +124,9 @@ export function mountNarrationGenerator(root: HTMLElement): void {
   const showModule = (module: NarrationModule): void => {
     selected = module;
     moduleSelect.value = module.id;
-    folder.textContent = `modules/${module.folder}/narration/en/generated/`;
+    folder.textContent = module.saveToLesson
+      ? `mmaxr-assets/audio/${module.saveToLesson}/ (saved automatically)`
+      : `modules/${module.folder}/narration/en/generated/`;
     button.textContent = `Generate all ${module.cues.length} cues`;
     progress.max = module.cues.length;
     const pending = module.cues.filter((cue) => module.scripts[cue.script]?.reviewStatus !== "reviewed").length;
@@ -183,6 +209,10 @@ async function generateAll(
       if (output.peak === undefined || output.rms === undefined) {
         throw new Error(`Narration quality metrics are missing for cue ${cue.id}.`);
       }
+      if (module.saveToLesson) {
+        await saveToProject(module.saveToLesson, `${cue.id}.mp3`, output.audioBytes);
+        await saveToProject(module.saveToLesson, `${cue.id}.vtt`, new TextEncoder().encode(output.captionsVtt));
+      }
       results.append(createCueResult(
         cue.id,
         output.audioBytes,
@@ -194,11 +224,22 @@ async function generateAll(
       ));
       progress.value = index + 1;
     }
-    status.textContent = `Ready: ${cues.length} cues, ${formatBytes(totalAudioBytes)} total. Download the MP3 and VTT files below.`;
+    status.textContent = module.saveToLesson
+      ? `Saved: ${cues.length} cues, ${formatBytes(totalAudioBytes)} total, to mmaxr-assets/audio/${module.saveToLesson}/.`
+      : `Ready: ${cues.length} cues, ${formatBytes(totalAudioBytes)} total. Download the MP3 and VTT files below.`;
     status.dataset.exitStatus = "0";
   } finally {
     runtime.destroy();
   }
+}
+
+/** Writes one generated file into mmaxr-assets/audio/<lessonId>/ through the dev server (vite.config.ts). */
+async function saveToProject(lessonId: string, file: string, bytes: Uint8Array): Promise<void> {
+  const response = await fetch(`/__narration/save?lesson=${encodeURIComponent(lessonId)}&file=${encodeURIComponent(file)}`, {
+    method: "POST",
+    body: Uint8Array.from(bytes),
+  });
+  if (!response.ok) throw new Error(`Saving ${file} failed: ${await response.text()}`);
 }
 
 function createCueResult(

@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-light",
+  "title": "Light: Reflection & Spherical Mirrors",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the light lab. You will fire a laser at different surfaces, test the laws of reflection, and then predict the images that curved mirrors make.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

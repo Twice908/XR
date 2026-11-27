@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-sound",
+  "title": "Sound & Waves Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the sound lab. There are three benches to explore: a ripple tank, an echo bench, and a ship's sonar. Predict, play with the controls, measure, and explain what you see.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

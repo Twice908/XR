@@ -1,0 +1,36 @@
+{
+  "lessonId": "chemistry-101",
+  "title": "Acids, Bases & Natural Indicators Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the acids and bases lab. Five unknown solutions are waiting on the bench. Start by choosing your indicators from the shelf at the back.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "testing-start",
+      "trigger": "testing_started",
+      "text": "Good choice. Pick a test tube and predict the colour you expect. Then add the indicator and see if you were right.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "ph-unlocked",
+      "trigger": "ph_unlocked",
+      "text": "Your indicator tests are done, so the pH paper is unlocked. Dip it into each tube and write down the exact pH.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "ready-to-submit",
+      "trigger": "ready_to_submit",
+      "text": "Everything is recorded. When you are ready, submit your analysis to see what was really in each tube.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "reveal",
+      "trigger": "revealed",
+      "text": "Here is what was really in the tubes. Compare it with your notebook, and look closely at any tube that surprised you.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

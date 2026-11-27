@@ -1,0 +1,12 @@
+{
+  "lessonId": "biology-101",
+  "title": "The Human Digestive System: A Guided Journey",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome aboard. We are going to follow a meal all the way through the digestive system. At each of nine stops, predict what happens, explain it in your own words, then see what really goes on.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

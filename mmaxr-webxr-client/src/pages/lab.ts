@@ -24,6 +24,7 @@ import { startAtomBuilderLab, startIonicBondingLab } from './missionsLab'
 import { startCellLab } from './cellLab'
 import type { MissionsLessonContract } from '@mmaxr/schema'
 import { LabScene } from '../lab/labScene'
+import { loadLabNarration, type LabNarration } from '../lab/labNarration'
 import { leaveGuard } from '../lab/leaveGuard'
 import { h } from '../ui/dom'
 import { banner, button, toast } from '../ui/components'
@@ -39,6 +40,7 @@ export function labPage(lessonId: string): Page {
   let coach: CoachClient | null = null
   let idleTimer: number | null = null
   let metalsCleanup: (() => void) | null = null
+  let narration: LabNarration | null = null
 
   const fail = (message: string) => {
     status.className = 'lab-error'
@@ -53,28 +55,40 @@ export function labPage(lessonId: string): Page {
       // The session comes first: the server draws this student's hidden tubes when the lesson is requested for it.
       const session = await openSession(account.token, lessonId)
       const raw = await fetchLesson(lessonId, session)
+      // Spoken lines load beside the lab; the welcome plays once the lab is on screen.
+      const narrationReady = loadLabNarration(lessonId, root)
+      const startNarration = async () => {
+        const n = await narrationReady
+        if (destroyed) return n.dispose()
+        narration = n
+        n.say('intro')
+      }
       if (raw.type === 'chemistry_metals') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        await startNarration()
         return
       }
       if (raw.type === 'physics_mechanics_sandbox' || raw.type === 'physics_electromagnetism' || raw.type === 'physics_circuits' || raw.type === 'physics_simple_machines' || raw.type === 'physics_fundamentals_sandbox' || raw.type === 'science_matter_properties') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startMotionLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        await startNarration()
         return
       }
       if (raw.type === 'biology_digestive_system' || raw.type === 'biology_respiratory_system') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startBiologyLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        await startNarration()
         return
       }
       if (raw.type === 'physics_waves_sound') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startSoundLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        await startNarration()
         return
       }
       if (raw.type === 'chemistry_atom_builder' || raw.type === 'chemistry_ionic_bonding' || raw.type === 'biology_cell_explorer') {
@@ -89,6 +103,7 @@ export function labPage(lessonId: string): Page {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
         metalsCleanup = await startOpticsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        await startNarration()
         return
       }
       const lesson: ChemistryLessonContract = assertChemistry(raw)
@@ -152,6 +167,7 @@ export function labPage(lessonId: string): Page {
           truth.forEach((t) => scene!.revealLabel(t.tube - 1, t.formula))
           refresh()
           hud!.showReveal(summary, () => go('/experiments'), () => scene!.focusTube(null))
+          narration?.once('reveal')
           coach?.reveal(buildSnapshot(exp))
         } catch (err) {
           toast((err as Error).message, 'error')
@@ -189,7 +205,10 @@ export function labPage(lessonId: string): Page {
         scene!.focusTube(null)
         if (!r.match) coach?.event('prediction_mismatch', say.mismatch(r.tube + 1, tool === PH_TOOL ? 'the pH paper' : exp.indicator(tool)!.name, r.predicted, r.actual), buildSnapshot(exp))
         const unlocked = phaseBefore === 'testing' && exp.phase === 'ph'
-        if (unlocked) coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
+        if (unlocked) {
+          coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
+          narration?.once('ph-unlocked')
+        }
         refresh({
           text: unlocked
             ? `Tube ${r.tube + 1} turned ${r.actual}. That was your last indicator test: pH paper is unlocked, find each exact pH.`
@@ -240,6 +259,7 @@ export function labPage(lessonId: string): Page {
           },
           onStartTesting: () => {
             if (!guard(() => (exp.startTesting(), true))) return
+            narration?.once('testing-start')
             scene!.focusTube(null)
             refresh()
           },
@@ -264,7 +284,10 @@ export function labPage(lessonId: string): Page {
             const ok = guard(() => (exp.setConclusion(tube, c), true))
             if (ok) hud!.closeNotebookSoon()
             if (ok && history > 0 && prior) coach?.event('revision', say.revision(tube + 1, prior, c), buildSnapshot(exp))
-            else if (ok && before === 'testing' && exp.phase === 'ph') coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
+            else if (ok && before === 'testing' && exp.phase === 'ph') {
+              coach?.event('ph_unlocked', say.phUnlocked, buildSnapshot(exp))
+              narration?.once('ph-unlocked')
+            }
             const { done, total } = exp.indicatorTests
             refresh(
               before === 'testing' && exp.phase === 'ph'
@@ -278,7 +301,10 @@ export function labPage(lessonId: string): Page {
             const ok = guard(() => (exp.recordPh(tube, value), true))
             refresh()
             if (ok && value !== null) hud!.closeNotebookSoon()
-            if (ok && exp.canSubmit) coach?.event('ready_to_submit', say.ready, buildSnapshot(exp))
+            if (ok && exp.canSubmit) {
+              coach?.event('ready_to_submit', say.ready, buildSnapshot(exp))
+              narration?.once('ready-to-submit')
+            }
           },
           onLayout: (insets) => scene?.setInsets(insets),
           onSubmit: () => void submit(),
@@ -338,6 +364,7 @@ export function labPage(lessonId: string): Page {
       sensorTracker.start(session, () => scene!.head, () => scene!.hand)
       status.remove()
       refresh()
+      await startNarration()
       ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers: hudHandlers }
     } catch (err) {
       console.error('[lab] failed to start', err)
@@ -360,6 +387,7 @@ export function labPage(lessonId: string): Page {
       telemetry.flushBeacon()
       telemetry.reset()
       metalsCleanup?.()
+      narration?.dispose()
       if (idleTimer !== null) window.clearInterval(idleTimer)
       coach?.disconnect()
       hud?.destroy()

@@ -168,6 +168,29 @@ app.get('/lessons/active', (req, res) => {
   }
 });
 
+// A lab's spoken lines, from mmaxr-assets/narration/<lessonId>.json. A line has audio once its MP3 has been
+// generated into mmaxr-assets/audio/<lessonId>/ (the narration generator); without one the lab shows the caption only.
+const CUE_ID_RE = /^[a-z0-9-]+$/;
+app.get('/lessons/:lessonId/narration', (req, res) => {
+  const { lessonId } = req.params;
+  if (!LESSON_ID_RE.test(lessonId)) return res.status(404).json({ error: 'Lesson not found' });
+  const file = path.join(assetsPath, 'narration', `${lessonId}.json`);
+  if (!fs.existsSync(file)) return res.json({ lessonId, cues: {} });
+  try {
+    const doc = JSON.parse(fs.readFileSync(file, 'utf8')) as { cues?: { id: string; text: string }[] };
+    const cues: Record<string, { text: string; audioUrl: string | null }> = {};
+    for (const cue of doc.cues ?? []) {
+      if (!CUE_ID_RE.test(cue.id) || typeof cue.text !== 'string') continue;
+      const hasAudio = fs.existsSync(path.join(assetsPath, 'audio', lessonId, `${cue.id}.mp3`));
+      cues[cue.id] = { text: cue.text, audioUrl: hasAudio ? rewriteAssetUrls(`http://localhost:3007/assets/audio/${lessonId}/${cue.id}.mp3`) : null };
+    }
+    res.json({ lessonId, cues });
+  } catch (error) {
+    console.error('Error reading narration:', error);
+    res.status(500).json({ error: 'Failed to load narration' });
+  }
+});
+
 // One lesson for one session. A chemistry lab is bound to the session here: the random tube assignment is
 // drawn and stored server-side, and the browser gets a redacted lesson with no answers in it.
 app.get(

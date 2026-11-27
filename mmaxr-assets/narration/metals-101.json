@@ -1,0 +1,12 @@
+{
+  "lessonId": "metals-101",
+  "title": "Properties of Metals & Non-Metals",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the metals lab. You have five unknown samples, seven tests and a limited budget. Predict every result before you test, and watch out for samples that break the rules.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

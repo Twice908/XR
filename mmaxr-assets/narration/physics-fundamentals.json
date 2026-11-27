@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-fundamentals",
+  "title": "Fundamental Physics & Mechanics Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the physics fundamentals lab. We will take the big ideas of physics one at a time. Each one starts with a concept card. Then you predict, watch the experiment, and explain it in your own words.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "lessonId": "biology-respiratory",
+  "title": "The Human Respiratory System: A Guided Journey",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome aboard. We are going to follow one breath from your nose deep into your lungs and out to your cells. At each of nine stops, predict what happens, explain it aloud, then see what really goes on.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

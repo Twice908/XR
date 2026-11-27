@@ -1034,3 +1034,25 @@
 .conf-btn:disabled {
   cursor: default;
 }
+
+/* Narration captions for the non-mission labs (lab/labNarration.ts): top centre, clear of each lab's bottom hint bar. */
+.lab-caption {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  z-index: 30;
+  transform: translateX(-50%);
+  max-width: min(640px, calc(100% - 32px));
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.72);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.45;
+  text-align: center;
+  pointer-events: none;
+}
+.lab-caption[hidden] {
+  display: none;
+}

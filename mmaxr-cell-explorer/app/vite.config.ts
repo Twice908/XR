@@ -1,14 +1,17 @@
 import { createRequire } from "node:module";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { iwsdkDev } from "@iwsdk/vite-plugin-dev";
-import { defineConfig, loadEnv, type Plugin } from "vite";
+import { defineConfig, loadEnv, searchForWorkspaceRoot, type Plugin } from "vite";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = resolve(here, "..");
 const require = createRequire(import.meta.url);
 const piperDist = dirname(require.resolve("piper-tts-web"));
+/** XR's shared assets: lab narration scripts in narration/, their generated audio in audio/<lessonId>/. */
+const xrAssets = resolve(workspaceRoot, "../mmaxr-assets");
 
 /**
  * `pnpm narration` (MMA_NARRATION=1) serves the app over plain HTTP for MMAXR's narration generator page
@@ -33,7 +36,12 @@ export default defineConfig(({ command, mode }) => {
       // One three.js (super-three) and one UIKit graph, or UIKit instanceof checks fail.
       dedupe: ["three", "@pmndrs/uikit", "@pmndrs/uikit-horizon"],
     },
-    server: { port: 5180, strictPort: true },
+    server: {
+      port: 5180,
+      strictPort: true,
+      // The generator also reads the XR labs' narration scripts, which live outside this workspace.
+      fs: { allow: [searchForWorkspaceRoot(here), resolve(xrAssets, "narration")] },
+    },
     optimizeDeps: {
       include: ["piper-tts-web", "wasm-media-encoders"],
       exclude: ["@babylonjs/havok"],
@@ -44,7 +52,7 @@ export default defineConfig(({ command, mode }) => {
     },
     plugins: [
       ...(narrationOnly ? [stubIwsdkProject()] : [iwsdkDev()]),
-      ...(command === "serve" ? [piperDevAssets()] : []),
+      ...(command === "serve" ? [piperDevAssets(), labNarrationSave()] : []),
     ],
   };
 });
@@ -84,6 +92,43 @@ function piperDevAssets(): Plugin {
         } catch {
           next();
         }
+      });
+    },
+  };
+}
+
+/**
+ * Dev only: the narration generator POSTs each generated file for an XR lab here, and it is written to
+ * mmaxr-assets/audio/<lessonId>/<cue>.mp3|vtt, where the lesson loader serves it. Only labs with a narration
+ * script (mmaxr-assets/narration/<lessonId>.json) and plain cue file names are accepted.
+ */
+function labNarrationSave(): Plugin {
+  return {
+    name: "mmaxr-lab-narration-save",
+    configureServer(server) {
+      server.middlewares.use("/__narration/save", (request, response) => {
+        const url = new URL(request.url ?? "/", "http://localhost");
+        const lesson = url.searchParams.get("lesson") ?? "";
+        const file = url.searchParams.get("file") ?? "";
+        const fail = (status: number, message: string) => {
+          response.statusCode = status;
+          response.end(message);
+        };
+        if (request.method !== "POST") return fail(405, "POST only");
+        if (!/^[a-z0-9-]+$/.test(lesson) || !/^[a-z0-9-]+\.(mp3|vtt)$/.test(file)) return fail(400, "Bad lesson or file name");
+        if (!existsSync(resolve(xrAssets, "narration", `${lesson}.json`))) return fail(404, "No narration script for that lesson");
+        const chunks: Buffer[] = [];
+        request.on("data", (chunk: Buffer) => chunks.push(chunk));
+        request.on("end", () => {
+          const dir = resolve(xrAssets, "audio", lesson);
+          void mkdir(dir, { recursive: true })
+            .then(() => writeFile(resolve(dir, file), Buffer.concat(chunks)))
+            .then(() => {
+              response.statusCode = 204;
+              response.end();
+            })
+            .catch((error: unknown) => fail(500, error instanceof Error ? error.message : "Write failed"));
+        });
       });
     },
   };

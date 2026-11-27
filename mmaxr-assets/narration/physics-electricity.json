@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-electricity",
+  "title": "Electricity & Circuits Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the circuits lab. You will build circuits on a breadboard and find out how current, voltage and resistance work together. Predict first, then watch what really happens.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

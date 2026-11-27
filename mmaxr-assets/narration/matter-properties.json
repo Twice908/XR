@@ -1,0 +1,12 @@
+{
+  "lessonId": "matter-properties",
+  "title": "Matter & Its Properties Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the matter lab. You will heat ice, test substances and pour liquids to find out how matter behaves. Predict first, then watch what really happens.",
+      "reviewStatus": "pending"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "lessonId": "physics-magnetism",
+  "title": "Magnetism & Electromagnetism Lab",
+  "cues": [
+    {
+      "id": "intro",
+      "trigger": "lab_loaded",
+      "text": "Welcome to the magnetism lab. You will trace magnetic field lines, build an electromagnet, and see how currents, fields and motion affect each other. Predict first, then watch what really happens.",
+      "reviewStatus": "pending"
+    }
+  ]
+}
