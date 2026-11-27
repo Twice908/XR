@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "test": "vitest run",
-    "demo": "tsx scripts/demo-server.ts"
+    "demo": "tsx scripts/demo-server.ts",
+    "seed:test-collection": "tsx scripts/seed-test-collection.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

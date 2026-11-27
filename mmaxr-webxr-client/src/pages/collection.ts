@@ -92,7 +92,7 @@ export function collectionPage(): Page {
         h('span', { class: 'mx-slot-title' }, card.title),
       )
     }
-    const face = cardFace(card as RewardCard, { foil: card.foil })
+    const face = cardFace(card as RewardCard, { foil: card.foil, displayWidth: 132 })
     face.el.tabIndex = 0
     face.el.classList.add('is-small')
     if (card.count > 1) face.el.append(h('span', { class: 'mx-card-count' }, `×${card.count}`))

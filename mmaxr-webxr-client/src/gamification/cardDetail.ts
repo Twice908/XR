@@ -28,7 +28,7 @@ const show = (v: unknown) => (Array.isArray(v) ? v.join(v.length > 4 ? ' → ' :
  * upgrade. The question is practice only: nothing is recorded or scored.
  */
 export function openCardDetail(card: OwnedCard, opts: { shards: number; host: HTMLElement; onFoil?: (shards: number) => void; onCue?: (cue: 'open' | 'close' | 'confirm' | 'deny' | 'select') => void }) {
-  const face = cardFace(card as RewardCard, { foil: card.foil })
+  const face = cardFace(card as RewardCard, { foil: card.foil, displayWidth: 240, tilt: true })
   face.el.tabIndex = 0
   const flip = () => {
     face.toggleFact()
@@ -123,7 +123,7 @@ export function openCardDetail(card: OwnedCard, opts: { shards: number; host: HT
     h(
       'div',
       { class: 'mx-detail-body' },
-      h('div', { class: 'mx-detail-card' }, face.el, h('p', { class: 'mx-detail-hint' }, 'Tap the card for a fact')),
+      h('div', { class: 'mx-detail-card' }, face.el, h('p', { class: 'mx-detail-hint' }, face.hasArt ? 'Tap the card to turn it over' : 'Tap the card for a fact')),
       h(
         'div',
         { class: 'mx-detail-info' },

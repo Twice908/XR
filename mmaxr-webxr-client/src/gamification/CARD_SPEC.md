@@ -6,7 +6,7 @@ designs arrive; no page needs to.
 
 ## Card
 
-- **Ratio 5:7.** Shown at 200 × 280 px on desktop and 140 × 196 px on phones. Design at 500 × 700 (or 2×: 1000 × 1400).
+- **Ratio 31:45** (620 × 900, the element art). Shown at 200 px wide on desktop (210 px on the pack-opening page) and 140 px on phones. Element art lives in `public/cards/elements/{Symbol}-front.webp`, `-front-sm.webp` and `-back.webp`, built by `mmaxr-assets/Cards/build_card_webp.py`.
 - Corner radius 16 px at 200 px wide (8% of the width).
 - Two faces, flipped in 3D around the vertical axis:
   - **Back (cover):** one design for every card. Shown face-down before a reveal.

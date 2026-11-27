@@ -35,10 +35,12 @@
 .mx-eyebrow { margin: 0; color: #c7bfff; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
 .mx-empty { margin: 0; padding: 18px 0; color: var(--mx-muted); font-size: 14px; text-align: center; list-style: none; }
 
-/* ---------- the card (PLACEHOLDER: replaced by the Figma design, see src/gamification/CARD_SPEC.md) ---------- */
+/* ---------- the card ----------
+   Illustrated cards (.has-art: the 118 elements) draw their own frame in a WebP with a transparent silhouette, at
+   620 x 900 (ratio 31:45). The rest use the PLACEHOLDER face below (see src/gamification/CARD_SPEC.md). */
 .mx-card {
   --rarity: var(--mx-common);
-  position: relative; width: var(--mx-card-w); aspect-ratio: 5 / 7; perspective: 1200px; flex: none;
+  position: relative; width: var(--mx-card-w); aspect-ratio: 31 / 45; perspective: 1200px; flex: none;
   cursor: pointer; outline: none; font-family: Figtree, "Avenir Next", "Segoe UI", sans-serif; color: var(--mx-ink);
 }
 .mx-card[data-rarity="rare"] { --rarity: var(--mx-rare); }
@@ -50,12 +52,41 @@
   transform: rotateY(180deg); transition: transform 620ms var(--mx-ease-out);
 }
 .mx-card.is-up .mx-card-inner { transform: rotateY(0deg); }
+.mx-card-tilt {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition: transform 500ms var(--mx-ease-out);
+}
+.mx-card.is-tilting .mx-card-tilt { transition-duration: 90ms; }
+/* Turned over: illustrated cards show their drawn info side, the other way round from the reveal. */
+.mx-card.has-art.is-up.show-fact .mx-card-inner { transform: rotateY(-180deg); }
+
+/* Illustrated faces */
+.mx-card.has-art .mx-card-front, .mx-card-back.has-art { overflow: visible; border-radius: 0; }
+.mx-card-front.has-art { padding: 0; display: block; background: none; border: 0; box-shadow: none; }
+.mx-card-img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.5));
+}
+.mx-card-back.has-art { background: none; border: 0; }
+.mx-card-back.has-art .mx-card-cover { position: absolute; inset: 0; transition: opacity 0s linear 320ms; }
+.mx-card-info { opacity: 0; transition: opacity 0s linear 320ms; }
+.mx-card.show-fact .mx-card-info { opacity: 1; transition-delay: 0s; }
+.mx-card.show-fact .mx-card-back.has-art .mx-card-cover { opacity: 0; transition-delay: 0s; }
+.mx-card.has-art .mx-card-glare, .mx-card.has-art.is-foil .mx-card-front::after {
+  -webkit-mask: var(--art) center / contain no-repeat; mask: var(--art) center / contain no-repeat;
+}
+.mx-card-glare {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 300ms ease; mix-blend-mode: overlay; border-radius: inherit;
+  background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0) 55%);
+}
+.mx-card.is-tilting .mx-card-glare { opacity: 1; }
 .mx-card-front, .mx-card-back {
   position: absolute; inset: 0; border-radius: 16px; overflow: hidden;
   -webkit-backface-visibility: hidden; backface-visibility: hidden;
 }
-.mx-card-back {
-  transform: rotateY(180deg); display: grid; place-items: center;
+.mx-card-back { transform: rotateY(180deg); }
+.mx-card-cover {
+  display: grid; place-items: center; width: 100%; height: 100%; border-radius: 16px; box-sizing: border-box;
   background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.04) 0 10px, transparent 10px 20px), linear-gradient(160deg, #2a2466, #120f33);
   border: 2px solid rgba(196, 204, 255, 0.3);
 }
@@ -100,20 +131,72 @@
 }
 @keyframes mx-foil { from { background-position: 150% 0; } to { background-position: -50% 0; } }
 
-/* Anticipation before a flip: the card trembles and its edge warms to the rarity colour. */
-.mx-card.is-charging { animation: mx-tremble 120ms ease-in-out infinite alternate; }
-.mx-card.is-charging .mx-card-back { box-shadow: 0 0 26px 2px var(--rarity); border-color: var(--rarity); transition: box-shadow 400ms ease; }
-@keyframes mx-tremble { from { rotate: -1.4deg; } to { rotate: 1.4deg; } }
+/* Anticipation before a flip: the card lifts, trembles harder the rarer it is, and its edge warms to the rarity
+   colour while light rays start turning behind it. */
+.mx-card.is-charging { z-index: 4; }
+.mx-card.is-charging .mx-card-tilt { animation: mx-tremble 110ms ease-in-out infinite alternate; transform: translateY(-10px) translateZ(40px) scale(1.05); transition: transform 300ms var(--mx-ease-out); }
+.mx-card.is-charging[data-rarity="epic"] .mx-card-tilt, .mx-card.is-charging[data-rarity="legendary"] .mx-card-tilt { animation-duration: 70ms; }
+.mx-card.is-charging .mx-card-cover { box-shadow: 0 0 34px 6px var(--rarity), 0 0 0 2px var(--rarity) inset; border-color: var(--rarity); transition: box-shadow 400ms ease; }
+@keyframes mx-tremble { from { rotate: -1.6deg; } to { rotate: 1.6deg; } }
 
-/* Celebration: a ring of light, bigger for rarer cards. */
+/* Light rays behind the card: they gather while charging and blaze after a rare-or-better reveal. */
+.mx-card-rays {
+  position: absolute; inset: -55% -75%; z-index: -1; pointer-events: none; opacity: 0;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--rarity) 70%, transparent) 0deg 7deg, transparent 7deg 22deg);
+  -webkit-mask: radial-gradient(closest-side, #000 18%, transparent 100%); mask: radial-gradient(closest-side, #000 18%, transparent 100%);
+  animation: mx-rays-spin 9s linear infinite; animation-play-state: paused;
+}
+.mx-card.is-charging:not([data-rarity="common"]) .mx-card-rays { opacity: 0.45; animation-play-state: running; transition: opacity 600ms ease; }
+.mx-card.burst-2 .mx-card-rays, .mx-card.burst-3 .mx-card-rays { animation: mx-rays-spin 9s linear infinite, mx-rays-blaze 2600ms ease-out forwards; }
+.mx-card.burst-3 .mx-card-rays { inset: -80% -110%; }
+@keyframes mx-rays-spin { to { rotate: 360deg; } }
+@keyframes mx-rays-blaze { 0% { opacity: 0; scale: 0.6; } 15% { opacity: 1; scale: 1.1; } 60% { opacity: 0.7; } 100% { opacity: 0; scale: 1.3; } }
+
+/* While flipping, the card rises above its neighbours. */
+.mx-card.is-popping { z-index: 5; }
+
+/* Celebration: a ring of light and a shockwave, bigger for rarer cards. */
 .mx-card[class*="burst-"]::before {
   content: ""; position: absolute; inset: -6px; border-radius: 22px; pointer-events: none; z-index: -1;
   box-shadow: 0 0 0 2px var(--rarity), 0 0 40px 8px var(--rarity); animation: mx-burst 1100ms var(--mx-ease-out) forwards;
 }
+.mx-card[class*="burst-"]::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 140%; aspect-ratio: 1; border-radius: 50%; pointer-events: none; z-index: -1;
+  border: 3px solid var(--rarity); box-shadow: 0 0 24px var(--rarity), inset 0 0 24px var(--rarity);
+  translate: -50% -50%; animation: mx-shockwave 900ms cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
+}
+.mx-card.burst-1::after { border-width: 2px; }
+.mx-card.burst-3::after { border-width: 5px; animation-duration: 1200ms; }
 .mx-card.burst-2::before { animation-duration: 1400ms; }
 .mx-card.burst-3::before { animation-duration: 1900ms; box-shadow: 0 0 0 3px var(--rarity), 0 0 80px 24px var(--rarity); }
 @keyframes mx-burst { 0% { opacity: 0; transform: scale(0.9); } 25% { opacity: 1; } 100% { opacity: 0; transform: scale(1.18); } }
-.mx-card.burst-2 .mx-card-front, .mx-card.burst-3 .mx-card-front { box-shadow: 0 0 34px color-mix(in srgb, var(--rarity) 55%, transparent); }
+@keyframes mx-shockwave { 0% { opacity: 1; scale: 0.2; } 100% { opacity: 0; scale: 2.2; } }
+.mx-card.has-art[class*="burst-"]::before { inset: 2% 3%; border-radius: 12%/8%; }
+.mx-card.burst-2:not(.has-art) .mx-card-front, .mx-card.burst-3:not(.has-art) .mx-card-front { box-shadow: 0 0 34px color-mix(in srgb, var(--rarity) 55%, transparent); }
+.mx-card.has-art.burst-2 .mx-card-img, .mx-card.has-art.burst-3 .mx-card-img {
+  animation: mx-art-glow 2600ms ease-out forwards;
+}
+@keyframes mx-art-glow {
+  0% { filter: drop-shadow(0 0 0 var(--rarity)) brightness(2.2); }
+  20% { filter: drop-shadow(0 0 28px var(--rarity)) brightness(1.15); }
+  100% { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--rarity) 60%, transparent)) brightness(1); }
+}
+
+/* "Rare!" "Epic!" "Legendary!" bursts up out of the card. */
+.mx-callout {
+  position: absolute; left: 50%; top: 18%; z-index: 6; pointer-events: none; white-space: nowrap;
+  font: 900 clamp(26px, calc(var(--mx-card-w) * 0.2), 46px)/1 Figtree, "Avenir Next", sans-serif; letter-spacing: 0.02em; text-transform: uppercase;
+  color: #fff; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--rarity) 60%, #000);
+  text-shadow: 0 0 18px var(--rarity), 0 4px 0 color-mix(in srgb, var(--rarity) 55%, #000), 0 8px 24px rgba(0, 0, 0, 0.6);
+  animation: mx-callout 1700ms cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes mx-callout {
+  0% { opacity: 0; transform: translate(-50%, 30px) scale(0.3) rotate(-8deg); }
+  18% { opacity: 1; transform: translate(-50%, -40px) scale(1.15) rotate(-4deg); }
+  30% { transform: translate(-50%, -46px) scale(1) rotate(-4deg); }
+  75% { opacity: 1; transform: translate(-50%, -60px) scale(1) rotate(-4deg); }
+  100% { opacity: 0; transform: translate(-50%, -90px) scale(0.9) rotate(-4deg); }
+}
 
 /* ---------- the sealed pack (PLACEHOLDER) ---------- */
 .mx-pack {
@@ -193,17 +276,33 @@
   60% { transform: rotate(-2deg) scale(1.08); filter: brightness(1.2); }
   100% { transform: scale(1.3); opacity: 0; filter: brightness(2) blur(4px); }
 }
-.mx-card-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px 18px; padding: 14px 0 30px; }
+.mx-card-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px 22px; padding: 30px 0 40px; perspective: 1400px; }
+.mx-card-row .mx-card { --mx-card-w: 210px; }
+.mx-splash { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; }
+/* The room darkens while an epic or legendary card charges, and shakes when it lands. */
+.mx-open::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 500ms ease; background: radial-gradient(circle at 50% 45%, transparent 10%, rgba(2, 2, 12, 0.82) 70%); }
+.mx-open.is-dimmed::after { opacity: 1; }
+.mx-open-floor { position: relative; z-index: 2; }
+.mx-open.is-shaking .mx-open-floor { animation: mx-shake 520ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+@keyframes mx-shake {
+  10%, 90% { translate: calc(var(--shake) * -0.2) 0; }
+  20%, 80% { translate: calc(var(--shake) * 0.4) calc(var(--shake) * -0.2); }
+  30%, 50%, 70% { translate: calc(var(--shake) * -0.8) calc(var(--shake) * 0.3); }
+  40%, 60% { translate: var(--shake) calc(var(--shake) * -0.3); }
+}
 .mx-summary { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .mx-stat { display: grid; justify-items: center; min-width: 96px; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--mx-line); }
 .mx-stat strong { font-size: 20px; }
 .mx-stat span { color: var(--mx-muted); font-size: 12px; }
-.mx-flash { position: fixed; inset: 0; pointer-events: none; z-index: 5; opacity: 0; background: radial-gradient(circle at 50% 45%, rgba(255, 196, 77, 0.45), transparent 60%); }
+.mx-flash { --flash: rgba(255, 196, 77, 0.55); position: fixed; inset: 0; pointer-events: none; z-index: 5; opacity: 0; background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.5), var(--flash) 25%, transparent 65%); }
+.mx-flash[data-kind="pack"] { --flash: rgba(169, 156, 255, 0.45); }
+.mx-flash[data-kind="epic"] { --flash: rgba(176, 108, 255, 0.5); }
 .mx-flash.is-on { animation: mx-flash 1300ms ease-out; }
 @keyframes mx-flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 
 @media (max-width: 620px) {
   :root { --mx-card-w: 140px; }
+  .mx-card-row .mx-card { --mx-card-w: 140px; }
   .mx-card-title { font-size: 13px; }
   .mx-card-row { gap: 20px 12px; }
   .mx-notice { right: 16px; left: 16px; bottom: 16px; width: auto; }
@@ -214,7 +313,10 @@
   .mx-card-inner, .mx-notice { transition-duration: 1ms; }
   .mx-card.is-charging, .mx-pack-button, .mx-notice-pack, .mx-card.is-foil .mx-card-front::after { animation: none; }
   .mx-pack-button.is-tearing { animation: none; opacity: 0.4; }
-  .mx-card[class*="burst-"]::before, .mx-flash.is-on { animation: none; opacity: 0; }
+  .mx-card[class*="burst-"]::before, .mx-card[class*="burst-"]::after, .mx-flash.is-on { animation: none; opacity: 0; }
+  .mx-card.is-charging .mx-card-tilt, .mx-card-rays, .mx-callout, .mx-card.has-art .mx-card-img, .mx-open.is-shaking .mx-open-floor { animation: none !important; }
+  .mx-card-rays, .mx-open::after { display: none; }
+  .mx-card-tilt { transition: none; }
 }
 
 /* ---------- Learning Rings ---------- */
@@ -308,7 +410,7 @@
 .mx-card-count { position: absolute; top: -8px; left: -6px; z-index: 2; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #0c0b22; background: #dfe3ff; }
 .mx-slot {
   --rarity: var(--mx-common);
-  width: 132px; aspect-ratio: 5 / 7; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 10px; border-radius: 16px;
+  width: 132px; aspect-ratio: 31 / 45; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 10px; border-radius: 16px;
   border: 1.5px dashed rgba(196, 204, 255, 0.22); color: rgba(220, 225, 255, 0.4); text-align: center;
 }
 .mx-slot[data-rarity="rare"] { --rarity: var(--mx-rare); }
@@ -348,6 +450,7 @@
 .mx-detail { width: min(94vw, 720px); }
 .mx-detail-body { display: grid; grid-template-columns: auto 1fr; gap: 24px; padding: 20px 22px 24px; }
 .mx-detail-card { display: grid; justify-items: center; gap: 8px; }
+.mx-detail-card .mx-card { --mx-card-w: 240px; }
 .mx-detail-hint { margin: 0; color: var(--mx-muted); font-size: 12px; }
 .mx-detail-info { display: grid; gap: 16px; align-content: start; min-width: 0; }
 .mx-detail-meta { margin: 0; color: var(--mx-muted); font-size: 13px; }
