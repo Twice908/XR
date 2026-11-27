@@ -113,3 +113,19 @@ They do not count toward the questions-per-minute limit, and the reply carries `
 
 Only a whole utterance matches, after filler ("um", "sorry", "can you", "please") is stripped; "what do I do with the
 ammeter?" is a real question and goes to the model.
+
+## Phase 4: spoken questions transcribed on the server
+
+For browsers that cannot transcribe speech themselves (no Web Speech API, e.g. a headset browser), the browser sends
+the recording: `{type:'audio_ask', format:'webm'|'ogg'|'mp4'|'wav'|'mpeg', data:<base64>}`. The server answers
+`{type:'transcript', text}` so the student sees what was heard, then handles it like a typed question
+(`inputMode: 'voice'`), quick answers included. `ready.sttAvailable` says whether the server can do this.
+
+- Engine (`src/voice/stt.ts`): ffmpeg turns the recording into 16 kHz mono WAV (first 30 s), then whisper.cpp
+  (`WHISPER_BIN`, `WHISPER_MODEL`, e.g. `ggml-base.en.bin`) transcribes it locally: free and offline. Whisper's
+  non-speech markers ("[BLANK_AUDIO]") are dropped. At most `WHISPER_CONCURRENCY` (2) run at once across students.
+- Errors come back as an empty `transcript` with `error`: `empty` (nothing heard), `failed`, `unavailable`,
+  `too_large` (over 2 MB of audio), `limit` (10 recordings a minute). No reply follows.
+- Talking again (`floor {talking:true}`) or a newer recording stops a transcription in progress.
+- The questions-per-minute limit now lives in the session, so typed and spoken questions share it; quick answers stay
+  free. WebSocket messages are capped at 3 MB.

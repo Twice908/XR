@@ -3,9 +3,12 @@ import { fallbackReply } from './fallback';
 import { buildSystemPrompt, describeSnapshot } from './prompt';
 import type { ProviderRegistry } from './providers';
 import { ProviderError, type ChatTurn } from './providers/types';
+import { AUDIO_FORMATS, type AudioFormat } from './protocol';
 import type { Assignment, ClientMessage, CoachReason, EventKind, Hello, Mode, ServerMessage, Snapshot, TruthTube } from './protocol';
 import { Floor } from './floor';
 import { matchIntent, type Intent } from './intents';
+import { RateWindow } from './rateLimit';
+import { noStt, type SttEngine } from './voice/stt';
 import { splitSentences } from './voice/sentences';
 import { noTts, type TtsEngine } from './voice/tts';
 
@@ -18,6 +21,9 @@ export interface LabContext {
   context: string;
   narration: Record<string, string>;
 }
+
+/** Largest recording accepted for transcription (about a minute of browser Opus audio). */
+const MAX_AUDIO_BYTES = 2 * 1024 * 1024;
 
 const NOTHING_SAID_YET = 'I have not said anything yet. What would you like to ask me?';
 
@@ -33,6 +39,12 @@ export interface SessionDeps {
   loadContext?: (lessonId: string) => Promise<LabContext | null>;
   /** Speaks replies when the session has voice on. */
   tts?: TtsEngine;
+  /** Transcribes `audio_ask` recordings. */
+  stt?: SttEngine;
+  /** Questions that go to the model, per minute (quick answers are free). Default 5. */
+  asksPerMinute?: number;
+  /** Recordings transcribed per minute (local CPU). Default 10. */
+  audioPerMinute?: number;
   now?: () => number;
   log?: (line: string) => void;
 }
@@ -58,6 +70,12 @@ export class CoachSession {
   /** The coach's last reply that was actually sent, for "say that again". */
   private lastReply: string | null = null;
   private readonly tts: TtsEngine;
+  private readonly stt: SttEngine;
+  private readonly asks: RateWindow;
+  private readonly audioAsks: RateWindow;
+  private readonly asksPerMinute: number;
+  /** The recording being transcribed; talking again or a newer recording stops it. */
+  private transcribing: AbortController | null = null;
   private readonly now: () => number;
   private readonly log: (line: string) => void;
 
@@ -65,6 +83,10 @@ export class CoachSession {
     this.now = deps.now ?? Date.now;
     this.log = deps.log ?? (() => {});
     this.tts = deps.tts ?? noTts;
+    this.stt = deps.stt ?? noStt;
+    this.asksPerMinute = Math.max(1, deps.asksPerMinute ?? 5);
+    this.asks = new RateWindow(this.asksPerMinute, this.now);
+    this.audioAsks = new RateWindow(Math.max(1, deps.audioPerMinute ?? 10), this.now);
     this.floor = new Floor(this.now);
   }
 
@@ -82,7 +104,7 @@ export class CoachSession {
 
   announce() {
     const p = this.deps.registry.active;
-    this.deps.send({ type: 'ready', mode: this.mode, provider: p.name, model: p.model, configured: p.isConfigured(), voiceAvailable: this.voiceAvailable, voice: this.voice });
+    this.deps.send({ type: 'ready', mode: this.mode, provider: p.name, model: p.model, configured: p.isConfigured(), voiceAvailable: this.voiceAvailable, voice: this.voice, sttAvailable: this.stt.available() });
   }
 
   async handle(msg: ClientMessage): Promise<void> {
@@ -102,14 +124,24 @@ export class CoachSession {
         await this.ensureContext();
         const intent = matchIntent(String(msg.text));
         if (intent && this.quickAnswer(intent, String(msg.text).slice(0, MAX_TEXT))) return;
+        // Only questions that reach the model count toward the limit: they are what costs money.
+        if (!this.asks.take()) {
+          this.deps.send({ type: 'error', message: `You can ask ${this.asksPerMinute} questions a minute. Try again in ${this.asks.secondsLeft()} seconds.` });
+          return;
+        }
         return this.respond('reply', `The student says: “${String(msg.text).slice(0, MAX_TEXT)}”`, 'ask', msg.snapshot, String(msg.text).slice(0, MAX_TEXT));
       }
+      case 'audio_ask':
+        return this.audioAsk(msg.format, msg.data, msg.snapshot);
       case 'event':
         return this.nudge(msg.kind, msg.detail, msg.snapshot);
       case 'floor': {
         const change = { narrating: typeof msg.narrating === 'boolean' ? msg.narrating : undefined, talking: typeof msg.talking === 'boolean' ? msg.talking : undefined };
         if (change.narrating === true && typeof msg.cue === 'string' && /^[a-z0-9-]{1,64}$/.test(msg.cue)) this.lastCue = msg.cue;
-        if (this.floor.update(change)) this.cancel('talking');
+        if (this.floor.update(change)) {
+          this.cancel('talking');
+          this.transcribing?.abort(); // the student is starting over
+        }
         // Narration outranks a nudge: the nudge stops. A reply to a question carries on; the browser queues it.
         else if (change.narrating === true && this.current?.reason === 'nudge') this.cancel('narration');
         return;
@@ -143,6 +175,34 @@ export class CoachSession {
         .catch((err) => this.log(`lab context unavailable: ${(err as Error).message.slice(0, 120)}`));
     }
     return this.contextLoad ?? Promise.resolve();
+  }
+
+  /** Transcribes a spoken question, tells the browser what was heard, then answers it like a typed one. */
+  private async audioAsk(format: unknown, data: unknown, snapshot: Snapshot | undefined) {
+    if (!this.stt.available()) return this.deps.send({ type: 'transcript', text: '', error: 'unavailable' });
+    if (typeof format !== 'string' || !(AUDIO_FORMATS as string[]).includes(format) || typeof data !== 'string' || !data) return this.deps.send({ type: 'transcript', text: '', error: 'failed' });
+    if (data.length > Math.ceil((MAX_AUDIO_BYTES * 4) / 3) + 4) return this.deps.send({ type: 'transcript', text: '', error: 'too_large' });
+    if (!this.audioAsks.take()) return this.deps.send({ type: 'transcript', text: '', error: 'limit' });
+    const audio = Buffer.from(data, 'base64');
+    if (!audio.length) return this.deps.send({ type: 'transcript', text: '', error: 'failed' });
+
+    this.transcribing?.abort();
+    const ctrl = new AbortController();
+    this.transcribing = ctrl;
+    let text: string;
+    try {
+      text = (await this.stt.transcribe(new Uint8Array(audio), format as AudioFormat, ctrl.signal)).slice(0, MAX_TEXT);
+    } catch (err) {
+      if (ctrl.signal.aborted) return;
+      this.log(`transcription failed: ${(err as Error).message.slice(0, 160)}`);
+      return this.deps.send({ type: 'transcript', text: '', error: 'failed' });
+    } finally {
+      if (this.transcribing === ctrl) this.transcribing = null;
+    }
+    if (ctrl.signal.aborted) return;
+    if (!text) return this.deps.send({ type: 'transcript', text: '', error: 'empty' });
+    this.deps.send({ type: 'transcript', text });
+    return this.handle({ type: 'ask', text, snapshot, inputMode: 'voice' });
   }
 
   /**

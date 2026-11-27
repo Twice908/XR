@@ -7,8 +7,8 @@ import { ProviderRegistry } from './providers';
 import { MODES, type Assignment, type ClientMessage, type ServerMessage } from './protocol';
 import { CoachSession } from './session';
 import { RateWindow } from './rateLimit';
-import { matchIntent } from './intents';
 import { createTts } from './voice/tts';
+import { createStt } from './voice/stt';
 
 // Local development keys live in ai-coach/.env (untracked). Never log their values.
 try {
@@ -35,6 +35,7 @@ const FLOOR_PER_MINUTE = 120;
 
 const registry = new ProviderRegistry(process.env);
 const tts = createTts(process.env);
+const stt = createStt(process.env);
 
 const app = express();
 app.use(cors());
@@ -60,7 +61,8 @@ app.post('/admin/provider', (req, res) => {
 });
 
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+// A spoken question (audio_ask) is the largest message: about 2 MB of audio, as base64.
+const wss = new WebSocketServer({ server, maxPayload: 3 * 1024 * 1024 });
 
 async function authorize(url: URL): Promise<boolean> {
   if (!REQUIRE_SESSION) return true;
@@ -98,12 +100,11 @@ wss.on('connection', async (ws: WebSocket, req) => {
     const body = (await res.json()) as { context?: string; narration?: Record<string, string> };
     return { context: body.context ?? '', narration: body.narration ?? {} };
   };
-  const session = new CoachSession({ registry, loadAssignment, loadContext, tts, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
+  const session = new CoachSession({ registry, loadAssignment, loadContext, tts, stt, asksPerMinute: ASKS_PER_MINUTE, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
   console.log(`[ai-coach ${tag}] connected (provider ${registry.active.name})`);
   session.announce();
 
   const messages = new RateWindow(MESSAGES_PER_MINUTE);
-  const asks = new RateWindow(ASKS_PER_MINUTE);
   const floorMessages = new RateWindow(FLOOR_PER_MINUTE);
 
   ws.on('message', (data) => {
@@ -118,10 +119,7 @@ wss.on('connection', async (ws: WebSocket, req) => {
     if (!(cheap ? floorMessages : messages).take()) return send({ type: 'error', message: 'Slow down a little.' });
     if (msg.type === 'mode' && !(MODES as string[]).includes(msg.mode)) return;
     if (msg.type === 'ask' && (typeof msg.text !== 'string' || !msg.text.trim())) return;
-    // "Say that again" / "what do I do now?" are answered without the model, so they do not use up the limit.
-    if (msg.type === 'ask' && !matchIntent(msg.text) && !asks.take()) {
-      return send({ type: 'error', message: `You can ask ${ASKS_PER_MINUTE} questions a minute. Try again in ${asks.secondsLeft()} seconds.` });
-    }
+    // The 5-questions-a-minute limit lives in the session, so typed and spoken questions share it.
     void session.handle(msg).catch((err) => {
       console.error(`[ai-coach ${tag}] handler error:`, (err as Error).message);
       send({ type: 'error', message: 'The coach hit a problem.' });
@@ -133,5 +131,5 @@ wss.on('connection', async (ws: WebSocket, req) => {
 
 server.listen(PORT, () => {
   const p = registry.active;
-  console.log(`🤖 AI Coach on ws://localhost:${PORT} · provider ${p.name} (${p.model}) · key ${p.isConfigured() ? 'set' : 'MISSING'} · voice ${tts.available() ? tts.name : 'off (set PIPER_BIN and PIPER_MODEL)'} · ${ASKS_PER_MINUTE} questions/min`);
+  console.log(`🤖 AI Coach on ws://localhost:${PORT} · provider ${p.name} (${p.model}) · key ${p.isConfigured() ? 'set' : 'MISSING'} · voice ${tts.available() ? tts.name : 'off (set PIPER_BIN and PIPER_MODEL)'} · listening ${stt.available() ? stt.name : 'off (set WHISPER_BIN and WHISPER_MODEL)'} · ${ASKS_PER_MINUTE} questions/min`);
 });

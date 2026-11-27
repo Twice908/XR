@@ -70,15 +70,31 @@ export type ClientMessage =
    * "what do I do now?" can be answered with the student's current step.
    */
   | { type: 'floor'; narrating?: boolean; talking?: boolean; cue?: string }
+  /**
+   * A spoken question as audio, for browsers that cannot transcribe it themselves (no Web Speech API, e.g. a headset
+   * browser). `data` is base64; up to 30 s is transcribed. The server answers with `transcript`, then handles the text
+   * like an `ask` with `inputMode: 'voice'`.
+   */
+  | { type: 'audio_ask'; format: AudioFormat; data: string; snapshot?: Snapshot }
   /** Stop the coach reply in progress (`id`, or whichever is current): no more text or audio for it. */
   | { type: 'cancel'; id?: string }
   | { type: 'reveal'; snapshot?: Snapshot };
 
 export type CoachReason = 'reply' | 'nudge' | 'wrapup';
 
+/** Containers a browser's MediaRecorder (or a WAV fallback) produces. */
+export type AudioFormat = 'webm' | 'ogg' | 'mp4' | 'wav' | 'mpeg';
+export const AUDIO_FORMATS: AudioFormat[] = ['webm', 'ogg', 'mp4', 'wav', 'mpeg'];
+
 export type ServerMessage =
   /** `voiceAvailable`: the server can speak (a TTS engine is set up). `voice`: this session has spoken replies on. */
-  | { type: 'ready'; mode: Mode; provider: string; model: string; configured: boolean; voiceAvailable: boolean; voice: boolean }
+  /** `sttAvailable`: the server can transcribe `audio_ask` (otherwise the browser must send text). */
+  | { type: 'ready'; mode: Mode; provider: string; model: string; configured: boolean; voiceAvailable: boolean; voice: boolean; sttAvailable: boolean }
+  /**
+   * What the server heard in an `audio_ask`, so the browser can show it. An empty `text` with `error` means nothing
+   * usable was heard (silence, too short, transcription failed); no reply follows.
+   */
+  | { type: 'transcript'; text: string; error?: 'empty' | 'failed' | 'unavailable' | 'too_large' | 'limit' }
   /** A reply has started; `id` is the id its `coach` and `coach_audio` messages will carry. */
   | { type: 'thinking'; id: string }
   /**
