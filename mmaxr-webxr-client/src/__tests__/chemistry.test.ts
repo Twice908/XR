@@ -110,6 +110,41 @@ describe('ChemistryExperiment', () => {
     for (const leak of ['wasCorrect', 'nowCorrect', 'truth', 'actualPh', 'offBy']) expect(JSON.stringify(events)).not.toContain(leak)
   })
 
+  it('keeps the pH paper locked until every chosen indicator is tested on every tube', () => {
+    const { exp, events, test } = setup()
+    start(exp)
+    // The reported bug: one indicator on every tube, every tube concluded.
+    test(0, 'litmus', 'Red')
+    test(1, 'litmus', 'Blue')
+    exp.setConclusion(0, 'acid')
+    exp.setConclusion(1, 'base')
+    expect(exp.phase).toBe('testing')
+    expect(exp.indicatorTests).toEqual({ done: 2, total: 4 })
+    expect(exp.allIndicatorsTested).toBe(false)
+    // The other indicator can still be picked and used, and pH paper cannot.
+    expect(exp.selectTool('ph_paper')).toBe(false)
+    expect(exp.selectTool('turmeric')).toBe(true)
+    expect(exp.canTest(0).ok).toBe(true)
+    test(0, 'turmeric', 'Yellow')
+    expect(exp.phase).toBe('testing')
+    // The last indicator test, with every tube already concluded, unlocks it.
+    test(1, 'turmeric', 'Reddish-Brown')
+    expect(exp.phase).toBe('ph')
+    expect(exp.activeTool).toBe('ph_paper')
+    expect(events.filter((e) => e.object.action === 'unlock_ph_paper')).toHaveLength(1)
+  })
+
+  it('unlocks the pH paper on the last conclusion when every test is already done', () => {
+    const { exp, test } = setup()
+    start(exp)
+    for (const tube of [0, 1]) for (const tool of ['litmus', 'turmeric']) test(tube, tool, 'Red')
+    expect(exp.phase).toBe('testing')
+    exp.setConclusion(0, 'acid')
+    expect(exp.phase).toBe('testing')
+    exp.setConclusion(1, 'base')
+    expect(exp.phase).toBe('ph')
+  })
+
   it('refuses to conclude an untested tube', () => {
     const { exp } = setup()
     start(exp)
@@ -124,6 +159,10 @@ describe('ChemistryExperiment', () => {
     exp.setConclusion(0, 'acid')
     test(1, 'litmus', 'Purple')
     exp.setConclusion(1, 'base')
+    // Concluded, but the second indicator is still untested on both tubes: pH paper stays locked.
+    expect(exp.phase).toBe('testing')
+    test(0, 'turmeric', 'Yellow')
+    test(1, 'turmeric', 'Yellow')
     expect(exp.phase).toBe('ph')
     expect(exp.activeTool).toBe('ph_paper')
     test(0, 'ph_paper', 'Red', 3)
@@ -141,7 +180,7 @@ describe('ChemistryExperiment', () => {
     expect(s.conclusionsCorrect).toBe(2)
     expect(s.phExact).toBe(1)
     expect(s.phWithinOne).toBe(2)
-    expect(s.predictionsCorrect).toBe(3)
+    expect(s.predictionsCorrect).toBe(4)
     expect(s.colorEntriesCorrect).toBe(1)
     const submit = events.find((e) => e.object.action === 'submit_analysis')!
     expect(JSON.stringify(submit)).not.toMatch(/Hydrochloric|HCl|truth|actualPh/)

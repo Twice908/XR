@@ -246,7 +246,7 @@ export class Hud {
         'button',
         { class: `tool${phActive ? ' selected' : ''}`, type: 'button', 'aria-pressed': String(phActive), 'aria-disabled': e.phase === 'ph' ? null : 'true', onclick: () => this.handlers.onSelectTool(PH_TOOL) },
         h('span', { class: 'tool-check' }, e.phase === 'ph' || e.phase === 'reveal' ? (phActive ? '●' : '') : '🔒'),
-        h('span', { class: 'tool-text' }, h('span', { class: 't-label' }, 'Universal pH paper'), h('span', { class: 't-support' }, e.phase === 'testing' ? 'Unlocks when every tube has a conclusion' : `${phDone} / ${e.tubes.length} tubes tested`)),
+        h('span', { class: 'tool-text' }, h('span', { class: 't-label' }, 'Universal pH paper'), h('span', { class: 't-support' }, e.phase === 'testing' ? phLockedReason(e) : `${phDone} / ${e.tubes.length} tubes tested`)),
       ),
     )
     body.append(list)
@@ -448,4 +448,13 @@ export class Hud {
     window.removeEventListener('resize', this.layout)
     this.root.remove()
   }
+}
+
+/** Why the pH paper is still locked, and what is left before it opens. */
+export function phLockedReason(e: { indicatorTests: { done: number; total: number }; tubes: { conclusion: unknown }[] }): string {
+  const left = e.indicatorTests.total - e.indicatorTests.done
+  const unconcluded = e.tubes.filter((t) => t.conclusion === null).length
+  if (left > 0) return `Unlocks after every indicator is tested on every tube (${e.indicatorTests.done} / ${e.indicatorTests.total} tests done)`
+  if (unconcluded > 0) return `Unlocks when every tube has a conclusion (${unconcluded} left)`
+  return 'Unlocking…'
 }
