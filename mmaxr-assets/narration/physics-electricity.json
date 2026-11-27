@@ -7,6 +7,42 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the circuits lab. You will build circuits on a breadboard and find out how current, voltage and resistance work together. Predict first, then watch what really happens.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-ohms-law",
+      "trigger": "bench_opened",
+      "text": "First, Ohm's law. Change the voltage and the resistance, and watch the ammeter and the graph. Predict each reading before you run it.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-series-parallel",
+      "trigger": "bench_opened",
+      "text": "Now series and parallel. Wire two bulbs each way and compare them with a single bulb. Predict what you will see first.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-heating-fuse",
+      "trigger": "bench_opened",
+      "text": "The fuse bench. Raise the voltage slowly and watch the thin wire. Predict what will happen before you do.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "all-done",
+      "trigger": "all_done",
+      "text": "That is every question on every bench. Open your summary to see how your predictions and explanations went.",
+      "reviewStatus": "pending"
     }
   ]
 }

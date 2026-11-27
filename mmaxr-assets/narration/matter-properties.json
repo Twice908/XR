@@ -7,6 +7,42 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the matter lab. You will heat ice, test substances and pour liquids to find out how matter behaves. Predict first, then watch what really happens.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-states-changes",
+      "trigger": "bench_opened",
+      "text": "Bench one: states and changes. A beaker sits on a hot plate, on top of a weighing scale. Predict first, then heat it and watch.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-properties-changes",
+      "trigger": "bench_opened",
+      "text": "Now the physical and chemical bench. You have a hammer, a magnet, a bulb circuit, a burner and a beaker of water. Predict each result before you test.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-density-measurement",
+      "trigger": "bench_opened",
+      "text": "Welcome to the density bench. Weigh and measure the liquids, see how they behave together, and find out why some things float.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "all-done",
+      "trigger": "all_done",
+      "text": "That is every question on every bench. Open your summary to see how your predictions and explanations went.",
+      "reviewStatus": "pending"
     }
   ]
 }

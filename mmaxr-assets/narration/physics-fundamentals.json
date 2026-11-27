@@ -7,6 +7,48 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the physics fundamentals lab. We will take the big ideas of physics one at a time. Each one starts with a concept card. Then you predict, watch the experiment, and explain it in your own words.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-kinematics-vectors",
+      "trigger": "bench_opened",
+      "text": "First, kinematics and vectors. Watch the car on the circular track, and keep an eye on its odometer and its arrows.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-dynamics-impulse",
+      "trigger": "bench_opened",
+      "text": "Now dynamics and impulse. You have carts on an air track, a Newton's cradle and an egg drop tower. Predict before every run.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-work-energy",
+      "trigger": "bench_opened",
+      "text": "Next, work, energy and power. Push the crate, swing the pendulum and run the winch, and watch where the energy goes.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-fundamental-quantities",
+      "trigger": "bench_opened",
+      "text": "Welcome to the measurement bench. Thermometer, stopwatch, balances and rulers: measure carefully, and predict before you read.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "all-done",
+      "trigger": "all_done",
+      "text": "That is every question on every bench. Open your summary to see how your predictions and explanations went.",
+      "reviewStatus": "pending"
     }
   ]
 }

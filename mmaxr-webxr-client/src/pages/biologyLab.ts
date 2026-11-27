@@ -22,11 +22,14 @@ interface Ctx {
   session: LabSession
   lesson: BiologyLessonContract
   isDestroyed: () => boolean
+  /** Speaks a recorded narration line once (mmaxr-assets/narration/<lessonId>.json). */
+  narrate?: (cueId: string) => void
 }
 
 /** Runs the Human Digestive System guided journey. Returns a cleanup function. */
 export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
+  const narrate = ctx.narrate ?? (() => undefined)
   const exp = new JourneyExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   const sceneEvents = { onProgress: (d: number, t: number) => (status.querySelector('p')!.textContent = `Preparing your lab… ${d}/${t}`) }
   const scene: JourneyScene = lesson.type === 'biology_respiratory_system' ? new RespiratoryScene(canvas, lesson, sceneEvents) : new BiologyScene(canvas, lesson, sceneEvents)
@@ -86,12 +89,14 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
           hud!.setTraveling(true)
           await scene.arrive(exp.index)
           hud!.setTraveling(false)
+          narrate(`stop-${exp.stop.cp.id.replace(/_/g, '-')}`)
           return
         }
         guard(() => exp.nextStop())
         if (seen.quizOpen) {
           const q = await fetchQuiz(session)
           exp.startQuiz(q.questions, q.answered)
+          narrate(exp.stage === 'final' ? 'final' : 'quiz-start')
           void scene.enterFinal?.()
           if (exp.stage === 'final') coach?.event('ready_to_submit', say.ready, buildBiologySnapshot(exp))
         }
@@ -117,6 +122,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
         const f = await answerQuestion(session, body)
         hud!.setBusy(null)
         exp.recordFeedback(f)
+        if (!f.correct) narrate('wrong-answer')
         if (!f.correct) coach?.event('prediction_mismatch', say.wrong(exp.question!.organ), buildBiologySnapshot(exp))
       } catch (err) {
         hud!.setBusy(null)
@@ -128,6 +134,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
     },
     onNextQuestion: () => {
       guard(() => exp.nextQuestion())
+      if (exp.stage === 'final') narrate('final')
       if (exp.stage === 'final') coach?.event('ready_to_submit', say.ready, buildBiologySnapshot(exp))
       hud!.update()
     },
@@ -139,6 +146,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
         const result = await submitChallenge(session, exp.finalPayload())
         if (audio) void uploadAudio(session, audio).catch(() => {})
         exp.finish(result)
+        narrate('reveal')
         hud!.setBusy(null)
         coach?.reveal(buildBiologySnapshot(exp))
       } catch (err) {
@@ -211,6 +219,7 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
   status.remove()
   hud.update()
   void scene.arrive(0)
+  if (exp.stage === 'tour') narrate(`stop-${exp.stop.cp.id.replace(/_/g, '-')}`)
   ;(window as unknown as Record<string, unknown>).__mmaxr = { exp, scene, telemetry, lesson, handlers, session }
   return cleanup
 }

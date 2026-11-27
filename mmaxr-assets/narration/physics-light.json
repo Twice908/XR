@@ -7,6 +7,60 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the light lab. You will fire a laser at different surfaces, test the laws of reflection, and then predict the images that curved mirrors make.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "phase-plane",
+      "trigger": "phase_plane",
+      "text": "Let's start with flat surfaces. Pick a surface, predict what the laser beam will do, then fire.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "phase-laws",
+      "trigger": "phase_laws",
+      "text": "Now the laws of reflection. Pick a law, predict where the reflected ray will go, then fire the laser.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "phase-rules",
+      "trigger": "phase_rules",
+      "text": "Next, the rays you can draw on a curved mirror. Pick a ray, predict where it goes after it hits the mirror, then fire it.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "phase-concave",
+      "trigger": "phase_concave",
+      "text": "Now the concave mirror. Slide the candle to a position, predict the image it makes, then trace the rays.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "phase-convex",
+      "trigger": "phase_convex",
+      "text": "Same stand, new mirror: a convex one. Predict the image for each position of the candle.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "phase-table",
+      "trigger": "phase_table",
+      "text": "Every experiment is run and explained. Check your table carefully, then lock it in.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Fire when you are ready: the result is the only way to find out.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "reveal",
+      "trigger": "revealed",
+      "text": "Here are the textbook answers. Compare them with your table, and look again at anything that surprised you.",
+      "reviewStatus": "pending"
     }
   ]
 }

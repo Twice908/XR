@@ -23,11 +23,14 @@ interface Ctx {
   session: LabSession
   lesson: MetalsLessonContract
   isDestroyed: () => boolean
+  /** Speaks a recorded narration line once (mmaxr-assets/narration/<lessonId>.json). */
+  narrate?: (cueId: string) => void
 }
 
 /** Runs the Metals & Non-Metals lab. Returns a cleanup function. */
 export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
+  const narrate = ctx.narrate ?? (() => undefined)
   const exp = new MetalsExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let busy = false
   let submitting = false
@@ -55,6 +58,8 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
   const refresh = (hint?: { text: string; action?: { label: string; run: () => void } | null }) => {
     scene!.setActiveTool(exp.phase === 'testing' ? exp.activeTool : null)
     hud!.update()
+    if (exp.phase === 'hypothesis') narrate('hypothesis')
+    else if (exp.phase === 'testing') narrate(exp.canSubmit ? 'ready-to-submit' : 'testing-start')
     const d = hint ?? defaultHint()
     hud!.hint(d.text, d.action ?? null)
   }
@@ -92,6 +97,8 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
     await scene!.play(r.tool, r.sample, { outcome: r.actual, litmus: r.litmus })
     busy = false
     const tool = exp.tool(r.tool)!
+    if (!r.match) narrate('surprise')
+    else if (exp.remaining === 3) narrate('budget-low')
     if (!r.match) coach?.event('prediction_mismatch', say.mismatch(r.sample + 1, tool.property, outcomeLabel(r.tool, r.predicted), outcomeLabel(r.tool, r.actual)), buildMetalsSnapshot(exp))
     else if (exp.remaining === 3) coach?.event('ph_unlocked', say.budgetLow, buildMetalsSnapshot(exp))
     refresh({
@@ -125,6 +132,7 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
     scene!.focusSample(null)
     if (!ans || ctx.isDestroyed()) return
     if (!guard(() => exp.predict(i, ans.outcome, ans.confidence, ans.decisionMs))) return
+    narrate('prediction-locked')
     refresh()
   }
 
@@ -197,6 +205,7 @@ export async function startMetalsLab(ctx: Ctx): Promise<() => void> {
       truth.forEach((t) => scene!.revealLabel(t.sample - 1, t.name))
       refresh()
       hud!.showReveal(summary, () => go('/experiments'), () => scene!.focusSample(null))
+      narrate('reveal')
       coach?.reveal(buildMetalsSnapshot(exp))
     } catch (err) {
       toast((err as Error).message, 'error')

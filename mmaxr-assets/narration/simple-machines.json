@@ -7,6 +7,48 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the simple machines lab. You will try levers, pulleys, a wheel and axle and a ramp. Change each machine, read the force meter, and find out what you gain and what it costs you.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-levers",
+      "trigger": "bench_opened",
+      "text": "First, levers. Slide the fulcrum, read the force meter, and then try some real levers. Predict before you test.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-pulleys",
+      "trigger": "bench_opened",
+      "text": "Now pulleys. Pull the rope through the force meter, and use the ruler to see how far the load rises.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-wheel-axle",
+      "trigger": "bench_opened",
+      "text": "The wheel and axle. Turn the well's wheel and try the two screwdrivers. Predict the force before you read the meter.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-inclined-plane",
+      "trigger": "bench_opened",
+      "text": "Last, the ramp. Change its length, push the crate up, and compare the force and the distance with lifting it straight up.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "all-done",
+      "trigger": "all_done",
+      "text": "That is every question on every bench. Open your summary to see how your predictions and explanations went.",
+      "reviewStatus": "pending"
     }
   ]
 }

@@ -56,35 +56,39 @@ export function labPage(lessonId: string): Page {
       const session = await openSession(account.token, lessonId)
       const raw = await fetchLesson(lessonId, session)
       // Spoken lines load beside the lab; the welcome plays once the lab is on screen.
-      // Labs reach it through `narrate`, which is silent until it has loaded.
-      const narrationReady = loadLabNarration(lessonId, root).then((n) => {
-        if (destroyed) n.dispose()
-        else narration = n
-        return n
-      })
-      const narrate = (cueId: string) => narration?.once(cueId)
+      // Labs reach it through `narrate`. Until the welcome has played, their lines wait (the newest one), so a
+      // lab's first step is spoken right after the welcome instead of being cut off by it.
+      const narrationReady = loadLabNarration(lessonId, root)
+      let early: string | null = null
+      const narrate = (cueId: string) => {
+        if (narration) narration.once(cueId)
+        else early = cueId
+      }
       const startNarration = async () => {
-        await narrationReady
-        if (!destroyed) narration?.say('intro')
+        const n = await narrationReady
+        if (destroyed) return n.dispose()
+        narration = n
+        n.say('intro')
+        if (early) n.once(early)
       }
       if (raw.type === 'chemistry_metals') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
-        metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        metalsCleanup = await startMetalsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed, narrate })
         await startNarration()
         return
       }
       if (raw.type === 'physics_mechanics_sandbox' || raw.type === 'physics_electromagnetism' || raw.type === 'physics_circuits' || raw.type === 'physics_simple_machines' || raw.type === 'physics_fundamentals_sandbox' || raw.type === 'science_matter_properties') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
-        metalsCleanup = await startMotionLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        metalsCleanup = await startMotionLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed, narrate })
         await startNarration()
         return
       }
       if (raw.type === 'biology_digestive_system' || raw.type === 'biology_respiratory_system') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
-        metalsCleanup = await startBiologyLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        metalsCleanup = await startBiologyLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed, narrate })
         await startNarration()
         return
       }
@@ -106,7 +110,7 @@ export function labPage(lessonId: string): Page {
       if (raw.type === 'physics_optics') {
         telemetry.configure({ sessionId: session.sessionId, studentId: session.studentId, token: session.token })
         telemetry.emit(XapiVerb.INVESTIGATED, { action: 'enter_lab', target: raw.lessonId })
-        metalsCleanup = await startOpticsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed })
+        metalsCleanup = await startOpticsLab({ root, canvas, status, session, lesson: raw, isDestroyed: () => destroyed, narrate })
         await startNarration()
         return
       }

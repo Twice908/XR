@@ -31,7 +31,22 @@ export async function loadLabNarration(lessonId: string, mount: HTMLElement): Pr
 
   const caption = h('p', { class: 'lab-caption', 'aria-live': 'polite' })
   mount.appendChild(caption)
-  const narrator = new Narrator(caption)
+  // `once` lines wait for the line being spoken to end instead of cutting it off. Only the newest waits:
+  // a student who moves on quickly hears where they are now, not a backlog.
+  let speaking = false
+  let waiting: string | null = null
+  let waitTimer = 0
+  const narrator = new Narrator(caption, (now) => {
+    speaking = now
+    if (now || !waiting) return
+    window.clearTimeout(waitTimer)
+    waitTimer = window.setTimeout(() => {
+      if (speaking || !waiting) return
+      const next = waiting
+      waiting = null
+      say(next)
+    }, 400)
+  })
   const spoken = new Set<string>()
   const say = (cueId: string) => {
     const line = cues[cueId]
@@ -42,10 +57,18 @@ export async function loadLabNarration(lessonId: string, mount: HTMLElement): Pr
   return {
     say,
     once(cueId) {
-      if (!spoken.has(cueId)) say(cueId)
+      if (spoken.has(cueId) || !cues[cueId]) return
+      spoken.add(cueId)
+      if (speaking) waiting = cueId
+      else say(cueId)
     },
-    stop: () => narrator.stop(),
+    stop: () => {
+      waiting = null
+      narrator.stop()
+    },
     dispose() {
+      waiting = null
+      window.clearTimeout(waitTimer)
       narrator.dispose()
       caption.remove()
     },

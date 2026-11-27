@@ -7,6 +7,42 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the magnetism lab. You will trace magnetic field lines, build an electromagnet, and see how currents, fields and motion affect each other. Predict first, then watch what really happens.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-magnets-fields",
+      "trigger": "bench_opened",
+      "text": "First, magnets and fields. Move the compass around the bar and horseshoe magnets and follow the field lines.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-electromagnetism",
+      "trigger": "bench_opened",
+      "text": "Now electromagnetism. Use the battery, the wire and the iron nail, and see what a current can do. Predict first.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-force-induction",
+      "trigger": "bench_opened",
+      "text": "The force and induction bench. Watch the rod between the magnet poles, and the coil joined to the meter. Predict before every run.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "all-done",
+      "trigger": "all_done",
+      "text": "That is every question on every bench. Open your summary to see how your predictions and explanations went.",
+      "reviewStatus": "pending"
     }
   ]
 }

@@ -25,11 +25,14 @@ interface Ctx {
   session: LabSession
   lesson: MotionLessonContract
   isDestroyed: () => boolean
+  /** Speaks a recorded narration line once (mmaxr-assets/narration/<lessonId>.json). */
+  narrate?: (cueId: string) => void
 }
 
 /** Runs the Motion, Forces & Gravitation sandbox. Returns a cleanup function. */
 export async function startMotionLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
+  const narrate = ctx.narrate ?? (() => undefined)
   const exp = new MotionExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let hud: MotionHud | null = null
   let coach: CoachClient | null = null
@@ -73,6 +76,8 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       hud!.setBusy(t.trial.action ? 'Checking what happened…' : 'Checking your answer…')
       const obs = await observeResult(session, t.trial.id)
       exp.recordObservation(obs)
+      if (!obs.match) narrate('surprise')
+      if (exp.allDone) narrate('all-done')
       if (!obs.match) coach?.event('prediction_mismatch', say.mismatch(t.n), buildMotionSnapshot(exp))
       if (exp.allDone) {
         coach?.event('ready_to_submit', say.done, buildMotionSnapshot(exp))
@@ -94,6 +99,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       hud!.setSummary(false)
       hud!.setFreeDriving(false)
       exp.switchModule(id)
+      narrate(`bench-${id.replace(/_/g, '-')}`)
       hud!.update()
       void scene.goto(id).then(stageTrial)
     },
@@ -119,6 +125,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
       try {
         await lockPrediction(session, body)
         exp.recordLocked(body.thinkMs, clickedAt)
+        if (exp.current.trial.action) narrate('prediction-locked')
         hud!.setBusy(null)
         working = false
         hud!.update()
@@ -146,6 +153,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
         const r = await explainResult(session, body.trial, body.explanation, body.inputMode, body.speakMs)
         if (audio) void uploadExplainAudio(session, body.trial, audio).catch(() => {})
         exp.recordExplained(r)
+        if (exp.allDone) narrate('all-done')
         coach?.event('revision', say.explained(exp.current.n), buildMotionSnapshot(exp))
         if (exp.allDone) coach?.reveal(buildMotionSnapshot(exp))
       } catch (err) {
@@ -244,6 +252,7 @@ export async function startMotionLab(ctx: Ctx): Promise<() => void> {
     return () => {}
   }
   await scene.goto(lesson.scenarios[0].id, true)
+  narrate(`bench-${lesson.scenarios[0].id.replace(/_/g, '-')}`)
   stageTrial()
   scene.start()
   sensorTracker.start(session, () => scene.head, () => scene.hand)

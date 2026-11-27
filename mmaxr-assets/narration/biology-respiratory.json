@@ -7,6 +7,84 @@
       "trigger": "lab_loaded",
       "text": "Welcome aboard. We are going to follow one breath from your nose deep into your lungs and out to your cells. At each of nine stops, predict what happens, explain it aloud, then see what really goes on.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-nasal-cavity",
+      "trigger": "stop_arrived",
+      "text": "Our first stop: the nasal cavity. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-pharynx",
+      "trigger": "stop_arrived",
+      "text": "Stop 2: the pharynx. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-larynx-trachea",
+      "trigger": "stop_arrived",
+      "text": "Stop 3: the larynx and trachea. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-bronchi",
+      "trigger": "stop_arrived",
+      "text": "Stop 4: the bronchi. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-lungs",
+      "trigger": "stop_arrived",
+      "text": "Stop 5: the lungs. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-alveoli",
+      "trigger": "stop_arrived",
+      "text": "Stop 6: the alveoli. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-diaphragm",
+      "trigger": "stop_arrived",
+      "text": "Stop 7: the diaphragm. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-cells",
+      "trigger": "stop_arrived",
+      "text": "Stop 8: the body's cells. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-anaerobic",
+      "trigger": "stop_arrived",
+      "text": "Our last stop: muscles working hard without enough oxygen. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "quiz-start",
+      "trigger": "quiz_started",
+      "text": "That's the end of the journey. Now let's see what you remember. Answer each question, then check it.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "wrong-answer",
+      "trigger": "first_wrong",
+      "text": "Not quite, and that's fine. Read the feedback, then think back to what you saw at that stop.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "final",
+      "trigger": "final_challenge",
+      "text": "Last step. Explain the whole journey in your own words. You can speak it or type it.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "reveal",
+      "trigger": "revealed",
+      "text": "Well done, you have finished the journey. Look at your feedback to see what you explained well and what to revisit.",
+      "reviewStatus": "pending"
     }
   ]
 }

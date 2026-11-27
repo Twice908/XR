@@ -7,6 +7,48 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the metals lab. You have five unknown samples, seven tests and a limited budget. Predict every result before you test, and watch out for samples that break the rules.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "hypothesis",
+      "trigger": "phase_hypothesis",
+      "text": "First impressions. Click each sample and say whether you think it is a metal or a non-metal. You can change your mind later.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "testing-start",
+      "trigger": "testing_started",
+      "text": "Impressions locked in. Now test them. Pick a test, then click a sample, and predict the result before every run.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "budget-low",
+      "trigger": "budget_low",
+      "text": "Only three test runs are left. Choose them carefully: which sample are you least sure about?",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "ready-to-submit",
+      "trigger": "ready_to_submit",
+      "text": "Every sample has a decision and enough tests. When you are ready, submit to see what they really were.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "reveal",
+      "trigger": "revealed",
+      "text": "Here is what the samples really were. Look closely at any exceptions, and at any call you would change now.",
+      "reviewStatus": "pending"
     }
   ]
 }

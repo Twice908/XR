@@ -20,6 +20,8 @@ interface Ctx {
   session: LabSession
   lesson: OpticsLessonContract
   isDestroyed: () => boolean
+  /** Speaks a recorded narration line once (mmaxr-assets/narration/<lessonId>.json). */
+  narrate?: (cueId: string) => void
 }
 
 const STAGE_OF: Record<Tool, Stage> = { plane: 'plane', law: 'laws', rule: 'rules', concave: 'concave', convex: 'convex' }
@@ -27,6 +29,7 @@ const STAGE_OF: Record<Tool, Stage> = { plane: 'plane', law: 'laws', rule: 'rule
 /** Runs the Light: Reflection & Spherical Mirrors lab. Returns a cleanup function. */
 export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
   const { root, canvas, status, session, lesson } = ctx
+  const narrate = ctx.narrate ?? (() => undefined)
   const exp = new OpticsExperiment(lesson, (verb, object, at) => telemetry.emit(verb, object, at))
   let busy = false
   let submitting = false
@@ -58,6 +61,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
 
   const refresh = (hint?: { text: string; action?: { label: string; run: () => void } | null }) => {
     hud!.update()
+    if (exp.phase !== 'reveal') narrate(`phase-${exp.phase}`)
     const d = hint ?? defaultHint()
     hud!.hint(d.text, d.action ?? null)
   }
@@ -160,6 +164,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
     }
     if (ctx.isDestroyed()) return
     if (!result.match) {
+      narrate('surprise')
       const parts = trial.kind === 'case' && result.fields ? IMAGE_FIELDS.filter((f) => !result.fields![f]).join(', ') : 'the outcome'
       coach?.event('prediction_mismatch', result.anomaly ? say.anomaly : say.mismatch(trial.title, parts), buildOpticsSnapshot(exp))
     }
@@ -196,6 +201,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
       refresh()
       hud!.closeCard()
       hud!.showReveal(summary, reveal, () => go('/experiments'), () => undefined)
+      narrate('reveal')
       coach?.reveal(buildOpticsSnapshot(exp))
     } catch (err) {
       toast((err as Error).message, 'error')

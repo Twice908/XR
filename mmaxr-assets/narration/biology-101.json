@@ -7,6 +7,84 @@
       "trigger": "lab_loaded",
       "text": "Welcome aboard. We are going to follow a meal all the way through the digestive system. At each of nine stops, predict what happens, explain it in your own words, then see what really goes on.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-salivary-glands",
+      "trigger": "stop_arrived",
+      "text": "Our first stop: the salivary glands. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-mouth",
+      "trigger": "stop_arrived",
+      "text": "Stop 2: the mouth. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-esophagus",
+      "trigger": "stop_arrived",
+      "text": "Stop 3: the oesophagus. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-stomach",
+      "trigger": "stop_arrived",
+      "text": "Stop 4: the stomach. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-liver",
+      "trigger": "stop_arrived",
+      "text": "Stop 5: the liver. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-pancreas",
+      "trigger": "stop_arrived",
+      "text": "Stop 6: the pancreas. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-small-intestine",
+      "trigger": "stop_arrived",
+      "text": "Stop 7: the small intestine. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-villi",
+      "trigger": "stop_arrived",
+      "text": "Stop 8: the villi. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "stop-large-intestine",
+      "trigger": "stop_arrived",
+      "text": "Our last stop: the large intestine. Look around, then press watch to see what happens here.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "quiz-start",
+      "trigger": "quiz_started",
+      "text": "That's the end of the journey. Now let's see what you remember. Answer each question, then check it.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "wrong-answer",
+      "trigger": "first_wrong",
+      "text": "Not quite, and that's fine. Read the feedback, then think back to what you saw at that stop.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "final",
+      "trigger": "final_challenge",
+      "text": "Last step. Explain the whole journey in your own words. You can speak it or type it.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "reveal",
+      "trigger": "revealed",
+      "text": "Well done, you have finished the journey. Look at your feedback to see what you explained well and what to revisit.",
+      "reviewStatus": "pending"
     }
   ]
 }

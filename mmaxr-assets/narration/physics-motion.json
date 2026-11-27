@@ -7,6 +7,42 @@
       "trigger": "lab_loaded",
       "text": "Welcome to the motion sandbox. You will drive a car around a loop, test Newton's laws with crates and balls, and drop things in air and in a vacuum. Predict first, then watch what really happens.",
       "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-kinematics-track",
+      "trigger": "bench_opened",
+      "text": "First, kinematics. The race car drives a straight run-up into a loop. Watch the odometer and the displacement arrow.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-dynamics-bay",
+      "trigger": "bench_opened",
+      "text": "Now the cargo bay, for Newton's laws. Push crates on the floor and in zero gravity, and watch the collisions. Predict first.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "bench-gravitation-drop",
+      "trigger": "bench_opened",
+      "text": "The gravitation bench. Drop things in air and in a vacuum, then explore how two masses pull on each other.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "prediction-locked",
+      "trigger": "prediction_locked",
+      "text": "Prediction locked. Now run it and see what really happens.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "surprise",
+      "trigger": "first_mismatch",
+      "text": "That is not what you predicted, and that is fine. Surprises are where the learning happens. Think about why.",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "all-done",
+      "trigger": "all_done",
+      "text": "That is every question on every bench. Open your summary to see how your predictions and explanations went.",
+      "reviewStatus": "pending"
     }
   ]
 }
