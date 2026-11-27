@@ -1,4 +1,4 @@
-import { applyGuardrails } from '@mmaxr/guardrails';
+import { applyGuardrails, type GuardResult } from '@mmaxr/guardrails';
 import { fallbackReply } from './fallback';
 import { buildSystemPrompt, describeSnapshot } from './prompt';
 import type { ProviderRegistry } from './providers';
@@ -9,7 +9,7 @@ import { Floor } from './floor';
 import { matchIntent, type Intent } from './intents';
 import { RateWindow } from './rateLimit';
 import { noStt, type SttEngine } from './voice/stt';
-import { splitSentences } from './voice/sentences';
+import { splitSentences, takeSentences } from './voice/sentences';
 import { noTts, type TtsEngine } from './voice/tts';
 
 const MAX_HISTORY_TURNS = 10;
@@ -332,30 +332,126 @@ export class CoachSession {
     if (ctrl.signal.aborted) return; // cancelled before the model was asked
     const state = describeSnapshot(snapshot);
     const turns: ChatTurn[] = [...this.history, { role: 'user', text: state ? `${userTurn}\n\n${state}` : userTurn }];
+    const request = { system: buildSystemPrompt(hello, this.truth, this.context), turns, maxTokens, signal: ctrl.signal };
+    const guard = this.guardFor(snapshot);
+
+    if (provider.stream) {
+      const done = await this.respondStreamed(mine, provider.name, provider.stream(request), guard, historyText);
+      if (done || ctrl.signal.aborted) return;
+      // Nothing was said before the stream failed: answer with the fallback line, as a whole reply.
+      this.remember(historyText, fallbackReply(kind, hello.labType));
+      return this.deliver(mine, fallbackReply(kind, hello.labType), { provider: provider.name, blocked: false, degraded: true });
+    }
 
     let text: string;
     let degraded = false;
     let blocked = false;
     try {
-      text = await provider.complete({ system: buildSystemPrompt(hello, this.truth, this.context), turns, maxTokens, signal: ctrl.signal });
-      const revealed = this.truth !== null;
-      const verdicts = snapshot?.claims?.map((c) => ({ tube: c.n, verdict: c.verdict })) ?? (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
-      const phs = (snapshot?.tubes ?? []).map((t) => t.recordedPh).filter((n): n is number => n !== null);
-      const secrets = revealed ? [] : (this.assignment?.tubes ?? []).filter((t) => t.open !== false).map((t) => ({ tube: t.tube, terms: t.terms ?? [t.name, t.formula], verdict: t.type, ph: t.ph }));
-      const guarded = applyGuardrails(text, { allowNumbers: true, secrets, enforceTubeClaims: !revealed, allowedVerdicts: verdicts, allowedPh: phs });
-      if (guarded.wasBlocked) this.log(`guard blocked a reply (${guarded.reasons.join(',')})`);
+      const guarded = guard(await provider.complete(request));
       text = guarded.safeResponse;
       blocked = guarded.wasBlocked;
     } catch (err) {
       if (ctrl.signal.aborted) return;
       degraded = true;
-      const kindName = err instanceof ProviderError ? err.kind : 'error';
-      this.log(`provider ${provider.name} unavailable (${kindName}): ${(err as Error).message.slice(0, 160)}`);
+      this.logProviderError(provider.name, err);
       text = fallbackReply(kind, hello.labType);
     }
     if (ctrl.signal.aborted) return; // cancelled while thinking: nothing is sent, and it is not remembered
 
     this.remember(historyText, text);
     await this.deliver(mine, text, { provider: provider.name, blocked, degraded });
+  }
+
+  /** The answer-leak guard for this reply: the session's hidden answers, minus what the student has already said. */
+  private guardFor(snapshot: Snapshot | undefined): (text: string) => GuardResult {
+    const revealed = this.truth !== null;
+    const verdicts = snapshot?.claims?.map((c) => ({ tube: c.n, verdict: c.verdict })) ?? (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
+    const phs = (snapshot?.tubes ?? []).map((t) => t.recordedPh).filter((n): n is number => n !== null);
+    const secrets = revealed ? [] : (this.assignment?.tubes ?? []).filter((t) => t.open !== false).map((t) => ({ tube: t.tube, terms: t.terms ?? [t.name, t.formula], verdict: t.type, ph: t.ph }));
+    return (text) => {
+      const guarded = applyGuardrails(text, { allowNumbers: true, secrets, enforceTubeClaims: !revealed, allowedVerdicts: verdicts, allowedPh: phs });
+      if (guarded.wasBlocked) this.log(`guard blocked a reply (${guarded.reasons.join(',')})`);
+      return guarded;
+    };
+  }
+
+  private logProviderError(name: string, err: unknown) {
+    const kindName = err instanceof ProviderError ? err.kind : 'error';
+    this.log(`provider ${name} unavailable (${kindName}): ${(err as Error).message.slice(0, 160)}`);
+  }
+
+  /**
+   * Streams a reply: each sentence is guarded (together with everything already said, so a leak split across sentences
+   * is caught as it would be in the whole reply), sent as `coach_part`, and queued for speech while the model goes on
+   * writing. Returns false only when the stream failed before anything was said, so the caller can fall back.
+   */
+  private async respondStreamed(mine: { id: string; reason: CoachReason; ctrl: AbortController }, providerName: string, pieces: AsyncIterable<string>, guard: (text: string) => GuardResult, historyText: string): Promise<boolean> {
+    const { id, ctrl } = mine;
+    const voice = this.voice && this.voiceAvailable;
+    const said: string[] = [];
+    let buffer = '';
+    let blocked = false;
+    let degraded = false;
+    let speech: Promise<void> = Promise.resolve();
+    let speechFailed = false;
+    const started = this.now();
+
+    const say = (sentence: string) => {
+      const seq = said.length;
+      said.push(sentence);
+      if (seq === 0) this.log(`first sentence after ${this.now() - started} ms`);
+      this.deps.send({ type: 'coach_part', id, seq, text: sentence });
+      if (!voice) return;
+      speech = speech.then(async () => {
+        if (speechFailed || ctrl.signal.aborted || !this.voice) return;
+        try {
+          const audio = await this.tts.synthesize(sentence, ctrl.signal);
+          if (ctrl.signal.aborted || !this.voice) return;
+          this.deps.send({ type: 'coach_audio', id, seq, last: false, format: 'mp3', data: Buffer.from(audio).toString('base64'), text: sentence });
+        } catch (err) {
+          if (ctrl.signal.aborted) return;
+          speechFailed = true;
+          this.log(`speech failed: ${(err as Error).message.slice(0, 120)}`);
+          this.deps.send({ type: 'coach_audio', id, seq, last: true, format: 'mp3', data: '', text: sentence, error: true });
+        }
+      });
+    };
+    /** Guards a finished sentence against everything said so far; a leak ends the reply with the guard's redirect. */
+    const offer = (sentence: string) => {
+      if (blocked || !sentence.trim()) return;
+      const verdict = guard([...said, sentence].join(' '));
+      if (!verdict.wasBlocked) return say(sentence);
+      blocked = true;
+      say(verdict.safeResponse);
+    };
+
+    try {
+      for await (const piece of pieces) {
+        if (ctrl.signal.aborted) return true;
+        const { done, rest } = takeSentences(buffer + piece);
+        for (const sentence of done) offer(sentence);
+        buffer = rest;
+        if (blocked) break;
+      }
+      offer(buffer.trim());
+    } catch (err) {
+      if (ctrl.signal.aborted) return true;
+      this.logProviderError(providerName, err);
+      if (!said.length) return false;
+      degraded = true; // part of the reply is out; finish with what was said
+    }
+    if (ctrl.signal.aborted) return true;
+    if (!said.length) return false;
+
+    const text = said.join(' ');
+    this.remember(historyText, text);
+    this.lastReply = text;
+    this.deps.send({ type: 'coach', id, text, reason: mine.reason, provider: providerName, blocked, degraded, voice, streamed: true });
+    if (voice) {
+      await speech;
+      if (!ctrl.signal.aborted && !speechFailed && this.voice) this.deps.send({ type: 'coach_audio', id, seq: said.length, last: true, format: 'mp3', data: '', text: '' });
+    }
+    if (this.current === mine) this.current = null;
+    return true;
   }
 }

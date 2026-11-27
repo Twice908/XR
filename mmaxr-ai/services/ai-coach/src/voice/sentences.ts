@@ -24,3 +24,24 @@ export function splitSentences(text: string, minChars = 24): string[] {
   }
   return out;
 }
+
+/**
+ * For a reply still being written: takes the sentences in `buffer` that are certainly finished (another sentence has
+ * started after them) and returns the rest to keep growing. Short sentences wait to be joined to the next one; a
+ * finished sentence is never held back by the unfinished text after it.
+ */
+export function takeSentences(buffer: string, minChars = 24): { done: string[]; rest: string } {
+  const parts = buffer.replace(/\s+/g, ' ').replace(/^ /, '').split(/(?<=[.!?…])\s+(?=[A-Z0-9"“'‘(])/);
+  if (parts.length <= 1) return { done: [], rest: buffer };
+  const done: string[] = [];
+  let carry = '';
+  for (const p of parts.slice(0, -1)) {
+    carry = carry ? `${carry} ${p.trim()}` : p.trim();
+    if (carry.length >= minChars) {
+      done.push(carry);
+      carry = '';
+    }
+  }
+  const tail = parts[parts.length - 1];
+  return { done, rest: carry ? `${carry} ${tail}` : tail };
+}

@@ -4,7 +4,7 @@ import { tmpdir } from 'os';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { RateWindow } from '../rateLimit';
-import { splitSentences } from '../voice/sentences';
+import { splitSentences, takeSentences } from '../voice/sentences';
 import { createPiperTts, createTts, noTts, withCache, type TtsEngine } from '../voice/tts';
 
 describe('splitSentences', () => {
@@ -83,5 +83,17 @@ describe('tts', () => {
     writeFileSync(bin, '#!/bin/sh\nexit 3\n');
     chmodSync(bin, 0o755);
     await expect(createPiperTts({ bin, model: bin, timeoutMs: 3000 }).synthesize('Hi.')).rejects.toThrow();
+  });
+});
+
+describe('takeSentences (streaming)', () => {
+  it('hands over finished sentences and keeps the one still being written', () => {
+    expect(takeSentences('You saw the litmus turn red. What did you')).toEqual({ done: ['You saw the litmus turn red.'], rest: 'What did you' });
+    expect(takeSentences('A first sentence that is complete. And then')).toEqual({ done: ['A first sentence that is complete.'], rest: 'And then' });
+  });
+  it('holds a short sentence until it can join the next, and waits on a lone sentence', () => {
+    expect(takeSentences('Good. Now try the')).toEqual({ done: [], rest: 'Good. Now try the' });
+    expect(takeSentences('Good. Now try the other bench. Then')).toEqual({ done: ['Good. Now try the other bench.'], rest: 'Then' });
+    expect(takeSentences('It reads 0.5 A at 2 V')).toEqual({ done: [], rest: 'It reads 0.5 A at 2 V' });
   });
 });

@@ -102,10 +102,18 @@ export type ServerMessage =
    * `quick`: answered without the model ("say that again" repeats the last reply; "what do I do now?" repeats the
    * current step's narration line).
    */
-  | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean; voice: boolean; quick?: 'repeat' | 'next' }
+  | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean; voice: boolean; quick?: 'repeat' | 'next'; streamed?: boolean }
+  /**
+   * A streamed reply, one sentence at a time, each sent as soon as it has passed the answer-leak guard (`seq` from 0;
+   * the matching `coach_audio` has the same `seq`). The closing `coach` message (`streamed: true`) carries the whole
+   * text once writing is done. When a sentence would leak, it is replaced by a redirect and the reply ends there.
+   */
+  | { type: 'coach_part'; id: string; seq: number; text: string }
   /**
    * Spoken audio for a reply, one sentence per message, in order (`seq` from 0). `last` marks the final piece.
    * `data` is base64 MP3. When speech fails part-way, a last piece with `error: true` and no data ends the reply.
+   * A streamed reply does not know which sentence is last until writing ends, so it ends with an extra piece that has
+   * `last: true` and no data.
    */
   | { type: 'coach_audio'; id: string; seq: number; last: boolean; format: 'mp3'; data: string; text: string; error?: boolean }
   | { type: 'voice'; on: boolean; available: boolean }

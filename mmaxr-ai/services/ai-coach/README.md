@@ -129,3 +129,20 @@ the recording: `{type:'audio_ask', format:'webm'|'ogg'|'mp4'|'wav'|'mpeg', data:
 - Talking again (`floor {talking:true}`) or a newer recording stops a transcription in progress.
 - The questions-per-minute limit now lives in the session, so typed and spoken questions share it; quick answers stay
   free. WebSocket messages are capped at 3 MB.
+
+## Phase 5: streamed replies
+
+With a provider that streams (Anthropic), the coach does not wait for the whole reply. As each sentence is finished it
+is guarded, sent as `{type:'coach_part', id, seq, text}`, and queued for speech while the model keeps writing; its
+`coach_audio` has the same `seq`. The closing `coach` message (`streamed: true`) carries the whole text, and a streamed
+reply's audio ends with an empty `last: true` piece (the last sentence is only known when writing ends).
+
+- Safety: each sentence is guarded together with everything already said, so the check is the same as for a whole
+  reply. If a sentence would leak, the guard's redirect is sent in its place, the reply ends, and the model's stream is
+  stopped (no more tokens are paid for).
+- If the stream fails before anything is said, the lab's fallback line is sent as a whole reply; if it fails part-way,
+  the reply ends with what was said (`degraded: true`).
+- Providers without streaming (OpenAI, Gemini here) still answer with whole replies.
+- Timed against a local stand-in writing at a model's pace (first token 0.5 s): first sentence 1.5 s, its audio
+  2.0 s, whole text 3.1 s. Without streaming the first audio would come after about 3.6 s.
+- `ANTHROPIC_BASE_URL` points the provider at another endpoint (default https://api.anthropic.com).
