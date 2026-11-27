@@ -7,7 +7,7 @@ import type { Card, CardSeed, MicroQuestion, Subject } from './types';
 export * from './types';
 
 /** Bump when card content changes so the database copy is refreshed on the next start. */
-export const CATALOG_VERSION = 'catalog-2';
+export const CATALOG_VERSION = 'catalog-3';
 
 export const SETS: { subject: Subject; set: string; title: string }[] = [
   { subject: 'chemistry', set: 'elements', title: 'Elements' },

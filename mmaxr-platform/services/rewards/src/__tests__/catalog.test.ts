@@ -48,6 +48,18 @@ describe('card catalog', () => {
     }
   });
 
+  it('gives every physics card a real fun fact, not a generated definition', () => {
+    const physics = CARDS.filter((c) => c.subject === 'physics');
+    expect(physics).toHaveLength(27);
+    for (const c of physics) {
+      expect(typeof c.funFact, c.id).toBe('string');
+      expect(c.funFact.length, c.id).toBeGreaterThan(20);
+      expect(c.funFact, c.id).not.toMatch(/so in base units it is/);
+    }
+    expect(CARDS.find((c) => c.id === 'phys-base-time')!.funFact).toContain('periods of the radiation');
+    expect(CARDS.find((c) => c.id === 'phys-der-power-of-lens')!.data.kind).toBe('unit of optical power');
+  });
+
   it('ties the existing labs to cards', () => {
     for (const lesson of ['atom-builder', 'ionic-bonding', 'cell-explorer', 'physics-motion', 'biology-respiratory']) {
       expect(CARDS.filter((c) => c.lessons.includes(lesson)).length, lesson).toBeGreaterThanOrEqual(5);
