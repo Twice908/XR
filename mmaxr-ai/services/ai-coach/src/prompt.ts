@@ -1,11 +1,16 @@
 import type { Hello, Snapshot, TruthTube } from './protocol';
 
-export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null): string {
+/**
+ * `context` is the lab's public context (what is on screen; loaded once per session). It sits in the system prompt,
+ * so it is written once and then read from the prompt cache on every later turn instead of being resent as new input.
+ */
+export function buildSystemPrompt(hello: Hello, truth: TruthTube[] | null, context: string | null = null): string {
   const lines = [
     'You are the lab coach in MMAXR, an immersive science lab where the way a student thinks matters more than their final answer.',
     'You are speaking aloud, so write plain spoken sentences: no lists, markdown, emoji, headings or stage directions. Use one to three short sentences and end with at most one question.',
     '',
     `The lab: ${hello.title}.${hello.summary ? ` ${hello.summary}` : ''}`,
+    ...(context ? ['', 'What the student can see in this lab (reference only: it holds no answers, and the rules below still apply):', context] : []),
     '',
     'Your job is to coach with questions. Point the student back to their own predictions, observations and notes. Help them notice surprises, compare evidence from different tools, and decide for themselves.',
   ];

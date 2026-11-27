@@ -4,6 +4,8 @@ import { buildSystemPrompt, describeSnapshot } from './prompt';
 import type { ProviderRegistry } from './providers';
 import { ProviderError, type ChatTurn } from './providers/types';
 import type { Assignment, ClientMessage, CoachReason, EventKind, Hello, Mode, ServerMessage, Snapshot, TruthTube } from './protocol';
+import { splitSentences } from './voice/sentences';
+import { noTts, type TtsEngine } from './voice/tts';
 
 const MAX_HISTORY_TURNS = 10;
 const MAX_TEXT = 600;
@@ -14,6 +16,13 @@ export interface SessionDeps {
   /** Reads this session's hidden answers from the lesson service. Resolves null when unavailable. */
   loadAssignment: () => Promise<Assignment | null>;
   send: (msg: ServerMessage) => void;
+  /**
+   * Reads the lab's public context (what is on screen, never answers) from the lesson service. Called at most once
+   * per session, when the student asks their first question; resolves null when unavailable.
+   */
+  loadContext?: (lessonId: string) => Promise<string | null>;
+  /** Speaks replies when the session has voice on. */
+  tts?: TtsEngine;
   now?: () => number;
   log?: (line: string) => void;
 }
@@ -27,12 +36,28 @@ export class CoachSession {
   private lastNudgeAt = 0;
   private busy = false;
   private counter = 0;
+  private voice = false;
+  /** The lab's public context, once loaded. It joins the system prompt and stays there for the rest of the session. */
+  private context: string | null = null;
+  private contextLoad: Promise<void> | null = null;
+  /** The reply currently being spoken; a newer reply stops it. */
+  private speaking: AbortController | null = null;
+  private readonly tts: TtsEngine;
   private readonly now: () => number;
   private readonly log: (line: string) => void;
 
   constructor(private readonly deps: SessionDeps) {
     this.now = deps.now ?? Date.now;
     this.log = deps.log ?? (() => {});
+    this.tts = deps.tts ?? noTts;
+  }
+
+  get voiceOn(): boolean {
+    return this.voice;
+  }
+
+  private get voiceAvailable(): boolean {
+    return this.tts.available();
   }
 
   get currentMode(): Mode {
@@ -41,7 +66,7 @@ export class CoachSession {
 
   announce() {
     const p = this.deps.registry.active;
-    this.deps.send({ type: 'ready', mode: this.mode, provider: p.name, model: p.model, configured: p.isConfigured() });
+    this.deps.send({ type: 'ready', mode: this.mode, provider: p.name, model: p.model, configured: p.isConfigured(), voiceAvailable: this.voiceAvailable, voice: this.voice });
   }
 
   async handle(msg: ClientMessage): Promise<void> {
@@ -49,12 +74,16 @@ export class CoachSession {
       case 'hello':
         this.hello = { lessonId: msg.lessonId, title: msg.title, labType: msg.labType, summary: msg.summary };
         void this.refreshAssignment();
+        if (msg.voice) this.setVoice(true);
         return;
+      case 'voice':
+        return this.setVoice(msg.on === true);
       case 'mode':
         this.mode = msg.mode;
         this.deps.send({ type: 'mode', mode: this.mode });
         return;
       case 'ask':
+        await this.ensureContext();
         return this.respond('reply', `The student says: “${String(msg.text).slice(0, MAX_TEXT)}”`, 'ask', msg.snapshot, String(msg.text).slice(0, MAX_TEXT));
       case 'event':
         return this.nudge(msg.kind, msg.detail, msg.snapshot);
@@ -64,6 +93,54 @@ export class CoachSession {
   }
 
   private assignment: Assignment | null = null;
+
+  private setVoice(on: boolean) {
+    this.voice = on && this.voiceAvailable;
+    if (!this.voice) this.stopSpeaking();
+    this.deps.send({ type: 'voice', on: this.voice, available: this.voiceAvailable });
+  }
+
+  /** Loads the lab's public context the first time the student asks something. Later questions reuse it. */
+  private ensureContext(): Promise<void> {
+    if (!this.contextLoad && this.hello && this.deps.loadContext) {
+      const lessonId = this.hello.lessonId;
+      this.contextLoad = this.deps
+        .loadContext(lessonId)
+        .then((c) => {
+          this.context = c?.trim() || null;
+          this.log(this.context ? `lab context loaded (${this.context.length} chars)` : 'no lab context for this lab');
+        })
+        .catch((err) => this.log(`lab context unavailable: ${(err as Error).message.slice(0, 120)}`));
+    }
+    return this.contextLoad ?? Promise.resolve();
+  }
+
+  private stopSpeaking() {
+    this.speaking?.abort();
+    this.speaking = null;
+  }
+
+  /** Sends the reply as audio, one sentence at a time, after its text. A newer reply cancels what is left. */
+  private async speak(id: string, text: string) {
+    this.stopSpeaking();
+    const ctrl = new AbortController();
+    this.speaking = ctrl;
+    const sentences = splitSentences(text);
+    for (const [seq, sentence] of sentences.entries()) {
+      const last = seq === sentences.length - 1;
+      try {
+        const audio = await this.tts.synthesize(sentence, ctrl.signal);
+        if (ctrl.signal.aborted) return;
+        this.deps.send({ type: 'coach_audio', id, seq, last, format: 'mp3', data: Buffer.from(audio).toString('base64'), text: sentence });
+      } catch (err) {
+        if (ctrl.signal.aborted) return;
+        this.log(`speech failed: ${(err as Error).message.slice(0, 120)}`);
+        this.deps.send({ type: 'coach_audio', id, seq, last: true, format: 'mp3', data: '', text: sentence, error: true });
+        break;
+      }
+    }
+    if (this.speaking === ctrl) this.speaking = null;
+  }
 
   private async refreshAssignment(): Promise<Assignment | null> {
     try {
@@ -114,7 +191,7 @@ export class CoachSession {
     let degraded = false;
     let blocked = false;
     try {
-      text = await provider.complete({ system: buildSystemPrompt(hello, this.truth), turns, maxTokens });
+      text = await provider.complete({ system: buildSystemPrompt(hello, this.truth, this.context), turns, maxTokens });
       const revealed = this.truth !== null;
       const verdicts = snapshot?.claims?.map((c) => ({ tube: c.n, verdict: c.verdict })) ?? (snapshot?.tubes ?? []).filter((t) => t.conclusion).map((t) => ({ tube: t.n, verdict: t.conclusion as string }));
       const phs = (snapshot?.tubes ?? []).map((t) => t.recordedPh).filter((n): n is number => n !== null);
@@ -134,6 +211,9 @@ export class CoachSession {
 
     this.history.push({ role: 'user', text: historyText }, { role: 'assistant', text });
     if (this.history.length > MAX_HISTORY_TURNS * 2) this.history.splice(0, this.history.length - MAX_HISTORY_TURNS * 2);
-    this.deps.send({ type: 'coach', id: `c${++this.counter}`, text, reason, provider: provider.name, blocked, degraded });
+    const id = `c${++this.counter}`;
+    const voice = this.voice && this.voiceAvailable;
+    this.deps.send({ type: 'coach', id, text, reason, provider: provider.name, blocked, degraded, voice });
+    if (voice) await this.speak(id, text);
   }
 }

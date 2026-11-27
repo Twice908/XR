@@ -33,7 +33,10 @@ describe('providers', () => {
     expect(calls[0].url).toBe('https://api.anthropic.com/v1/messages');
     expect(calls[0].headers['x-api-key']).toBe('k-anthropic');
     expect(calls[0].headers['anthropic-version']).toBeDefined();
-    expect(calls[0].body.system).toBe('SYS');
+    // The system prompt is one cached block; no sampling settings (current models reject them).
+    expect(calls[0].body.system).toEqual([{ type: 'text', text: 'SYS', cache_control: { type: 'ephemeral' } }]);
+    expect(calls[0].body.temperature).toBeUndefined();
+    expect(calls[0].body.output_config).toEqual({ effort: 'low' });
     expect(calls[0].body.messages).toEqual([{ role: 'user', content: 'hi' }]);
   });
 

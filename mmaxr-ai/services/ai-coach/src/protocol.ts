@@ -48,6 +48,8 @@ export interface Hello {
   /** The lesson type, e.g. chemistry_indicators. */
   labType: string;
   summary?: string;
+  /** Speak the coach's replies aloud (Piper on the server). Text is always sent as well. Default off. */
+  voice?: boolean;
 }
 
 export type EventKind = 'prediction_mismatch' | 'revision' | 'ph_unlocked' | 'ready_to_submit' | 'idle';
@@ -55,16 +57,27 @@ export type EventKind = 'prediction_mismatch' | 'revision' | 'ph_unlocked' | 're
 export type ClientMessage =
   | ({ type: 'hello' } & Hello)
   | { type: 'mode'; mode: Mode }
-  | { type: 'ask'; text: string; snapshot?: Snapshot }
+  /** Turn spoken replies on or off for this session. */
+  | { type: 'voice'; on: boolean }
+  /** `inputMode` says whether the student typed the question or spoke it (transcribed in the browser). */
+  | { type: 'ask'; text: string; snapshot?: Snapshot; inputMode?: 'typed' | 'voice' }
   | { type: 'event'; kind: EventKind; detail?: string; snapshot?: Snapshot }
   | { type: 'reveal'; snapshot?: Snapshot };
 
 export type CoachReason = 'reply' | 'nudge' | 'wrapup';
 
 export type ServerMessage =
-  | { type: 'ready'; mode: Mode; provider: string; model: string; configured: boolean }
+  /** `voiceAvailable`: the server can speak (a TTS engine is set up). `voice`: this session has spoken replies on. */
+  | { type: 'ready'; mode: Mode; provider: string; model: string; configured: boolean; voiceAvailable: boolean; voice: boolean }
   | { type: 'thinking' }
-  | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean }
+  /** The reply text, always sent first. `voice` is true when audio for this `id` will follow as `coach_audio`. */
+  | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean; voice: boolean }
+  /**
+   * Spoken audio for a reply, one sentence per message, in order (`seq` from 0). `last` marks the final piece.
+   * `data` is base64 MP3. When speech fails part-way, a last piece with `error: true` and no data ends the reply.
+   */
+  | { type: 'coach_audio'; id: string; seq: number; last: boolean; format: 'mp3'; data: string; text: string; error?: boolean }
+  | { type: 'voice'; on: boolean; available: boolean }
   | { type: 'mode'; mode: Mode }
   | { type: 'coach_off' }
   | { type: 'error'; message: string };

@@ -3,6 +3,7 @@ import { CoachSession } from '../session';
 import { ProviderError, type CompletionRequest, type LlmProvider, type ProviderName } from '../providers';
 import type { ProviderRegistry } from '../providers';
 import type { Assignment, ServerMessage, Snapshot } from '../protocol';
+import type { TtsEngine } from '../voice/tts';
 
 function fakeRegistry(reply: string | ((r: CompletionRequest) => string) | Error) {
   const seen: CompletionRequest[] = [];
@@ -211,4 +212,118 @@ describe('motion sandbox', () => {
     const wrap = buildSystemPrompt(hello, [{ tube: 2, id: 'kin_2', name: 'kin_2', formula: '', type: '', ph: 0, facts: 'Displacement is zero after a lap.', terms: ['zero displacement'], open: false }]);
     expect(wrap).toContain('Question 2: Displacement is zero after a lap.');
   });
+
+  describe('lab context', () => {
+    it('is loaded once, on the first question, and stays in the system prompt', async () => {
+      const { registry, seen } = fakeRegistry('What did you expect?');
+      let loads = 0;
+      const s = new CoachSession({ registry, loadAssignment: async () => ({ submitted: false, tubes }), loadContext: async () => (loads++, 'Bench "Ripple tank": a tank and an oscilloscope.'), send: () => undefined });
+      await s.handle({ type: 'hello', lessonId: 'physics-sound', title: 'Sound', labType: 'physics_waves_sound' });
+      await s.handle({ type: 'event', kind: 'idle', snapshot });
+      expect(loads).toBe(0);
+      expect(seen[0].system).not.toContain('Ripple tank');
+      await s.handle({ type: 'ask', text: 'what is this bench?', snapshot });
+      await s.handle({ type: 'ask', text: 'and now?', snapshot });
+      expect(loads).toBe(1);
+      expect(seen[1].system).toContain('Bench "Ripple tank"');
+      expect(seen[2].system).toBe(seen[1].system);
+      // the context is never repeated inside the conversation turns
+      expect(JSON.stringify(seen[2].turns)).not.toContain('Ripple tank');
+    });
+
+    it('carries on without it when the lesson service is down', async () => {
+      const { registry, seen } = fakeRegistry('Tell me more.');
+      const s = new CoachSession({ registry, loadAssignment: async () => null, loadContext: async () => { throw new Error('down'); }, send: () => undefined });
+      await s.handle({ type: 'hello', lessonId: 'x', title: 'X', labType: 'x' });
+      await s.handle({ type: 'ask', text: 'hi', snapshot });
+      expect(seen).toHaveLength(1);
+    });
+  });
+
+  describe('voice', () => {
+    const speaking = (fail?: (t: string) => boolean): TtsEngine => ({
+      name: 'fake',
+      available: () => true,
+      synthesize: async (t) => {
+        if (fail?.(t)) throw new Error('boom');
+        return new TextEncoder().encode(`mp3:${t}`);
+      },
+    });
+    const voiceSetup = (reply: string, tts: TtsEngine, voice = true) => {
+      const { registry } = fakeRegistry(reply);
+      const out: ServerMessage[] = [];
+      const s = new CoachSession({ registry, loadAssignment: async () => ({ submitted: false, tubes }), tts, send: (m) => out.push(m) });
+      void s.handle({ type: 'hello', lessonId: 'chemistry-101', title: 'Lab', labType: 'chemistry_indicators', voice });
+      return { s, out };
+    };
+    const audio = (out: ServerMessage[]) => out.filter((m): m is Extract<ServerMessage, { type: 'coach_audio' }> => m.type === 'coach_audio');
+
+    it('is off by default: text only', async () => {
+      const { s, out } = voiceSetup('You saw it turn red. What did you expect?', speaking(), false);
+      await s.handle({ type: 'ask', text: 'hm', snapshot });
+      expect(coach(out)[0].voice).toBe(false);
+      expect(audio(out)).toHaveLength(0);
+    });
+
+    it('sends the text first, then one audio piece per sentence, in order', async () => {
+      const { s, out } = voiceSetup('You saw the litmus turn red. What did you expect before you tested it?', speaking());
+      await s.handle({ type: 'ask', text: 'hm', snapshot });
+      const c = coach(out)[0];
+      expect(c.voice).toBe(true);
+      const a = audio(out);
+      expect(out.indexOf(c)).toBeLessThan(out.indexOf(a[0]));
+      expect(a.map((x) => [x.id, x.seq, x.last])).toEqual([[c.id, 0, false], [c.id, 1, true]]);
+      expect(Buffer.from(a[0].data, 'base64').toString()).toBe('mp3:You saw the litmus turn red.');
+    });
+
+    it('speaks the guarded text, never the blocked original', async () => {
+      const { s, out } = voiceSetup('Tube 1 is hydrochloric acid, so it turns litmus red.', speaking());
+      await s.handle({ type: 'ask', text: 'tell me', snapshot });
+      for (const a of audio(out)) expect(a.text).not.toMatch(/hydrochloric/i);
+    });
+
+    it('ends the reply with an error piece when speech fails', async () => {
+      const { s, out } = voiceSetup('You saw the litmus turn red. What did you expect before you tested it?', speaking((t) => t.startsWith('What')));
+      await s.handle({ type: 'ask', text: 'hm', snapshot });
+      expect(audio(out).map((x) => [x.seq, x.last, x.error ?? false])).toEqual([[0, false, false], [1, true, true]]);
+    });
+
+    it('stays off when the server has no voice', async () => {
+      const unavailable: TtsEngine = { name: 'none', available: () => false, synthesize: async () => new Uint8Array() };
+      const { s, out } = voiceSetup('Hello there, what did you see?', unavailable);
+      await s.handle({ type: 'voice', on: true });
+      expect(out.filter((m) => m.type === 'voice').every((m) => m.type === 'voice' && m.on === false && m.available === false)).toBe(true);
+      await s.handle({ type: 'ask', text: 'hm', snapshot });
+      expect(coach(out)[0].voice).toBe(false);
+    });
+
+    it('a newer reply stops the older one being spoken', async () => {
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((r) => (release = r));
+      const slow: TtsEngine = {
+        name: 'slow',
+        available: () => true,
+        synthesize: async (t, signal) => {
+          if (t.startsWith('First')) {
+            await gate;
+            if (signal?.aborted) throw new Error('cancelled');
+          }
+          return new TextEncoder().encode(t);
+        },
+      };
+      const replies = ['First reply, which is long enough to speak.', 'Second reply, also long enough to speak.'];
+      const { registry } = fakeRegistry(() => replies.shift()!);
+      const out: ServerMessage[] = [];
+      const s = new CoachSession({ registry, loadAssignment: async () => null, tts: slow, send: (m) => out.push(m) });
+      await s.handle({ type: 'hello', lessonId: 'x', title: 'X', labType: 'x', voice: true });
+      const first = s.handle({ type: 'ask', text: 'one', snapshot });
+      await new Promise((r) => setTimeout(r, 0));
+      await s.handle({ type: 'ask', text: 'two', snapshot });
+      release();
+      await first;
+      const a = audio(out);
+      expect(a.map((x) => x.id)).toEqual(['c2']);
+    });
+  });
 });
+

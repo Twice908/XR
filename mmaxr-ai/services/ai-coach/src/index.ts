@@ -6,6 +6,8 @@ import { WebSocketServer, type WebSocket } from 'ws';
 import { ProviderRegistry } from './providers';
 import { MODES, type Assignment, type ClientMessage, type ServerMessage } from './protocol';
 import { CoachSession } from './session';
+import { RateWindow } from './rateLimit';
+import { createTts } from './voice/tts';
 
 // Local development keys live in ai-coach/.env (untracked). Never log their values.
 try {
@@ -22,7 +24,13 @@ const REQUIRE_SESSION = process.env.AI_COACH_REQUIRE_SESSION !== 'false';
 const JWT_SECRET = process.env.JWT_SECRET || 'mmaxr-dev-secret-change-me';
 const ALLOWED_ORIGINS = (process.env.AI_COACH_ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
 
+// Student questions are what cost money (one model call each), so they have their own, tight limit.
+const ASKS_PER_MINUTE = Math.max(1, Number(process.env.AI_COACH_ASKS_PER_MINUTE) || 5);
+// Everything else (hello, mode, voice, lab events) only guards against a runaway client.
+const MESSAGES_PER_MINUTE = 40;
+
 const registry = new ProviderRegistry(process.env);
+const tts = createTts(process.env);
 
 const app = express();
 app.use(cors());
@@ -79,19 +87,21 @@ wss.on('connection', async (ws: WebSocket, req) => {
     const a = (await res.json()) as { submitted: boolean; tubes: Assignment['tubes'] };
     return { submitted: a.submitted === true, tubes: a.tubes ?? [] };
   };
-  const session = new CoachSession({ registry, loadAssignment, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
+  // The lab's public context: read once per session, on the first question (CoachSession.ensureContext).
+  const loadContext = async (lessonId: string) => {
+    const res = await fetch(`${LESSON_LOADER_URL}/internal/lessons/${encodeURIComponent(lessonId)}/context`, { headers: { 'x-internal-key': INTERNAL_KEY } });
+    if (!res.ok) return null;
+    return ((await res.json()) as { context?: string }).context ?? null;
+  };
+  const session = new CoachSession({ registry, loadAssignment, loadContext, tts, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
   console.log(`[ai-coach ${tag}] connected (provider ${registry.active.name})`);
   session.announce();
 
-  let windowStart = Date.now();
-  let count = 0;
+  const messages = new RateWindow(MESSAGES_PER_MINUTE);
+  const asks = new RateWindow(ASKS_PER_MINUTE);
 
   ws.on('message', (data) => {
-    if (Date.now() - windowStart > 60_000) {
-      windowStart = Date.now();
-      count = 0;
-    }
-    if (++count > 40) return send({ type: 'error', message: 'Slow down a little.' });
+    if (!messages.take()) return send({ type: 'error', message: 'Slow down a little.' });
 
     let msg: ClientMessage;
     try {
@@ -102,6 +112,9 @@ wss.on('connection', async (ws: WebSocket, req) => {
     if (!msg || typeof msg !== 'object' || typeof (msg as { type?: unknown }).type !== 'string') return;
     if (msg.type === 'mode' && !(MODES as string[]).includes(msg.mode)) return;
     if (msg.type === 'ask' && (typeof msg.text !== 'string' || !msg.text.trim())) return;
+    if (msg.type === 'ask' && !asks.take()) {
+      return send({ type: 'error', message: `You can ask ${ASKS_PER_MINUTE} questions a minute. Try again in ${asks.secondsLeft()} seconds.` });
+    }
     void session.handle(msg).catch((err) => {
       console.error(`[ai-coach ${tag}] handler error:`, (err as Error).message);
       send({ type: 'error', message: 'The coach hit a problem.' });
@@ -113,5 +126,5 @@ wss.on('connection', async (ws: WebSocket, req) => {
 
 server.listen(PORT, () => {
   const p = registry.active;
-  console.log(`🤖 AI Coach on ws://localhost:${PORT} · provider ${p.name} (${p.model}) · key ${p.isConfigured() ? 'set' : 'MISSING'}`);
+  console.log(`🤖 AI Coach on ws://localhost:${PORT} · provider ${p.name} (${p.model}) · key ${p.isConfigured() ? 'set' : 'MISSING'} · voice ${tts.available() ? tts.name : 'off (set PIPER_BIN and PIPER_MODEL)'} · ${ASKS_PER_MINUTE} questions/min`);
 });

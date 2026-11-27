@@ -14,6 +14,7 @@ import { reasoningSummary, registerReasoning } from './reasoningRoutes';
 import { rngFor } from './questionEngine';
 import { isMissionsLesson, missionsInternal, type MissionsAssignment } from './missions';
 import { missionsLessonFor, registerMissions } from './missionsRoutes';
+import { buildCoachContext, type NarrationDoc } from './coachContext';
 import { isVerdict, pickSolutions, reactionColor, redactChemistry, verdictOf, type Assignment, type Submission } from './chemistry';
 
 const app = express();
@@ -706,6 +707,22 @@ app.post(
     });
   }),
 );
+
+// Service-to-service: the lab's public context for the AI coach (what is on screen, never answers; see coachContext.ts).
+// The coach reads it once per session, on the student's first question.
+app.get('/internal/lessons/:lessonId/context', (req, res) => {
+  if (req.headers['x-internal-key'] !== INTERNAL_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  const lesson = readLesson(req.params.lessonId);
+  if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
+  const file = path.join(assetsPath, 'narration', `${lesson.lessonId}.json`);
+  let narration: NarrationDoc | null = null;
+  try {
+    narration = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
+  } catch {
+    narration = null;
+  }
+  res.json({ lessonId: lesson.lessonId, context: buildCoachContext(lesson, narration) });
+});
 
 // Service-to-service: the coach and the rubric engine read the truth here. Never exposed to browsers.
 app.get(

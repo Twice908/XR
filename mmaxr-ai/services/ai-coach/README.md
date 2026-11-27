@@ -69,3 +69,17 @@ Implemented for the chemistry indicators lab:
   spoken back, which is the intended next step. Realtime audio is not implemented.
 - Sessions are verified against `session-auth` before the socket is accepted.
 
+
+## Voice (phase 1: the coach speaks)
+
+- Replies can be spoken. The browser opts in with `hello.voice: true` or `{type:'voice', on:true}`; the server answers
+  `{type:'voice', on, available}`. Text is always sent first (`coach`, with `voice: true` when audio follows), then the
+  audio arrives as `coach_audio` messages, one sentence each (`seq`, `last`, base64 MP3). A newer reply stops the
+  older one's audio. Speech failure ends the reply with an `error: true` piece; the text has already been shown.
+- What is spoken is the guarded text: the answer-leak guard runs before any speech is made.
+- Engine: Piper on the server (`PIPER_BIN`, `PIPER_MODEL`, the narration's Jenny voice) encoded by `lame` to 64 kbps
+  mono MP3, with recent sentences cached. Without Piper set up, `voiceAvailable` is false and replies stay text-only.
+- Student questions are limited to `AI_COACH_ASKS_PER_MINUTE` (default 5) per session; other messages to 40 a minute.
+- The lab's public context (benches, concept ideas, tool and stop names, narration lines; never answers) is read once
+  per session from the lesson loader (`/internal/lessons/:lessonId/context`), on the first question, and kept in the
+  system prompt, which is prompt-cached (Anthropic) so later questions read it from the cache.
