@@ -1,13 +1,14 @@
+/* Class prefix ml- (mission labs). The rewards UI owns mx-; do not reuse it here. */
 /* Mission labs (Atom Builder, Ionic Bonding, Plant vs Animal Cell): XR's bench HUD plus a readout and captions. */
 
-.mx-eyebrow {
+.ml-eyebrow {
   color: var(--color-text-secondary);
   letter-spacing: 0.14em;
   font-size: 11px;
 }
 
 /* The live readout of the build, on the right of the bench. */
-.mx-readout {
+.ml-readout {
   position: absolute;
   top: 72px;
   right: var(--spacing-4);
@@ -23,44 +24,44 @@
   box-shadow: var(--shadow-high);
   pointer-events: auto;
 }
-.mx-readout[hidden] {
+.ml-readout[hidden] {
   display: none;
 }
-.mx-readout dl {
+.ml-readout dl {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 4px 12px;
   margin: 0;
   font-size: 13px;
 }
-.mx-readout dt {
+.ml-readout dt {
   color: var(--color-text-secondary);
 }
-.mx-readout dd {
+.ml-readout dd {
   margin: 0;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
-.mx-atom + .mx-atom {
+.ml-atom + .ml-atom {
   padding-top: var(--spacing-2);
   border-top: 1px solid rgb(255 255 255 / 0.1);
 }
-.mx-ion {
+.ml-ion {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-secondary);
 }
-.mx-ion.pos {
+.ml-ion.pos {
   color: #ff9a9a;
 }
-.mx-ion.neg {
+.ml-ion.neg {
   color: #8fc6ff;
 }
 
 /* Bench controls on the mission card. */
-.mx-controls {
+.ml-controls {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
@@ -69,30 +70,30 @@
   background: rgb(255 255 255 / 0.04);
   border: 1px solid rgb(255 255 255 / 0.08);
 }
-.mx-stepper {
+.ml-stepper {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
   flex-wrap: wrap;
 }
-.mx-stepper > .t-label:first-child {
+.ml-stepper > .t-label:first-child {
   min-width: 80px;
 }
-.mx-count {
+.ml-count {
   min-width: 2ch;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.mx-controls .mx-dim {
+.ml-controls .ml-dim {
   opacity: 0.45;
 }
-.mx-controls .mx-on {
+.ml-controls .ml-on {
   border-color: #ffd166;
   box-shadow: inset 0 0 0 1px #ffd166;
   color: #ffd166;
 }
 
-.mx-feedback {
+.ml-feedback {
   margin: 0;
   padding: var(--spacing-2) var(--spacing-3);
   border-radius: var(--radius-element, 10px);
@@ -101,7 +102,7 @@
   color: #ffc2b0;
   font-size: 14px;
 }
-.mx-hints {
+.ml-hints {
   margin: 0;
   padding-left: 0;
   list-style: none;
@@ -111,15 +112,15 @@
   font-size: 14px;
   color: var(--color-text-secondary);
 }
-.mx-hints .t-label {
+.ml-hints .t-label {
   color: #ffd166;
 }
 
 /* Narration captions, just above the card. */
-.mx-caption {
+.ml-caption {
   position: absolute;
   left: 50%;
-  bottom: calc(var(--mx-card-h, 220px) + 28px);
+  bottom: calc(var(--ml-card-h, 220px) + 28px);
   transform: translateX(-50%);
   max-width: min(680px, calc(100% - 32px));
   margin: 0;
@@ -132,12 +133,12 @@
   text-align: center;
   pointer-events: none;
 }
-.mx-caption[hidden] {
+.ml-caption[hidden] {
   display: none;
 }
 
 /* The cell explorer runs in its own frame, over the whole lab. */
-.mx-frame {
+.ml-frame {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -147,7 +148,7 @@
 }
 
 /* One line instead of the table, wherever the full readout would crowd the card. */
-.mx-brief {
+.ml-brief {
   display: none;
   margin: 0;
   font-size: 13px;
@@ -155,7 +156,7 @@
   font-variant-numeric: tabular-nums;
 }
 @media (max-width: 1340px) {
-  .mx-readout {
+  .ml-readout {
     top: 64px;
     right: auto;
     left: var(--spacing-3);
@@ -164,12 +165,12 @@
     gap: 2px;
     padding: var(--spacing-2) var(--spacing-3);
   }
-  .mx-readout dl,
-  .mx-readout .mx-eyebrow,
-  .mx-readout h3 {
+  .ml-readout dl,
+  .ml-readout .ml-eyebrow,
+  .ml-readout h3 {
     display: none;
   }
-  .mx-brief {
+  .ml-brief {
     display: block;
   }
 }

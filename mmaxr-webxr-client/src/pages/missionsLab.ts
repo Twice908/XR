@@ -80,7 +80,7 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
   let working = false
   let lastRefusal = 0
 
-  const caption = h('p', { class: 'mx-caption', 'aria-live': 'polite' })
+  const caption = h('p', { class: 'ml-caption', 'aria-live': 'polite' })
   const narrator = new Narrator(caption, (speaking) => voice.setDuck(speaking ? 1 : 0))
   const refuse = (reason: string) => {
     run.refuse(reason)
@@ -220,8 +220,8 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
 }
 
 const stepper = (label: string, value: () => number, dec: () => void, inc: () => void) => {
-  const n = h('span', { class: 'mx-count t-title' })
-  const row = h('div', { class: 'mx-stepper' }, h('span', { class: 't-label' }, label), button('−', { size: 'sm', variant: 'ghost', onClick: dec }), n, button('+', { size: 'sm', variant: 'ghost', onClick: inc }))
+  const n = h('span', { class: 'ml-count t-title' })
+  const row = h('div', { class: 'ml-stepper' }, h('span', { class: 't-label' }, label), button('−', { size: 'sm', variant: 'ghost', onClick: dec }), n, button('+', { size: 'sm', variant: 'ghost', onClick: inc }))
   return { row, paint: () => (n.textContent = String(value())) }
 }
 const fact = (label: string) => {
@@ -274,7 +274,7 @@ export function startAtomBuilderLab(ctx: Ctx) {
     const shellButtons = [1, 2, 3, 4].map((n) => button(`Shell ${n}`, { size: 'sm', variant: 'ghost', onClick: () => placeElectron(n) }))
     const electrons = h(
       'div',
-      { class: 'mx-stepper mx-electrons' },
+      { class: 'ml-stepper ml-electrons' },
       h('span', { class: 't-label' }, 'Electrons'),
       button('−', { size: 'sm', variant: 'ghost', onClick: removeOuter }),
       h('span', { class: 't-support' }, 'add to'),
@@ -282,7 +282,7 @@ export function startAtomBuilderLab(ctx: Ctx) {
     )
     const controls = h(
       'div',
-      { class: 'mx-controls' },
+      { class: 'ml-controls' },
       protons.row,
       neutrons.row,
       electrons,
@@ -290,10 +290,10 @@ export function startAtomBuilderLab(ctx: Ctx) {
     )
 
     const name = h('h3', { class: 't-title' })
-    const ion = h('p', { class: 'mx-ion' })
+    const ion = h('p', { class: 'ml-ion' })
     const facts = { protons: fact('Protons'), neutrons: fact('Neutrons'), electrons: fact('Electrons'), mass: fact('Mass number'), charge: fact('Charge'), config: fact('Shells'), outer: fact('Outer shell') }
-    const brief = h('p', { class: 'mx-brief' })
-    const readout = h('aside', { class: 'mx-readout', 'aria-live': 'polite' }, h('span', { class: 't-label mx-eyebrow' }, 'YOUR ATOM'), name, brief, ion, h('dl', null, ...Object.values(facts).flatMap((f) => f.node)))
+    const brief = h('p', { class: 'ml-brief' })
+    const readout = h('aside', { class: 'ml-readout', 'aria-live': 'polite' }, h('span', { class: 't-label ml-eyebrow' }, 'YOUR ATOM'), name, brief, ion, h('dl', null, ...Object.values(facts).flatMap((f) => f.node)))
 
     const paint = () => {
       protons.paint()
@@ -302,7 +302,7 @@ export function startAtomBuilderLab(ctx: Ctx) {
       name.textContent = el ? `${el.name} (${el.symbol})` : '?'
       const badge = ionBadge(atom)
       ion.textContent = badge ? `${badge.label} · ${badge.detail}` : 'Neutral atom'
-      ion.className = `mx-ion ${charge(atom) > 0 ? 'pos' : charge(atom) < 0 ? 'neg' : ''}`
+      ion.className = `ml-ion ${charge(atom) > 0 ? 'pos' : charge(atom) < 0 ? 'neg' : ''}`
       const c = charge(atom)
       facts.protons.set(String(atom.protons))
       facts.neutrons.set(String(atom.neutrons))
@@ -312,7 +312,7 @@ export function startAtomBuilderLab(ctx: Ctx) {
       facts.config.set(atom.shells.length ? atom.shells.join(', ') : '—')
       facts.outer.set(outerShellState(atom.shells) === 'complete' ? 'Complete' : outerShellState(atom.shells) === 'empty' ? 'Empty' : 'Not complete (reactive)')
       brief.textContent = `${el?.name ?? '?'} · ${atom.protons} p · ${atom.neutrons} n · ${electronCount(atom.shells)} e · mass ${massNumber(atom)} · charge ${c === 0 ? '0' : c > 0 ? `+${c}` : c} · shells ${atom.shells.join(',') || '—'}`
-      shellButtons.forEach((b, i) => b.classList.toggle('mx-dim', !!placementProblem(atom.shells, i + 1)))
+      shellButtons.forEach((b, i) => b.classList.toggle('ml-dim', !!placementProblem(atom.shells, i + 1)))
       scene.show(atom)
     }
     paint()
@@ -386,19 +386,19 @@ export function startIonicBondingLab(ctx: Ctx) {
     const how = h('p', { class: 't-support' })
     const controls = h(
       'div',
-      { class: 'mx-controls' },
+      { class: 'ml-controls' },
       how,
       h('div', { class: 'row', style: 'gap:8px;flex-wrap:wrap' }, pickNa, pickCl, joinBtn, button('Reset', { size: 'sm', variant: 'ghost', onClick: () => ((state = freshIonic()), (giver = null), voice.sweep('rise', 0.6), paint(), changed()) })),
     )
 
     const rows = state.atoms.map((a) => {
       const title = h('h3', { class: 't-title' })
-      const ion = h('p', { class: 'mx-ion' })
+      const ion = h('p', { class: 'ml-ion' })
       const f = { shells: fact('Shells'), electrons: fact('Electrons'), charge: fact('Charge'), outer: fact('Outer shell') }
-      const brief = h('p', { class: 'mx-brief' })
-      return { id: a.id, node: h('div', { class: 'mx-atom' }, title, brief, ion, h('dl', null, ...Object.values(f).flatMap((x) => x.node))), title, ion, f, brief }
+      const brief = h('p', { class: 'ml-brief' })
+      return { id: a.id, node: h('div', { class: 'ml-atom' }, title, brief, ion, h('dl', null, ...Object.values(f).flatMap((x) => x.node))), title, ion, f, brief }
     })
-    const readout = h('aside', { class: 'mx-readout', 'aria-live': 'polite' }, h('span', { class: 't-label mx-eyebrow' }, 'ON THE BENCH'), ...rows.map((r) => r.node))
+    const readout = h('aside', { class: 'ml-readout', 'aria-live': 'polite' }, h('span', { class: 't-label ml-eyebrow' }, 'ON THE BENCH'), ...rows.map((r) => r.node))
 
     const paint = () => {
       for (const row of rows) {
@@ -407,15 +407,15 @@ export function startIonicBondingLab(ctx: Ctx) {
         const badge = ionBadge(a.atom)
         row.title.textContent = `${a.name} (${a.symbol})`
         row.ion.textContent = badge ? `${badge.label} · ${badge.detail}` : `Neutral ${a.role === 'metal' ? 'metal' : 'non-metal'} atom`
-        row.ion.className = `mx-ion ${c > 0 ? 'pos' : c < 0 ? 'neg' : ''}`
+        row.ion.className = `ml-ion ${c > 0 ? 'pos' : c < 0 ? 'neg' : ''}`
         row.f.shells.set(a.atom.shells.join(', '))
         row.f.electrons.set(String(electronCount(a.atom.shells)))
         row.f.charge.set(c === 0 ? '0' : c > 0 ? `+${c}` : String(c))
         row.f.outer.set(hasCompleteOuterShell(a.atom.shells) ? 'Complete (octet)' : 'Not complete')
         row.brief.textContent = `${a.symbol}: shells ${a.atom.shells.join(',')} · charge ${c === 0 ? '0' : c > 0 ? `+${c}` : c} · outer shell ${hasCompleteOuterShell(a.atom.shells) ? 'complete' : 'not complete'}`
       }
-      pickNa.classList.toggle('mx-on', giver === 'na')
-      pickCl.classList.toggle('mx-on', giver === 'cl')
+      pickNa.classList.toggle('ml-on', giver === 'na')
+      pickCl.classList.toggle('ml-on', giver === 'cl')
       how.textContent = state.bonded ? 'Joined: the opposite charges hold Na⁺ and Cl⁻ together in sodium chloride.' : giver ? `${giver === 'na' ? 'Sodium' : 'Chlorine'} is giving. Now tap the atom that takes the electron.` : 'Tap the atom that gives an electron, then the atom that takes it.'
       scene.select(giver)
       scene.show(state, { highlightGiver: !giver })

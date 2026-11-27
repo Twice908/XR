@@ -22,7 +22,7 @@ export interface MissionsHudHandlers {
  */
 export class MissionsHud {
   readonly root: HTMLElement
-  private card = h('section', { class: 'bio-card mx-card', 'aria-live': 'polite' })
+  private card = h('section', { class: 'bio-card ml-card', 'aria-live': 'polite' })
   private stepper = h('ol', { class: 'steps', 'aria-label': 'Missions' })
   private soundToggle: HTMLButtonElement
   private busyLabel: string | null = null
@@ -42,7 +42,7 @@ export class MissionsHud {
     this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, '★'), h('span', { class: 'step-l' }, 'Done')))
     this.root = h(
       'div',
-      { class: 'hud mx-hud' },
+      { class: 'hud ml-hud' },
       h('header', { class: 'hud-top' }, h('div', { class: 'row' }, button('← Back', { variant: 'ghost', size: 'sm', onClick: () => handlers.onBack() }), h('h1', { class: 't-label hud-title' }, run.lesson.title)), this.stepper, h('div', { class: 'row hud-toggles' }, this.soundToggle)),
       this.readout,
       this.caption,
@@ -62,7 +62,7 @@ export class MissionsHud {
   layout = () => {
     const narrow = window.innerWidth <= 1000
     const cardH = this.card.getBoundingClientRect().height
-    this.root.style.setProperty('--mx-card-h', `${cardH}px`)
+    this.root.style.setProperty('--ml-card-h', `${cardH}px`)
     // Wide screens keep the readout on the right; below 1340px it is a line under the top bar.
     const side = window.innerWidth > 1340 && !this.readout.hidden
     this.handlers.onLayout({ left: 0, right: side ? this.readout.getBoundingClientRect().width + 24 : 0, top: narrow ? 52 : side ? 56 : 104, bottom: cardH + 28 })
@@ -96,7 +96,7 @@ export class MissionsHud {
   }
 
   private head(eyebrow: string, title: string, tag?: string): Node {
-    return h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 't-label mx-eyebrow' }, eyebrow), h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, title), tag ? badge(tag, 'info') : null))
+    return h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 't-label ml-eyebrow' }, eyebrow), h('div', { class: 'row row-between' }, h('h2', { class: 't-title' }, title), tag ? badge(tag, 'info') : null))
   }
 
   private renderIntro(): Node[] {
@@ -115,8 +115,8 @@ export class MissionsHud {
       this.head(`MISSION ${r.missionIndex + 1} OF ${r.lesson.missions.length}`, m.title),
       h('p', { class: 'bio-prompt' }, m.goalText),
       this.controls,
-      ...(r.feedback ? [h('p', { class: 'mx-feedback', role: 'status' }, r.feedback)] : []),
-      ...(r.hints.length ? [h('ol', { class: 'mx-hints' }, ...r.hints.map((t, i) => h('li', null, h('span', { class: 't-label' }, ['Nudge', 'Clue', 'Explanation'][i] ?? 'Hint'), ` ${t}`)))] : []),
+      ...(r.feedback ? [h('p', { class: 'ml-feedback', role: 'status' }, r.feedback)] : []),
+      ...(r.hints.length ? [h('ol', { class: 'ml-hints' }, ...r.hints.map((t, i) => h('li', null, h('span', { class: 't-label' }, ['Nudge', 'Clue', 'Explanation'][i] ?? 'Hint'), ` ${t}`)))] : []),
       h(
         'div',
         { class: 'dialog-actions' },

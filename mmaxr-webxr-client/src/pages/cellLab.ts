@@ -38,7 +38,7 @@ export async function startCellLab(ctx: Ctx): Promise<() => void> {
   let finished = progress.finished
   let answeredAt = Date.now()
 
-  const frame = h('iframe', { class: 'mx-frame', src: lesson.bundleUrl, title: lesson.title, allow: 'xr-spatial-tracking; autoplay; fullscreen' }) as HTMLIFrameElement
+  const frame = h('iframe', { class: 'ml-frame', src: lesson.bundleUrl, title: lesson.title, allow: 'xr-spatial-tracking; autoplay; fullscreen' }) as HTMLIFrameElement
   root.appendChild(frame)
 
   // One message at a time: a chapter must be recorded before the answers it unlocked.
