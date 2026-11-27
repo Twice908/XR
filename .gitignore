@@ -20,3 +20,7 @@ dist/
 **/[Ll]ogs/
 **/[Uu]ser[Ss]ettings/
 **/[Mm]emoryCaptures/
+
+# Raw card art source (large); the app uses the WebPs built by mmaxr-assets/Cards/build_card_webp.py
+mmaxr-assets/Cards/Element_Cards_Complete/
+mmaxr-assets/Cards/Element_Card_Design_System.html
