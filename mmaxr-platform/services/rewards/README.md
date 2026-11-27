@@ -78,6 +78,15 @@ so answering is recall, not reading. Cards list the
 lessons that make them more likely. Change cards in the TypeScript files and bump `CATALOG_VERSION`; the
 database copy (`card_catalog`) is refreshed on the next start.
 
+## Card art
+
+Drawn art (all 118 elements and 27 physics cards) is served by the web client's host from
+`public/cards/a/{random id}-{front|front-sm|back}.webp`. Only this service knows which id belongs to which card
+(`src/catalog/card-art.json`), and it sends a card's addresses (`card.art`) only in an opened pack and for owned
+cards. Locked cards never carry one. After exporting new art with `mmaxr-assets/Cards/build_card_webp.py`, run
+`pnpm --filter ./mmaxr-platform/services/rewards art:publish`. The repo is public, so this stops peeking inside the
+app, not on GitHub. `CARD_ART_BASE_URL` can prefix the paths if the art ever moves to another host.
+
 ## Tables
 
 `card_catalog`, `pack_awards` (unique per session and per ring week), `pack_cards`, `student_cards`,

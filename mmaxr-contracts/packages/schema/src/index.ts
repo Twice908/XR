@@ -703,6 +703,14 @@ export interface RewardCard {
   data: Record<string, string | number | boolean | string[]>;
   funFact: string;
   question: CardMicroQuestion | null;
+  /** Drawn art, sent only for cards the student has revealed or owns. Null when the card has no art yet. */
+  art?: CardArtUrls | null;
+}
+
+export interface CardArtUrls {
+  front: string;
+  frontSmall: string;
+  back: string;
 }
 
 /** A collection entry: full card when owned, only the slot outline when not. */

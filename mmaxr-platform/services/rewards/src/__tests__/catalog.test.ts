@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'fs';
+import path from 'path';
 import { CARDS, SETS } from '../catalog';
+import { ART_KEYS, artFor, artKey } from '../catalog/art';
 import { groupOf } from '../catalog/chemistry';
 
 describe('card catalog', () => {
@@ -58,6 +61,24 @@ describe('card catalog', () => {
     }
     expect(CARDS.find((c) => c.id === 'phys-base-time')!.funFact).toContain('periods of the radiation');
     expect(CARDS.find((c) => c.id === 'phys-der-power-of-lens')!.data.kind).toBe('unit of optical power');
+  });
+
+  it('has drawn art, under random file names, for every element and physics card', () => {
+    const drawn = CARDS.filter((c) => c.set === 'elements' || c.subject === 'physics');
+    expect(drawn).toHaveLength(145);
+    const dir = path.resolve(__dirname, '../../../../../mmaxr-webxr-client/public/cards/a');
+    for (const c of drawn) {
+      const art = artFor(c.id);
+      expect(art, c.id).not.toBeNull();
+      for (const url of [art!.front, art!.frontSmall, art!.back]) {
+        expect(url, c.id).toMatch(/^\/cards\/a\/[0-9a-f]{32}-(front|front-sm|back)\.webp$/);
+        // The address must not reveal which card it is.
+        expect(url, c.id).not.toContain(artKey(c.id)!.split('/')[1]);
+        expect(fs.existsSync(path.join(dir, path.basename(url))), url).toBe(true);
+      }
+    }
+    expect(ART_KEYS).toHaveLength(145);
+    expect(artFor('chem-cp-water')).toBeNull();
   });
 
   it('ties the existing labs to cards', () => {

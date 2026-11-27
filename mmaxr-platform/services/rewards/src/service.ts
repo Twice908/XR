@@ -1,4 +1,5 @@
 import { CARD_BY_ID, CARDS, SETS, type Card, type Rarity } from './catalog';
+import { artFor } from './catalog/art';
 import type { Db, Queryable } from './db';
 import { FOIL_COST, masteryLevel, rollPack, SHARDS_FOR_DUPLICATE, secureRng, type Rng } from './roll';
 import { computeRings, labProgressPercent, previousWeek, weekKey, weekRange, type GoalLevel, type RingGoals, type RingProgress, type WeekEvent } from './rings';
@@ -72,6 +73,8 @@ export function cardView(card: Card) {
     data: card.data,
     funFact: card.funFact,
     question: card.question,
+    // Only cards a student has revealed or owns are shown through cardView, so only they get an art address.
+    art: artFor(card.id),
   };
 }
 

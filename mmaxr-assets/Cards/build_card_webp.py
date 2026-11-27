@@ -1,4 +1,7 @@
-"""Split each card PNG (front | info side, side by side) into transparent WebPs of one fixed size (620 x 900).
+"""Afterwards run `pnpm --filter ./mmaxr-platform/services/rewards art:publish` to move the output to random file names
+(only the rewards API knows which file belongs to which card).
+
+Split each card PNG (front | info side, side by side) into transparent WebPs of one fixed size (620 x 900).
 
     python build_card_webp.py elements Element_Cards_Complete/Cards ../../mmaxr-webxr-client/public/cards/elements
     python build_card_webp.py physics Physics_Cards_Collectible_Edition/Cards ../../mmaxr-webxr-client/public/cards/physics

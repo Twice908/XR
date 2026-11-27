@@ -16,30 +16,18 @@ export function placeholderGlyph(card: Pick<RewardCard, 'set' | 'title' | 'subti
     .join('')
 }
 
-/** Illustrated art for a card, when the designers have drawn it: the 118 elements and the 27 physics quantities. */
+/**
+ * Illustrated art for a card. The rewards API sends these addresses only for cards the student has revealed or owns,
+ * under random file names, so the client cannot show (or guess) art for cards it has not been given.
+ */
 export interface CardArt {
   front: string
   frontSmall: string
   back: string
 }
 
-const ART_ROOT = `${import.meta.env.BASE_URL ?? '/'}cards`
-
-/** Physics quantities with drawn art (the key in `phys-base-<key>` / `phys-der-<key>`). */
-const PHYSICS_ART = new Set([
-  'length', 'mass', 'time', 'current', 'temperature', 'amount', 'luminous',
-  'area', 'volume', 'density', 'speed', 'acceleration', 'frequency', 'force', 'momentum', 'pressure', 'energy', 'power',
-  'charge', 'voltage', 'resistance', 'torque', 'capacitance', 'flux-density', 'flux', 'inductance', 'power-of-lens',
-])
-
-const artAt = (base: string): CardArt => ({ front: `${base}-front.webp`, frontSmall: `${base}-front-sm.webp`, back: `${base}-back.webp` })
-
-export function cardArt(card: Pick<RewardCard, 'id'>): CardArt | null {
-  const el = /^chem-el-([A-Z][a-z]?)$/.exec(card.id)
-  if (el) return artAt(`${ART_ROOT}/elements/${el[1]}`)
-  const phys = /^phys-(?:base|der)-([a-z-]+)$/.exec(card.id)
-  if (phys && PHYSICS_ART.has(phys[1])) return artAt(`${ART_ROOT}/physics/${phys[1]}`)
-  return null
+export function cardArt(card: Pick<RewardCard, 'art'>): CardArt | null {
+  return card.art ?? null
 }
 
 export interface CardFaceOptions {

@@ -153,6 +153,12 @@ describe('opening packs and the collection', () => {
     expect(open.body.cards.map((c: { slot: number }) => c.slot)).toEqual([1, 2, 3, 4]);
     expect(open.body.cards.every((c: { isNew: boolean }) => c.isNew)).toBe(true);
     expect(open.body.cards[0].card.question.choices.length).toBeGreaterThanOrEqual(3);
+    // Every revealed card that has drawn art comes with its address; others say null.
+    for (const c of open.body.cards) {
+      const drawn = c.card.set === 'elements' || c.card.subject === 'physics';
+      if (drawn) expect(c.card.art.front).toMatch(/^\/cards\/a\/[0-9a-f]{32}-front\.webp$/);
+      else expect(c.card.art).toBeNull();
+    }
 
     const reopen = await request(app).post(`/packs/${body.pack.id}/open`).set('Authorization', token(ALICE));
     expect(reopen.body.alreadyOpened).toBe(true);
@@ -167,6 +173,8 @@ describe('opening packs and the collection', () => {
     expect(col.body.sets.map((s: { set: string }) => s.set)).toEqual(['elements', 'compounds']);
     const locked = col.body.cards.find((c: { owned: boolean }) => !c.owned);
     expect(locked.funFact).toBeUndefined();
+    // Cards not yet collected never carry an art address.
+    expect(col.body.cards.filter((c: { owned: boolean; art?: unknown }) => !c.owned && c.art !== undefined)).toHaveLength(0);
     expect((await request(app).get('/collection?subject=alchemy').set('Authorization', token(ALICE))).status).toBe(400);
 
     // A second pack: any card Alice already had becomes shards, and the balance matches what the packs recorded.
