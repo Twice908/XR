@@ -66,8 +66,10 @@ export type ClientMessage =
    * Who has the floor, as the browser sees it. `narrating`: a recorded narration line is playing. `talking`: the
    * student is holding the talk button. Send each field when it changes; omitted fields keep their last value.
    * Talking stops any coach reply in progress. Nudges wait for a quiet moment and are dropped otherwise.
+   * `cue`: with `narrating: true`, the id of the narration line now playing (its id in mmaxr-assets/narration), so
+   * "what do I do now?" can be answered with the student's current step.
    */
-  | { type: 'floor'; narrating?: boolean; talking?: boolean }
+  | { type: 'floor'; narrating?: boolean; talking?: boolean; cue?: string }
   /** Stop the coach reply in progress (`id`, or whichever is current): no more text or audio for it. */
   | { type: 'cancel'; id?: string }
   | { type: 'reveal'; snapshot?: Snapshot };
@@ -79,8 +81,12 @@ export type ServerMessage =
   | { type: 'ready'; mode: Mode; provider: string; model: string; configured: boolean; voiceAvailable: boolean; voice: boolean }
   /** A reply has started; `id` is the id its `coach` and `coach_audio` messages will carry. */
   | { type: 'thinking'; id: string }
-  /** The reply text, always sent first. `voice` is true when audio for this `id` will follow as `coach_audio`. */
-  | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean; voice: boolean }
+  /**
+   * The reply text, always sent first. `voice` is true when audio for this `id` will follow as `coach_audio`.
+   * `quick`: answered without the model ("say that again" repeats the last reply; "what do I do now?" repeats the
+   * current step's narration line).
+   */
+  | { type: 'coach'; id: string; text: string; reason: CoachReason; provider: string; blocked: boolean; degraded: boolean; voice: boolean; quick?: 'repeat' | 'next' }
   /**
    * Spoken audio for a reply, one sentence per message, in order (`seq` from 0). `last` marks the final piece.
    * `data` is base64 MP3. When speech fails part-way, a last piece with `error: true` and no data ends the reply.

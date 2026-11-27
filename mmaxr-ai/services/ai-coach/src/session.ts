@@ -5,12 +5,21 @@ import type { ProviderRegistry } from './providers';
 import { ProviderError, type ChatTurn } from './providers/types';
 import type { Assignment, ClientMessage, CoachReason, EventKind, Hello, Mode, ServerMessage, Snapshot, TruthTube } from './protocol';
 import { Floor } from './floor';
+import { matchIntent, type Intent } from './intents';
 import { splitSentences } from './voice/sentences';
 import { noTts, type TtsEngine } from './voice/tts';
 
 const MAX_HISTORY_TURNS = 10;
 const MAX_TEXT = 600;
 const MIN_NUDGE_GAP_MS = 20_000;
+
+/** A lab's public context: the prompt text, and each narration line by its cue id. */
+export interface LabContext {
+  context: string;
+  narration: Record<string, string>;
+}
+
+const NOTHING_SAID_YET = 'I have not said anything yet. What would you like to ask me?';
 
 export interface SessionDeps {
   registry: ProviderRegistry;
@@ -21,7 +30,7 @@ export interface SessionDeps {
    * Reads the lab's public context (what is on screen, never answers) from the lesson service. Called at most once
    * per session, when the student asks their first question; resolves null when unavailable.
    */
-  loadContext?: (lessonId: string) => Promise<string | null>;
+  loadContext?: (lessonId: string) => Promise<LabContext | null>;
   /** Speaks replies when the session has voice on. */
   tts?: TtsEngine;
   now?: () => number;
@@ -42,7 +51,12 @@ export class CoachSession {
   private voice = false;
   /** The lab's public context, once loaded. It joins the system prompt and stays there for the rest of the session. */
   private context: string | null = null;
+  private narration: Record<string, string> = {};
   private contextLoad: Promise<void> | null = null;
+  /** The narration line the student heard last (from floor messages): their current step. */
+  private lastCue: string | null = null;
+  /** The coach's last reply that was actually sent, for "say that again". */
+  private lastReply: string | null = null;
   private readonly tts: TtsEngine;
   private readonly now: () => number;
   private readonly log: (line: string) => void;
@@ -84,13 +98,17 @@ export class CoachSession {
         this.mode = msg.mode;
         this.deps.send({ type: 'mode', mode: this.mode });
         return;
-      case 'ask':
+      case 'ask': {
         await this.ensureContext();
+        const intent = matchIntent(String(msg.text));
+        if (intent && this.quickAnswer(intent, String(msg.text).slice(0, MAX_TEXT))) return;
         return this.respond('reply', `The student says: “${String(msg.text).slice(0, MAX_TEXT)}”`, 'ask', msg.snapshot, String(msg.text).slice(0, MAX_TEXT));
+      }
       case 'event':
         return this.nudge(msg.kind, msg.detail, msg.snapshot);
       case 'floor': {
         const change = { narrating: typeof msg.narrating === 'boolean' ? msg.narrating : undefined, talking: typeof msg.talking === 'boolean' ? msg.talking : undefined };
+        if (change.narrating === true && typeof msg.cue === 'string' && /^[a-z0-9-]{1,64}$/.test(msg.cue)) this.lastCue = msg.cue;
         if (this.floor.update(change)) this.cancel('talking');
         // Narration outranks a nudge: the nudge stops. A reply to a question carries on; the browser queues it.
         else if (change.narrating === true && this.current?.reason === 'nudge') this.cancel('narration');
@@ -118,12 +136,53 @@ export class CoachSession {
       this.contextLoad = this.deps
         .loadContext(lessonId)
         .then((c) => {
-          this.context = c?.trim() || null;
+          this.context = c?.context?.trim() || null;
+          this.narration = c?.narration ?? {};
           this.log(this.context ? `lab context loaded (${this.context.length} chars)` : 'no lab context for this lab');
         })
         .catch((err) => this.log(`lab context unavailable: ${(err as Error).message.slice(0, 120)}`));
     }
     return this.contextLoad ?? Promise.resolve();
+  }
+
+  /**
+   * Answers "say that again" / "what do I do now?" without the model. Returns false when it cannot ("what now?" before
+   * any narration has played), so the question goes to the model instead.
+   */
+  private quickAnswer(intent: Intent, asked: string): boolean {
+    let text: string;
+    if (intent === 'repeat') text = this.lastReply ?? NOTHING_SAID_YET;
+    else {
+      const line = this.lastCue ? this.narration[this.lastCue] : undefined;
+      if (!line) return false;
+      text = line;
+    }
+    if (this.mode === 'off') {
+      this.deps.send({ type: 'coach_off' });
+      return true;
+    }
+    if (this.current) this.cancel('superseded');
+    const id = `c${++this.counter}`;
+    const mine = { id, reason: 'reply' as CoachReason, ctrl: new AbortController() };
+    this.current = mine;
+    this.log(`quick answer (${intent})`);
+    this.remember(asked, text);
+    void this.deliver(mine, text, { provider: 'none', blocked: false, degraded: false, quick: intent });
+    return true;
+  }
+
+  private remember(asked: string, answered: string) {
+    this.history.push({ role: 'user', text: asked }, { role: 'assistant', text: answered });
+    if (this.history.length > MAX_HISTORY_TURNS * 2) this.history.splice(0, this.history.length - MAX_HISTORY_TURNS * 2);
+  }
+
+  /** Sends a finished reply: its text, then (voice on) its audio. Clears it as the current reply when done. */
+  private async deliver(mine: { id: string; reason: CoachReason; ctrl: AbortController }, text: string, meta: { provider: string; blocked: boolean; degraded: boolean; quick?: Intent }) {
+    const voice = this.voice && this.voiceAvailable;
+    this.lastReply = text;
+    this.deps.send({ type: 'coach', id: mine.id, text, reason: mine.reason, ...meta, voice });
+    if (voice) await this.speak(mine.id, text, mine.ctrl.signal);
+    if (this.current === mine) this.current = null;
   }
 
   /** Stops the reply in progress (or only reply `id`) and tells the browser to drop it. */
@@ -236,11 +295,7 @@ export class CoachSession {
     }
     if (ctrl.signal.aborted) return; // cancelled while thinking: nothing is sent, and it is not remembered
 
-    this.history.push({ role: 'user', text: historyText }, { role: 'assistant', text });
-    if (this.history.length > MAX_HISTORY_TURNS * 2) this.history.splice(0, this.history.length - MAX_HISTORY_TURNS * 2);
-    const voice = this.voice && this.voiceAvailable;
-    this.deps.send({ type: 'coach', id, text, reason, provider: provider.name, blocked, degraded, voice });
-    if (voice) await this.speak(id, text, ctrl.signal);
-    if (this.current === mine) this.current = null;
+    this.remember(historyText, text);
+    await this.deliver(mine, text, { provider: provider.name, blocked, degraded });
   }
 }

@@ -100,3 +100,16 @@ One voice at a time, in this order (`src/floor.ts`):
 The browser can stop a reply with `{type:'cancel', id}`. `thinking` now carries the reply's `id`. A narrating or
 talking state the browser never clears expires (30 s and 60 s). Floor and cancel messages have their own cap
 (120 a minute), apart from the 40 a minute for other messages and the 5 questions a minute.
+
+## Phase 3: quick answers
+
+Two kinds of question are answered without the model (`src/intents.ts`): instant, free, and unable to leak anything.
+They do not count toward the questions-per-minute limit, and the reply carries `quick`.
+
+- **"Say that again"** (repeat, pardon, what did you say…): the coach's last reply, word for word.
+- **"What do I do now?"** (what's next, I'm lost…): the narration line the student heard last, which is their current
+  step. The browser names it with `{type:'floor', narrating:true, cue:'<cue id>'}`; the lines come with the lab
+  context (`narration`, by cue id). Before any narration has played, the question goes to the model.
+
+Only a whole utterance matches, after filler ("um", "sorry", "can you", "please") is stripped; "what do I do with the
+ammeter?" is a real question and goes to the model.

@@ -7,6 +7,7 @@ import { ProviderRegistry } from './providers';
 import { MODES, type Assignment, type ClientMessage, type ServerMessage } from './protocol';
 import { CoachSession } from './session';
 import { RateWindow } from './rateLimit';
+import { matchIntent } from './intents';
 import { createTts } from './voice/tts';
 
 // Local development keys live in ai-coach/.env (untracked). Never log their values.
@@ -94,7 +95,8 @@ wss.on('connection', async (ws: WebSocket, req) => {
   const loadContext = async (lessonId: string) => {
     const res = await fetch(`${LESSON_LOADER_URL}/internal/lessons/${encodeURIComponent(lessonId)}/context`, { headers: { 'x-internal-key': INTERNAL_KEY } });
     if (!res.ok) return null;
-    return ((await res.json()) as { context?: string }).context ?? null;
+    const body = (await res.json()) as { context?: string; narration?: Record<string, string> };
+    return { context: body.context ?? '', narration: body.narration ?? {} };
   };
   const session = new CoachSession({ registry, loadAssignment, loadContext, tts, send, log: (l) => console.log(`[ai-coach ${tag}] ${l}`) });
   console.log(`[ai-coach ${tag}] connected (provider ${registry.active.name})`);
@@ -116,7 +118,8 @@ wss.on('connection', async (ws: WebSocket, req) => {
     if (!(cheap ? floorMessages : messages).take()) return send({ type: 'error', message: 'Slow down a little.' });
     if (msg.type === 'mode' && !(MODES as string[]).includes(msg.mode)) return;
     if (msg.type === 'ask' && (typeof msg.text !== 'string' || !msg.text.trim())) return;
-    if (msg.type === 'ask' && !asks.take()) {
+    // "Say that again" / "what do I do now?" are answered without the model, so they do not use up the limit.
+    if (msg.type === 'ask' && !matchIntent(msg.text) && !asks.take()) {
       return send({ type: 'error', message: `You can ask ${ASKS_PER_MINUTE} questions a minute. Try again in ${asks.secondsLeft()} seconds.` });
     }
     void session.handle(msg).catch((err) => {

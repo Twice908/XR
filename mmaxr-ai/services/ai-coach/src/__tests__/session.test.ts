@@ -217,7 +217,7 @@ describe('motion sandbox', () => {
     it('is loaded once, on the first question, and stays in the system prompt', async () => {
       const { registry, seen } = fakeRegistry('What did you expect?');
       let loads = 0;
-      const s = new CoachSession({ registry, loadAssignment: async () => ({ submitted: false, tubes }), loadContext: async () => (loads++, 'Bench "Ripple tank": a tank and an oscilloscope.'), send: () => undefined });
+      const s = new CoachSession({ registry, loadAssignment: async () => ({ submitted: false, tubes }), loadContext: async () => (loads++, { context: 'Bench "Ripple tank": a tank and an oscilloscope.', narration: {} }), send: () => undefined });
       await s.handle({ type: 'hello', lessonId: 'physics-sound', title: 'Sound', labType: 'physics_waves_sound' });
       await s.handle({ type: 'event', kind: 'idle', snapshot });
       expect(loads).toBe(0);

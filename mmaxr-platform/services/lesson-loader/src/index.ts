@@ -721,7 +721,10 @@ app.get('/internal/lessons/:lessonId/context', (req, res) => {
   } catch {
     narration = null;
   }
-  res.json({ lessonId: lesson.lessonId, context: buildCoachContext(lesson, narration) });
+  // `narration`: each recorded line by its cue id, so the coach can repeat the step the student just heard.
+  const lines: Record<string, string> = {};
+  for (const c of narration?.cues ?? []) if (typeof c?.id === 'string' && typeof c?.text === 'string') lines[c.id] = c.text;
+  res.json({ lessonId: lesson.lessonId, context: buildCoachContext(lesson, narration), narration: lines });
 });
 
 // Service-to-service: the coach and the rubric engine read the truth here. Never exposed to browsers.
