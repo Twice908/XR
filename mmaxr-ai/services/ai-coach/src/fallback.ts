@@ -66,6 +66,24 @@ const families: { types: string[]; lines: Lines }[] = [
     },
   },
   {
+    types: ['chemistry_atom_builder', 'chemistry_ionic_bonding'],
+    lines: {
+      prediction_mismatch: 'Not quite there yet. Look at your build again: which part does not match the mission goal?',
+      ready_to_submit: 'Every mission is done. Which build taught you the most, and why?',
+      idle: 'Stuck? Read the mission goal again and say what your build still needs.',
+      ask: 'Tell me what the mission asks for and what your build has now. What is different between the two?',
+    },
+  },
+  {
+    types: ['biology_cell_explorer'],
+    lines: {
+      prediction_mismatch: 'Not quite. What did you see in the two cells that could help you think again?',
+      ready_to_submit: 'You have explored both cells. Which difference between them surprised you most?',
+      idle: 'Stuck? Fly closer to one part of the cell and say what you think it does.',
+      ask: 'Tell me what you have noticed in each cell. How are the plant cell and the animal cell different?',
+    },
+  },
+  {
     types: ['physics_mechanics_sandbox', 'physics_electromagnetism', 'physics_circuits', 'physics_simple_machines', 'physics_fundamentals_sandbox', 'science_matter_properties'],
     lines: {
       prediction_mismatch: 'That was not what you predicted. What happened in the experiment that you did not expect?',

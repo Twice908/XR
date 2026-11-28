@@ -165,15 +165,13 @@ describe('explanations', () => {
     expect(needsExplanation(record(lesson, a, 'case', 'concave_at_c', { position: 'at_c', size: 'same_size', nature: 'real', orientation: 'inverted' }))).toBe(false);
     expect(needsExplanation(record(lesson, a, 'case', 'concave_at_f', { position: 'at_f', size: 'enlarged', nature: 'real', orientation: 'inverted' }))).toBe(true);
   });
-  it('is refused when too short, too quick, or not about this session\'s own run, without saying what the answer is', () => {
+  it('is refused when too short or too quick, without saying what the answer is', () => {
     const { lesson, a, t, angle } = setup();
     const short = explain(lesson, a, t, `${angle} degrees`);
     expect(short).toMatchObject({ error: expect.stringMatching(/at least/) });
     const quick = explain(lesson, a, t, `The beam came in at ${angle} degrees and went out the other way`, {}, T0 + 2000);
     expect(quick).toMatchObject({ error: expect.stringMatching(/moment/) });
-    const generic = explain(lesson, a, t, 'The angle of incidence is equal to the angle of reflection by the first law of reflection');
-    expect(generic).toMatchObject({ error: expect.stringMatching(/setup shown above/) });
-    for (const r of [short, quick, generic]) expect(JSON.stringify(r)).not.toContain(String(angle));
+    for (const r of [short, quick]) expect(JSON.stringify(r)).not.toContain(String(angle));
   });
   it('is accepted with this session\'s number as digits or words, and kept as first given', () => {
     const { lesson, a, t, angle } = setup();
@@ -193,6 +191,13 @@ describe('explanations', () => {
     const ok = explain(lesson, a, t, said, { inputMode: 'voice', speakMs: 9000, pasted: 0, blurs: 2 });
     expect(ok).toHaveProperty('explanation.inputMode', 'voice');
     expect(ok).toHaveProperty('explanation.blurs', 2);
+  });
+  it('accepts an explanation without the setup number, and records whether it was used', () => {
+    const { lesson, a, t, angle } = setup();
+    const without = explain(lesson, a, t, 'The beam bounced off and went away on the other side just as I thought it would');
+    expect(without).toHaveProperty('explanation.usedSetup', false);
+    const { lesson: l2, a: a2, t: t2 } = setup();
+    expect(explain(l2, a2, t2, `I aimed at ${angle} degrees and watched the beam bounce away on the other side`)).toHaveProperty('explanation.usedSetup', true);
   });
   it('anchors match whole numbers only', () => {
     expect(meetsAnchors('it was 140 degrees', [['40']])).toBe(false);

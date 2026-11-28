@@ -417,7 +417,7 @@ export class OpticsHud {
   private explainPrompt(t: Trial): string {
     if (t.kind === 'case') return 'Your prediction differed from the trace. Say what you pictured, what the trace showed, and what changed your mind.'
     if (t.kind === 'plane') return 'Describe what the beams did on this surface in your own run, and how that compared with what you predicted.'
-    return 'Describe your setup (include the number or side given in "Your setup" above), what you saw the beam do, and how that compared with your prediction.'
+    return 'Describe what you saw the beam do and how that compared with your prediction. Mentioning your own angle or side helps.'
   }
 
   private needsAudio(): boolean {

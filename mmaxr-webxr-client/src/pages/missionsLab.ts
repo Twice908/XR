@@ -34,6 +34,8 @@ import { AtomScene, CHEM_PROPS } from '../lab/atomScene'
 import type { BenchScene } from '../lab/benchScene'
 import { IonicScene } from '../lab/ionicScene'
 import { MissionsHud } from '../lab/missionsHud'
+import { startCoach, type LabCoach } from '../lab/coach'
+import type { Snapshot } from '../services/aiCoach'
 import { Narrator } from '../lab/narrator'
 import { sound as labSound } from '../lab/sound'
 import { getStage } from '../stage/index.js'
@@ -70,6 +72,28 @@ function labVoice() {
   return s.sound
 }
 
+/**
+ * What the coach is told about a mission lab: only what is on the student's screen (the mission and its goal, the
+ * live readout of their build, feedback and hints already shown, the question in front of them and how they answered).
+ */
+export function missionsSnapshot(run: MissionsRun, readout: string): Snapshot {
+  const lines: string[] = []
+  const m = run.mission
+  if (run.phase === 'intro') lines.push('The student has not started the first mission yet.')
+  if (m && run.phase !== 'done') lines.push(`Mission ${run.missionIndex + 1} of ${run.lesson.missions.length}: ${m.title}. Goal on screen: ${m.goalText}`)
+  if (run.phase === 'build' && readout.trim()) lines.push(`Their build right now: ${readout.replace(/\s+/g, ' ').trim()}`)
+  if (run.feedback) lines.push(`Feedback shown after their last try: ${run.feedback}`)
+  run.hints.forEach((t, i) => lines.push(`Hint ${i + 1} already shown to them: ${t}`))
+  const q = run.question
+  if (q) {
+    lines.push(`Checkpoint question on screen: ${q.prompt} Options: ${q.options.map((o) => o.label).join(' / ')}.`)
+    const a = run.answers[q.id]
+    if (a) lines.push(`They answered "${q.options.find((o) => o.id === a.yourAnswer)?.label ?? a.yourAnswer}", which was ${a.correct ? 'right' : 'not right'}.`)
+  }
+  if (run.phase === 'done') lines.push('The student has finished every mission.')
+  return { phase: run.phase, tools: [], activeTool: null, tubes: [], lines }
+}
+
 /** Runs one mission lab (Atom Builder or Ionic Bonding). Returns a cleanup function. */
 async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => void, changed: () => void) => Bench): Promise<() => void> {
   const { root, status, session, lesson } = ctx
@@ -77,6 +101,7 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
   const { progress, questions } = await fetchProgress(session)
   const run = new MissionsRun(lesson, progress, (verb, object, at) => telemetry.emit(verb, object, at))
   let hud: MissionsHud | null = null
+  let labCoach: LabCoach | null = null
   let working = false
   let lastRefusal = 0
 
@@ -94,6 +119,7 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
     if (run.feedback) run.feedback = null
     hud?.update()
   })
+  const snap = () => missionsSnapshot(run, bench.readout.textContent ?? '')
 
   const guard = <T,>(fn: () => T): T | undefined => {
     try {
@@ -144,6 +170,7 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
           run.recordCheck(r, state)
           if (!r.met) {
             voice.cue('deny')
+            labCoach?.client.event('prediction_mismatch', `The student checked their build and it does not meet the mission goal yet.${r.feedback ? ` They were told: ${r.feedback}` : ''}`, snap())
             return
           }
           voice.arrive()
@@ -164,6 +191,7 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
           const r = await answerQuestion(session, body)
           run.recordAnswer(r)
           voice.cue(r.correct ? 'confirm' : 'deny')
+          if (!r.correct) labCoach?.client.event('prediction_mismatch', 'The student answered a checkpoint question and got it wrong.', snap())
         }),
       onNext: () => {
         const next = run.next()
@@ -172,6 +200,7 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
           void busy('Adding up…', async () => {
             const sum = await finishRun(session)
             run.finish(sum)
+            labCoach?.client.reveal(snap())
             voice.arrive()
             voice.chord(LESSON_CHORD, { spreadSeconds: 0.11, gain: 0.05 })
           })
@@ -192,8 +221,17 @@ async function runMissions(ctx: Ctx, makeBench: (refuse: (reason: string) => voi
     beginMission()
   }
   root.appendChild(hud.root)
+  labCoach = startCoach({
+    session,
+    hello: { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary },
+    snapshot: snap,
+    mount: hud,
+    finished: () => run.phase === 'done',
+    activityRoot: root,
+  })
 
   const cleanup = () => {
+    labCoach?.dispose()
     narrator.dispose()
     hud?.destroy()
     bench.dispose()

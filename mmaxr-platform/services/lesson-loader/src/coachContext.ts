@@ -44,6 +44,12 @@ export function buildCoachContext(lesson: any, narration: NarrationDoc | null): 
     if (clean(i?.name)) add(`Indicator: ${clean(i.name)}${clean(i.source) ? ` (${clean(i.source)})` : ''}.`);
   }
 
+  // Mission labs (Atom Builder, Ionic Bonding, Plant vs Animal Cell): each mission's title and goal, as on its card.
+  // Never their hints, checks or checkpoint questions.
+  for (const [i, m] of (Array.isArray(lesson?.missions) ? lesson.missions : []).entries()) {
+    if (clean(m?.title)) add(`Mission ${i + 1} "${clean(m.title)}": ${clean(m.goalText)}`);
+  }
+
   // Biology journeys: the stops, by the name shown on screen.
   const stops = (Array.isArray(lesson?.checkpoints) ? lesson.checkpoints : []).map((c: any) => clean(c?.organName)).filter(Boolean);
   if (stops.length) add(`Journey stops, in order: ${stops.join(', ')}.`);

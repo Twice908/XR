@@ -1,7 +1,6 @@
-import { XapiVerb } from '@mmaxr/schema'
 import type { BiologyLessonContract } from '@mmaxr/schema'
 import { go } from '../router'
-import { CoachClient, loadMode } from '../services/aiCoach'
+import type { CoachClient } from '../services/aiCoach'
 import type { LabSession } from '../services/session'
 import { answerQuestion, fetchQuiz, submitChallenge, uploadAudio, visitStop, watchedStop } from '../services/biologyApi'
 import { sensorTracker } from '../services/sensorTracker'
@@ -11,7 +10,7 @@ import { buildBiologySnapshot, say } from '../lab/biologyCoach'
 import { BiologyScene } from '../lab/biologyScene'
 import { RespiratoryScene } from '../lab/respiratoryScene'
 import type { JourneyScene } from '../lab/journeyScene'
-import { CoachPanel } from '../lab/coachPanel'
+import { startCoach } from '../lab/coach'
 import { JourneyExperiment, StateError } from '../state/biology'
 import { toast } from '../ui/components'
 
@@ -165,46 +164,21 @@ export async function startBiologyLab(ctx: Ctx): Promise<() => void> {
   root.appendChild(hud.root)
 
   // ---- AI coach ----
-  const client = new CoachClient()
-  coach = client
-  const panel: CoachPanel = new CoachPanel({
-    initialMode: loadMode(),
-    setOpen: (open) => hud!.setPanelOpen(panel.el, open),
-    onAsk: (text) => {
-      client.ask(text, buildBiologySnapshot(exp))
-      telemetry.emit(XapiVerb.INVESTIGATED, { action: 'ask_coach', data: { length: text.length } })
-    },
-    onMode: (mode) => {
-      client.setMode(mode)
-      telemetry.emit(XapiVerb.INVESTIGATED, { action: 'coach_mode', value: mode })
-    },
+  const labCoach = startCoach({
+    session,
+    hello: { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary },
+    snapshot: () => buildBiologySnapshot(exp),
+    mount: hud,
+    finished: () => exp.stage === 'done',
+    idleMs: 90_000,
+    idleText: say.idle,
+    activityRoot: root,
   })
-  hud.attachPanel(panel.el, panel.toggle, (open) => panel.setOpenState(open), panel.bubble)
-  let info: { provider?: string; configured?: boolean } = {}
-  client.onStatus((s) => panel.setStatus(s, info))
-  client.onMessage((m) => {
-    if (m.type === 'ready') {
-      info = { provider: m.provider, configured: m.configured }
-      panel.setStatus('online', info)
-    } else if (m.type === 'thinking') panel.setThinking(true)
-    else if (m.type === 'coach') {
-      panel.addCoach(m.text, m.reason, m.degraded)
-      if (m.reason === 'wrapup') hud!.setPanelOpen(panel.el, true)
-    } else if (m.type === 'coach_off' || m.type === 'error') panel.setThinking(false)
-  })
-  client.connect({ sessionId: session.sessionId, studentId: session.studentId, token: session.token }, { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary })
-  let lastActive = Date.now()
-  root.addEventListener('pointerdown', () => (lastActive = Date.now()))
-  idleTimer = window.setInterval(() => {
-    if (exp.stage !== 'done' && Date.now() - lastActive > 90_000) {
-      lastActive = Date.now()
-      client.event('idle', say.idle, buildBiologySnapshot(exp))
-    }
-  }, 10_000)
+  coach = labCoach.client
 
   const cleanup = () => {
     if (idleTimer !== null) window.clearInterval(idleTimer)
-    coach?.disconnect()
+    labCoach.dispose()
     hud?.destroy()
     scene.dispose()
   }

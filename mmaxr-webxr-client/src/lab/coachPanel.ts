@@ -85,6 +85,18 @@ export class CoachPanel {
     }
   }
 
+  /** A line from the system, not the coach: a limit reached, the coach being off or offline. */
+  addNote(text: string) {
+    this.setThinking(false)
+    this.log.appendChild(h('div', { class: 'coach-note', role: 'status' }, text))
+    this.scroll()
+  }
+
+  /** Shown once the coach falls back to its simple questions (no AI model available). */
+  markBasic() {
+    this.statusText.textContent = 'Basic mode'
+  }
+
   addStudent(text: string) {
     this.log.appendChild(h('div', { class: 'coach-msg coach-from-student' }, text))
     this.scroll()
@@ -94,7 +106,8 @@ export class CoachPanel {
     this.setThinking(false)
     if (degraded && !this.basicNoticeShown) {
       this.basicNoticeShown = true
-      this.log.appendChild(h('div', { class: 'coach-note' }, 'The coach is in basic mode right now, so it can only ask simple guiding questions.'))
+      this.markBasic()
+      this.log.appendChild(h('div', { class: 'coach-note' }, 'The coach cannot reach its AI right now, so it can only ask simple guiding questions.'))
     }
     this.log.appendChild(h('div', { class: 'coach-msg coach-from-coach' }, text))
     this.scroll()

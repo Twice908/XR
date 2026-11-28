@@ -41,10 +41,16 @@ export interface CoachHello {
   summary?: string
 }
 
+/** What the coach service sends (mmaxr-ai/services/ai-coach/src/protocol.ts). Voice messages are listed for later. */
 export type CoachServerMessage =
-  | { type: 'ready'; mode: CoachMode; provider: string; model: string; configured: boolean }
-  | { type: 'thinking' }
-  | { type: 'coach'; id: string; text: string; reason: 'reply' | 'nudge' | 'wrapup'; provider: string; blocked: boolean; degraded: boolean }
+  | { type: 'ready'; mode: CoachMode; provider: string; model: string; configured: boolean; voiceAvailable?: boolean; voice?: boolean; sttAvailable?: boolean }
+  | { type: 'thinking'; id?: string }
+  | { type: 'coach'; id: string; text: string; reason: 'reply' | 'nudge' | 'wrapup'; provider: string; blocked: boolean; degraded: boolean; voice?: boolean; quick?: 'repeat' | 'next'; streamed?: boolean }
+  | { type: 'coach_part'; id: string; seq: number; text: string }
+  | { type: 'coach_audio'; id: string; seq: number; last: boolean; format: 'mp3'; data: string; text: string; error?: boolean }
+  | { type: 'coach_cancelled'; id: string; reason: 'superseded' | 'talking' | 'narration' | 'cancelled' }
+  | { type: 'transcript'; text: string; error?: string }
+  | { type: 'voice'; on: boolean; available: boolean }
   | { type: 'mode'; mode: CoachMode }
   | { type: 'coach_off' }
   | { type: 'error'; message: string }

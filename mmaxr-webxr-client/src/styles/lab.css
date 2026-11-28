@@ -1056,3 +1056,17 @@
 .lab-caption[hidden] {
   display: none;
 }
+
+/* The coach's button in a lab without a HUD bar (the cell lab's frame): top right, above the frame. */
+.coach-dock {
+  position: absolute;
+  top: 12px;
+  right: var(--spacing-4);
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+}
+.lab > .panel-coach,
+.lab > .coach-bubble {
+  z-index: 41;
+}

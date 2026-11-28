@@ -1,12 +1,11 @@
-import { XapiVerb } from '@mmaxr/schema'
 import type { OpticsLessonContract } from '@mmaxr/schema'
 import { go } from '../router'
-import { CoachClient, loadMode } from '../services/aiCoach'
+import type { CoachClient } from '../services/aiCoach'
 import type { LabSession } from '../services/session'
 import { lockIn, runTrial, submitExplanation, uploadAudio } from '../services/opticsApi'
 import { sensorTracker } from '../services/sensorTracker'
 import { telemetry } from '../services/telemetry'
-import { CoachPanel } from '../lab/coachPanel'
+import { startCoach } from '../lab/coach'
 import { buildOpticsSnapshot, say } from '../lab/opticsCoach'
 import { OpticsHud, type OpticsHudHandlers } from '../lab/opticsHud'
 import { OpticsScene, type Stage } from '../lab/opticsScene'
@@ -282,42 +281,17 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
   root.appendChild(hud.root)
 
   // ---- AI coach ----
-  const client = new CoachClient()
-  coach = client
-  const panel: CoachPanel = new CoachPanel({
-    initialMode: loadMode(),
-    setOpen: (open) => hud!.setPanelOpen(panel.el, open),
-    onAsk: (text) => {
-      client.ask(text, buildOpticsSnapshot(exp))
-      telemetry.emit(XapiVerb.INVESTIGATED, { action: 'ask_coach', data: { length: text.length } })
-    },
-    onMode: (mode) => {
-      client.setMode(mode)
-      telemetry.emit(XapiVerb.INVESTIGATED, { action: 'coach_mode', value: mode })
-    },
+  const labCoach = startCoach({
+    session,
+    hello: { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary },
+    snapshot: () => buildOpticsSnapshot(exp),
+    mount: hud,
+    finished: () => exp.phase === 'reveal',
+    idleMs: 75_000,
+    idleText: say.idle,
+    activityRoot: root,
   })
-  hud.attachPanel(panel.el, panel.toggle, (open) => panel.setOpenState(open), panel.bubble)
-  let info: { provider?: string; configured?: boolean } = {}
-  client.onStatus((s) => panel.setStatus(s, info))
-  client.onMessage((m) => {
-    if (m.type === 'ready') {
-      info = { provider: m.provider, configured: m.configured }
-      panel.setStatus('online', info)
-    } else if (m.type === 'thinking') panel.setThinking(true)
-    else if (m.type === 'coach') {
-      panel.addCoach(m.text, m.reason, m.degraded)
-      if (m.reason === 'wrapup') hud!.setPanelOpen(panel.el, true)
-    } else if (m.type === 'coach_off' || m.type === 'error') panel.setThinking(false)
-  })
-  client.connect({ sessionId: session.sessionId, studentId: session.studentId, token: session.token }, { lessonId: lesson.lessonId, title: lesson.title, labType: lesson.type, summary: lesson.summary })
-  let lastActive = Date.now()
-  root.addEventListener('pointerdown', () => (lastActive = Date.now()))
-  idleTimer = window.setInterval(() => {
-    if (exp.phase !== 'reveal' && Date.now() - lastActive > 75_000) {
-      lastActive = Date.now()
-      client.event('idle', say.idle, buildOpticsSnapshot(exp))
-    }
-  }, 10_000)
+  coach = labCoach.client
 
   await scene.load(lesson, (done, total) => {
     status.querySelector('p')!.textContent = `Preparing your lab… ${done}/${total}`
@@ -337,7 +311,7 @@ export async function startOpticsLab(ctx: Ctx): Promise<() => void> {
 
   function cleanup() {
     if (idleTimer !== null) window.clearInterval(idleTimer)
-    coach?.disconnect()
+    labCoach.dispose()
     hud?.destroy()
     scene?.dispose()
   }

@@ -27,6 +27,8 @@ export interface Explanation {
   pasted: number;
   blurs: number;
   words: number;
+  /** Whether the student mentioned their own setup (the angle, distance or side they were given). Recorded, not required. */
+  usedSetup?: boolean;
   at: number;
   audioUrl?: string;
 }
@@ -278,9 +280,11 @@ export function checkExplanation(lesson: OpticsLessonContract, a: OpticsAssignme
   if (lesson.config.requireAudioExplanation && inputMode === 'voice' && speakMs < 3000) return { error: 'Say a little more: the recording is too short.' };
   const dwellMs = Math.max(0, now - t.resultAt);
   if (dwellMs < (lesson.config.minExplainDwellMs ?? 8000)) return { error: 'Take a moment with the diagram first, then explain what you saw.' };
-  if (!meetsAnchors(text, anchorsOf(lesson, kind, id))) return { error: 'Include the number or side from the setup shown above the box (the angle, distance or side you were given), and say what you saw.' };
+  // Mentioning the setup's number or side is no longer required: an explanation in the student's own words is accepted
+  // either way. Whether they did is kept for the instructor.
+  const usedSetup = meetsAnchors(text, anchorsOf(lesson, kind, id));
   return {
-    explanation: { text, inputMode, speakMs, thinkMs: Math.max(0, Math.min(3_600_000, Number(input.thinkMs) || 0)), dwellMs, pasted: Math.max(0, Math.min(100_000, Number(input.pasted) || 0)), blurs: Math.max(0, Math.min(1000, Number(input.blurs) || 0)), words, at: now },
+    explanation: { text, inputMode, speakMs, thinkMs: Math.max(0, Math.min(3_600_000, Number(input.thinkMs) || 0)), dwellMs, pasted: Math.max(0, Math.min(100_000, Number(input.pasted) || 0)), blurs: Math.max(0, Math.min(1000, Number(input.blurs) || 0)), words, usedSetup, at: now },
   };
 }
 

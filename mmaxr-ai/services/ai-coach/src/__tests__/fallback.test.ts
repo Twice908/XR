@@ -16,6 +16,8 @@ const labs = [
   'physics_fundamentals_sandbox',
   'science_matter_properties',
   'chemistry_atom_builder',
+  'chemistry_ionic_bonding',
+  'biology_cell_explorer',
   undefined,
 ];
 

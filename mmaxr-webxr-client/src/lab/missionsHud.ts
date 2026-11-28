@@ -25,6 +25,8 @@ export class MissionsHud {
   private card = h('section', { class: 'bio-card ml-card', 'aria-live': 'polite' })
   private stepper = h('ol', { class: 'steps', 'aria-label': 'Missions' })
   private soundToggle: HTMLButtonElement
+  private toggles: HTMLElement
+  private panelListeners = new Map<HTMLElement, (open: boolean) => void>()
   private busyLabel: string | null = null
 
   constructor(
@@ -38,18 +40,32 @@ export class MissionsHud {
     private readonly caption: HTMLElement,
   ) {
     this.soundToggle = button(sound.muted ? 'Sound off' : 'Sound on', { size: 'sm', variant: 'ghost', onClick: () => this.toggleSound() })
+    this.toggles = h('div', { class: 'row hud-toggles' }, this.soundToggle)
     run.lesson.missions.forEach((m, i) => this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, String(i + 1)), h('span', { class: 'step-l' }, m.title))))
     this.stepper.append(h('li', { class: 'step' }, h('span', { class: 'step-n' }, '★'), h('span', { class: 'step-l' }, 'Done')))
     this.root = h(
       'div',
       { class: 'hud ml-hud' },
-      h('header', { class: 'hud-top' }, h('div', { class: 'row' }, button('← Back', { variant: 'ghost', size: 'sm', onClick: () => handlers.onBack() }), h('h1', { class: 't-label hud-title' }, run.lesson.title)), this.stepper, h('div', { class: 'row hud-toggles' }, this.soundToggle)),
+      h('header', { class: 'hud-top' }, h('div', { class: 'row' }, button('← Back', { variant: 'ghost', size: 'sm', onClick: () => handlers.onBack() }), h('h1', { class: 't-label hud-title' }, run.lesson.title)), this.stepper, this.toggles),
       this.readout,
       this.caption,
       this.card,
     )
     window.addEventListener('resize', this.layout)
     this.update()
+  }
+
+  /** A side panel (the coach): its toggle sits beside the sound switch. Same shape as the other labs' HUDs. */
+  attachPanel(panel: HTMLElement, toggle: HTMLElement, onOpenChange: (open: boolean) => void, overlay?: HTMLElement) {
+    this.panelListeners.set(panel, onOpenChange)
+    this.toggles.insertBefore(toggle, this.soundToggle)
+    this.root.appendChild(panel)
+    if (overlay) this.root.appendChild(overlay)
+  }
+
+  setPanelOpen(panel: HTMLElement, open: boolean) {
+    panel.classList.toggle('open', open)
+    this.panelListeners.get(panel)?.(open)
   }
 
   private toggleSound() {

@@ -28,6 +28,18 @@ describe('coach context', () => {
     expect(c).toContain("What the lab's narrator tells the student");
   });
 
+  it('carries mission goals but never mission hints or checkpoint questions', () => {
+    for (const id of ['atom-builder', 'ionic-bonding', 'cell-explorer']) {
+      const l = lessons.find((x) => x.lessonId === id);
+      const c = contextOf(id);
+      expect(c).toContain(`Mission 1 "${l.missions[0].title}"`);
+      for (const m of l.missions) {
+        for (const hint of m.hints ?? []) if (typeof hint === 'string' && hint.length > 20) expect(c).not.toContain(hint);
+        for (const q of m.questions ?? []) expect(c).not.toContain(q.prompt);
+      }
+    }
+  });
+
   it('never carries concept-card examples or formulas (they can spell out an answer)', () => {
     const c = contextOf('physics-fundamentals');
     expect(c).not.toContain('5 m arrow');
