@@ -569,9 +569,16 @@ export class SoundScene {
     this.rings.push(ring)
     return ring
   }
+  /**
+   * Removes every ring at once. A ring that is cut short still reports `done`, because clap/shout/ping await it and
+   * keep the bench busy until it does: without this, switching place mid-clap left `busy` stuck and every later
+   * clap, shout and ping was ignored.
+   */
   private clearRings() {
-    for (const r of this.rings) r.mesh.parent?.remove(r.mesh)
+    const cut = this.rings
     this.rings = []
+    for (const r of cut) r.mesh.parent?.remove(r.mesh)
+    for (const r of cut) r.done?.()
   }
   private emit(seconds: number, scale = 1) {
     this.emitUntil = performance.now() / 1000 + seconds
