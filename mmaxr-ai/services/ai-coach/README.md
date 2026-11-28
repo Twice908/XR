@@ -146,3 +146,23 @@ reply's audio ends with an empty `last: true` piece (the last sentence is only k
 - Timed against a local stand-in writing at a model's pace (first token 0.5 s): first sentence 1.5 s, its audio
   2.0 s, whole text 3.1 s. Without streaming the first audio would come after about 3.6 s.
 - `ANTHROPIC_BASE_URL` points the provider at another endpoint (default https://api.anthropic.com).
+
+## Setting up voice on a machine (macOS, Apple silicon)
+
+Everything runs locally and is free. Installed outside the repo (the models are large):
+
+```bash
+V=~/.local/share/mmaxr-voice && mkdir -p $V/voices $V/whisper
+uv venv $V/piper-venv --python 3.12 && uv pip install --python $V/piper-venv/bin/python piper-tts   # Piper 1.8
+cp mmaxr-cell-explorer/audio/en_GB-jenny_dioco-medium.onnx $V/voices/                             # the narration voice
+curl -fL -o $V/voices/en_GB-jenny_dioco-medium.onnx.json https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/jenny_dioco/medium/en_GB-jenny_dioco-medium.onnx.json
+brew install whisper-cpp ffmpeg lame
+curl -fL -o $V/whisper/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin   # SHA-1 137c40403d78fd54d454da0f9bd998f78703390c
+```
+
+Then in `ai-coach/.env`: `PIPER_BIN=$V/piper-venv/bin/piper`, `PIPER_MODEL=$V/voices/en_GB-jenny_dioco-medium.onnx`,
+`WHISPER_BIN=$(which whisper-cli)`, `WHISPER_MODEL=$V/whisper/ggml-base.en.bin` (absolute paths). The start-up line
+shows `voice piper · listening whisper.cpp` when both are found.
+
+Measured on an M-series Mac: Piper about 0.5 s per sentence (including start-up); whisper.cpp base.en about 0.25 s
+for a short question once warm (the very first run after install takes a few seconds to set up the GPU).
